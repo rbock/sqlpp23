@@ -29,6 +29,4 @@
 # set(BUILD_SQLITE3_CONNECTOR ON)
 # set(BUILD_SQLCIPHER_CONNECTOR ON)
 
-# set(USE_SYSTEM_DATE ON)
-
 FetchContent_MakeAvailable(sqlpp23)
