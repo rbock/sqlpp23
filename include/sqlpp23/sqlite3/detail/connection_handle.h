@@ -107,6 +107,4 @@ struct connection_handle {
     return true;
   }
 };
-} // namespace sqlpp::sqlite3::detail
-
-
+}  // namespace sqlpp::sqlite3::detail

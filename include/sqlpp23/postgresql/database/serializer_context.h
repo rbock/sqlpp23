@@ -30,7 +30,6 @@
 
 #include <cstddef>
 
-
 namespace sqlpp::postgresql {
 // Context for serialization
 struct context_t {
@@ -42,5 +41,4 @@ struct context_t {
 
   size_t _count{0};
 };
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

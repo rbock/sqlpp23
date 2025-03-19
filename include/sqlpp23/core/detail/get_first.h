@@ -29,7 +29,6 @@
 
 #include <type_traits>
 
-
 namespace sqlpp::detail {
 template <template <typename> class Predicate, typename Default, typename... T>
 struct get_first_if_impl;
@@ -50,5 +49,4 @@ struct get_first_if_impl<Predicate, Default, T, Rest...> {
 
 template <template <typename> class Predicate, typename Default, typename... T>
 using get_first_if = typename get_first_if_impl<Predicate, Default, T...>::type;
-} // namespace sqlpp::detail
-
+}  // namespace sqlpp::detail

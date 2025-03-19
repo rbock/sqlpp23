@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 namespace sqlpp::mysql {
 struct char_result_row_t {
   const char** data;
@@ -37,5 +36,4 @@ struct char_result_row_t {
     return data == rhs.data && len == rhs.len;
   }
 };
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql

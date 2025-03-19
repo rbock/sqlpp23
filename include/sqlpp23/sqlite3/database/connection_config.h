@@ -30,7 +30,6 @@
 #include <iostream>
 #include <string>
 
-
 namespace sqlpp::sqlite3 {
 struct connection_config {
   connection_config()
@@ -67,5 +66,4 @@ struct connection_config {
   bool debug;
   std::string password;
 };
-} // namespace sqlpp::sqlite3
-
+}  // namespace sqlpp::sqlite3

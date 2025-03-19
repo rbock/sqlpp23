@@ -42,7 +42,6 @@
 #endif
 #include <memory>
 
-
 namespace sqlpp::mysql {
 class bind_result_t {
   std::shared_ptr<detail::prepared_statement_handle_t> _handle;
@@ -416,5 +415,4 @@ class bind_result_t {
     }
   }
 };
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql

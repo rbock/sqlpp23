@@ -32,7 +32,6 @@
 #include <sqlpp23/core/clause/order_by.h>
 #include <sqlpp23/core/clause/using.h>
 
-
 namespace sqlpp::mysql {
 using blank_delete_t = statement_t<delete_t,
                                    no_single_table_t,
@@ -51,6 +50,4 @@ auto delete_from(_Table table)
   return {blank_delete_t().single_table(table)};
 }
 
-} // namespace sqlpp::mysql
-
-
+}  // namespace sqlpp::mysql

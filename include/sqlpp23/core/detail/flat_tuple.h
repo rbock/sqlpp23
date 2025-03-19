@@ -30,7 +30,6 @@
 #include <tuple>
 #include <utility>
 
-
 namespace sqlpp::detail {
 template <typename T>
 auto tupelize(T t) -> std::tuple<T> {
@@ -49,5 +48,4 @@ struct flat_tuple {
 
 template <typename... Args>
 using flat_tuple_t = typename flat_tuple<Args...>::type;
-} // namespace sqlpp::detail
-
+}  // namespace sqlpp::detail

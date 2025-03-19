@@ -26,9 +26,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include <sqlpp23/mysql/mysql.h>
-
 
 namespace sqlpp::mysql {
 // Get configuration for test connection
@@ -56,5 +54,4 @@ inline ::sqlpp::mysql::connection make_test_connection() {
   }
   return db;
 }
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql

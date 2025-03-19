@@ -101,8 +101,6 @@ struct pg_result {
 //    using namespace sqlpp::postgresql::dyn_pg;
 // to override the libpq functions with these function pointers
 
-
-
 namespace sqlpp::postgresql::dynamic {
 
 #define DYNDEFINE(NAME) extern decltype(::NAME)* NAME
@@ -143,6 +141,4 @@ DYNDEFINE(PQerrorMessage);
 /// empty for default)
 void init_pg(std::string libname);
 
-} // namespace sqlpp::postgresql::dynamic
-
-
+}  // namespace sqlpp::postgresql::dynamic

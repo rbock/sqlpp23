@@ -340,5 +340,4 @@ class bind_result_t {
 
   int size() const { return _handle->result.records_size(); }
 };
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

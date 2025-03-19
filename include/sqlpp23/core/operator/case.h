@@ -28,9 +28,9 @@
  */
 
 #include <sqlpp23/core/detail/type_set.h>
+#include <sqlpp23/core/name/char_sequence.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/name/char_sequence.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {

@@ -30,7 +30,6 @@
 #include <sqlpp23/postgresql/visibility.h>
 #include <string>
 
-
 namespace sqlpp::postgresql {
 struct DLL_PUBLIC connection_config {
   enum class sslmode_t {
@@ -88,5 +87,4 @@ struct DLL_PUBLIC connection_config {
   }
   bool operator!=(const connection_config& other) { return !operator==(other); }
 };
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

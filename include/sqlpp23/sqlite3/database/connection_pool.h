@@ -30,8 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/database/connection_pool.h>
 #include <sqlpp23/sqlite3/database/connection.h>
 
-
 namespace sqlpp::sqlite3 {
 using connection_pool = sqlpp::connection_pool<connection_base>;
-} // namespace sqlpp::sqlite3
-
+}  // namespace sqlpp::sqlite3

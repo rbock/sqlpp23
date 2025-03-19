@@ -34,8 +34,6 @@
 
 #include <memory>
 
-
-
 namespace sqlpp::mysql::detail {
 inline void connect(MYSQL* mysql, const connection_config& config) {
   if (config.connect_timeout_seconds != 0 &&
@@ -128,6 +126,4 @@ struct connection_handle {
 
   bool ping_server() const { return mysql_ping(native_handle()) == 0; }
 };
-} // namespace sqlpp::mysql::detail
-
-
+}  // namespace sqlpp::mysql::detail

@@ -30,7 +30,6 @@
 #include <ciso646>  // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
 
-
 namespace sqlpp::logic {
 template <bool... B>
 struct logic_helper;
@@ -52,5 +51,4 @@ struct none
     : public std::is_same<logic_helper<B...>, logic_helper<(B and false)...>> {
 };
 
-} // namespace sqlpp::logic
-
+}  // namespace sqlpp::logic

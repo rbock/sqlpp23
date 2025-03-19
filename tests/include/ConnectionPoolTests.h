@@ -33,9 +33,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <thread>
 #include <unordered_set>
 
-#include "tab_department.h"
 #include <sqlpp23/sqlpp23.h>
-
+#include "tab_department.h"
 
 namespace sqlpp::test {
 namespace {
@@ -262,5 +261,4 @@ void test_connection_pool(typename Pool::_config_ptr_t config,
   }
   test_destruction_order<Pool>(config);
 }
-} // namespace sqlpp::test
-
+}  // namespace sqlpp::test

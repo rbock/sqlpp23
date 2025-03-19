@@ -29,7 +29,6 @@
 
 #include <type_traits>
 
-
 namespace sqlpp::detail {
 template <typename Clause, typename OldStatement, typename NewClauseData>
 const typename Clause::_data_t& pick_arg_impl(
@@ -58,5 +57,4 @@ const typename Clause::_data_t& pick_arg(const OldStatement& old_statement,
       std::is_same<typename Clause::_data_t,
                    typename std::decay<NewClauseData>::type>());
 }
-} // namespace sqlpp::detail
-
+}  // namespace sqlpp::detail

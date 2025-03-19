@@ -29,7 +29,6 @@
 
 #include <string>
 
-
 namespace sqlpp::mysql {
 struct connection_config {
   std::string host{"localhost"};
@@ -43,10 +42,9 @@ struct connection_config {
   bool debug{false};
   unsigned int connect_timeout_seconds{
       0};  // 0 = do not override MySQL library default
-      bool ssl{false};
-      std::string ssl_key, ssl_cert, ssl_ca, ssl_capath, ssl_cipher;
-      unsigned int read_timeout{0};
-
+  bool ssl{false};
+  std::string ssl_key, ssl_cert, ssl_ca, ssl_capath, ssl_cipher;
+  unsigned int read_timeout{0};
 
   bool operator==(const connection_config& other) const {
     return (other.host == host and other.user == user and
@@ -64,5 +62,4 @@ struct connection_config {
     return !operator==(other);
   }
 };
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql

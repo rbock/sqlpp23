@@ -38,8 +38,6 @@
 #pragma warning(disable : 4251)
 #endif
 
-
-
 namespace sqlpp::sqlite3::detail {
 struct prepared_statement_handle_t {
   sqlite3_stmt* sqlite_statement;
@@ -73,9 +71,7 @@ struct prepared_statement_handle_t {
 
   bool operator!() const { return !sqlite_statement; }
 };
-} // namespace sqlpp::sqlite3::detail
-
-
+}  // namespace sqlpp::sqlite3::detail
 
 #ifdef _MSC_VER
 #pragma warning(pop)

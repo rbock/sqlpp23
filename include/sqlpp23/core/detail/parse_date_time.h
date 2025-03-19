@@ -31,7 +31,6 @@
 
 #include <cctype>
 
-
 namespace sqlpp::detail {
 inline bool parse_unsigned(int& value, const char*& input, int length) {
   value = 0;
@@ -232,5 +231,4 @@ inline bool parse_time_of_day(std::chrono::microseconds& us,
   }
   return true;
 }
-} // namespace sqlpp::detail
-
+}  // namespace sqlpp::detail

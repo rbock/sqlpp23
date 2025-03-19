@@ -80,7 +80,6 @@
   };                                                          \
   constexpr auto NAME = NAME##_t {}
 
-
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(a);
 SQLPP_CREATE_NAME_TAG(b);
@@ -110,5 +109,4 @@ SQLPP_CREATE_NAME_TAG(y);
 SQLPP_CREATE_NAME_TAG(z);
 SQLPP_CREATE_NAME_TAG(left);
 SQLPP_CREATE_NAME_TAG(right);
-} // namespace sqlpp::alias
-
+}  // namespace sqlpp::alias

@@ -36,7 +36,6 @@
 #include <sqlpp23/postgresql/visibility.h>
 #include <string>
 
-
 namespace sqlpp::postgresql {
 /**
  * @addtogroup exception Exception classes
@@ -342,5 +341,4 @@ class DLL_PUBLIC plpgsql_too_many_rows : public plpgsql_error {
   plpgsql_too_many_rows(std::string err, std::string Q)
       : plpgsql_error{std::move(err), std::move(Q)} {}
 };
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

@@ -29,7 +29,6 @@
 
 #include <chrono>
 
-
 namespace sqlpp::chrono {
 using day_point =
     std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
@@ -41,5 +40,4 @@ std::chrono::microseconds time_of_day(T t) {
   const auto dp = std::chrono::floor<std::chrono::days>(t);
   return std::chrono::duration_cast<std::chrono::microseconds>(t - dp);
 }
-} // namespace sqlpp::chrono
-
+}  // namespace sqlpp::chrono

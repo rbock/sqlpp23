@@ -29,10 +29,8 @@
 
 #include <mysql.h>
 
-
 namespace sqlpp::mysql {
 #if LIBMYSQL_VERSION_ID >= 80000
 using my_bool = bool;
 #endif
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql

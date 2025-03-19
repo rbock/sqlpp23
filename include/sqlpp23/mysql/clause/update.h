@@ -31,7 +31,6 @@
 #include <sqlpp23/core/clause/order_by.h>
 #include <sqlpp23/core/clause/update.h>
 
-
 namespace sqlpp::mysql {
 using blank_update_t = statement_t<update_t,
                                    no_single_table_t,
@@ -46,5 +45,4 @@ constexpr auto update(_Table table)
   return {blank_update_t().single_table(table)};
 }
 
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql

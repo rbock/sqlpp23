@@ -31,7 +31,6 @@
 #include <sqlpp23/postgresql/clause/on_conflict.h>
 #include <sqlpp23/postgresql/clause/returning_column_list.h>
 
-
 namespace sqlpp::postgresql {
 using blank_insert_t = statement_t<insert_t,
                                    no_into_t,
@@ -49,5 +48,4 @@ constexpr auto insert_into(_Table table)
   return {blank_insert_t().into(table)};
 }
 
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

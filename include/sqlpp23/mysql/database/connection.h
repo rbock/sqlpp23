@@ -42,7 +42,6 @@
 #include <iostream>
 #include <string>
 
-
 namespace sqlpp::mysql {
 namespace detail {
 struct mysql_thread_initializer {
@@ -405,7 +404,6 @@ class connection_base : public sqlpp::connection {
 
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
-} // namespace sqlpp::mysql
-
+}  // namespace sqlpp::mysql
 
 #include <sqlpp23/mysql/serializer.h>

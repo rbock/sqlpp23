@@ -31,7 +31,6 @@
 #include <sqlpp23/core/wrong.h>
 #include <stddef.h>
 
-
 namespace sqlpp::detail {
 template <typename... T>
 struct type_vector {
@@ -119,5 +118,4 @@ struct copy_if<type_vector<T...>, Predicate> {
 template <typename TypeVector, template <typename> class Predicate>
 using copy_if_t = typename copy_if<TypeVector, Predicate>::type;
 
-} // namespace sqlpp::detail
-
+}  // namespace sqlpp::detail

@@ -49,8 +49,7 @@ struct make_char_sequence
     : make_char_sequence_impl<
           sizeof(name_tag_of_t<T>::name),
           name_tag_of_t<T>::name,
-          std::make_index_sequence<sizeof(name_tag_of_t<T>::name) - 1>> {
-};
+          std::make_index_sequence<sizeof(name_tag_of_t<T>::name) - 1>> {};
 
 template <typename T>
 using make_char_sequence_t = typename make_char_sequence<T>::type;

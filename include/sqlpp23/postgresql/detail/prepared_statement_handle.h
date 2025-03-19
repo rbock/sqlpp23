@@ -42,8 +42,6 @@
 #include <sqlpp23/postgresql/dynamic_libpq.h>
 #endif
 
-
-
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
@@ -160,6 +158,4 @@ struct prepared_statement_handle_t : public statement_handle_t {
     valid = true;
   }
 };
-} // namespace sqlpp::postgresql::detail
-
-
+}  // namespace sqlpp::postgresql::detail

@@ -31,8 +31,6 @@
 
 #include <vector>
 
-
-
 namespace sqlpp::mysql::detail {
 struct bind_result_buffer {
   unsigned long length;
@@ -104,6 +102,4 @@ struct prepared_statement_handle_t {
 
   bool operator!() const { return !mysql_stmt; }
 };
-} // namespace sqlpp::mysql::detail
-
-
+}  // namespace sqlpp::mysql::detail

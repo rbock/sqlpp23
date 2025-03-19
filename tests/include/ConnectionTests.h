@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdexcept>
 
-
 namespace sqlpp::test {
 namespace {
 template <typename Connection>
@@ -59,5 +58,4 @@ void test_normal_connection(const ConfigPtr& connection_config) {
   test_conn_empty<Connection>();
   test_conn_connected<Connection>(connection_config);
 }
-} // namespace sqlpp::test
-
+}  // namespace sqlpp::test

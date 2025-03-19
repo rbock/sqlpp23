@@ -28,7 +28,6 @@
 
 #include <sqlpp23/postgresql/postgresql.h>
 
-
 namespace sqlpp::postgresql {
 // Get configuration for test connection
 inline std::shared_ptr<sqlpp::postgresql::connection_config>
@@ -68,5 +67,4 @@ inline ::sqlpp::postgresql::connection make_test_connection(
 
   return db;
 }
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

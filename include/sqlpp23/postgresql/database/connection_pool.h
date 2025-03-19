@@ -30,8 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/database/connection_pool.h>
 #include <sqlpp23/postgresql/database/connection.h>
 
-
 namespace sqlpp::postgresql {
 using connection_pool = sqlpp::connection_pool<connection_base>;
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql

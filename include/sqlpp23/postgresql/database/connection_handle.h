@@ -33,14 +33,13 @@
 #include <string>
 
 #include <libpq-fe.h>
-#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/connection_config.h>
+#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/visibility.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp23/postgresql/dynamic_libpq.h>
 #endif
-
 
 namespace sqlpp::postgresql {
 // Forward declaration
@@ -210,5 +209,4 @@ struct DLL_LOCAL connection_handle {
   }
 };
 }  // namespace detail
-} // namespace sqlpp::postgresql
-
+}  // namespace sqlpp::postgresql
