@@ -34,9 +34,9 @@
 
 #include <memory>
 
-namespace sqlpp {
-namespace mysql {
-namespace detail {
+
+
+namespace sqlpp::mysql::detail {
 inline void connect(MYSQL* mysql, const connection_config& config) {
   if (config.connect_timeout_seconds != 0 &&
       mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT,
@@ -128,6 +128,6 @@ struct connection_handle {
 
   bool ping_server() const { return mysql_ping(native_handle()) == 0; }
 };
-}  // namespace detail
-}  // namespace mysql
-}  // namespace sqlpp
+} // namespace sqlpp::mysql::detail
+
+

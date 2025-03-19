@@ -30,8 +30,8 @@
 #include <sqlpp23/core/clause/update.h>
 #include <sqlpp23/postgresql/clause/returning_column_list.h>
 
-namespace sqlpp {
-namespace postgresql {
+
+namespace sqlpp::postgresql {
 using blank_update_t = statement_t<update_t,
                                    no_single_table_t,
                                    no_update_set_list_t,
@@ -44,5 +44,5 @@ constexpr auto update(_Table table)
   return {blank_update_t().single_table(table)};
 }
 
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql
+

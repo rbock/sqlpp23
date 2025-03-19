@@ -28,6 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <memory>
+
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -38,13 +40,14 @@
 #include <sqlpp23/sqlite3/dynamic_libsqlite3.h>
 #endif
 
-namespace sqlpp {
-namespace sqlite3 {
+#include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/sqlite3/database/connection_config.h>
+
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
 
-namespace detail {
+namespace sqlpp::sqlite3::detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
   std::unique_ptr<::sqlite3, int (*)(::sqlite3*)> sqlite;
@@ -104,6 +107,6 @@ struct connection_handle {
     return true;
   }
 };
-}  // namespace detail
-}  // namespace sqlite3
-}  // namespace sqlpp
+} // namespace sqlpp::sqlite3::detail
+
+

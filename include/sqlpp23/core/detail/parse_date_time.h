@@ -31,8 +31,8 @@
 
 #include <cctype>
 
-namespace sqlpp {
-namespace detail {
+
+namespace sqlpp::detail {
 inline bool parse_unsigned(int& value, const char*& input, int length) {
   value = 0;
   auto new_input = input;
@@ -55,7 +55,7 @@ inline bool parse_character(const char*& input, char ch) {
   return true;
 }
 
-inline bool parse_yyyy_mm_dd(sqlpp::chrono::day_point& dp, const char*& input) {
+inline bool parse_yyyy_mm_dd(chrono::day_point& dp, const char*& input) {
   auto new_input = input;
   int year, month, day;
   if ((parse_unsigned(year, new_input, 4) == false) ||
@@ -166,9 +166,9 @@ inline bool parse_hh_mm_ss_us_tz(std::chrono::microseconds& us,
 // Parse timestamp formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
 // The microseconds and timezone offset are optional
 //
-inline bool parse_timestamp(sqlpp::chrono::microsecond_point& tp,
+inline bool parse_timestamp(chrono::microsecond_point& tp,
                             const char* date_time_string) {
-  sqlpp::chrono::day_point parsed_ymd;
+  chrono::day_point parsed_ymd;
   std::chrono::microseconds parsed_tod;
   if ((parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) ||
       (parse_character(date_time_string, ' ') == false) ||
@@ -184,7 +184,7 @@ inline bool parse_timestamp(sqlpp::chrono::microsecond_point& tp,
 
 // Parse date string formatted as YYYY-MM-DD
 //
-inline bool parse_date(sqlpp::chrono::day_point& dp, const char* date_string) {
+inline bool parse_date(chrono::day_point& dp, const char* date_string) {
   if (parse_yyyy_mm_dd(dp, date_string) == false) {
     return false;
   }
@@ -197,9 +197,9 @@ inline bool parse_date(sqlpp::chrono::day_point& dp, const char* date_string) {
 // Parse time string formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
 // The time-of-day part is optional
 //
-inline bool parse_date_or_timestamp(sqlpp::chrono::microsecond_point& tp,
+inline bool parse_date_or_timestamp(chrono::microsecond_point& tp,
                                     const char* date_time_string) {
-  sqlpp::chrono::day_point parsed_ymd;
+  chrono::day_point parsed_ymd;
   if (parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) {
     return false;
   }
@@ -232,5 +232,5 @@ inline bool parse_time_of_day(std::chrono::microseconds& us,
   }
   return true;
 }
-}  // namespace detail
-}  // namespace sqlpp
+} // namespace sqlpp::detail
+

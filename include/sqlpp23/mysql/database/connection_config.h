@@ -29,8 +29,8 @@
 
 #include <string>
 
-namespace sqlpp {
-namespace mysql {
+
+namespace sqlpp::mysql {
 struct connection_config {
   std::string host{"localhost"};
   std::string user;
@@ -64,5 +64,5 @@ struct connection_config {
     return !operator==(other);
   }
 };
-}  // namespace mysql
-}  // namespace sqlpp
+} // namespace sqlpp::mysql
+

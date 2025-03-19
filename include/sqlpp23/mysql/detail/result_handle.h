@@ -29,9 +29,9 @@
 
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
-namespace sqlpp {
-namespace mysql {
-namespace detail {
+
+
+namespace sqlpp::mysql::detail {
 struct result_handle {
   MYSQL_RES* mysql_res;
   bool debug;
@@ -50,6 +50,6 @@ struct result_handle {
 
   bool operator!() const { return !mysql_res; }
 };
-}  // namespace detail
-}  // namespace mysql
-}  // namespace sqlpp
+} // namespace sqlpp::mysql::detail
+
+

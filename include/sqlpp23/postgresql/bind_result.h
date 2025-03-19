@@ -44,8 +44,8 @@
 #include <iso646.h>
 #pragma warning(disable : 4800)  // int to bool
 #endif
-namespace sqlpp {
-namespace postgresql {
+
+namespace sqlpp::postgresql {
 namespace detail {
 struct statement_handle_t;
 
@@ -340,5 +340,5 @@ class bind_result_t {
 
   int size() const { return _handle->result.records_size(); }
 };
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql
+

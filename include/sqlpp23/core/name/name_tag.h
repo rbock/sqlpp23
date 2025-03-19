@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <type_traits>
+
 namespace sqlpp {
 struct no_name_t {
   static constexpr const char name[] = "_";

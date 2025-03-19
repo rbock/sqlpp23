@@ -42,8 +42,8 @@
 #include <sqlpp23/postgresql/dynamic_libpq.h>
 #endif
 
-namespace sqlpp {
-namespace postgresql {
+
+namespace sqlpp::postgresql {
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
@@ -310,5 +310,5 @@ class DLL_PUBLIC Result {
   PGresult* m_result;
   std::string m_query;
 };
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql
+

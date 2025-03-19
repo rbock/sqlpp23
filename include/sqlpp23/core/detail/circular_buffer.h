@@ -31,8 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdexcept>
 #include <vector>
 
-namespace sqlpp {
-namespace detail {
+
+namespace sqlpp::detail {
 // This class is modeled after boost::circular_buffer
 template <typename T>
 class circular_buffer {
@@ -131,5 +131,5 @@ template <typename T>
 void circular_buffer<T>::increment(std::size_t& pos) {
   pos = (pos + 1) % _capacity;
 }
-}  // namespace detail
-}  // namespace sqlpp
+} // namespace sqlpp::detail
+

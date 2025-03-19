@@ -29,8 +29,8 @@
 
 #include <sqlpp23/core/type_traits.h>
 
-namespace sqlpp {
-namespace detail {
+
+namespace sqlpp::detail {
 // If an expression (or sub-expression) is statically selected, the respective
 // table needs to be statically provided, too. Note that the select could be a
 // sub-select that refers to tables provided by the enclosing query. We cannot
@@ -64,6 +64,6 @@ struct expression_static_check<Statement,
   using type = static_combined_check_t<
       expression_static_check_t<Statement, Nodes, Assert>...>;
 };
-}  // namespace detail
+} // namespace sqlpp::detail
 
-}  // namespace sqlpp
+

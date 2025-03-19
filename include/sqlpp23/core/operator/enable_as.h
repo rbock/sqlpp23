@@ -41,7 +41,7 @@ class enable_as {
  public:
   template <typename NameTagProvider>
   constexpr auto as(const NameTagProvider& alias) const
-      -> decltype(::sqlpp::as(this->derived(), alias)) {
+      -> decltype(as(this->derived(), alias)) {
     return ::sqlpp::as(this->derived(), alias);
   }
 };

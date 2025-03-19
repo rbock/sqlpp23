@@ -30,8 +30,8 @@
 #include <sqlpp23/core/clause/delete_from.h>
 #include <sqlpp23/postgresql/clause/returning_column_list.h>
 
-namespace sqlpp {
-namespace postgresql {
+
+namespace sqlpp::postgresql {
 using blank_delete_t = statement_t<delete_t,
                                    no_single_table_t,
                                    no_using_t,
@@ -48,5 +48,5 @@ auto delete_from(_Table table)
   return {blank_delete_t().single_table(table)};
 }
 
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql
+

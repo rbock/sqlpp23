@@ -28,6 +28,8 @@
  */
 
 #include <sqlpp23/core/detail/get_last.h>
+#include <sqlpp23/core/noop.h>
+#include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Clause>

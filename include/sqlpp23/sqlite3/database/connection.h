@@ -56,8 +56,8 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp {
-namespace sqlite3 {
+
+namespace sqlpp::sqlite3 {
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
@@ -459,8 +459,8 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
 
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
-}  // namespace sqlite3
-}  // namespace sqlpp
+} // namespace sqlpp::sqlite3
+
 
 #ifdef _MSC_VER
 #pragma warning(pop)

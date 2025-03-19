@@ -42,8 +42,8 @@
 #include <iostream>
 #include <memory>
 
-namespace sqlpp {
-namespace mysql {
+
+namespace sqlpp::mysql {
 class char_result_t {
   std::unique_ptr<detail::result_handle> _handle;
   char_result_row_t _char_result_row;
@@ -199,5 +199,5 @@ class char_result_t {
     return _char_result_row.data;
   }
 };
-}  // namespace mysql
-}  // namespace sqlpp
+} // namespace sqlpp::mysql
+

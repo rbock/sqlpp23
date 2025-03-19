@@ -35,8 +35,8 @@
 #include <memory>
 #include <string>
 
-namespace sqlpp {
-namespace postgresql {
+
+namespace sqlpp::postgresql {
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
@@ -226,5 +226,5 @@ class prepared_statement_t {
     _handle->null_values[index] = true;
   }
 };
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql
+

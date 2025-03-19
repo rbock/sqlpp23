@@ -47,9 +47,9 @@ struct make_char_sequence_impl<N, s, std::index_sequence<i...>> {
 template <typename T>
 struct make_char_sequence
     : make_char_sequence_impl<
-          sizeof(sqlpp::name_tag_of_t<T>::name),
-          sqlpp::name_tag_of_t<T>::name,
-          std::make_index_sequence<sizeof(sqlpp::name_tag_of_t<T>::name) - 1>> {
+          sizeof(name_tag_of_t<T>::name),
+          name_tag_of_t<T>::name,
+          std::make_index_sequence<sizeof(name_tag_of_t<T>::name) - 1>> {
 };
 
 template <typename T>

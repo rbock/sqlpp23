@@ -31,9 +31,9 @@
 
 #include <vector>
 
-namespace sqlpp {
-namespace mysql {
-namespace detail {
+
+
+namespace sqlpp::mysql::detail {
 struct bind_result_buffer {
   unsigned long length;
   my_bool is_null;
@@ -104,6 +104,6 @@ struct prepared_statement_handle_t {
 
   bool operator!() const { return !mysql_stmt; }
 };
-}  // namespace detail
-}  // namespace mysql
-}  // namespace sqlpp
+} // namespace sqlpp::mysql::detail
+
+

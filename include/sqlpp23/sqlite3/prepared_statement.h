@@ -45,8 +45,8 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp {
-namespace sqlite3 {
+
+namespace sqlpp::sqlite3 {
 // Forward declaration
 class connection_base;
 
@@ -247,8 +247,8 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
     detail::check_bind_result(result, "NULL");
   }
 };
-}  // namespace sqlite3
-}  // namespace sqlpp
+} // namespace sqlpp::sqlite3
+
 
 #ifdef _MSC_VER
 #pragma warning(pop)

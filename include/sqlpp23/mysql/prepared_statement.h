@@ -33,8 +33,8 @@
 #include <iostream>
 #include <memory>
 
-namespace sqlpp {
-namespace mysql {
+
+namespace sqlpp::mysql {
 class connection_base;
 
 class prepared_statement_t {
@@ -265,5 +265,5 @@ class prepared_statement_t {
     param.error = nullptr;
   }
 };
-}  // namespace mysql
-}  // namespace sqlpp
+} // namespace sqlpp::mysql
+

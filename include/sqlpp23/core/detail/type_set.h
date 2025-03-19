@@ -34,8 +34,8 @@
 #include <stddef.h>
 #include <type_traits>
 
-namespace sqlpp {
-namespace detail {
+
+namespace sqlpp::detail {
 // some forward declarations and helpers
 template <typename... T>
 struct make_type_set;
@@ -259,5 +259,5 @@ struct are_disjoint<type_set<L...>, type_set<R...>, Rest...> {
       are_disjoint<make_type_set_t<L..., R...>, Rest...>::value;
 };
 
-}  // namespace detail
-}  // namespace sqlpp
+} // namespace sqlpp::detail
+

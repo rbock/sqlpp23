@@ -46,8 +46,8 @@
 #pragma warning(disable : 4251)
 #endif
 
-namespace sqlpp {
-namespace sqlite3 {
+
+namespace sqlpp::sqlite3 {
 class SQLPP11_SQLITE3_EXPORT bind_result_t {
   std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
@@ -250,8 +250,8 @@ class SQLPP11_SQLITE3_EXPORT bind_result_t {
     }
   }
 };
-}  // namespace sqlite3
-}  // namespace sqlpp
+} // namespace sqlpp::sqlite3
+
 
 #ifdef _MSC_VER
 #pragma warning(pop)

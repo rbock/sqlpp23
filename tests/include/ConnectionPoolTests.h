@@ -27,15 +27,17 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <iostream>
 #include <random>
 #include <set>
 #include <thread>
 #include <unordered_set>
 
 #include "tab_department.h"
+#include <sqlpp23/sqlpp23.h>
 
-namespace sqlpp {
-namespace test {
+
+namespace sqlpp::test {
 namespace {
 template <typename Pool>
 using native_type = typename std::decay<
@@ -260,5 +262,5 @@ void test_connection_pool(typename Pool::_config_ptr_t config,
   }
   test_destruction_order<Pool>(config);
 }
-}  // namespace test
-}  // namespace sqlpp
+} // namespace sqlpp::test
+

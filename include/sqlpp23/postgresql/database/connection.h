@@ -51,8 +51,8 @@
 struct pg_conn;
 typedef struct pg_conn PGconn;
 
-namespace sqlpp {
-namespace postgresql {
+
+namespace sqlpp::postgresql {
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
@@ -441,7 +441,7 @@ class connection_base : public sqlpp::connection {
 
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql
+
 
 #include <sqlpp23/postgresql/serializer.h>

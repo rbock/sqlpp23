@@ -29,8 +29,8 @@
 
 #include <type_traits>
 
-namespace sqlpp {
-namespace detail {
+
+namespace sqlpp::detail {
 template <template <typename> class Predicate, typename Default, typename... T>
 struct get_last_if;
 
@@ -52,5 +52,5 @@ struct get_last_if<Predicate, Default, T, Rest...> {
 
 template <template <typename> class Predicate, typename Default, typename... T>
 using get_last_if_t = typename get_last_if<Predicate, Default, T...>::type;
-}  // namespace detail
-}  // namespace sqlpp
+} // namespace sqlpp::detail
+

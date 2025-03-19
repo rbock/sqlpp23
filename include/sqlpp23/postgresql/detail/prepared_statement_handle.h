@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <random>
 #include <string>
 #include <vector>
@@ -43,12 +42,12 @@
 #include <sqlpp23/postgresql/dynamic_libpq.h>
 #endif
 
-namespace sqlpp {
-namespace postgresql {
+
+
 #ifdef SQLPP_DYNAMIC_LOADING
 using namespace dynamic;
 #endif
-namespace detail {
+namespace sqlpp::postgresql::detail {
 struct DLL_PUBLIC statement_handle_t {
   connection_handle& connection;
   Result result;
@@ -161,6 +160,6 @@ struct prepared_statement_handle_t : public statement_handle_t {
     valid = true;
   }
 };
-}  // namespace detail
-}  // namespace postgresql
-}  // namespace sqlpp
+} // namespace sqlpp::postgresql::detail
+
+
