@@ -115,3 +115,6 @@ Magic is dangerous, e.g. when used in comparison.
 ## dropped ppgn (cannot support it)
 
 ## Added truncate
+
+## on_conflict().do_update() requires explicit where().
+This is consistent with other statements: select, update, delete_from
