@@ -113,3 +113,5 @@ Magic is dangerous, e.g. when used in comparison.
 ## unconditionally() has been replaced with where(true)
 
 ## dropped ppgn (cannot support it)
+
+## Added truncate

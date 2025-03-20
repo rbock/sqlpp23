@@ -1,20 +1,31 @@
-Since `delete` is keyword in C++ that has a different meaning than `delete` in SQL, sqlpp23 calls the method remove. There is no detailed documentation available yet, but here is an example that might help if you have read about [select statements](Select.md) already:
+# Delete
+
+Deleting rows from tables is straight forward:
 
 ```C++
-db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+db(delete_from(tab).where(tab.alpha == 35));
 ```
 
-## Removing using multiple tables as condition:
+## Deleting rows using multiple tables in the condition
 
 ```C++
 test_sqlpp::Users usr;
 test_sqlpp::UsersForms usr_forms;
 test_sqlpp::Forms form_;
 
-db(remove_from(usr_forms).using_(usr, form_, usr_forms).where( 
-    usr_forms.iduser == usr.id 
-    and usr.username == username 
+db(remove_from(usr_forms).using_(usr, form_, usr_forms).where(
+    usr_forms.iduser == usr.id
+    and usr.username == username
     and usr_forms.idform == form_.id
     and form_.name == form_name
     ));
 ```
+
+## Truncate
+
+If you want to delete all rows from a table, the truncate function might be the faster option.
+
+```c++
+db(truncate(tab));
+```
+

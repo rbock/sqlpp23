@@ -40,6 +40,7 @@ set(test_files
     Select.cpp
     TimeZone.cpp
     Transaction.cpp
+    truncate.cpp
     Type.cpp
 )
 

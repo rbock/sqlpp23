@@ -40,7 +40,7 @@
 #include <sqlpp23/core/function/current_timestamp.h>
 #include <sqlpp23/core/function/lower.h>
 #include <sqlpp23/core/function/trim.h>
-#include <sqlpp23/core/function/upper.h>
+#include <sqlpp23/core/function/trim.h>
 #include <sqlpp23/core/operator/case.h>
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/value_type.h>

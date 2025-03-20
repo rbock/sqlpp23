@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/schema_qualified_table.h>
-#include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/core/clause/insert.h>
-#include <sqlpp23/core/clause/select.h>
-#include <sqlpp23/core/clause/truncate.h>
-#include <sqlpp23/core/clause/update.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/function.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/operator.h>
+#include <sqlpp23/core/clause/single_table.h>
+#include <sqlpp23/core/clause/using.h>
+#include <sqlpp23/core/clause/where.h>
+#include <sqlpp23/core/concepts.h>
+#include <sqlpp23/core/database/connection.h>
+#include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/type_traits.h>
+
+namespace sqlpp {
+struct truncate_t {};
+
+template <typename Context>
+auto to_sql_string(Context&, const truncate_t&) -> std::string {
+  return "TRUNCATE ";
+}
+
+template <>
+struct is_clause<truncate_t> : public std::true_type {};
+
+template <typename Statement>
+struct consistency_check<Statement, truncate_t> {
+  using type = consistent_t;
+};
+
+using blank_truncate_t =
+    statement_t<truncate_t, no_single_table_t>;
+
+template <StaticRawTable _Table>
+auto truncate(_Table table) {
+  return blank_truncate_t{}.single_table(table);
+}
+
+}  // namespace sqlpp

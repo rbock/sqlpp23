@@ -28,7 +28,7 @@ set(test_files
     DateTimeParser.cpp
     Interpret.cpp
     Insert.cpp
-    Remove.cpp
+    delete_from.cpp
     Update.cpp
     Select.cpp
     SelectType.cpp

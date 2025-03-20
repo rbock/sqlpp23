@@ -43,13 +43,13 @@ auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
 multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
 multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value,
                         t.delta = sqlpp::default_value);
-multi_insert.values.add(t.gamma = sqlpp::value_or_null(true),
-                        t.beta = sqlpp::value_or_null("pie"),
-                        t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
+multi_insert.values.add(t.gamma = std::optional<bool>(true),
+                        t.beta = std::optional<std::string>("pie"),
+                        t.delta = std::nullopt);
 db(multi_insert);
 ```
 
-Note that `add` currently requires precise value types, equal to the respective column's value
+Note that `add` requires precise value types, equal to the respective column's value
 type. For instance, time point columns are represented as
 `std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>`.
 
