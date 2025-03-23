@@ -87,7 +87,7 @@ int main() {
 
   // `offset` using unknown table
   {
-    auto s = select(foo.id).from(foo).where(true).offset(bar.id);
+    auto s = select(foo.id).from(foo).offset(bar.id);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -100,10 +100,8 @@ int main() {
 
   // `offset` statically using dynamic table
   {
-    auto s = select(foo.id)
-                 .from(foo.cross_join(dynamic(maybe, bar)))
-                 .where(true)
-                 .offset(bar.id);
+    auto s =
+        select(foo.id).from(foo.cross_join(dynamic(maybe, bar))).offset(bar.id);
     using S = decltype(s);
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,

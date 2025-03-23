@@ -145,7 +145,8 @@ int main() {
         "table");
   }
 
-  // do_update requires where to be called with a single boolean expression
+  // do_update can be qualified with `where` being called with a single boolean
+  // expression
   {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
@@ -162,18 +163,6 @@ int main() {
     static_assert(cannot_call_where_with<decltype(insert), decltype(foo.id = 7),
                                          decltype(true)>,
                   "");
-
-    using I = decltype(insert);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<I>,
-            sqlpp::postgresql::assert_on_conflict_update_where_t>::value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<I>,
-            sqlpp::postgresql::assert_on_conflict_update_where_t>::value,
-        "");
   }
 
   // do_update.where in-function checks
@@ -193,8 +182,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(bar.id)
-                      .do_update(foo.id = 7)
-                      .where(true);
+                      .do_update(foo.id = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -211,8 +199,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(foo.id)
-                      .do_update(bar.id = 7)
-                      .where(true);
+                      .do_update(bar.id = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,

@@ -37,12 +37,11 @@ int main(int, char*[]) {
 
   // Simple CTE: X AS SELECT
   {
-    using S = decltype(select(foo.id).from(foo).where(true));
+    using S = decltype(select(foo.id).from(foo));
     static_assert(sqlpp::has_result_row<S>::value, "");
-    const auto x =
-        cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
+    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
     const auto a = x.as(sqlpp::alias::a);
-    SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo WHERE 1)");
+    SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo)");
     SQLPP_COMPARE(make_table_ref(x), "x");
     SQLPP_COMPARE(x.id, "x.id");
     SQLPP_COMPARE(a, "x AS a");
@@ -53,13 +52,13 @@ int main(int, char*[]) {
 
   // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
   {
-    const auto x = cte(sqlpp::alias::x)
-                       .as(select(foo.id).from(foo).where(true).union_all(
-                           select(bar.id).from(bar).where(true)));
+    const auto x =
+        cte(sqlpp::alias::x)
+            .as(select(foo.id).from(foo).union_all(select(bar.id).from(bar)));
     const auto a = x.as(sqlpp::alias::a);
     SQLPP_COMPARE(x,
-                  "x AS (SELECT tab_foo.id FROM tab_foo WHERE 1 UNION ALL "
-                  "SELECT tab_bar.id FROM tab_bar WHERE 1)");
+                  "x AS (SELECT tab_foo.id FROM tab_foo UNION ALL "
+                  "SELECT tab_bar.id FROM tab_bar)");
     SQLPP_COMPARE(make_table_ref(x), "x");
     SQLPP_COMPARE(x.id, "x.id");
     SQLPP_COMPARE(a, "x AS a");
@@ -89,14 +88,12 @@ int main(int, char*[]) {
 
   // A CTE depending on another CTE
   {
-    const auto x =
-        cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
-    const auto y = cte(sqlpp::alias::y)
-                       .as(select(x.id, sqlpp::value(7).as(sqlpp::alias::a))
-                               .from(x)
-                               .where(true));
+    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
+    const auto y =
+        cte(sqlpp::alias::y)
+            .as(select(x.id, sqlpp::value(7).as(sqlpp::alias::a)).from(x));
     const auto z = y.as(sqlpp::alias::z);
-    SQLPP_COMPARE(y, "y AS (SELECT x.id, 7 AS a FROM x WHERE 1)");
+    SQLPP_COMPARE(y, "y AS (SELECT x.id, 7 AS a FROM x)");
     SQLPP_COMPARE(make_table_ref(y), "y");
     SQLPP_COMPARE(y.id, "y.id");
     SQLPP_COMPARE(z, "y AS z");

@@ -50,11 +50,8 @@ int InsertOnConflict(int, char*[]) {
   db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_nothing());
 
   // Conflict target
-  db(sql::insert_into(foo)
-         .default_values()
-         .on_conflict(foo.id)
-         .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true)
-         .where(true));
+  db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_update(
+      foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true));
 
   // With where statement
   for (const auto& row : db(sql::insert_into(foo)
@@ -73,7 +70,6 @@ int InsertOnConflict(int, char*[]) {
                                 .on_conflict(foo.id)
                                 .do_update(foo.intN = 5,
           foo.textNnD = "test bla", foo.boolN = true)
-                                .where(true)
                                 .returning(foo.intN))) {
     std::cout << row.intN << std::endl;
   }

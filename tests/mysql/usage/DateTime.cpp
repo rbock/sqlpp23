@@ -33,7 +33,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <vector>
 
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
@@ -69,7 +68,7 @@ int DateTime(int, char*[]) {
 
     const auto tab = test::TabDateTime{};
     db(insert_into(tab).default_values());
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dayPointN.has_value(), false);
       require_equal(__LINE__, row.timePointN.has_value(), false);
       require_close(__LINE__, row.dateTimePointND.value(), now);

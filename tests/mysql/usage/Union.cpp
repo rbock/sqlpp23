@@ -44,17 +44,15 @@ int Union(int, char*[]) {
     auto db = sql::make_test_connection();
     test::createTabSample(db);
 
-    auto u = select(all_of(tab))
-                 .from(tab)
-                 .where(true)
-                 .union_all(select(all_of(tab)).from(tab).where(true));
+    auto u =
+        select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));
 
     for (const auto& row : db(u)) {
       std::cout << row.intN << row.textN << row.boolN << std::endl;
     }
 
     for (const auto& row :
-         db(u.union_distinct(select(all_of(tab)).from(tab).where(true)))) {
+         db(u.union_distinct(select(all_of(tab)).from(tab)))) {
       std::cout << row.intN << row.textN << row.boolN << std::endl;
     }
   } catch (const std::exception& e) {

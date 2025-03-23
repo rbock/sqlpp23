@@ -70,8 +70,7 @@ int Json(int, char*[]) {
         select(sqlpp::verbatim<sqlpp::text>(
                    R"--(JSON_UNQUOTE(JSON_EXTRACT(data, "$.key")))--")
                    .as(test::value))
-            .from(tab)
-            .where(true);
+            .from(tab);
 
     auto result = db(query);
     if (result.empty())

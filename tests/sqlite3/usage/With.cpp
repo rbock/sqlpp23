@@ -58,13 +58,12 @@ int With(int, char*[]) {
 
   auto a = sqlpp::cte(sqlpp::alias::a)
                .as(select(all_of(tab)).from(tab).where(tab.alpha > 3));
-  for (const auto& row : db(with(a)(select(a.alpha).from(a)).where(true))) {
+  for (const auto& row : db(with(a)(select(a.alpha).from(a)))) {
     std::cout << row.alpha << std::endl;
   }
 
-  for (const auto& row : db(with(a.union_all(
-           select(all_of(a)).from(a).where(true)))(select(all_of(a)).from(a))
-                                .where(true))) {
+  for (const auto& row : db(with(a.union_all(select(all_of(a)).from(a)))(
+           select(all_of(a)).from(a)))) {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }
 

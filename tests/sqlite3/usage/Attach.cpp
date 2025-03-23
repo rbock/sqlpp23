@@ -34,8 +34,6 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <iostream>
-#include <vector>
 
 namespace sql = sqlpp::sqlite3;
 
@@ -67,7 +65,7 @@ int Attach(int, char*[]) {
   db(insert_into(left).default_values());
 
   // selecting from the other tab_sample
-  assert(db(select(all_of(right)).from(right).where(true)).empty());
+  assert(db(select(all_of(right)).from(right)).empty());
 
   return 0;
 }

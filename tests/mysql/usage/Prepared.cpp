@@ -31,7 +31,6 @@
 #include "make_test_connection.h"
 
 #include <iostream>
-#include <vector>
 
 namespace {
 const auto library_raii =
@@ -55,10 +54,10 @@ void testPreparedStatementResult(sql::connection& db) {
   preparedInsert.params.textN = "17";
   db(preparedInsert);
 
-  auto preparedSelectAll = db.prepare(
-      sqlpp::select(count(tab.intN).as(something)).from(tab).where(true));
+  auto preparedSelectAll =
+      db.prepare(sqlpp::select(count(tab.intN).as(something)).from(tab));
   auto preparedUpdateAll =
-      db.prepare(sqlpp::update(tab).set(tab.boolN = false).where(true));
+      db.prepare(sqlpp::update(tab).set(tab.boolN = false));
 
   {
     // explicit result scope

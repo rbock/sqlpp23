@@ -28,8 +28,6 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-#include <iostream>
-
 SQLPP_CREATE_NAME_TAG(sample);
 
 int TableAlias(int, char*[]) {
@@ -38,13 +36,13 @@ int TableAlias(int, char*[]) {
 
   // Individual values
   SQLPP_COMPARE(foo.as(bar), "tab_foo AS tab_bar");
-  SQLPP_COMPARE(select(foo.doubleN).from(foo).where(true).as(bar),
-                "(SELECT tab_foo.double_n FROM tab_foo WHERE 1) AS tab_bar");
+  SQLPP_COMPARE(select(foo.doubleN).from(foo).as(bar),
+                "(SELECT tab_foo.double_n FROM tab_foo) AS tab_bar");
 
   // Table alias
   const auto tab = foo.as(sample);
-  SQLPP_COMPARE(select(tab.doubleN).from(tab).where(true),
-                "SELECT sample.double_n FROM tab_foo AS sample WHERE 1");
+  SQLPP_COMPARE(select(tab.doubleN).from(tab),
+                "SELECT sample.double_n FROM tab_foo AS sample");
 
   return 0;
 }

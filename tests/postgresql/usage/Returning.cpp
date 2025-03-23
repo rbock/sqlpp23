@@ -33,7 +33,6 @@ int Returning(int, char*[]) {
 
     auto updated = db(sqlpp::postgresql::update(foo)
                           .set(foo.intN = 0)
-                          .where(true)
                           .returning(foo.textNnD, foo.intN));
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN
@@ -42,7 +41,6 @@ int Returning(int, char*[]) {
     auto dynamic_updated =
         db(sqlpp::postgresql::update(foo)
                .set(foo.intN = 0, foo.doubleN = std::nullopt)
-               .where(true)
                .returning(foo.textNnD, dynamic(true, foo.intN)));
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN

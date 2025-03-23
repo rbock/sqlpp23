@@ -55,7 +55,7 @@ int main() {
   const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
-  const auto c = cte(something).as(select(foo.id).from(foo).where(true));
+  const auto c = cte(something).as(select(foo.id).from(foo));
 
   // using_(<non arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_using_with<>, "");
@@ -98,7 +98,7 @@ int main() {
 
   // using_ must not repeat a table from from
   {
-    auto s = delete_from(foo).using_(foo).where(true);
+    auto s = delete_from(foo).using_(foo);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,

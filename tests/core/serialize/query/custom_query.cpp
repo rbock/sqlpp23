@@ -28,8 +28,6 @@
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-#include <iostream>
-
 SQLPP_CREATE_NAME_TAG(pragma);
 
 int main() {
@@ -38,9 +36,8 @@ int main() {
 
   // Unconditionally
   SQLPP_COMPARE(sqlpp::select() << select_flags(sqlpp::distinct)
-                                << select_columns(foo.doubleN) << from(foo)
-                                << sqlpp::where(true),
-                "SELECT DISTINCT tab_foo.double_n FROM tab_foo WHERE 1");
+                                << select_columns(foo.doubleN) << from(foo),
+                "SELECT DISTINCT tab_foo.double_n FROM tab_foo");
 
   // A full select statement made individual clauses
   SQLPP_COMPARE(sqlpp::select()

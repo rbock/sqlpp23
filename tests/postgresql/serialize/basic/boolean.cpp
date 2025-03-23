@@ -1,16 +1,15 @@
-/**
+/*
  * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *   Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -28,27 +27,10 @@
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
-#include <sqlpp23/tests/postgresql/tables.h>
-#include "make_test_connection.h"
+#include <sqlpp23/tests/postgresql/serialize_helpers.h>
 
-namespace sql = sqlpp::postgresql;
+int main() {
+  SQLPP_COMPARE(true, "'t'");
 
-int truncate(int, char*[]) {
-  test::TabFoo foo = {};
-
-  sql::connection db = sql::make_test_connection();
-
-  test::createTabFoo(db);
-
-  // insert a row
-  db(sql::insert_into(foo).default_values());
-
-  // truncate
-  db(truncate(foo));
-
-  auto result = db(select(foo.id).from(foo));
-  if (not result.empty()) {
-    throw std::runtime_error("truncate did not delete all rows");
-  }
   return 0;
 }

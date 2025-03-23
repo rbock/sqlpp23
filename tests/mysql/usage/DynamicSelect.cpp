@@ -30,7 +30,6 @@
 #include "make_test_connection.h"
 
 #include <iostream>
-#include <vector>
 
 namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
@@ -59,7 +58,7 @@ int DynamicSelect(int, char*[]) {
     i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
     db(i);
 
-    auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab).where(true);
+    auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab);
 
     for (const auto& row : db(s)) {
       std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN

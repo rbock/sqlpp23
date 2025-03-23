@@ -54,7 +54,7 @@ int main() {
   static_assert(can_call_as_with<decltype(bar.id), decltype(bar)>::value, "");
   static_assert(can_call_as_with<decltype(bar), decltype(something)>::value,
                 "");
-  static_assert(can_call_as_with<decltype(select(bar.id).from(bar).where(true)),
+  static_assert(can_call_as_with<decltype(select(bar.id).from(bar)),
                                  decltype(something)>::value,
                 "");
 

@@ -172,7 +172,7 @@ void test_from() {
 
   // FROM CTE
   {
-    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(true));
+    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
     auto statement = from(x);
 
     using R = decltype(make_table_ref(x));

@@ -68,11 +68,10 @@ int main() {
   const auto foo = test::TabFoo{};
 
   const auto ref = sqlpp::cte(something);
-  const auto incomplete_s1 = select(all_of(bar)).from(bar);
-  const auto s1 = incomplete_s1.where(true);
-  const auto incomplete_s2 =
-      select(all_of(bar.as(something))).from(bar.as(something));
-  const auto s2 = incomplete_s2.where(true);
+  const auto incomplete_s1 = select(all_of(bar));
+  const auto s1 = incomplete_s1.from(bar);
+  const auto incomplete_s2 = select(all_of(bar.as(something)));
+  const auto s2 = incomplete_s2.from(bar.as(something));
 
   const auto cte = sqlpp::cte(something).as(s1);
 
@@ -93,18 +92,20 @@ int main() {
       not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>,
       "");
 
-  // Missing where condition
-  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s1), "calling where() required");
-  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s2), "calling where() required");
+  // Missing from
+  constexpr auto missing_from =
+      std::string_view{"common table expression must not use unknown tables"};
+  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s1), missing_from);
+  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s2), missing_from);
 
   // Missing tables
   SQLPP_CHECK_STATIC_ASSERT(
-      ref.as(select(foo.id).from(bar).where(true)),
+      ref.as(select(foo.id).from(bar)),
       "common table expression must not use unknown tables");
 
   // Bad self-reference
   SQLPP_CHECK_STATIC_ASSERT(
-      ref.as(select(cte.id).from(cte).where(true)),
+      ref.as(select(cte.id).from(cte)),
       "common table expression must not self-reference in the first part, use "
       "union_all/union_distinct for recursion");
 
@@ -126,12 +127,6 @@ int main() {
         "argument of a union has to be a select statement or a union");
   }
 
-  // CTE UNION requires consistent statements
-  {
-    auto bad_rhs = select(all_of(foo)).from(foo);
-    CHECK_CTE_UNION_STATIC_ASSERTS(cte, bad_rhs, "calling where() required");
-  }
-
   // CTE UNION requires no missing tables
   {
     auto bad_rhs = select(all_of(foo));
@@ -141,14 +136,13 @@ int main() {
 
   // CTE UNION requires statements with same result row
   {
-    auto c_foo_int = sqlpp::cte(something).as(
-        select(foo.textNnD, foo.id).from(foo).where(true));
-    auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo).where(true);
+    auto c_foo_int =
+        sqlpp::cte(something).as(select(foo.textNnD, foo.id).from(foo));
+    auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo);
     auto c_value_id = sqlpp::cte(something).as(
-        select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo).where(true));
-    auto s_value_oid = select(foo.textNnD, sqlpp::value(7).as(something))
-                           .from(foo)
-                           .where(true);
+        select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo));
+    auto s_value_oid =
+        select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);
     // Different value type
     static_assert(
         not std::is_same<sqlpp::value_type_of_t<decltype(foo.id)>,

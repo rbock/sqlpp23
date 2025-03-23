@@ -171,16 +171,27 @@ struct nodes_of<
   using type = detail::type_vector<OnConflict, Assignments...>;
 };
 
-namespace postgresql {
-SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_update_where_t,
-                            "where() required for on_conflict().do_update()");
-}
-
 template <typename Statement, typename OnConflict, typename... Assignments>
 struct consistency_check<
     Statement,
     postgresql::on_conflict_do_update_t<OnConflict, Assignments...>> {
-  using type = postgresql::assert_on_conflict_update_where_t;
+  using type = consistent_t;
+};
+
+template <typename Statement, typename OnConflict, typename... Assignments>
+struct prepare_check<
+    Statement,
+    postgresql::on_conflict_do_update_t<OnConflict, Assignments...>> {
+  using type = static_combined_check_t<
+      static_check_t<
+          Statement::template _no_unknown_tables<
+              postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>,
+          postgresql::assert_no_unknown_tables_in_on_conflict_do_update_t>,
+      static_check_t<
+          Statement::template _no_unknown_static_tables<
+              postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>,
+          postgresql::
+              assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
 };
 
 }  // namespace sqlpp

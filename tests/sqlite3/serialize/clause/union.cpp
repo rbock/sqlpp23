@@ -33,16 +33,14 @@ int main(int, char*[]) {
   const auto f = test::TabFoo{};
 
   // UNION ALL (as in other connectors)
-  SQLPP_COMPARE(select(t.id).from(t).where(true).union_all(
-                    select(f.id).from(f).where(true)),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION ALL SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(select(t.id).from(t).union_all(select(f.id).from(f)),
+                "SELECT tab_bar.id FROM tab_bar UNION ALL SELECT "
+                "tab_foo.id FROM tab_foo");
 
   // UNION is implicitly distinct
-  SQLPP_COMPARE(select(t.id).from(t).where(true).union_distinct(
-                    select(f.id).from(f).where(true)),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(select(t.id).from(t).union_distinct(select(f.id).from(f)),
+                "SELECT tab_bar.id FROM tab_bar UNION SELECT "
+                "tab_foo.id FROM tab_foo");
 
   return 0;
 }

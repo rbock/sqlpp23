@@ -43,7 +43,7 @@ void test_join() {
   auto cake = foo.as(test::cake);
   auto meme = schema_qualified_table({"meme"}, foo).as(test::meme);
   auto verb = sqlpp::verbatim_table("verb").as(test::verb);
-  auto cte = sqlpp::cte(test::CTE).as(select(foo.id).from(foo).where(true));
+  auto cte = sqlpp::cte(test::CTE).as(select(foo.id).from(foo));
   auto sel_as = select(all_of(foo))
                     .from(foo)
                     .where(foo.id == sqlpp::parameter(foo.id))

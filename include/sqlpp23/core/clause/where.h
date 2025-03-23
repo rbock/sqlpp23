@@ -111,13 +111,9 @@ auto to_sql_string(Context&, const no_where_t&) -> std::string {
   return "";
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_where_called_t, "calling where() required");
-
 template <typename Statement>
 struct consistency_check<Statement, no_where_t> {
-  using type = typename std::conditional<is_where_required<Statement>::value,
-                                         assert_where_called_t,
-                                         consistent_t>::type;
+  using type = consistent_t;
 };
 
 template <DynamicBoolean Expression>

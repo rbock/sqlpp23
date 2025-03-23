@@ -80,13 +80,10 @@ int main() {
   // --------------------------------
   // consistency checks
   // --------------------------------
-  const auto select_without_group_by =
-      select(all_of(bar)).from(bar).where(true);
-  const auto select_with_group_by =
-      select(bar.id).from(bar).where(true).group_by(bar.id);
+  const auto select_without_group_by = select(all_of(bar)).from(bar);
+  const auto select_with_group_by = select(bar.id).from(bar).group_by(bar.id);
   const auto select_with_dynamic_group_by =
-      select(bar.id).from(bar).where(true).group_by(bar.id,
-                                                    dynamic(maybe, bar.textN));
+      select(bar.id).from(bar).group_by(bar.id, dynamic(maybe, bar.textN));
 
   // OK
   {
@@ -201,7 +198,6 @@ int main() {
   {
     auto s = select(max(foo.id).as(something))
                  .from(foo)
-                 .where(true)
                  .having(max(bar.id) > 7)
                  .group_by(foo.id);
     using S = decltype(s);
@@ -218,7 +214,6 @@ int main() {
   {
     auto s = select(max(foo.id).as(something))
                  .from(foo.cross_join(dynamic(maybe, bar)))
-                 .where(true)
                  .having(bar.id > 7)
                  .group_by(bar.id);
     using S = decltype(s);

@@ -27,6 +27,7 @@
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
 #include <sqlpp23/tests/core/tables.h>
+#include <string_view>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
@@ -85,11 +86,10 @@ int main() {
   const auto bar = test::TabBar{};
   const auto foo = test::TabFoo{};
 
-  const auto incomplete_lhs = select(all_of(bar)).from(bar);
-  const auto lhs = incomplete_lhs.where(true);
-  const auto incomplete_rhs =
-      select(all_of(bar.as(something))).from(bar.as(something));
-  const auto rhs = incomplete_rhs.where(true);
+  const auto incomplete_lhs = select(all_of(bar));
+  const auto lhs = incomplete_lhs.from(bar);
+  const auto incomplete_rhs = select(all_of(bar.as(something)));
+  const auto rhs = incomplete_rhs.from(bar.as(something));
 
   union_distinct(lhs, rhs);
   static_assert(
@@ -119,20 +119,20 @@ int main() {
   }
 
   // UNION requires preparable statements
-  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, incomplete_rhs,
-                             "calling where() required");
-  CHECK_UNION_STATIC_ASSERTS(lhs, incomplete_rhs, "calling where() required");
-  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, rhs, "calling where() required");
+  constexpr auto missing_from = std::string_view{
+      "at least one selected column requires a table which is otherwise not "
+      "known in the statement"};
+  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, incomplete_rhs, missing_from);
+  CHECK_UNION_STATIC_ASSERTS(lhs, incomplete_rhs, missing_from);
+  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, rhs, missing_from);
 
   // UNION requires statements with same result row
   {
-    auto s_foo_int = select(foo.textNnD, foo.id).from(foo).where(true);
-    auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo).where(true);
-    auto s_value_id =
-        select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo).where(true);
-    auto s_value_oid = select(foo.textNnD, sqlpp::value(7).as(something))
-                           .from(foo)
-                           .where(true);
+    auto s_foo_int = select(foo.textNnD, foo.id).from(foo);
+    auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo);
+    auto s_value_id = select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo);
+    auto s_value_oid =
+        select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);
     // Different value type
     static_assert(
         not std::is_same<sqlpp::value_type_of_t<decltype(foo.id)>,

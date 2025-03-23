@@ -33,52 +33,46 @@ int main(int, char*[]) {
   const auto f = test::TabFoo{};
 
   // Using member function
-  SQLPP_COMPARE(select(t.id).from(t).where(true).union_all(
-                    select(f.id).from(f).where(true)),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION ALL SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(select(t.id).from(t).union_all(select(f.id).from(f)),
+                "SELECT tab_bar.id FROM tab_bar UNION ALL SELECT "
+                "tab_foo.id FROM tab_foo");
 
-  SQLPP_COMPARE(select(t.id).from(t).where(true).union_distinct(
-                    select(f.id).from(f).where(true)),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION DISTINCT SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(select(t.id).from(t).union_distinct(select(f.id).from(f)),
+                "SELECT tab_bar.id FROM tab_bar UNION DISTINCT SELECT "
+                "tab_foo.id FROM tab_foo");
 
-  SQLPP_COMPARE(select(t.id).from(t).where(true).union_distinct(
-                    dynamic(true, select(f.id).from(f).where(true))),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION DISTINCT SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(
+      select(t.id).from(t).union_distinct(dynamic(true, select(f.id).from(f))),
+      "SELECT tab_bar.id FROM tab_bar UNION DISTINCT SELECT "
+      "tab_foo.id FROM tab_foo");
 
-  SQLPP_COMPARE(select(t.id).from(t).where(true).union_distinct(
-                    dynamic(false, select(f.id).from(f).where(true))),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1");
+  SQLPP_COMPARE(
+      select(t.id).from(t).union_distinct(dynamic(false, select(f.id).from(f))),
+      "SELECT tab_bar.id FROM tab_bar");
 
   SQLPP_COMPARE(select(t.intN.as(f.id))
                     .from(t)
-                    .where(true)
-                    .union_distinct(select(f.id).from(f).where(true))
-                    .union_all(select(t.id).from(t).where(true)),
-                "SELECT tab_bar.int_n AS id FROM tab_bar WHERE 1 UNION "
-                "DISTINCT SELECT tab_foo.id FROM tab_foo WHERE 1 UNION ALL "
-                "SELECT tab_bar.id FROM tab_bar WHERE 1");
+                    .union_distinct(select(f.id).from(f))
+                    .union_all(select(t.id).from(t)),
+                "SELECT tab_bar.int_n AS id FROM tab_bar UNION "
+                "DISTINCT SELECT tab_foo.id FROM tab_foo UNION ALL "
+                "SELECT tab_bar.id FROM tab_bar");
 
   // Using free function
-  SQLPP_COMPARE(union_all(select(t.id).from(t).where(true),
-                          select(f.id).from(f).where(true)),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION ALL SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(union_all(select(t.id).from(t), select(f.id).from(f)),
+                "SELECT tab_bar.id FROM tab_bar UNION ALL SELECT "
+                "tab_foo.id FROM tab_foo");
 
-  SQLPP_COMPARE(union_distinct(select(t.id).from(t).where(true),
-                               select(f.id).from(f).where(true)),
-                "SELECT tab_bar.id FROM tab_bar WHERE 1 UNION DISTINCT SELECT "
-                "tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(union_distinct(select(t.id).from(t), select(f.id).from(f)),
+                "SELECT tab_bar.id FROM tab_bar UNION DISTINCT SELECT "
+                "tab_foo.id FROM tab_foo");
 
-  SQLPP_COMPARE(
-      union_all(union_distinct(select(t.intN.as(f.id)).from(t).where(true),
-                               select(f.id).from(f).where(true)),
-                select(t.id).from(t).where(true)),
-      "SELECT tab_bar.int_n AS id FROM tab_bar WHERE 1 UNION DISTINCT SELECT "
-      "tab_foo.id FROM tab_foo WHERE 1 UNION ALL "
-      "SELECT tab_bar.id FROM tab_bar WHERE 1");
+  SQLPP_COMPARE(union_all(union_distinct(select(t.intN.as(f.id)).from(t),
+                                         select(f.id).from(f)),
+                          select(t.id).from(t)),
+                "SELECT tab_bar.int_n AS id FROM tab_bar UNION DISTINCT SELECT "
+                "tab_foo.id FROM tab_foo UNION ALL "
+                "SELECT tab_bar.id FROM tab_bar");
 
   return 0;
 }

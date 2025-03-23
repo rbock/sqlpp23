@@ -106,8 +106,8 @@ int Interpret(int, char*[]) {
   to_sql_string(ctx, sqlpp::verbatim<sqlpp::integral>("something integral"));
   to_sql_string(ctx, t.id.in(std::vector<int>({1, 2, 3, 4, 5, 6, 8})));
   to_sql_string(ctx, sqlpp::in(t.id, std::vector<int>({1, 2, 3, 4, 5, 6, 8})));
-  to_sql_string(ctx, exists(select(t.id).from(t).where(true)));
-  to_sql_string(ctx, any(select(t.id).from(t).where(true)));
+  to_sql_string(ctx, exists(select(t.id).from(t)));
+  to_sql_string(ctx, any(select(t.id).from(t)));
   to_sql_string(ctx, count(t.id));
   to_sql_string(ctx, min(t.id));
   to_sql_string(ctx, max(t.id));
@@ -143,9 +143,9 @@ int Interpret(int, char*[]) {
   to_sql_string(ctx, avg(sqlpp::distinct, t.id - 7));
   to_sql_string(ctx, sum(sqlpp::distinct, t.id + 7));
 
-  to_sql_string(ctx, select(all_of(t)).from(t).where(true));
+  to_sql_string(ctx, select(all_of(t)).from(t));
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t))) {
     to_sql_string(ctx, t.id == row.id);
     to_sql_string(ctx, t.textN == row.textN.value());
     to_sql_string(ctx, t.boolNn == row.boolNn);
@@ -156,8 +156,8 @@ int Interpret(int, char*[]) {
 
   flatten(ctx, t.id == 7);
 
-  std::cerr << to_sql_string(ctx, select(all_of(t)).from(t).where(t.id.in(
-                                      select(f.intN).from(f).where(true))))
+  std::cerr << to_sql_string(ctx, select(all_of(t)).from(t).where(
+                                      t.id.in(select(f.intN).from(f))))
             << std::endl;
 
   std::cerr << to_sql_string(ctx, select(all_of(t)).from(t).where(t.id.in(7)))
@@ -170,8 +170,7 @@ int Interpret(int, char*[]) {
   auto schema = db.attach("lorem");
   auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);
 
-  std::cerr << to_sql_string(ctx, select(all_of(s)).from(s).where(true))
-            << std::endl;
+  std::cerr << to_sql_string(ctx, select(all_of(s)).from(s)) << std::endl;
 
   std::cerr << to_sql_string(
                    ctx, sqlpp::case_when(true).then(t.id).else_(t.id + 1).as(

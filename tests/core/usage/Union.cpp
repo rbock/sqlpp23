@@ -28,7 +28,6 @@
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
-#include "is_regular.h"
 
 namespace greek {
 SQLPP_CREATE_NAME_TAG(id);
@@ -41,16 +40,12 @@ int Union(int, char*[]) {
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 
-  db(select(t.id).from(t).where(true).union_distinct(
-      select(f.intN.as(t.id)).from(f).where(true)));
-  db(select(t.id).from(t).where(true).union_all(
-      select(f.intN.as(t.id)).from(f).where(true)));
+  db(select(t.id).from(t).union_distinct(select(f.intN.as(t.id)).from(f)));
+  db(select(t.id).from(t).union_all(select(f.intN.as(t.id)).from(f)));
 
   // t.id can be null, a given value cannot
-  db(select(t.id).from(t).where(true).union_all(
-      select(sqlpp::value(1).as(t.id))));
-  db(select(t.id).from(t).where(true).union_all(
-      select(sqlpp::value(1).as(greek::id))));
+  db(select(t.id).from(t).union_all(select(sqlpp::value(1).as(t.id))));
+  db(select(t.id).from(t).union_all(select(sqlpp::value(1).as(greek::id))));
 
   // t.textN can be null, f.textNnD cannot
   static_assert(
@@ -58,25 +53,21 @@ int Union(int, char*[]) {
   static_assert(not sqlpp::is_optional<
                     sqlpp::value_type_of_t<decltype(f.textNnD)>>::value,
                 "");
-  db(select(t.textN).from(t).where(true).union_all(
-      select(f.textNnD.as(greek::textN)).from(f).where(true)));
+  db(select(t.textN).from(t).union_all(
+      select(f.textNnD.as(greek::textN)).from(f)));
 
   auto u = select(t.id)
                .from(t)
-               .where(true)
-               .union_all(select(f.intN.as(t.id)).from(f).where(true))
+               .union_all(select(f.intN.as(t.id)).from(f))
                .as(sqlpp::alias::u);
 
-  db(select(all_of(u)).from(u).where(true).union_all(
-      select(t.intN.as(t.id)).from(t).where(true)));
-  db(select(u.id).from(u).where(true).union_all(
-      select(t.intN.as(t.id)).from(t).where(true)));
+  db(select(all_of(u)).from(u).union_all(select(t.intN.as(t.id)).from(t)));
+  db(select(u.id).from(u).union_all(select(t.intN.as(t.id)).from(t)));
 
   db(select(t.id)
          .from(t)
-         .where(true)
-         .union_all(select(t.id).from(t).where(true))
-         .union_all(select(t.id).from(t).where(true)));
+         .union_all(select(t.id).from(t))
+         .union_all(select(t.id).from(t)));
 
   return 0;
 }

@@ -47,37 +47,34 @@ int Sample(int, char*[]) {
 
     const auto tab = test::TabSample{};
     // clear the table
-    db(delete_from(tab).where(true));
+    db(delete_from(tab));
 
     // Several ways of ensuring that tab is empty
-    assert(not db(select(exists(select(tab.intN).from(tab).where(true))
-                             .as(::sqlpp::alias::a)))
-                   .front()
-                   .a);  // this is probably the fastest
-    assert(not db(select(count(tab.intN).as(sqlpp::alias::a))
-                      .from(tab)
-                      .where(true))
+    assert(
+        not db(select(exists(select(tab.intN).from(tab)).as(::sqlpp::alias::a)))
+                .front()
+                .a);  // this is probably the fastest
+    assert(not db(select(count(tab.intN).as(sqlpp::alias::a)).from(tab))
                    .front()
                    .a);
-    assert(db(select(tab.intN).from(tab).where(true)).empty());
+    assert(db(select(tab.intN).from(tab)).empty());
 
     // explicit all_of(tab)
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
     select(all_of(tab)).from(tab);
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-    db(select(all_of(tab)).from(tab).where(true));
+    db(select(all_of(tab)).from(tab));
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
+    for (const auto& row : db(select(all_of(tab)).from(tab))) {
       std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
       std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN
                 << ", row.boolN: " << row.boolN << std::endl;
     };
     // insert
     db(insert_into(tab).default_values());
-    const auto x = select(all_of(tab)).from(tab).where(true);
+    const auto x = select(all_of(tab)).from(tab);
     const auto y = db.prepare(x);
-    for (const auto& row :
-         db(db.prepare(select(all_of(tab)).from(tab).where(true)))) {
+    for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab)))) {
       std::cerr << "intN: " << row.intN << std::endl;
       std::cerr << "textN: " << row.textN << std::endl;
       std::cerr << "boolN: " << row.boolN << std::endl;
@@ -99,12 +96,12 @@ int Sample(int, char*[]) {
       db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-      for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
+      for (const auto& row : db(select(all_of(tab)).from(tab))) {
         std::cerr << __LINE__ << " row.textN: " << row.textN << std::endl;
       }
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-      decltype(db(select(all_of(tab)).from(tab).where(true))) result;
-      result = db(select(all_of(tab)).from(tab).where(true));
+      decltype(db(select(all_of(tab)).from(tab))) result;
+      result = db(select(all_of(tab)).from(tab));
       std::cerr << "Accessing a field directly from the result (using the "
                    "current row): "
                 << result.begin()->intN << std::endl;
@@ -116,12 +113,10 @@ int Sample(int, char*[]) {
     {
       auto tx = start_transaction(db);
       auto result =
-          db(select(all_of(tab), value(select(max(tab.intN).as(sqlpp::alias::a))
-                                           .from(tab)
-                                           .where(true))
-                                     .as(sqlpp::alias::a))
-                 .from(tab)
-                 .where(true));
+          db(select(all_of(tab),
+                    value(select(max(tab.intN).as(sqlpp::alias::a)).from(tab))
+                        .as(sqlpp::alias::a))
+                 .from(tab));
       if (const auto& row = *result.begin()) {
         const int64_t a = row.intN.value_or(0);
         const std::optional<long> m = row.a;
@@ -132,16 +127,13 @@ int Sample(int, char*[]) {
     }
 
     test::TabFoo foo;
-    for (const auto& row : db(select(tab.intN)
-                                  .from(tab.join(foo).on(tab.intN == foo.intN))
-                                  .where(true))) {
+    for (const auto& row :
+         db(select(tab.intN).from(tab.join(foo).on(tab.intN == foo.intN)))) {
       std::cerr << row.intN << std::endl;
     }
 
-    for (const auto& row :
-         db(select(tab.intN)
-                .from(tab.left_outer_join(foo).on(tab.intN == foo.intN))
-                .where(true))) {
+    for (const auto& row : db(select(tab.intN).from(
+             tab.left_outer_join(foo).on(tab.intN == foo.intN)))) {
       std::cerr << row.intN << std::endl;
     }
 
@@ -194,8 +186,7 @@ int Sample(int, char*[]) {
     for (const auto& row :
          db(select(case_when(tab.boolN).then(tab.intN).else_(foo.intN).as(
                        tab.intN))
-                .from(tab.cross_join(foo))
-                .where(true))) {
+                .from(tab.cross_join(foo)))) {
       std::cerr << row.intN << std::endl;
     }
   } catch (const std::exception& e) {

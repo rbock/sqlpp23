@@ -57,7 +57,7 @@ int main() {
   const auto bar = test::TabBar{};
 
   const auto c_ref = cte(something);
-  const auto c = c_ref.as(select(bar.id).from(bar).where(true));
+  const auto c = c_ref.as(select(bar.id).from(bar));
 
   // OK
   with(c);
@@ -80,9 +80,8 @@ int main() {
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
   // the right)
   {
-    const auto a =
-        cte(sqlpp::alias::a).as(select(bar.id).from(bar).where(true));
-    const auto b = cte(sqlpp::alias::b).as(select(a.id).from(a).where(true));
+    const auto a = cte(sqlpp::alias::a).as(select(bar.id).from(bar));
+    const auto b = cte(sqlpp::alias::b).as(select(a.id).from(a));
 
     std::ignore = with(a);                     // OK
     std::ignore = with(a, b);                  // OK
@@ -102,10 +101,8 @@ int main() {
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
   // the right)
   {
-    const auto a1 =
-        cte(sqlpp::alias::a).as(select(bar.id).from(bar).where(true));
-    const auto a2 =
-        cte(sqlpp::alias::a).as(select(foo.id).from(foo).where(true));
+    const auto a1 = cte(sqlpp::alias::a).as(select(bar.id).from(bar));
+    const auto a2 = cte(sqlpp::alias::a).as(select(foo.id).from(foo));
 
     std::ignore = with(a1);  // OK
     std::ignore = with(a2);  // OK

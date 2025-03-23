@@ -41,7 +41,7 @@ test::TabFoo tab = {};
 void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
-  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << std::endl;
@@ -49,8 +49,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   };
   assert(i == expectedRowCount);
 
-  auto preparedSelectAll =
-      db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
+  auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab));
   i = 0;
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
@@ -80,7 +79,7 @@ int Select(int, char*[]) {
   testSelectAll(db, 3);
 
   // Test size functionality
-  const auto test_size = db(select(all_of(tab)).from(tab).where(true));
+  const auto test_size = db(select(all_of(tab)).from(tab));
   assert(test_size.size() == 3);
 
   // test functions and operators
@@ -94,13 +93,12 @@ int Select(int, char*[]) {
   db(select(all_of(tab))
          .from(tab)
          .where(tab.id.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.id).as(something)).from(tab).where(true));
-  db(select(avg(tab.id).as(something)).from(tab).where(true));
-  db(select(max(tab.id).as(something)).from(tab).where(true));
-  db(select(min(tab.id).as(something)).from(tab).where(true));
+  db(select(count(tab.id).as(something)).from(tab));
+  db(select(avg(tab.id).as(something)).from(tab));
+  db(select(max(tab.id).as(something)).from(tab));
+  db(select(min(tab.id).as(something)).from(tab));
   db(select(exists(select(tab.id).from(tab).where(tab.id > 7)).as(something))
-         .from(tab)
-         .where(true));
+         .from(tab));
   db(select(all_of(tab))
          .from(tab)
          .where(tab.id == any(select(tab.id).from(tab).where(tab.id < 3))));
@@ -135,7 +133,7 @@ int Select(int, char*[]) {
   // delete
   db(delete_from(tab).where(tab.id == tab.id + 3));
 
-  auto result1 = db(select(all_of(tab)).from(tab).where(true));
+  auto result1 = db(select(all_of(tab)).from(tab));
   std::cerr
       << "Accessing a field directly from the result (using the current row): "
       << result1.begin()->id << std::endl;
@@ -143,12 +141,10 @@ int Select(int, char*[]) {
             << std::endl;
 
   auto tx = start_transaction(db);
-  auto result2 =
-      db(select(all_of(tab),
-                value(select(max(tab.id).as(something)).from(tab).where(true))
-                    .as(something))
-             .from(tab)
-             .where(true));
+  auto result2 = db(
+      select(all_of(tab),
+             value(select(max(tab.id).as(something)).from(tab)).as(something))
+          .from(tab));
   if (const auto& row = *result2.begin()) {
     auto a = row.id;
     auto m = row.something;

@@ -101,7 +101,7 @@ int main() {
 
   // order_by must not require unknown tables for prepare/run
   {
-    auto s = select(foo.id).from(foo).where(true).order_by(foo.id.asc());
+    auto s = select(foo.id).from(foo).order_by(foo.id.asc());
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -112,8 +112,7 @@ int main() {
   }
 
   {
-    auto s = select(foo.id).from(foo).where(true).order_by(foo.id.asc(),
-                                                           bar.id.asc());
+    auto s = select(foo.id).from(foo).order_by(foo.id.asc(), bar.id.asc());
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -127,7 +126,7 @@ int main() {
   // order_by must not require unknown tables for prepare/run
   {
     // OK, foo.id and max(...) are both aggregates
-    auto s = select(foo.id).from(foo).where(true).group_by(foo.id).order_by(
+    auto s = select(foo.id).from(foo).group_by(foo.id).order_by(
         foo.id.asc(), max(foo.intN).desc());
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
@@ -140,8 +139,8 @@ int main() {
 
   {
     // Fail: foo.id is a non-aggregate, but max(...) is an aggregate
-    auto s = select(foo.id).from(foo).where(true).order_by(
-        foo.id.asc(), max(foo.intN).desc());
+    auto s =
+        select(foo.id).from(foo).order_by(foo.id.asc(), max(foo.intN).desc());
     using S = decltype(s);
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,
@@ -155,7 +154,7 @@ int main() {
 
   {
     // Fail: foo.id is an aggregate, but foo.intN is not.
-    auto s = select(foo.id).from(foo).where(true).group_by(foo.id).order_by(
+    auto s = select(foo.id).from(foo).group_by(foo.id).order_by(
         foo.id.asc(), foo.intN.desc());
     using S = decltype(s);
     static_assert(
@@ -175,7 +174,6 @@ int main() {
     // order_by.
     auto s = select(foo.id)
                  .from(foo)
-                 .where(true)
                  .group_by(foo.id, dynamic(maybe, foo.intN))
                  .order_by(foo.id.asc(), foo.intN.desc());
     using S = decltype(s);
@@ -195,7 +193,7 @@ int main() {
 
   // `order_by` using unknown table
   {
-    auto s = select(foo.id).from(foo).where(true).order_by(bar.id.desc());
+    auto s = select(foo.id).from(foo).order_by(bar.id.desc());
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -210,7 +208,6 @@ int main() {
   {
     auto s = select(foo.id)
                  .from(foo.cross_join(dynamic(maybe, bar)))
-                 .where(true)
                  .order_by(bar.id.desc());
     using S = decltype(s);
     static_assert(

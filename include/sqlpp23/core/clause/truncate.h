@@ -51,8 +51,7 @@ struct consistency_check<Statement, truncate_t> {
   using type = consistent_t;
 };
 
-using blank_truncate_t =
-    statement_t<truncate_t, no_single_table_t>;
+using blank_truncate_t = statement_t<truncate_t, no_single_table_t>;
 
 template <StaticRawTable _Table>
 auto truncate(_Table table) {

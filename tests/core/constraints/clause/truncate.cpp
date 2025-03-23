@@ -34,7 +34,8 @@ concept can_call_truncate_with_standalone =
     requires(Expressions... expressions) { sqlpp::truncate(expressions...); };
 
 template <typename... Expressions>
-concept can_call_truncate_with = can_call_truncate_with_standalone<Expressions...>;
+concept can_call_truncate_with =
+    can_call_truncate_with_standalone<Expressions...>;
 
 template <typename... Expressions>
 concept cannot_call_truncate_with =

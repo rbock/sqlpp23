@@ -32,7 +32,6 @@
 #include "sqlpp23/tests/core/result_helpers.h"
 
 #include <iostream>
-#include <vector>
 
 const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
@@ -51,7 +50,7 @@ int Truncated(int, char*[]) {
 
     {
       for (const auto& row :
-           db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true)))) {
+           db(db.prepare(sqlpp::select(all_of(tab)).from(tab)))) {
         std::cerr << ">>> row.intN: " << row.intN
                   << ", row.textN: " << row.textN
                   << ", row.boolN: " << row.boolN << std::endl;

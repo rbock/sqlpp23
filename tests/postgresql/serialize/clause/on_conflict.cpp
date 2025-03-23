@@ -63,8 +63,8 @@ int main() {
                 " ON CONFLICT (id) DO UPDATE SET text_nn_d = 'cake'");
 
   // Testing WHERE
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7).where(true),
-                " ON CONFLICT (id) DO UPDATE SET id = 7 WHERE 't'");
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7),
+                " ON CONFLICT (id) DO UPDATE SET id = 7");
   SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7).where(foo.id == 17),
                 " ON CONFLICT (id) DO UPDATE SET id = 7 WHERE tab_foo.id = 17");
   SQLPP_COMPARE(on_conflict(foo.id)

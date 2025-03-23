@@ -30,7 +30,6 @@
 #include "make_test_connection.h"
 
 #include <iostream>
-#include <vector>
 
 const auto tab = test::TabSample{};
 
@@ -48,7 +47,6 @@ int Update(int, char*[]) {
 
     db(sql::update(tab)
            .set(tab.boolN = true)
-           .where(true)
            .order_by(tab.intN.desc())
            .limit(1u));
     for (const auto& row :

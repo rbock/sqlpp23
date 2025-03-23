@@ -136,7 +136,7 @@ int main(int, char*[]) {
                 "tab_foo INNER JOIN tab_foo AS a ON tab_foo.id = a.id");
 
   // Joining sub selects
-  const auto s = select(all_of(foo)).from(foo).where(true).as(something);
+  const auto s = select(all_of(foo)).from(foo).as(something);
   auto ctx = MockDb::_context_t{};
   const auto s_string = to_sql_string(ctx, s);
 
@@ -149,7 +149,7 @@ int main(int, char*[]) {
 
   // Joining sub ctes
   const auto c_ref = cte(something);
-  const auto c = c_ref.as(select(all_of(foo)).from(foo).where(true));
+  const auto c = c_ref.as(select(all_of(foo)).from(foo));
   const auto c_string = to_sql_string(ctx, c_ref);
 
   SQLPP_COMPARE(foo.cross_join(c), "tab_foo CROSS JOIN " + c_string);

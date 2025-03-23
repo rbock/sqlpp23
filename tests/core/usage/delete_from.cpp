@@ -30,7 +30,7 @@
 #include <iostream>
 #include "is_regular.h"
 
-int Remove(int, char*[]) {
+int delete_from(int, char*[]) {
   MockDb db = {};
   MockDb::_context_t printer = {};
 
@@ -53,11 +53,11 @@ int Remove(int, char*[]) {
 
   to_sql_string(printer, delete_from(t));
   to_sql_string(printer, delete_from(t).where(t.textN != "transparent"));
-  std::cerr << to_sql_string(printer, delete_from(t).where(true)) << std::endl;
+  std::cerr << to_sql_string(printer, delete_from(t)) << std::endl;
 
-  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f).where(true))));
+  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f))));
   db(delete_from(t).where(
-      dynamic(maybe, t.textN.in(select(f.textNnD).from(f).where(true)))));
+      dynamic(maybe, t.textN.in(select(f.textNnD).from(f)))));
 
   db(truncate(t));
 

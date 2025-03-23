@@ -364,9 +364,6 @@ using required_insert_columns_of_t =
     typename required_insert_columns_of<T>::type;
 
 template <typename T>
-struct is_where_required : public std::false_type {};
-
-template <typename T>
 struct is_clause : public std::false_type {};
 
 // Check if a clause makes sense in the context of the whole statement.

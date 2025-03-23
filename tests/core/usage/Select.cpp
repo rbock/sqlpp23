@@ -30,7 +30,6 @@
 #include <sqlpp23/tests/core/tables.h>
 #include <algorithm>
 #include <iostream>
-#include "is_regular.h"
 
 struct to_cerr {
   template <typename Field>
@@ -73,13 +72,13 @@ int Select(int, char*[]) {
 
   {
     // using stl algorithms
-    auto rows = db(select(all_of(t)).from(t).where(true));
+    auto rows = db(select(all_of(t)).from(t));
     // nicer in C++14
     std::for_each(rows.begin(), rows.end(),
                   &print_row<decltype(*rows.begin())>);
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t))) {
     const std::optional<int64_t> a = row.id;
     const std::optional<std::string_view> b = row.textN;
     std::cout << a << ", " << b << std::endl;
@@ -97,8 +96,7 @@ int Select(int, char*[]) {
 
   for (const auto& row :
        db(select(all_of(t), f.textNnD)
-              .from(t.join(f).on(t.id > f.doubleN and not t.boolNn))
-              .where(true))) {
+              .from(t.join(f).on(t.id > f.doubleN and not t.boolNn)))) {
     std::cout << row.id << std::endl;
   }
 
@@ -106,14 +104,12 @@ int Select(int, char*[]) {
                                 .from(t.join(f)
                                           .on(t.id > f.doubleN)
                                           .join(tab_a)
-                                          .on(t.id == tab_a.doubleN))
-                                .where(true))) {
+                                          .on(t.id == tab_a.doubleN)))) {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average))
-                                .from(t)
-                                .where(true))) {
+  for (const auto& row :
+       db(select(sqlpp::count(1).as(N), avg(t.id).as(average)).from(t))) {
     std::cout << row.N << std::endl;
   }
 
@@ -173,12 +169,11 @@ int Select(int, char*[]) {
                                        .then(t.textN)
                                        .else_(std::nullopt)
                                        .as(t.textN))
-                                .from(t)
-                                .where(true))) {
+                                .from(t))) {
     std::cerr << row.textN << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t))) {
     for_each_field(row, to_cerr{});
   }
 
@@ -205,11 +200,8 @@ int Select(int, char*[]) {
 
   // Move to type tests?
   for (const auto& row :
-       db(select(
-              f.doubleN,
-              value(select(count(t.id).as(N)).from(t).where(true)).as(cheese))
-              .from(f)
-              .where(true))) {
+       db(select(f.doubleN, value(select(count(t.id).as(N)).from(t)).as(cheese))
+              .from(f))) {
     std::cout << row.doubleN << " " << row.cheese << std::endl;
   }
 

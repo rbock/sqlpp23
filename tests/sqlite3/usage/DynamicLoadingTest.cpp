@@ -40,11 +40,10 @@
 #include <sqlite3.h>
 #endif
 #include <iostream>
-#include <vector>
 
 #include <sqlpp23/sqlite3/dynamic_libsqlite3.h>
 
-SQLPP_CREATE_NAME_TAG(left)
+SQLPP_CREATE_NAME_TAG(left);
 
 namespace sql = sqlpp::sqlite3;
 int main() {
@@ -80,10 +79,7 @@ int main() {
             << std::endl;
 
   // select a static (alpha) and a dynamic column (beta)
-  auto s = dynamic_select(db)
-               .dynamic_columns(tab.alpha.as(left))
-               .from(tab)
-               .where(true);
+  auto s = dynamic_select(db).dynamic_columns(tab.alpha.as(left)).from(tab);
   s.selected_columns.add(tab.beta);
   s.selected_columns.add(tab.gamma);
   for (const auto& row : db(s)) {

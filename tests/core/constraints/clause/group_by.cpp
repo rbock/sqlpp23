@@ -115,7 +115,7 @@ int main() {
 
   // group_by must not require unknown tables for prepare/run
   {
-    auto s = select(foo.id).from(foo).where(true).group_by(foo.id);
+    auto s = select(foo.id).from(foo).group_by(foo.id);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -126,7 +126,7 @@ int main() {
   }
 
   {
-    auto s = select(foo.id).from(foo).where(true).group_by(foo.id, bar.id);
+    auto s = select(foo.id).from(foo).group_by(foo.id, bar.id);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -139,10 +139,7 @@ int main() {
 
   // `group_by` using unknown table
   {
-    auto s = select(max(foo.id).as(something))
-                 .from(foo)
-                 .where(true)
-                 .group_by(bar.id);
+    auto s = select(max(foo.id).as(something)).from(foo).group_by(bar.id);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -157,7 +154,6 @@ int main() {
   {
     auto s = select(max(foo.id).as(something))
                  .from(foo.cross_join(dynamic(maybe, bar)))
-                 .where(true)
                  .group_by(bar.id);
     using S = decltype(s);
     static_assert(

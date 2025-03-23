@@ -44,19 +44,16 @@ int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::select(expr.as(foo.id)), "SELECT (17 + 4) AS id");
 
   // SELECT FROM.
-  SQLPP_COMPARE(select(foo.id).from(foo).where(true),
-                "SELECT tab_foo.id FROM tab_foo WHERE 1");
-  SQLPP_COMPARE(select(foo.id, foo.textNnD).from(foo).where(true),
-                "SELECT tab_foo.id, tab_foo.text_nn_d FROM tab_foo WHERE 1");
-  SQLPP_COMPARE(sqlpp::select().columns(foo.id).from(foo).where(true),
-                "SELECT tab_foo.id FROM tab_foo WHERE 1");
-  SQLPP_COMPARE(
-      sqlpp::select().flags(sqlpp::all).columns(foo.id).from(foo).where(true),
-      "SELECT ALL tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(select(foo.id).from(foo), "SELECT tab_foo.id FROM tab_foo");
+  SQLPP_COMPARE(select(foo.id, foo.textNnD).from(foo),
+                "SELECT tab_foo.id, tab_foo.text_nn_d FROM tab_foo");
+  SQLPP_COMPARE(sqlpp::select().columns(foo.id).from(foo),
+                "SELECT tab_foo.id FROM tab_foo");
+  SQLPP_COMPARE(sqlpp::select().flags(sqlpp::all).columns(foo.id).from(foo),
+                "SELECT ALL tab_foo.id FROM tab_foo");
 
   // SELECT FROM WHERE.
-  SQLPP_COMPARE(select(foo.id).from(foo).where(true),
-                "SELECT tab_foo.id FROM tab_foo WHERE 1");
+  SQLPP_COMPARE(select(foo.id).from(foo), "SELECT tab_foo.id FROM tab_foo");
   SQLPP_COMPARE(select(foo.id).from(foo).where(foo.intN > 17),
                 "SELECT tab_foo.id FROM tab_foo WHERE tab_foo.int_n > 17");
   SQLPP_COMPARE(select(foo.id).from(foo).where(dynamic(false, foo.intN > 17)),
@@ -65,22 +62,20 @@ int main(int, char*[]) {
   // SELECT FROM WHERE GROUP BY HAVING.
   SQLPP_COMPARE(select(count(foo.id).as(something))
                     .from(foo)
-                    .where(true)
                     .group_by(foo.intN)
                     .having(max(foo.id) < 100),
-                "SELECT COUNT(tab_foo.id) AS something FROM tab_foo WHERE 1 "
+                "SELECT COUNT(tab_foo.id) AS something FROM tab_foo "
                 "GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100");
 
   // SELECT FROM WHERE GROUP BY HAVING ORDER BY LIMIT OFFSET
   SQLPP_COMPARE(select(count(foo.id).as(something))
                     .from(foo)
-                    .where(true)
                     .group_by(foo.intN)
                     .having(max(foo.id) < 100)
                     .order_by(foo.intN.asc())
                     .limit(10)
                     .offset(3),
-                "SELECT COUNT(tab_foo.id) AS something FROM tab_foo WHERE 1 "
+                "SELECT COUNT(tab_foo.id) AS something FROM tab_foo "
                 "GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100 ORDER BY "
                 "tab_foo.int_n ASC LIMIT 10 OFFSET 3");
 

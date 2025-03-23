@@ -41,7 +41,7 @@ int DateTime(int, char*[]) {
        db(select(::sqlpp::value(std::chrono::system_clock::now()).as(now)))) {
     std::cout << row.now;
   }
-  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t))) {
     std::cout << row.dayPointN;
     std::cout << row.timePointN;
     const auto tp =

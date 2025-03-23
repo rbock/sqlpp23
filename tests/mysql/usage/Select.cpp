@@ -48,7 +48,7 @@ SQLPP_CREATE_NAME_TAG(max_int_n);
 void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
-  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
               << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
@@ -57,8 +57,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   };
   assert(i == expectedRowCount);
 
-  auto preparedSelectAll =
-      db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
+  auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab));
   std::cerr << "--------------------------------------" << std::endl;
   i = 0;
   for (const auto& row : db(preparedSelectAll)) {
@@ -98,7 +97,7 @@ int Select(int, char*[]) {
     testSelectAll(db, 3);
 
     // Test size functionality
-    const auto test_size = db(select(all_of(tab)).from(tab).where(true));
+    const auto test_size = db(select(all_of(tab)).from(tab));
     assert(test_size.size() == 3ull);
 
     // test functions and operators
@@ -112,14 +111,13 @@ int Select(int, char*[]) {
     db(select(all_of(tab))
            .from(tab)
            .where(tab.intN.not_in(std::vector<int>{1, 2, 3, 4})));
-    db(select(count(tab.intN).as(something)).from(tab).where(true));
-    db(select(avg(tab.intN).as(something)).from(tab).where(true));
-    db(select(max(tab.intN).as(something)).from(tab).where(true));
-    db(select(min(tab.intN).as(something)).from(tab).where(true));
+    db(select(count(tab.intN).as(something)).from(tab));
+    db(select(avg(tab.intN).as(something)).from(tab));
+    db(select(max(tab.intN).as(something)).from(tab));
+    db(select(min(tab.intN).as(something)).from(tab));
     db(select(
            exists(select(tab.intN).from(tab).where(tab.intN > 7)).as(something))
-           .from(tab)
-           .where(true));
+           .from(tab));
     db(select(all_of(tab))
            .from(tab)
            .where(tab.intN ==
@@ -144,7 +142,7 @@ int Select(int, char*[]) {
     {
       db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
-      auto result = db(select(all_of(tab)).from(tab).where(true));
+      auto result = db(select(all_of(tab)).from(tab));
       std::cerr << "Accessing a field directly from the result (using the "
                    "current row): "
                 << result.begin()->intN << std::endl;
@@ -155,13 +153,11 @@ int Select(int, char*[]) {
     // transaction
     {
       auto tx = start_transaction(db);
-      auto result = db(
-          select(
-              all_of(tab),
-              value(select(max(tab.intN).as(max_int_n)).from(tab).where(true))
-                  .as(max_int_n))
-              .from(tab)
-              .where(true));
+      auto result =
+          db(select(all_of(tab),
+                    value(select(max(tab.intN).as(max_int_n)).from(tab))
+                        .as(max_int_n))
+                 .from(tab));
       if (const auto& row = *result.begin()) {
         std::optional<long> a = row.intN;
         std::optional<long> m = row.max_int_n;

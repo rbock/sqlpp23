@@ -28,7 +28,6 @@
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
-#include "is_regular.h"
 
 int With(int, char*[]) {
   MockDb db;
@@ -36,28 +35,23 @@ int With(int, char*[]) {
 
   const auto t = test::TabBar{};
 
-  auto x =
-      sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t).where(true));
+  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
-  db(with(x)(select(x.id).from(x).where(true)));
+  db(with(x)(select(x.id).from(x)));
 
-  auto y0 =
-      sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t).where(true));
-  auto y = y0.union_all(select(all_of(y0)).from(y0).where(true));
+  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
+  auto y = y0.union_all(select(all_of(y0)).from(y0));
 
   std::cout << to_sql_string(printer, y) << std::endl;
   std::cout << to_sql_string(printer, from(y)) << std::endl;
 
-  db(with(y)(select(y.id).from(y).where(true)));
+  db(with(y)(select(y.id).from(y)));
 
   using ::sqlpp::alias::a;
   using ::sqlpp::alias::b;
-  const auto c =
-      sqlpp::cte(b).as(select(t.id.as(a))
-                           .from(t)
-                           .where(true)
-                           .union_all(select(sqlpp::value(123).as(a))));
-  db(with(c)(select(all_of(c)).from(c).where(true)));
+  const auto c = sqlpp::cte(b).as(
+      select(t.id.as(a)).from(t).union_all(select(sqlpp::value(123).as(a))));
+  db(with(c)(select(all_of(c)).from(c)));
 
   // recursive CTE with join
   {
@@ -65,10 +59,9 @@ int With(int, char*[]) {
     const auto initialCte = ::sqlpp::cte(sqlpp::alias::a).as(selectBase);
     const auto recursiveCte = initialCte.union_all(
         select(t.id, t.intN)
-            .from(t.join(initialCte).on(t.id == initialCte.intN))
-            .where(true));
-    const auto query = with(recursiveCte)(
-        select(recursiveCte.id).from(recursiveCte).where(true));
+            .from(t.join(initialCte).on(t.id == initialCte.intN)));
+    const auto query =
+        with(recursiveCte)(select(recursiveCte.id).from(recursiveCte));
 
     const auto serializedQuery = to_sql_string(printer, query);
     std::cout << serializedQuery << '\n';

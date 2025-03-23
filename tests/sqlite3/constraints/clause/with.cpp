@@ -47,7 +47,7 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{};
 
   const auto foo = test::TabFoo{};
-  const auto c = cte(something).as(select(foo.id).from(foo).where(true));
+  const auto c = cte(something).as(select(foo.id).from(foo));
 
   // sqlite3 does not support full outer join before 3.8.3
   // See https://www.sqlite.org/changes.html

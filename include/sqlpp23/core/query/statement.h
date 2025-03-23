@@ -187,12 +187,6 @@ struct get_result_row<statement_t<Clauses...>> {
 };
 
 template <typename... Clauses>
-struct is_where_required<statement_t<Clauses...>> {
-  static constexpr bool value =
-      statement_t<Clauses...>::_all_provided_tables::size() > 0;
-};
-
-template <typename... Clauses>
 struct is_result_clause<statement_t<Clauses...>> {
   static constexpr bool value = not std::is_same<
       noop,

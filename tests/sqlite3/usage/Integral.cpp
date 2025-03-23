@@ -94,9 +94,8 @@ int Integral(int, char*[]) {
   db(insert_into(intSample).set(intSample.signedValue = int32_t_value,
                                 intSample.unsignedValue = uint32_t_value));
 
-  auto q = select(intSample.signedValue, intSample.unsignedValue)
-               .from(intSample)
-               .where(true);
+  auto q =
+      select(intSample.signedValue, intSample.unsignedValue).from(intSample);
 
   auto rows = db(q);
 

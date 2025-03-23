@@ -86,7 +86,7 @@ int main() {
 
   // `limit` using unknown table
   {
-    auto s = select(foo.id).from(foo).where(true).limit(bar.id);
+    auto s = select(foo.id).from(foo).limit(bar.id);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -99,10 +99,8 @@ int main() {
 
   // `limit` statically using dynamic table
   {
-    auto s = select(foo.id)
-                 .from(foo.cross_join(dynamic(maybe, bar)))
-                 .where(true)
-                 .limit(bar.id);
+    auto s =
+        select(foo.id).from(foo.cross_join(dynamic(maybe, bar))).limit(bar.id);
     using S = decltype(s);
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,

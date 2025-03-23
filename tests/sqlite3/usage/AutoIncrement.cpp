@@ -34,7 +34,6 @@
 #include <sqlite3.h>
 #endif
 #include <cassert>
-#include <iostream>
 #include <set>
 
 namespace sql = sqlpp::sqlite3;
@@ -53,7 +52,7 @@ int AutoIncrement(int, char*[]) {
   db(insert_into(tab).default_values());
 
   std::set<int64_t> results;
-  for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
+  for (const auto& row : db(select(all_of(tab)).from(tab))) {
     results.insert(row.id);
   };
   const auto expected = std::set<int64_t>{1, 2, 3};

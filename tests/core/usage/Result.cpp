@@ -28,7 +28,6 @@
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
-#include "is_regular.h"
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
@@ -43,9 +42,8 @@ int Result(int, char*[]) {
                 "t.id cannot be null");
 
   // Using a non-enforcing db
-  for (const auto& row : db(select(all_of(t), t.textN.like("").as(something))
-                                .from(t)
-                                .where(true))) {
+  for (const auto& row :
+       db(select(all_of(t), t.textN.like("").as(something)).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
 
@@ -57,12 +55,12 @@ int Result(int, char*[]) {
   }
 
   sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
-  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true))) {
+  for (const auto& row : db(select(all_of(t)).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
   }

@@ -34,7 +34,6 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{};
 
   // sqlite3 does not support ANY
-  SQLPP_CHECK_STATIC_ASSERT(
-      to_sql_string(ctx, any(select(foo.id).from(foo).where(true))),
-      "Sqlite3: No support for any()");
+  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, any(select(foo.id).from(foo))),
+                            "Sqlite3: No support for any()");
 }

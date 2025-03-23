@@ -39,9 +39,8 @@ void save_regular(sqlpp::postgresql::connection& db,
                   std::chrono::microseconds tod,
                   sqlpp::chrono::day_point dp) {
   test::TabDateTime tab{};
-  db(update(tab)
-         .set(tab.timePointNTz = tp, tab.timeOfDayNTz = tod, tab.dayPointN = dp)
-         .where(true));
+  db(update(tab).set(tab.timePointNTz = tp, tab.timeOfDayNTz = tod,
+                     tab.dayPointN = dp));
 }
 
 void save_prepared(sqlpp::postgresql::connection& db,
@@ -50,11 +49,9 @@ void save_prepared(sqlpp::postgresql::connection& db,
                    sqlpp::chrono::day_point dp) {
   test::TabDateTime tab{};
   auto prepared_update =
-      db.prepare(update(tab)
-                     .set(tab.timePointNTz = parameter(tab.timePointNTz),
-                          tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
-                          tab.dayPointN = parameter(tab.dayPointN))
-                     .where(true));
+      db.prepare(update(tab).set(tab.timePointNTz = parameter(tab.timePointNTz),
+                                 tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
+                                 tab.dayPointN = parameter(tab.dayPointN)));
   prepared_update.params.timePointNTz = tp;
   prepared_update.params.timeOfDayNTz = tod;
   prepared_update.params.dayPointN = dp;
@@ -95,8 +92,7 @@ void check_saved_values(sqlpp::postgresql::connection& db,
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from day_point_n)/86400)::int8")
                  .as(sqlpp::alias::c))
-             .from(tab)
-             .where(true));
+             .from(tab));
   // Check if the internal values of our C++ time variables match the internal
   // values of the PostgreSQL date/time fields. This tests the conversion of
   // date/time types from C++ to PostgreSQL while skipping the conversion from
@@ -109,7 +105,7 @@ void check_saved_values(sqlpp::postgresql::connection& db,
   // Check if saving date/time variables from C++ to PostgreSQL and then reading
   // them back yields the same values. This tests the conversion of date/time
   // types from C++ to PostgreSQL and then back from PostgreSQL to C++.
-  const auto rows_2 = db(select(all_of(tab)).from(tab).where(true));
+  const auto rows_2 = db(select(all_of(tab)).from(tab));
   const auto& row_2 = rows_2.front();
   require_equal(__LINE__, row_2.timePointNTz.value(), tp);
   require_equal(__LINE__, row_2.timeOfDayNTz.value(), tod);

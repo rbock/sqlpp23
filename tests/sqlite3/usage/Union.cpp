@@ -54,17 +54,14 @@ int Union(int, char*[]) {
   sql::connection db(config);
   test::createTabSample(db);
 
-  auto u = select(all_of(tab))
-               .from(tab)
-               .where(true)
-               .union_all(select(all_of(tab)).from(tab).where(true));
+  auto u =
+      select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));
 
   for (const auto& row : db(u)) {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }
 
-  for (const auto& row :
-       db(u.union_distinct(select(all_of(tab)).from(tab).where(true)))) {
+  for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab)))) {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }
 
