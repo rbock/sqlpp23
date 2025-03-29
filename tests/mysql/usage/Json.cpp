@@ -24,10 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "make_test_connection.h"
+#include <iostream>
 
 #include <mysql.h>
-#include <iostream>
+
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 
 // JSON support only in MYSQL 5.7.8 and later
 #if !USE_MARIADB && (LIBMYSQL_VERSION_ID < 50708)

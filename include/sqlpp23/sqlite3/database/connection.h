@@ -28,6 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -42,10 +44,11 @@
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/sqlite3/bind_result.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
+#include <sqlpp23/sqlite3/database/serializer_context.h>
 #include <sqlpp23/sqlite3/detail/connection_handle.h>
 #include <sqlpp23/sqlite3/export.h>
 #include <sqlpp23/sqlite3/prepared_statement.h>
-#include <string>
+#include <sqlpp23/sqlite3/to_sql_string.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp23/sqlite3/dynamic_libsqlite3.h>
@@ -118,19 +121,6 @@ inline void execute_statement(std::unique_ptr<connection_handle>& handle,
   }
 }
 }  // namespace detail
-
-// Forward declaration
-class connection_base;
-
-struct context_t {
-  context_t() = default;
-  context_t(const context_t&) = delete;
-  context_t(context_t&&) = delete;
-  context_t& operator=(const context_t&) = delete;
-  context_t& operator=(context_t&&) = delete;
-
-  size_t _count = 0;
-};
 
 // Base connection class
 class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
@@ -212,7 +202,6 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
   using _prepared_statement_t = prepared_statement_t;
-  using _context_t = context_t;
 
   struct _tags {
     using _null_result_is_trivial_value = std::true_type;
@@ -221,14 +210,14 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   //! select returns a result (which can be iterated row by row)
   template <typename Select>
   bind_result_t select(const Select& s) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, s);
     return select_impl(query);
   }
 
   template <typename Select>
   _prepared_statement_t prepare_select(Select& s) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, s);
     return prepare_impl(query);
   }
@@ -243,14 +232,14 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   //! insert returns the last auto_incremented id (or zero, if there is none)
   template <typename Insert>
   size_t insert(const Insert& i) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, i);
     return insert_impl(query);
   }
 
   template <typename Insert>
   _prepared_statement_t prepare_insert(Insert& i) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, i);
     return prepare_impl(query);
   }
@@ -265,14 +254,14 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   //! update returns the number of affected rows
   template <typename Update>
   size_t update(const Update& u) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, u);
     return update_impl(query);
   }
 
   template <typename Update>
   _prepared_statement_t prepare_update(Update& u) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, u);
     return prepare_impl(query);
   }
@@ -287,14 +276,14 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   //! remove returns the number of removed rows
   template <typename Remove>
   size_t remove(const Remove& r) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, r);
     return remove_impl(query);
   }
 
   template <typename Remove>
   _prepared_statement_t prepare_remove(Remove& r) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, r);
     return prepare_impl(query);
   }
@@ -320,14 +309,14 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
                 not std::is_convertible<Execute, std::string>::value,
                 void>::type>
   size_t execute(const Execute& x) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, x);
     return execute(query);
   }
 
   template <typename Execute>
   _prepared_statement_t prepare_execute(Execute& x) {
-    _context_t context;
+    context_t context{this};
     auto query = to_sql_string(context, x);
     return prepare_impl(query);
   }
@@ -438,7 +427,7 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   ::sqlite3* native_handle() const { return _handle->native_handle(); }
 
   schema_t attach(const connection_config& config, const std::string& name) {
-    auto context = _context_t{};
+    context_t context{this};
     auto prepared = prepare_statement(
         _handle, "ATTACH " +
                      sqlpp::to_sql_string(context, config.path_to_database) +
@@ -446,6 +435,17 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
     execute_statement(_handle, prepared);
 
     return {name};
+  }
+
+  std::string escape(const std::string_view& s) const {
+    auto result = std::string{};
+    result.reserve(s.size() * 2);
+    for (const auto c : s) {
+      if (c == '\'')
+        result.push_back(c);  // Escaping
+      result.push_back(c);
+    }
+    return result;
   }
 
  protected:
@@ -456,6 +456,10 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
 };
 
+inline auto context_t::escape(std::string_view t) -> std::string {
+  return _db->escape(t);
+}
+
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
 }  // namespace sqlpp::sqlite3
@@ -464,4 +468,3 @@ using pooled_connection = sqlpp::pooled_connection<connection_base>;
 #pragma warning(pop)
 #endif
 
-#include <sqlpp23/sqlite3/serializer.h>

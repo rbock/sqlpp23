@@ -24,25 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlite3/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
 #include <cassert>
+#include <iostream>
+
+#include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include <sqlpp23/sqlpp23.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
 #include <sqlite3.h>
 #endif
-#include <iostream>
-#include <vector>
 
 namespace sql = sqlpp::sqlite3;
 
 SQLPP_CREATE_NAME_TAG(pragma);
 
 int Transaction(int, char*[]) {
-  sql::connection db(
-      {":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
+  auto db = sql::make_test_connection();
 
   std::cerr << "--------------------------------------" << std::endl;
 

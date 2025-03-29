@@ -24,8 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
@@ -33,7 +36,6 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <iostream>
 
 namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
@@ -46,12 +48,7 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
 }
 
 int Union(int, char*[]) {
-  sql::connection_config config;
-  config.path_to_database = ":memory:";
-  config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config.debug = true;
-
-  sql::connection db(config);
+  auto db = sql::make_test_connection();
   test::createTabSample(db);
 
   auto u =

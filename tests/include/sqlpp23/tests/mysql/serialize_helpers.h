@@ -26,15 +26,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/mysql.h>
 #include <iostream>
+
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    sqlpp::mysql::context_t printer{};                             \
+    static auto db = sqlpp::mysql::make_test_connection();         \
+    sqlpp::mysql::context_t context{&db};                          \
                                                                    \
     using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(printer, expr);              \
+    const auto result = to_sql_string(context, expr);              \
                                                                    \
     if (result != expected_string) {                               \
       std::cerr << __FILE__ << " " << __LINE__ << '\n'             \

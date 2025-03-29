@@ -26,10 +26,12 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 #include <sqlpp23/tests/postgresql/serialize_helpers.h>
 
 void test_flatten() {
-  auto ctx = sqlpp::postgresql::context_t{};
+  auto db = sqlpp::postgresql::make_test_connection();
+  auto ctx = sqlpp::postgresql::context_t{&db};
 
   {
     auto x = flatten(ctx, test::TabFoo{}.id);

@@ -1,15 +1,18 @@
-/*
- * Copyright (c) 2025, Roland Bock
+#pragma once
+
+/**
+ * Copyright © 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ *   Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -24,17 +27,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <sqlpp23/tests/postgresql/serialize_helpers.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <string>
+#include <string_view>
 
-int main(int, char*[]) {
-  auto db = sqlpp::postgresql::make_test_connection();
-  auto ctx = sqlpp::postgresql::context_t{&db};
+namespace sqlpp::mysql {
 
-  SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
-  SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
+class connection_base;
 
-  return 0;
-}
+// Context for serialization
+struct context_t {
+  explicit context_t(connection_base* db) : _db(db) {}
+  context_t(const context_t&) = delete;
+  context_t(context_t&&) = delete;
+  context_t& operator=(const context_t&) = delete;
+  context_t& operator=(context_t&&) = delete;
+
+  // The implementation is in connection.h
+  auto escape(std::string_view t) -> std::string;
+
+  connection_base* _db;
+};
+
+}  // namespace sqlpp::postgresql

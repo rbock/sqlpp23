@@ -24,14 +24,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+#include <iostream>
+
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <cassert>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 #include "Tables.h"
-#include "make_test_connection.h"
 #include "sqlpp23/tests/core/result_helpers.h"
-
-#include <iostream>
 
 const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};

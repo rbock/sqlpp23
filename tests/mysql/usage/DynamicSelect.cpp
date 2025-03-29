@@ -24,12 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 #include "Tables.h"
-#include "make_test_connection.h"
-
-#include <iostream>
 
 namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};

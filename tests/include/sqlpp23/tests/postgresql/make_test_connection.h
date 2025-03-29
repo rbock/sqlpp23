@@ -1,5 +1,7 @@
+#pragma once
+
 /*
- * Copyright (c) 2015 - 2016, Roland Bock
+ * Copyright (c) 2021, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,36 +26,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <set>
+#include <sqlpp23/postgresql/postgresql.h>
 
-#include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+namespace sqlpp::postgresql {
+// Get configuration for test connection
+inline std::shared_ptr<sqlpp::postgresql::connection_config>
+make_test_config(bool debug = true) {
+  auto config = std::make_shared<sqlpp::postgresql::connection_config>();
 
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
+#ifdef WIN32
+  config->dbname = "test";
+  config->user = "test";
+  config->debug = debug;
 #else
-#include <sqlite3.h>
+  config->user = getenv("USER");
+  config->dbname = "sqlpp_postgresql";
+  config->debug = debug;
 #endif
-
-namespace sql = sqlpp::sqlite3;
-int AutoIncrement(int, char*[]) {
-  auto db = sql::make_test_connection();
-  test::createTabSample(db);
-
-  const auto tab = test::TabSample{};
-  db(insert_into(tab).default_values());
-  db(insert_into(tab).default_values());
-  db(insert_into(tab).default_values());
-
-  std::set<int64_t> results;
-  for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    results.insert(row.id);
-  };
-  const auto expected = std::set<int64_t>{1, 2, 3};
-  assert(results == expected);
-
-  return 0;
+  return config;
 }
+
+// Starts a connection and sets the time zone to UTC
+inline ::sqlpp::postgresql::connection make_test_connection(
+    const std::string& tz = "UTC", bool debug = true) {
+  namespace sql = sqlpp::postgresql;
+
+  auto config = make_test_config(debug);
+
+  sql::connection db;
+  try {
+    db.connectUsing(config);
+  } catch (const sqlpp::exception&) {
+    std::cerr << "For testing, you'll need to create a database called '"
+              << config->dbname << "', accessible by user '" << config->user
+              << "' without a password." << std::endl;
+    throw;
+  }
+
+  db.execute("SET TIME ZONE " + tz + ";");
+
+  return db;
+}
+}  // namespace sqlpp::postgresql

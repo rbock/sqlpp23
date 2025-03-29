@@ -33,7 +33,7 @@
 #include <random>
 
 #include <sqlpp23/tests/postgresql/tables.h>
-#include "make_test_connection.h"
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 namespace sql = sqlpp::postgresql;
 const auto blob = test::BlobSample{};

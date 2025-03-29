@@ -32,6 +32,7 @@ endfunction()
 create_test(day_point)
 create_test(float)
 create_test(microseconds)
+create_test(text)
 create_test(time_point)
 create_test(uint64_t)
 

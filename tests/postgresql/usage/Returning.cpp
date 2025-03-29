@@ -5,7 +5,7 @@
 #include "sqlpp23/tests/core/result_helpers.h"
 
 #include <sqlpp23/tests/postgresql/tables.h>
-#include "make_test_connection.h"
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 int Returning(int, char*[]) {
   namespace sql = sqlpp::postgresql;

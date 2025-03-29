@@ -43,6 +43,7 @@
 #include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
 #include <sqlpp23/postgresql/prepared_statement.h>
 #include <sqlpp23/postgresql/result.h>
+#include <sqlpp23/postgresql/to_sql_string.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp23/postgresql/dynamic_libpq.h>
@@ -159,14 +160,14 @@ class connection_base : public sqlpp::connection {
   // Select stmt (returns a result)
   template <typename Select>
   bind_result_t select(const Select& s) {
-    context_t context;
+    context_t context(this);
     return select_impl(to_sql_string(context, s));
   }
 
   // Prepared select
   template <typename Select>
   _prepared_statement_t prepare_select(Select& s) {
-    context_t context;
+    context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
@@ -179,13 +180,13 @@ class connection_base : public sqlpp::connection {
   // Insert
   template <typename Insert>
   size_t insert(const Insert& s) {
-    context_t context;
+    context_t context(this);
     return insert_impl(to_sql_string(context, s));
   }
 
   template <typename Insert>
   prepared_statement_t prepare_insert(Insert& s) {
-    context_t context;
+    context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
@@ -198,13 +199,13 @@ class connection_base : public sqlpp::connection {
   // Update
   template <typename Update>
   size_t update(const Update& s) {
-    context_t context;
+    context_t context(this);
     return update_impl(to_sql_string(context, s));
   }
 
   template <typename Update>
   prepared_statement_t prepare_update(Update& s) {
-    context_t context;
+    context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
@@ -217,13 +218,13 @@ class connection_base : public sqlpp::connection {
   // Remove
   template <typename Remove>
   size_t remove(const Remove& s) {
-    context_t context;
+    context_t context(this);
     return remove_impl(to_sql_string(context, s));
   }
 
   template <typename Remove>
   prepared_statement_t prepare_remove(Remove& s) {
-    context_t context;
+    context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
@@ -254,13 +255,13 @@ class connection_base : public sqlpp::connection {
                 not std::is_convertible<Execute, std::string>::value,
                 void>::type>
   std::shared_ptr<detail::statement_handle_t> execute(const Execute& s) {
-    context_t context;
+    context_t context(this);
     return execute(to_sql_string(context, s));
   }
 
   template <typename Execute>
   _prepared_statement_t prepare_execute(Execute& s) {
-    context_t context;
+    context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
@@ -430,6 +431,19 @@ class connection_base : public sqlpp::connection {
 
   ::PGconn* native_handle() const { return _handle->native_handle(); }
 
+  std::string escape(const std::string_view& s) const {
+    validate_connection_handle();
+    // Escape strings
+    std::string result;
+    result.resize((s.size() * 2) + 1);
+
+    int err;
+    size_t length = PQescapeStringConn(native_handle(), &result[0], s.data(),
+                                       s.size(), &err);
+    result.resize(length);
+    return result;
+  }
+
  protected:
   _handle_ptr_t _handle;
 
@@ -438,8 +452,11 @@ class connection_base : public sqlpp::connection {
   connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
 };
 
+inline auto context_t::escape(std::string_view t) -> std::string {
+  return _db->escape(t);
+}
+
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
 }  // namespace sqlpp::postgresql
 
-#include <sqlpp23/postgresql/serializer.h>

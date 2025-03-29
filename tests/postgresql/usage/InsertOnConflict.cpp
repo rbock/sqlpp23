@@ -31,7 +31,7 @@
 #include <sqlpp23/sqlpp23.h>
 
 #include <sqlpp23/tests/postgresql/tables.h>
-#include "make_test_connection.h"
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 #include "sqlpp23/tests/core/result_helpers.h"
 
 namespace sql = sqlpp::postgresql;

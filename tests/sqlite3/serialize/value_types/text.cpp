@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * Copyright (c) 2021, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,45 +24,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/sqlpp23.h>
 
-namespace sqlpp::postgresql {
-// Get configuration for test connection
-inline std::shared_ptr<sqlpp::postgresql::connection_config>
-make_test_config() {
-  auto config = std::make_shared<sqlpp::postgresql::connection_config>();
+#include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
-#ifdef WIN32
-  config->dbname = "test";
-  config->user = "test";
-  config->debug = true;
-#else
-  config->user = getenv("USER");
-  config->dbname = "sqlpp_postgresql";
-  config->debug = true;
-#endif
-  return config;
+int main() {
+  SQLPP_COMPARE(R"(a)", R"('a')");
+  SQLPP_COMPARE(R"(')", R"('''')");
+  SQLPP_COMPARE(R"(\)", R"('\')");
+  SQLPP_COMPARE(R"(\\)", R"('\\')");
+  SQLPP_COMPARE(R"(\')", R"('\''')");
+
+  return 0;
 }
-
-// Starts a connection and sets the time zone to UTC
-inline ::sqlpp::postgresql::connection make_test_connection(
-    const std::string& tz = "UTC") {
-  namespace sql = sqlpp::postgresql;
-
-  auto config = make_test_config();
-
-  sql::connection db;
-  try {
-    db.connectUsing(config);
-  } catch (const sqlpp::exception&) {
-    std::cerr << "For testing, you'll need to create a database called '"
-              << config->dbname << "', accessible by user '" << config->user
-              << "' without a password." << std::endl;
-    throw;
-  }
-
-  db.execute("SET TIME ZONE " + tz + ";");
-
-  return db;
-}
-}  // namespace sqlpp::postgresql

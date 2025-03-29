@@ -24,9 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <cassert>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
@@ -38,17 +40,13 @@
 namespace sql = sqlpp::sqlite3;
 
 int Attach(int, char*[]) {
-  sql::connection_config config;
-  config.path_to_database = ":memory:";
-  config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config.debug = true;
-
   // Opening a connection to an in-memory database and creating a table in it
-  sql::connection db(config);
+  auto config = sql::make_test_config();
+  auto db = sql::make_test_connection();
   test::createTabSample(db);
 
   // Attaching another in-memory database and creating the same table in it
-  auto other = db.attach(config, "other");
+  auto other = db.attach(*config, "other");
   db.execute(R"(CREATE TABLE other.tab_sample (
   id INTEGER PRIMARY KEY,
   alpha bigint(20) DEFAULT NULL,

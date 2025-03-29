@@ -24,14 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/insert.h>
-#include <sqlpp23/core/clause/remove.h>
-#include <sqlpp23/core/clause/select.h>
-#include <sqlpp23/core/clause/update.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/functions.h>
+#include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "TabSample.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
@@ -47,13 +42,8 @@ SQLPP_CREATE_NAME_TAG(left);
 
 namespace sql = sqlpp::sqlite3;
 int main() {
-  sql::connection_config config;
-  config.path_to_database = ":memory:";
-  config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config.debug = true;
-
-  sql::connection db(config);
-  db.execute(
+  auto db = sql::make_test_connection();
+  sql::connection_config config  db.execute(
       "CREATE TABLE tab_sample (\
         alpha bigint(20) DEFAULT NULL,\
             beta varchar(255) DEFAULT NULL,\

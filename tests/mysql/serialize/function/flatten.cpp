@@ -26,10 +26,12 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 #include <sqlpp23/tests/mysql/serialize_helpers.h>
 
 int main(int, char*[]) {
-  auto ctx = sqlpp::mysql::context_t{};
+  auto db = sqlpp::mysql::make_test_connection();
+  auto ctx = sqlpp::mysql::context_t{&db};
 
   SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
   SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");

@@ -26,7 +26,7 @@
  */
 
 #include "../../include/ConnectionTests.h"
-#include "make_test_connection.h"
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 #include <sqlpp23/postgresql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>

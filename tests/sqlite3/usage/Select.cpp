@@ -25,13 +25,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlite3/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
 #include <cassert>
-#include "Tables.h"
-
 #include <iostream>
 #include <vector>
+
+#include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include "Tables.h"
 
 namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
@@ -89,8 +90,7 @@ SQLPP_CREATE_NAME_TAG(something);
 }
 
 int Select(int, char*[]) {
-  sql::connection db(
-      {":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
+  auto db = sql::make_test_connection();
   test::createTabSample(db);
 
   testSelectAll(db, 0);

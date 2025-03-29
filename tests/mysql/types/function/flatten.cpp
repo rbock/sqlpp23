@@ -27,9 +27,11 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/mysql/serialize_helpers.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 
 void test_flatten() {
-  auto ctx = sqlpp::mysql::context_t{};
+  auto db = sqlpp::mysql::make_test_connection();
+  auto ctx = sqlpp::mysql::context_t{&db};
 
   {
     auto x = flatten(ctx, test::TabFoo{}.id);

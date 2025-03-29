@@ -30,8 +30,9 @@
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/postgresql/database/exception.h>
+#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/serializer.h>
+#include <sqlpp23/postgresql/to_sql_string.h>
 #include <memory>
 #include <string>
 
@@ -100,7 +101,7 @@ class prepared_statement_t {
     }
 
     _handle->null_values[index] = false;
-    context_t context;
+    context_t context{nullptr};
     _handle->param_values[index] = to_sql_string(context, value);
   }
 

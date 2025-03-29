@@ -24,7 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+#include <iostream>
+
 #include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include "Tables.h"
 
@@ -33,8 +37,6 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <cassert>
-#include <iostream>
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::milliseconds>(
@@ -58,12 +60,7 @@ auto require_equal(int line, const L& l, const R& r) -> void {
 namespace sql = sqlpp::sqlite3;
 int DateTime(int, char*[]) {
   try {
-    sql::connection_config config;
-    config.path_to_database = ":memory:";
-    config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-    config.debug = true;
-
-    sql::connection db(config);
+    auto db = sql::make_test_connection();
     test::createTabDateTime(db);
 
     const auto tab = test::TabDateTime{};

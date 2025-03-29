@@ -26,15 +26,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlite3/database/connection.h>
 #include <iostream>
+
+#include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    sqlpp::sqlite3::context_t printer{};                           \
+    static auto db = sqlpp::sqlite3::make_test_connection();       \
+    sqlpp::sqlite3::context_t context{&db};                           \
                                                                    \
     using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(printer, expr);              \
+    const auto result = to_sql_string(context, expr);              \
                                                                    \
     if (result != expected_string) {                               \
       std::cerr << __FILE__ << " " << __LINE__ << '\n'             \

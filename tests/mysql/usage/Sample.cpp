@@ -24,15 +24,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/sqlpp23.h>
-#include "Tables.h"
-#include "make_test_connection.h"
-#include "sqlpp23/tests/core/result_helpers.h"
-
 #include <cassert>
 #include <iostream>
 #include <vector>
+
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include "Tables.h"
+#include "sqlpp23/tests/core/result_helpers.h"
 
 namespace sql = sqlpp::mysql;
 int Sample(int, char*[]) {

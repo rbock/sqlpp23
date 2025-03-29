@@ -32,7 +32,7 @@
 #include "assertThrow.h"
 
 #include <sqlpp23/tests/postgresql/tables.h>
-#include "make_test_connection.h"
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 namespace sql = sqlpp::postgresql;
 int Exceptions(int, char*[]) {

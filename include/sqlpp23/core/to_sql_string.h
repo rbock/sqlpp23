@@ -140,16 +140,8 @@ auto to_sql_string(Context& context, const long double& t) -> std::string {
 }
 
 template <typename Context>
-auto to_sql_string(Context&, const std::string_view& t) -> std::string {
-  auto result = std::string{"'"};
-  result.reserve(t.size() * 2);
-  for (const auto c : t) {
-    if (c == '\'')
-      result.push_back(c);  // Escaping
-    result.push_back(c);
-  }
-  result.push_back('\'');
-  return result;
+auto to_sql_string(Context& context, const std::string_view& t) -> std::string {
+  return "'" + context.escape(t) + "'";
 }
 
 template <typename Context>

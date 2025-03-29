@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,36 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <set>
-
-#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/serialize_helpers.h>
 
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
-
-namespace sql = sqlpp::sqlite3;
-int AutoIncrement(int, char*[]) {
-  auto db = sql::make_test_connection();
-  test::createTabSample(db);
-
-  const auto tab = test::TabSample{};
-  db(insert_into(tab).default_values());
-  db(insert_into(tab).default_values());
-  db(insert_into(tab).default_values());
-
-  std::set<int64_t> results;
-  for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    results.insert(row.id);
-  };
-  const auto expected = std::set<int64_t>{1, 2, 3};
-  assert(results == expected);
+int main() {
+  SQLPP_COMPARE(R"(a)", R"('a')");
+  SQLPP_COMPARE(R"(')", R"('\'')");
+  SQLPP_COMPARE(R"(\)", R"('\\')");
+  SQLPP_COMPARE(R"(\\)", R"('\\\\')");
+  SQLPP_COMPARE(R"(\')", R"('\\\'')");
 
   return 0;
 }

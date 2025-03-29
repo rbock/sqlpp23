@@ -1,5 +1,7 @@
+#pragma once
+
 /*
- * Copyright (c) 2015 - 2016, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,36 +26,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <set>
-
 #include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
 
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
+namespace sqlpp::sqlite3 {
+// Get configuration for test connection
+inline std::shared_ptr<sqlpp::sqlite3::connection_config>
+make_test_config() {
+  auto config = std::make_shared<sqlpp::sqlite3::connection_config>();
 
-namespace sql = sqlpp::sqlite3;
-int AutoIncrement(int, char*[]) {
-  auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  config->path_to_database = ":memory:";
+  config->flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+  config->debug = true;
 
-  const auto tab = test::TabSample{};
-  db(insert_into(tab).default_values());
-  db(insert_into(tab).default_values());
-  db(insert_into(tab).default_values());
-
-  std::set<int64_t> results;
-  for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    results.insert(row.id);
-  };
-  const auto expected = std::set<int64_t>{1, 2, 3};
-  assert(results == expected);
-
-  return 0;
+  return config;
 }
+
+inline ::sqlpp::sqlite3::connection make_test_connection() {
+  namespace sql = sqlpp::sqlite3;
+
+  auto config = make_test_config();
+
+  sql::connection db;
+  db.connectUsing(config);
+  return db;
+}
+}  // namespace sqlpp::postgresql

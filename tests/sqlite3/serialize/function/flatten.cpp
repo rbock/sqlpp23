@@ -27,9 +27,11 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
+#include "sqlpp23/tests/sqlite3/make_test_connection.h"
 
 int main(int, char*[]) {
-  auto ctx = sqlpp::sqlite3::context_t{};
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
 
   SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
   SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");

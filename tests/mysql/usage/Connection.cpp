@@ -24,11 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../include/ConnectionTests.h"
-#include "make_test_connection.h"
-
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include "../../include/ConnectionTests.h"
 
 int Connection(int, char*[]) {
   namespace sql = sqlpp::mysql;

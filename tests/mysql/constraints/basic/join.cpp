@@ -25,12 +25,14 @@
  */
 
 #include <sqlpp23/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main() {
-  auto ctx = sqlpp::mysql::context_t{};
+  auto db = sqlpp::mysql::make_test_connection();
+  auto ctx = sqlpp::mysql::context_t{&db};
 
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};

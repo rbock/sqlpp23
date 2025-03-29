@@ -24,8 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <functional>
+#include <iostream>
+#include <random>
+
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "Tables.h"
 
 #ifdef SQLPP_USE_SQLCIPHER
@@ -33,9 +38,6 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <functional>
-#include <iostream>
-#include <random>
 
 namespace sql = sqlpp::sqlite3;
 const auto tab = test::BlobSample{};
@@ -78,12 +80,7 @@ void verify_blob(sql::connection& db,
 }
 
 int Blob(int, char*[]) {
-  sql::connection_config config;
-  config.path_to_database = ":memory:";
-  config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config.debug = true;
-
-  sql::connection db(config);
+  auto db = sql::make_test_connection();
   test::createBlobSample(db);
   std::cerr << "Generating data " << blob_size << std::endl;
   std::vector<uint8_t> data(blob_size);

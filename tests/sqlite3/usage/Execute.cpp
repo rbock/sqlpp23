@@ -25,14 +25,14 @@
  */
 
 #include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 #include <iostream>
 
 namespace sql = sqlpp::sqlite3;
 
 int Execute(int, char*[]) {
-  sql::connection db(
-      {":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
+  auto db = sql::make_test_connection();
 
   // execute supports single statements.
   db.execute(R"(SELECT 1)");

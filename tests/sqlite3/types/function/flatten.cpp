@@ -26,10 +26,12 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
 void test_flatten() {
-  auto ctx = sqlpp::sqlite3::context_t{};
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
 
   {
     auto x = flatten(ctx, test::TabFoo{}.id);

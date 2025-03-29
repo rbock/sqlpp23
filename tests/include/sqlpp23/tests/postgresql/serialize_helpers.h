@@ -26,20 +26,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/database/connection.h>
 #include <iostream>
 
-#define SQLPP_COMPARE(expr, expected_string)                       \
-  {                                                                \
-    sqlpp::postgresql::context_t printer{};                        \
-                                                                   \
-    using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(printer, expr);              \
-                                                                   \
-    if (result != expected_string) {                               \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
-                << "Expected: -->|" << expected_string << "|<--\n" \
-                << "Received: -->|" << result << "|<--\n";         \
-      return -1;                                                   \
-    }                                                              \
+#include <sqlpp23/postgresql/database/connection.h>
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
+
+#define SQLPP_COMPARE(expr, expected_string)                             \
+  {                                                                      \
+    static auto db =                                                     \
+        sqlpp::postgresql::make_test_connection("UTC", /*debug=*/false); \
+    sqlpp::postgresql::context_t context{&db};                           \
+                                                                         \
+    using sqlpp::to_sql_string;                                          \
+    const auto result = to_sql_string(context, expr);                    \
+                                                                         \
+    if (result != expected_string) {                                     \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'                   \
+                << "Expected: -->|" << expected_string << "|<--\n"       \
+                << "Received: -->|" << result << "|<--\n";               \
+      return -1;                                                         \
+    }                                                                    \
   }

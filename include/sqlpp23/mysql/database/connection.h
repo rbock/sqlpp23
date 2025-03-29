@@ -37,8 +37,10 @@
 #include <sqlpp23/mysql/clause/delete_from.h>
 #include <sqlpp23/mysql/clause/update.h>
 #include <sqlpp23/mysql/database/connection_config.h>
+#include <sqlpp23/mysql/database/serializer_context.h>
 #include <sqlpp23/mysql/detail/connection_handle.h>
 #include <sqlpp23/mysql/prepared_statement.h>
+#include <sqlpp23/mysql/to_sql_string.h>
 #include <iostream>
 #include <string>
 
@@ -143,8 +145,6 @@ inline void global_library_init(int argc = 0,
       scoped_library_initializer_t(argc, argv, groups);
 }
 
-struct context_t {};
-
 class connection_base : public sqlpp::connection {
  private:
   bool _transaction_active{false};
@@ -223,24 +223,20 @@ class connection_base : public sqlpp::connection {
     using _null_result_is_trivial_value = std::true_type;
   };
 
-  [[deprecated("Use ping_server() instead")]] bool is_valid() const {
-    return _handle->ping_server();
-  }
-
   const std::shared_ptr<const connection_config>& get_config() {
     return _handle->config;
   }
 
   template <typename Select>
   char_result_t select(const Select& s) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, s);
     return select_impl(query);
   }
 
   template <typename Select>
   _prepared_statement_t prepare_select(Select& s) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, s);
     return prepare_impl(
         query, parameters_of_t<std::decay_t<Select>>::size(),
@@ -256,14 +252,14 @@ class connection_base : public sqlpp::connection {
   //! insert returns the last auto_incremented id (or zero, if there is none)
   template <typename Insert>
   size_t insert(const Insert& i) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, i);
     return insert_impl(query);
   }
 
   template <typename Insert>
   _prepared_statement_t prepare_insert(Insert& i) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, i);
     return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size(),
                         0);
@@ -278,14 +274,14 @@ class connection_base : public sqlpp::connection {
   //! update returns the number of affected rows
   template <typename Update>
   size_t update(const Update& u) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, u);
     return update_impl(query);
   }
 
   template <typename Update>
   _prepared_statement_t prepare_update(Update& u) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, u);
     return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size(),
                         0);
@@ -300,14 +296,14 @@ class connection_base : public sqlpp::connection {
   //! remove returns the number of removed rows
   template <typename Remove>
   size_t remove(const Remove& r) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, r);
     return remove_impl(query);
   }
 
   template <typename Remove>
   _prepared_statement_t prepare_remove(Remove& r) {
-    context_t context;
+    context_t context(this);
     const auto query = to_sql_string(context, r);
     return prepare_impl(query, parameters_of_t<std::decay_t<Remove>>::size(),
                         0);
@@ -391,8 +387,16 @@ class connection_base : public sqlpp::connection {
 
   MYSQL* native_handle() { return _handle->native_handle(); }
 
-  // Kept for compatibility with old code
-  MYSQL* get_handle() { return native_handle(); }
+  std::string escape(const std::string_view& s) const {
+    // Escape strings
+    std::string result;
+    result.resize((s.size() * 2) + 1);
+
+    size_t length = mysql_real_escape_string(_handle->native_handle(),
+                                             result.data(), s.data(), s.size());
+    result.resize(length);
+    return result;
+  }
 
  protected:
   _handle_ptr_t _handle;
@@ -402,8 +406,12 @@ class connection_base : public sqlpp::connection {
   connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
 };
 
+inline auto context_t::escape(std::string_view t) -> std::string {
+  return _db->escape(t);
+}
+
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
+
 }  // namespace sqlpp::mysql
 
-#include <sqlpp23/mysql/serializer.h>

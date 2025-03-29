@@ -29,16 +29,26 @@
  */
 
 #include <cstddef>
+#include <string>
+#include <string_view>
 
 namespace sqlpp::postgresql {
+
+class connection_base;
+
 // Context for serialization
 struct context_t {
-  context_t() = default;
+  explicit context_t(connection_base* db) : _db(db) {}
   context_t(const context_t&) = delete;
   context_t(context_t&&) = delete;
   context_t& operator=(const context_t&) = delete;
   context_t& operator=(context_t&&) = delete;
 
+  // The implementation is in connection.h
+  auto escape(std::string_view t) -> std::string;
+
   size_t _count{0};
+  connection_base* _db;
 };
+
 }  // namespace sqlpp::postgresql

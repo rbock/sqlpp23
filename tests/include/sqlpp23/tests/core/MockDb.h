@@ -40,7 +40,18 @@ struct InternalMockData {
 };
 
 struct MockDb : public sqlpp::connection {
-  struct _context_t {};
+  struct _context_t {
+    auto escape(std::string_view t) -> std::string {
+      auto result = std::string{};
+      result.reserve(t.size() * 2);
+      for (const auto c : t) {
+        if (c == '\'')
+          result.push_back(c);  // Escaping
+        result.push_back(c);
+      }
+      return result;
+    }
+  };
 
   class result_t {
    public:

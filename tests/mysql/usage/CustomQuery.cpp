@@ -24,26 +24,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <iostream>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 #include "Tables.h"
-#include "make_test_connection.h"
 
 namespace {
 struct on_duplicate_key_update {
   std::string _serialized;
 
   template <typename Db, typename Assignment>
-  on_duplicate_key_update(Db&, Assignment assignment) {
-    typename Db::_context_t context;
+  on_duplicate_key_update(Db& db, Assignment assignment) {
+    typename Db::_context_t context(&db);
     _serialized =
         " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
   }
 
   template <typename Db, typename Assignment>
-  auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update& {
-    typename Db::_context_t context;
+  auto operator()(Db& db, Assignment assignment) -> on_duplicate_key_update& {
+    typename Db::_context_t context(&db);
     _serialized += ", " + to_sql_string(context, assignment);
     return *this;
   }

@@ -25,13 +25,15 @@
  */
 
 #include <sqlpp23/tests/core/constraints_helpers.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main() {
   const auto foo = test::TabFoo{};
-  auto ctx = sqlpp::sqlite3::context_t{};
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
 
   // sqlite3 does not support ANY
   SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, any(select(foo.id).from(foo))),

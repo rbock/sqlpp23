@@ -30,4 +30,5 @@ function(create_test name)
 endfunction()
 
 create_test(float)
+create_test(text)
 
