@@ -116,5 +116,5 @@ Magic is dangerous, e.g. when used in comparison.
 
 ## Added truncate
 
-## on_conflict().do_update() requires explicit where().
-This is consistent with other statements: select, update, delete_from
+## dropped explicit requirement for where
+sqlpp11 used to require where in select, update, delete_from. This is inconsistent with the goal of the library: Prevent incorrect statements. However, while a missing `WHERE` might be an algorithmic mistake, it does not make the statement incorrect.

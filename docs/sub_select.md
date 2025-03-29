@@ -1,7 +1,11 @@
+[**< Index**](README.md)
+
 # Sub-Select
 
-A select statement with one column also is named expression. This means you can use one select as a sub-select column of another select. For example:
-```
+A select statement with one column also is named expression. This means you can
+use one select as a sub-select column of another select. For example:
+
+```c++
 SQLPP_ALIAS_PROVIDER(cheese_cake); // Declared outside of function
 // ...
 for (const auto& row : db(
@@ -15,14 +19,28 @@ for (const auto& row : db(
     const int b = row.cheese_cake;
   }
 ```
-The name of the sub select is the name of the one column. If required, you can rename it using `as()`, as usual.
+
+The name of the sub select is the name of the one column. If required, you can
+rename it using `as()`, as usual.
 
 ### Aliased Sub-Select
-A select can be used as a pseudo table in another select. You just have to give it a name.
-```C++
-SQLPP_ALIAS_PROVIDER(sub);
+
+A select can be used as a pseudo table in another select. You just have to give
+it a name.
+
+```c++
+SQLPP_ALIAS_PROVIDER(sub); // Declared outside of functions
+// [...]
+
 auto sub_select = select(all_of(foo)).from(foo).where(foo.id == 42).as(sub);
 ```
-The variable `sub_select` can be used as a table now.
 
+The variable `sub_select` can be used as a table now, e.g.
 
+```c++
+for (const auto& row : db(select(sub_select.id).from(sub_select))) {
+    register_id(row.id);
+}
+```
+
+[**< Index**](README.md)

@@ -1,55 +1,51 @@
-# Introduction
-Database NULL is a strange beast. It can be compared to anything but that comparison never returns true. It also never returns false, it returns NULL. Even
+[**< Index**](README.md)
+
+# `NULL`
+
+Columns and values in SQL can be `NULL`. sqlpp23 represents them as
+`std::optional`. In particular, `NULL` is represented as `std::nullopt`.
+
+Reading fields form a result row of a `select` or assigning values in an
+`insert` or `update` is straight forward this way. C++ and SQL behave in the
+same way.
+
+It is a bit different with comparisons. SQL `NULL` is a strange beast from a C++
+point of view. It can be compared to anything but that comparison never returns
+`true`. It also never returns `false`, it returns `NULL`. Even when you compare
+`NULL` ot itself, the result is `NULL`.
 
 ```SQL
 NULL != NULL    -> NULL
 NULL = NULL     -> NULL
 ```
 
-A value like that would be pretty unusual in C++. Especially since fields in a result could be either a decent value or NULL. And this can change from result row to result row.
+sqlpp23 does not change that behavior as it is totally valid SQL. The library
+therefore also mimics a few more operators that help dealing with `NULL`:
 
-Also, in `where` or `having` conditions, you have to change the expression (not just parameters) if you want to NULL instead of a value:
+## `IS NULL` and `IS NOT NULL`
 
-```SQL
-a = 7
-a IS NULL
+This checks if a value is or isn't `NULL`.
+
+```c++
+// ...
+   .where(foo.name.is_null() and (foo.id + bar.offset).is_not_null());
 ```
 
-The library tries to make the usage of NULL reasonably safe in C++:
+## `IS DISTINCT FROM` and `IS NOT DISTINCT FROM`
 
-# Assigning NULL in INSERT or UPDATE
-In assignments in `insert` or `update` statements, NULL can be represented by `sqlpp::null`.
+These operators offer a `NULL`-safe comparison. They will return boolean results
+even if either or both operatands are `NULL`.
 
-```C++
-db(insert_into(t).set(t.gamma = sqlpp::null);
+`IS DISTINCT FROM` resembles
+`std::optional<T>::operator!=`.\
+`IS NOT DISTINCT FROM` resembles
+`std::optional<T>::operator==`.
+
+The can be used like this:
+
+```c++
+// ...
+   .where(foo.id.is_distinct_from(something));
 ```
 
-Note that you cannot assign `sqlpp::null` to columns that are not nullable.
-
-# Comparing to NULL
-Columns that can be NULL can be compared to NULL using the `is_null` and `is_not_null` member functions.
-
-```C++
-const auto s = select(all_of(tab)).from(tab).where(tab.alpha == 17 and tab.beta.is_null());
-```
-
-# Obtaining potential NULL values from a select
-sqlpp23 can determine whether a result field can be null, based on the columns involved and the structure of your query. If in doubt (for instance due to dynamic parts), it will assume that a field can be NULL.
-
-You can check if a field is NULL by calling the `is_null()` method.
-
-The value can be accessed by the `.value()` method. It will return a default constructed value in case `is_null() == true`.
-
-```C++
-for (const auto& row :  db(select(all_of(tab)).from(tab).unconditionally()))
-{
-  if (not row.alpha.is_null())
-  {
-    const auto a = row.alpha.value();
-  }
-}
-```
-
-# Future:
-We might switch to `std::optional` to represent nullable columns or values.
-
+[**< Index**](README.md)

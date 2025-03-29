@@ -1,3 +1,5 @@
+[**< Index**](README.md)
+
 # Select
 
 Lets assume we have a table representing
@@ -184,11 +186,6 @@ expression argument, for instance:
 select(all_of(foo)).from(foo).where(foo.id != 17 and foo.name.like("%cake"));
 ```
 
-In order to prevent users from accidentally forgetting the `.where()` clause,
-the library requires a call to `.where()` when there is a `from` clause. If you
-want to unconditionally want to select everything, you can use `where(true)` to
-express this intent.
-
 ### Group By
 
 The method `group_by` takes one or more expression arguments, for instance:
@@ -280,3 +277,5 @@ while(!result.empty())
    result.pop_front();
 }
 ```
+
+[**< Index**](README.md)

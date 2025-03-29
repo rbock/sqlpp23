@@ -23,7 +23,7 @@ For example, the connector could use the `operator||` or the `concat` method for
 
 Connectors for MariaDB, MySQL, PostgreSQL, sqlite3, sqlcipher are included in this repository.
 
-Documentation is found in [docs](docs/index.md).
+Documentation is found in [docs](docs/README.md).
 
 Examples:
 ---------

@@ -1,3 +1,5 @@
+[**< Index**](README.md)
+
 # Insert
 
 # Single row insert
@@ -64,4 +66,4 @@ time point.
 
 Similar for other data types.
 
-
+[**< Index**](README.md)
