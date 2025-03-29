@@ -43,6 +43,7 @@
 #include <sqlpp23/mysql/to_sql_string.h>
 #include <iostream>
 #include <string>
+#include "sqlpp23/core/type_traits.h"
 
 namespace sqlpp::mysql {
 namespace detail {
@@ -63,16 +64,16 @@ inline void thread_init() {
 }
 
 inline void execute_statement(std::unique_ptr<connection_handle>& handle,
-                              const std::string& statement) {
+                              std::string_view statement) {
   thread_init();
 
   if (handle->config->debug)
     std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;
 
-  if (mysql_query(handle->native_handle(), statement.c_str())) {
+  if (mysql_query(handle->native_handle(), statement.data())) {
     throw sqlpp::exception{"MySQL error: Could not execute MySQL-statement: " +
                            std::string{mysql_error(handle->native_handle())} +
-                           " (statement was >>" + statement + "<<\n"};
+                           " (statement was >>" + std::string(statement) + "<<\n"};
   }
 }
 
@@ -146,10 +147,27 @@ inline void global_library_init(int argc = 0,
 }
 
 class connection_base : public sqlpp::connection {
+ public:
+  using _connection_base_t = connection_base;
+  using _config_t = connection_config;
+  using _config_ptr_t = std::shared_ptr<const _config_t>;
+  using _handle_t = detail::connection_handle;
+  using _handle_ptr_t = std::unique_ptr<_handle_t>;
+  using _context_t = context_t;
+
+  using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
+
  private:
+  friend sqlpp::statement_handler_t;
+
   bool _transaction_active{false};
 
   // direct execution
+
+  void execute(std::string_view statement) {
+    execute_statement(_handle, statement);
+  }
+
   char_result_t select_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     std::unique_ptr<detail::result_handle> result_handle(
@@ -175,7 +193,7 @@ class connection_base : public sqlpp::connection {
     return mysql_affected_rows(_handle->native_handle());
   }
 
-  uint64_t remove_impl(const std::string& statement) {
+  uint64_t delete_from_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     return mysql_affected_rows(_handle->native_handle());
   }
@@ -204,38 +222,20 @@ class connection_base : public sqlpp::connection {
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
   }
 
-  uint64_t run_prepared_delete(prepared_statement_t& prepared_statement) {
+  uint64_t run_prepared_delete_from_impl(prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
   }
 
- public:
-  using _connection_base_t = connection_base;
-  using _config_t = connection_config;
-  using _config_ptr_t = std::shared_ptr<const _config_t>;
-  using _handle_t = detail::connection_handle;
-  using _handle_ptr_t = std::unique_ptr<_handle_t>;
-  using _context_t = context_t;
-
-  using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
-
-  struct _tags {
-    using _null_result_is_trivial_value = std::true_type;
-  };
-
-  const std::shared_ptr<const connection_config>& get_config() {
-    return _handle->config;
-  }
-
   template <typename Select>
-  char_result_t select(const Select& s) {
+  char_result_t _select(const Select& s) {
     context_t context(this);
     const auto query = to_sql_string(context, s);
     return select_impl(query);
   }
 
   template <typename Select>
-  _prepared_statement_t prepare_select(Select& s) {
+  _prepared_statement_t _prepare_select(Select& s) {
     context_t context(this);
     const auto query = to_sql_string(context, s);
     return prepare_impl(
@@ -244,21 +244,21 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedSelect>
-  bind_result_t run_prepared_select(const PreparedSelect& s) {
+  bind_result_t _run_prepared_select(const PreparedSelect& s) {
     s._bind_params();
     return run_prepared_select_impl(s._prepared_statement);
   }
 
   //! insert returns the last auto_incremented id (or zero, if there is none)
   template <typename Insert>
-  size_t insert(const Insert& i) {
+  size_t _insert(const Insert& i) {
     context_t context(this);
     const auto query = to_sql_string(context, i);
     return insert_impl(query);
   }
 
   template <typename Insert>
-  _prepared_statement_t prepare_insert(Insert& i) {
+  _prepared_statement_t _prepare_insert(Insert& i) {
     context_t context(this);
     const auto query = to_sql_string(context, i);
     return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size(),
@@ -266,21 +266,21 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedInsert>
-  size_t run_prepared_insert(const PreparedInsert& i) {
+  size_t _run_prepared_insert(const PreparedInsert& i) {
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
   }
 
   //! update returns the number of affected rows
   template <typename Update>
-  size_t update(const Update& u) {
+  size_t _update(const Update& u) {
     context_t context(this);
     const auto query = to_sql_string(context, u);
     return update_impl(query);
   }
 
   template <typename Update>
-  _prepared_statement_t prepare_update(Update& u) {
+  _prepared_statement_t _prepare_update(Update& u) {
     context_t context(this);
     const auto query = to_sql_string(context, u);
     return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size(),
@@ -288,31 +288,46 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedUpdate>
-  size_t run_prepared_update(const PreparedUpdate& u) {
+  size_t _run_prepared_update(const PreparedUpdate& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
 
-  //! remove returns the number of removed rows
-  template <typename Remove>
-  size_t remove(const Remove& r) {
+  //! delete_from returns the number of deleted rows
+  template <typename Delete>
+  size_t _delete_from(const Delete& r) {
     context_t context(this);
     const auto query = to_sql_string(context, r);
-    return remove_impl(query);
+    return delete_from_impl(query);
   }
 
-  template <typename Remove>
-  _prepared_statement_t prepare_remove(Remove& r) {
+  template <typename Delete>
+  _prepared_statement_t _prepare_delete_from(Delete& r) {
     context_t context(this);
     const auto query = to_sql_string(context, r);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Remove>>::size(),
+    return prepare_impl(query, parameters_of_t<std::decay_t<Delete>>::size(),
                         0);
   }
 
-  template <typename PreparedRemove>
-  size_t run_prepared_delete(const PreparedRemove& r) {
+  template <typename PreparedDelete>
+  size_t _run_prepared_delete_from(const PreparedDelete& r) {
     r._bind_params();
-    return run_prepared_delete(r._prepared_statement);
+    return run_prepared_delete_from_impl(r._prepared_statement);
+  }
+
+ public:
+  //! Direct execution
+  template <typename T>
+    requires(sqlpp::is_statement_v<T>)
+  auto operator()(const T& t) {
+    sqlpp::statement_run_check_t<T>::verify();
+    return sqlpp::statement_handler_t{}.run(t, *this);
+  }
+
+  template <typename T>
+    requires(sqlpp::is_prepared_statement_v<T>)
+  auto operator()(const T& t) {
+    return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
   //! Execute arbitrary statement (e.g. create a table).
@@ -323,15 +338,9 @@ class connection_base : public sqlpp::connection {
   //!  * If you are passing a statement with results, like a SELECT, you will
   //!  need to fetch results before issuing
   //!    the next statement on the same connection.
-  void execute(const std::string& statement) {
-    execute_statement(_handle, statement);
-  }
-
-  //! call run on the argument
-  template <typename T>
-    requires(sqlpp::statement_run_check_t<T>::value)
-  auto operator()(const T& t) {
-    return sqlpp::statement_handler_t{}.run(t, *this);
+  size_t operator()(std::string_view t) {
+    execute(t);
+    return mysql_affected_rows(_handle->native_handle());
   }
 
   //! call prepare on the argument
@@ -396,6 +405,10 @@ class connection_base : public sqlpp::connection {
                                              result.data(), s.data(), s.size());
     result.resize(length);
     return result;
+  }
+
+  const std::shared_ptr<const connection_config>& get_config() {
+    return _handle->config;
   }
 
  protected:

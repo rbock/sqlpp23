@@ -14,8 +14,8 @@
 namespace test {
 template <typename Db>
 void createTabFoo(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
-  db.execute(R"+++(CREATE TABLE tab_foo
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
+  db(R"+++(CREATE TABLE tab_foo
 (
   id bigserial PRIMARY KEY,
   text_nn_d varchar(255) NOT NULL DEFAULT '',
@@ -67,8 +67,8 @@ using TabFoo = ::sqlpp::table_t<TabFoo_>;
 
 template <typename Db>
 void createTabBar(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
-  db.execute(R"+++(CREATE TABLE tab_bar
+  db(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
+  db(R"+++(CREATE TABLE tab_bar
 (
   id bigserial PRIMARY KEY,
   text_n varchar(255) NULL,
@@ -107,8 +107,8 @@ using TabBar = ::sqlpp::table_t<TabBar_>;
 
 template <typename Db>
 void createTabDateTime(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
-  db.execute(R"+++(CREATE TABLE tab_date_time
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
+  db(R"+++(CREATE TABLE tab_date_time
 (
   day_point_n date,
   time_point_n timestamp,
@@ -158,8 +158,8 @@ using TabDateTime = ::sqlpp::table_t<TabDateTime_>;
 
 template <typename Db>
 void createBlobSample(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
-  db.execute(R"+++(CREATE TABLE blob_sample (
+  db(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
+  db(R"+++(CREATE TABLE blob_sample (
   id bigserial PRIMARY KEY,
   data bytea
 ))+++");
@@ -185,8 +185,8 @@ using BlobSample = ::sqlpp::table_t<BlobSample_>;
 
 template <typename Db>
 void createTabExcept(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_except)+++");
-  db.execute(R"+++(CREATE TABLE tab_except (
+  db(R"+++(DROP TABLE IF EXISTS tab_except)+++");
+  db(R"+++(CREATE TABLE tab_except (
   int_small_n_u smallint UNIQUE,
   text_short_n text CHECK( length(text_short_n) < 5 )
 ))+++");

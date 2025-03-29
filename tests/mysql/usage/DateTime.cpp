@@ -60,9 +60,8 @@ int DateTime(int, char*[]) {
     const auto current = now - today;
 
     auto db = sql::make_test_connection();
-    db.execute(
-        R"(SET time_zone = '+00:00')");  // To force MySQL's CURRENT_TIMESTAMP
-                                         // into the right timezone
+    db(R"(SET time_zone = '+00:00')");  // To force MySQL's CURRENT_TIMESTAMP
+                                        // into the right timezone
     test::createTabDateTime(db);
 
     const auto tab = test::TabDateTime{};

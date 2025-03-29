@@ -71,10 +71,10 @@ int FloatingPoint(int, char*[]) {
   auto db = sql::make_test_connection();
   test::createFpSample(db);
 
-  db.execute("INSERT into fp_sample (id, fp) values(NULL, 1.0)");
-  db.execute("INSERT into fp_sample (id, fp) values(NULL, 'Inf')");
-  db.execute("INSERT into fp_sample (id, fp) values(NULL, 'Nan')");
-  db.execute("INSERT into fp_sample (id, fp) values(NULL, 'SomeString')");
+  db("INSERT into fp_sample (id, fp) values(NULL, 1.0)");
+  db("INSERT into fp_sample (id, fp) values(NULL, 'Inf')");
+  db("INSERT into fp_sample (id, fp) values(NULL, 'Nan')");
+  db("INSERT into fp_sample (id, fp) values(NULL, 'SomeString')");
   db(insert_into(fp).set(fp.fp = std::numeric_limits<double>::quiet_NaN()));
   db(insert_into(fp).set(fp.fp = std::numeric_limits<double>::infinity()));
   db(insert_into(fp).set(fp.fp = -std::numeric_limits<double>::infinity()));

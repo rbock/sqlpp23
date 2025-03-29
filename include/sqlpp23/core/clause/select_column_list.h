@@ -121,16 +121,18 @@ struct select_result_methods_t {
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& statement, Db& db) -> result_t<
-      decltype(db.select(std::forward<Statement>(statement))),
+      decltype(statement_handler_t{}.select(std::forward<Statement>(statement), db)),
       result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>> {
-    return {db.select(std::forward<Statement>(statement))};
+    return {statement_handler_t{}.select(std::forward<Statement>(statement), db)};
   }
 
   // Prepare
   template <typename Statement, typename Db>
   auto _prepare(this Statement&& statement, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
-    return {{}, db.prepare_select(std::forward<Statement>(statement))};
+    return {{},
+            statement_handler_t{}.prepare_select(
+                std::forward<Statement>(statement), db)};
   }
 };
 

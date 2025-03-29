@@ -47,7 +47,7 @@ int Attach(int, char*[]) {
 
   // Attaching another in-memory database and creating the same table in it
   auto other = db.attach(*config, "other");
-  db.execute(R"(CREATE TABLE other.tab_sample (
+  db(R"(CREATE TABLE other.tab_sample (
   id INTEGER PRIMARY KEY,
   alpha bigint(20) DEFAULT NULL,
   beta varchar(255) DEFAULT NULL,

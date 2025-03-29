@@ -29,6 +29,7 @@
 
 #include <utility>
 
+// Used as friend class to reduce the exposed API in statement and connection.
 namespace sqlpp {
 class statement_handler_t {
  public:
@@ -40,6 +41,81 @@ class statement_handler_t {
   template <typename Statement, typename Db>
   auto prepare(Statement&& statement, Db& db) {
     return std::forward<Statement>(statement)._prepare(db);
+  }
+
+  template <typename Statement, typename Db>
+  auto execute(Statement&& statement, Db& db) {
+    return db._execute(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto delete_from(Statement&& statement, Db& db) {
+    return db._delete_from(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto insert(Statement&& statement, Db& db) {
+    return db._insert(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto select(Statement&& statement, Db& db) {
+    return db._select(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto update(Statement&& statement, Db& db) {
+    return db._update(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto prepare_execute(Statement&& statement, Db& db) {
+    return db._prepare_execute(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto prepare_delete_from(Statement&& statement, Db& db) {
+    return db._prepare_delete_from(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto prepare_insert(Statement&& statement, Db& db) {
+    return db._prepare_insert(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto prepare_select(Statement&& statement, Db& db) {
+    return db._prepare_select(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto prepare_update(Statement&& statement, Db& db) {
+    return db._prepare_update(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto run_prepared_execute(Statement&& statement, Db& db) {
+    return db._run_prepared_execute(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto run_prepared_delete_from(Statement&& statement, Db& db) {
+    return db._run_prepared_delete_from(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto run_prepared_insert(Statement&& statement, Db& db) {
+    return db._run_prepared_insert(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto run_prepared_select(Statement&& statement, Db& db) {
+    return db._run_prepared_select(std::forward<Statement>(statement));
+  }
+
+  template <typename Statement, typename Db>
+  auto run_prepared_update(Statement&& statement, Db& db) {
+    return db._run_prepared_update(std::forward<Statement>(statement));
   }
 };
 

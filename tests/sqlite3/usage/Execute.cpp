@@ -35,16 +35,16 @@ int Execute(int, char*[]) {
   auto db = sql::make_test_connection();
 
   // execute supports single statements.
-  db.execute(R"(SELECT 1)");
+  db(R"(SELECT 1)");
 
   // execute supports single statements, and trailing spaces are not an issue
-  db.execute(R"(SELECT 1  )");
-  db.execute(R"(SELECT 1;  )");
+  db(R"(SELECT 1  )");
+  db(R"(SELECT 1;  )");
 
   // execute throws an exception if multiple statements are passed in the
   // string.
   try {
-    db.execute(R"(SELECT 1; SELECT 2)");
+    db(R"(SELECT 1; SELECT 2)");
   } catch (const sqlpp::exception& e) {
     const auto message = std::string(e.what());
     if (message.find("Cannot execute multi-statements") == message.npos) {

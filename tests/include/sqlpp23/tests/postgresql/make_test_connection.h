@@ -63,7 +63,7 @@ inline ::sqlpp::postgresql::connection make_test_connection(
     throw;
   }
 
-  db.execute("SET TIME ZONE " + tz + ";");
+  db("SET TIME ZONE " + tz + ";");
 
   return db;
 }

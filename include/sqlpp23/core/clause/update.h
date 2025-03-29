@@ -54,14 +54,16 @@ struct update_result_methods_t {
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& statement, Db& db) {
-    return db.update(std::forward<Statement>(statement));
+    return statement_handler_t{}.update(std::forward<Statement>(statement), db);
   }
 
   // Prepare
   template <typename Statement, typename Db>
   auto _prepare(this Statement&& statement, Db& db)
       -> prepared_update_t<Db, std::decay_t<Statement>> {
-    return {{}, db.prepare_update(std::forward<Statement>(statement))};
+    return {{},
+            statement_handler_t{}.prepare_update(
+                std::forward<Statement>(statement), db)};
   }
 };
 

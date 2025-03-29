@@ -30,6 +30,7 @@
 #include <sqlpp23/core/basic/table.h>
 #include <sqlpp23/core/clause/select_as.h>
 #include <sqlpp23/core/clause/select_column_traits.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/detail/flat_tuple.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/field_spec.h>
@@ -87,12 +88,15 @@ struct returning_column_list_result_methods_t {
     return table(std::forward<Statement>(statement));
   }
 
+ private:
+  friend class sqlpp::statement_handler_t;
+
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& statement, Db& db) -> result_t<
-      decltype(db.select(std::declval<std::decay_t<Statement>>())),
+      decltype(sqlpp::statement_handler_t{}.select(std::declval<std::decay_t<Statement>>(), db)),
       result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>> {
-    return {db.select(std::forward<Statement>(statement))};
+    return {statement_handler_t{}.select(std::forward<Statement>(statement), db)};
   }
 
   // Prepare
@@ -100,7 +104,7 @@ struct returning_column_list_result_methods_t {
   auto _prepare(this Statement&& statement, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
     return {make_parameter_list_t<std::decay_t<Statement>>{},
-            db.prepare_select(std::forward<Statement>(statement))};
+            statement_handler_t{}.prepare_select(std::forward<Statement>(statement), db)};
   }
 };
 }  // namespace postgresql

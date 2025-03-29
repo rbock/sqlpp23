@@ -13,8 +13,8 @@
 namespace test {
 template <typename Db>
 void createTabSample(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_sample)+++");
-  db.execute(R"+++(CREATE TABLE tab_sample (
+  db(R"+++(DROP TABLE IF EXISTS tab_sample)+++");
+  db(R"+++(CREATE TABLE tab_sample (
   id INTEGER PRIMARY KEY,
   alpha bigint(20) DEFAULT NULL,
   beta varchar(255) DEFAULT NULL,
@@ -52,8 +52,8 @@ using TabSample = ::sqlpp::table_t<TabSample_>;
 
 template <typename Db>
 void createTabFoo(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
-  db.execute(R"+++(CREATE TABLE tab_foo (
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
+  db(R"+++(CREATE TABLE tab_foo (
   omega bigint(20) DEFAULT NULL
 ))+++");
 }
@@ -73,8 +73,8 @@ using TabFoo = ::sqlpp::table_t<TabFoo_>;
 
 template <typename Db>
 void createIntegralSample(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS integral_sample)+++");
-  db.execute(R"+++(CREATE TABLE integral_sample (
+  db(R"+++(DROP TABLE IF EXISTS integral_sample)+++");
+  db(R"+++(CREATE TABLE integral_sample (
   signed_value INTEGER,
   unsigned_value INTEGER UNSIGNED
 ))+++");
@@ -100,8 +100,8 @@ using IntegralSample = ::sqlpp::table_t<IntegralSample_>;
 
 template <typename Db>
 void createBlobSample(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
-  db.execute(R"+++(CREATE TABLE blob_sample (
+  db(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
+  db(R"+++(CREATE TABLE blob_sample (
   id INTEGER PRIMARY KEY,
   data blob
 ))+++");
@@ -127,8 +127,8 @@ using BlobSample = ::sqlpp::table_t<BlobSample_>;
 
 template <typename Db>
 void createFpSample(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS fp_sample)+++");
-  db.execute(R"+++(CREATE TABLE fp_sample (
+  db(R"+++(DROP TABLE IF EXISTS fp_sample)+++");
+  db(R"+++(CREATE TABLE fp_sample (
   id INTEGER PRIMARY KEY,
   fp DOUBLE
 ))+++");
@@ -154,8 +154,8 @@ using FpSample = ::sqlpp::table_t<FpSample_>;
 
 template <typename Db>
 void createTabDateTime(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
-  db.execute(R"+++(CREATE TABLE tab_date_time
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
+  db(R"+++(CREATE TABLE tab_date_time
 (
   id INTEGER PRIMARY KEY,
   day_point_n date,

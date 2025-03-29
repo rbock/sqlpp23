@@ -28,19 +28,22 @@
  */
 
 #include <sqlpp23/core/database/parameter_list.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/result.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Database, typename Statement>
+template <typename Database, typename _Statement>
 struct prepared_select_t {
-  using _result_row_t = get_result_row_t<Statement>;
-  using _parameter_list_t = make_parameter_list_t<Statement>;
+  using _result_row_t = get_result_row_t<_Statement>;
+  using _parameter_list_t = make_parameter_list_t<_Statement>;
   using _prepared_statement_t = typename Database::_prepared_statement_t;
 
   auto _run(Database& db) const
-      -> result_t<decltype(db.run_prepared_select(*this)), _result_row_t> {
-    return {db.run_prepared_select(*this)};
+      -> result_t<decltype(statement_handler_t{}.run_prepared_select(*this,
+                                                                     db)),
+                  _result_row_t> {
+    return {statement_handler_t{}.run_prepared_select(*this, db)};
   }
 
   void _bind_params() const { params._bind(_prepared_statement); }
@@ -49,8 +52,8 @@ struct prepared_select_t {
   mutable _prepared_statement_t _prepared_statement;
 };
 
-template <typename Db, typename Statement>
-struct statement_run_check<prepared_select_t<Db, Statement>> {
-  using type = consistent_t;
-};
+template <typename Db, typename _Statement>
+struct is_prepared_statement<prepared_select_t<Db, _Statement>>
+    : public std::true_type {};
+
 }  // namespace sqlpp

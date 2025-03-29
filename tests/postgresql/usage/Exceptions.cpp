@@ -61,14 +61,14 @@ int Exceptions(int, char*[]) {
 
     try {
       // Cause specific error
-      db.execute(R"(create or replace function cause_error() returns int as $$
+      db(R"(create or replace function cause_error() returns int as $$
                       begin
                         raise exception 'User error' USING ERRCODE='ZX123';
                       end;
                     $$ language plpgsql
                     )");
 
-      db.execute("select cause_error();");
+      db("select cause_error();");
     } catch (const sql::sql_user_error& e) {
       std::cout << "Caught expected error. Code: " << e.code() << '\n';
       if (e.code() != "ZX123")

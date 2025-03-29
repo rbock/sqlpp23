@@ -28,24 +28,28 @@
  */
 
 #include <sqlpp23/core/database/parameter_list.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/result.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Db, typename Statement>
+template <typename Db, typename _Statement>
 struct prepared_execute_t {
-  using _parameter_list_t = make_parameter_list_t<Statement>;
+  using _parameter_list_t = make_parameter_list_t<_Statement>;
   using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-  auto _run(Db& db) const -> size_t { return db.run_prepared_execute(*this); }
+  auto _run(Db& db) const -> size_t {
+    return statement_handler_t{}.run_prepared_execute(*this, db);
+  }
 
   void _bind_params() const { params._bind(_prepared_statement); }
 
   _parameter_list_t params;
   mutable _prepared_statement_t _prepared_statement;
 };
-template <typename Db, typename Statement>
-struct statement_run_check<prepared_execute_t<Db, Statement>> {
-  using type = consistent_t;
-};
+
+template <typename Db, typename _Statement>
+struct is_prepared_statement<prepared_execute_t<Db, _Statement>>
+    : public std::true_type {};
+
 }  // namespace sqlpp

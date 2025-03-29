@@ -13,8 +13,8 @@
 namespace test {
 template <typename Db>
 void createTabSample(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_sample)+++");
-  db.execute(R"+++(CREATE TABLE tab_sample (
+  db(R"+++(DROP TABLE IF EXISTS tab_sample)+++");
+  db(R"+++(CREATE TABLE tab_sample (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   int_n bigint(20) DEFAULT NULL,
   text_n varchar(255) DEFAULT NULL,
@@ -52,8 +52,8 @@ using TabSample = ::sqlpp::table_t<TabSample_>;
 
 template <typename Db>
 void createTabDateTime(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
-  db.execute(R"+++(CREATE TABLE tab_date_time (
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
+  db(R"+++(CREATE TABLE tab_date_time (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   day_point_n date,
   time_point_n datetime(3),
@@ -98,8 +98,8 @@ using TabDateTime = ::sqlpp::table_t<TabDateTime_>;
 
 template <typename Db>
 void createTabFoo(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
-  db.execute(R"+++(CREATE TABLE tab_foo (
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
+  db(R"+++(CREATE TABLE tab_foo (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   int_n bigint(20) DEFAULT NULL
 ))+++");
@@ -125,8 +125,8 @@ using TabFoo = ::sqlpp::table_t<TabFoo_>;
 
 template <typename Db>
 void createTabJson(Db& db) {
-  db.execute(R"+++(DROP TABLE IF EXISTS tab_json)+++");
-  db.execute(R"+++(CREATE TABLE tab_json (
+  db(R"+++(DROP TABLE IF EXISTS tab_json)+++");
+  db(R"+++(CREATE TABLE tab_json (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   data JSON NOT NULL
 ))+++");

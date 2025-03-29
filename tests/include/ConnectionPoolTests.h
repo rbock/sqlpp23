@@ -138,8 +138,8 @@ void test_basic(Pool& pool, const std::string& create_table) {
   std::clog << __func__ << '\n';
   try {
     auto db = pool.get();
-    db.execute("DROP TABLE IF EXISTS tab_department");
-    db.execute(create_table);
+    db("DROP TABLE IF EXISTS tab_department");
+    db(create_table);
     model::TabDepartment tabDept = {};
     db(insert_into(tabDept).default_values());
   } catch (const std::exception& e) {

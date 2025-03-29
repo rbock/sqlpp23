@@ -67,7 +67,7 @@ using namespace dynamic;
 namespace detail {
 inline detail::prepared_statement_handle_t prepare_statement(
     std::unique_ptr<connection_handle>& handle,
-    const std::string& statement) {
+    const std::string_view& statement) {
   if (handle->config->debug)
     std::cerr << "Sqlite3 debug: Preparing: '" << statement << "'" << std::endl;
 
@@ -81,7 +81,7 @@ inline detail::prepared_statement_handle_t prepare_statement(
   const auto length = end - statement.begin();
 
   const char* uncompiledTail = nullptr;
-  const auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.c_str(),
+  const auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.data(),
                                      static_cast<int>(length),
                                      &result.sqlite_statement, &uncompiledTail);
 
@@ -90,13 +90,13 @@ inline detail::prepared_statement_handle_t prepare_statement(
         "Sqlite3 error: Could not prepare statement: " +
         std::string(sqlite3_errmsg(handle->native_handle())) +
         " ,statement was >>" +
-        (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) +
+        (rc == SQLITE_TOOBIG ? std::string(statement).substr(0, 128) + "..." : std::string(statement)) +
         "<<\n"};
   }
 
-  if (uncompiledTail != statement.c_str() + length) {
+  if (uncompiledTail != statement.data() + length) {
     throw sqlpp::exception{
-        "Sqlite3 connector: Cannot execute multi-statements: >>" + statement +
+        "Sqlite3 connector: Cannot execute multi-statements: >>" + std::string(statement) +
         "<<\n"};
   }
 
@@ -124,10 +124,28 @@ inline void execute_statement(std::unique_ptr<connection_handle>& handle,
 
 // Base connection class
 class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
+ public:
+  using _connection_base_t = connection_base;
+  using _config_t = connection_config;
+  using _config_ptr_t = std::shared_ptr<const connection_config>;
+  using _handle_t = detail::connection_handle;
+  using _handle_ptr_t = std::unique_ptr<_handle_t>;
+
+  using _prepared_statement_t = prepared_statement_t;
+
  private:
+  friend sqlpp::statement_handler_t;
+
   bool _transaction_active{false};
 
   // direct execution
+  size_t execute_impl(std::string_view statement) {
+    auto prepared = prepare_statement(_handle, statement);
+    execute_statement(_handle, prepared);
+
+    return static_cast<size_t>(sqlite3_changes(native_handle()));
+  }
+
   bind_result_t select_impl(const std::string& statement) {
     std::unique_ptr<detail::prepared_statement_handle_t> prepared{
         new detail::prepared_statement_handle_t(
@@ -152,7 +170,7 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
     return static_cast<size_t>(sqlite3_changes(native_handle()));
   }
 
-  size_t remove_impl(const std::string& statement) {
+  size_t delete_from_impl(const std::string& statement) {
     auto prepared = prepare_statement(_handle, statement);
     execute_statement(_handle, prepared);
     return static_cast<size_t>(sqlite3_changes(native_handle()));
@@ -182,7 +200,7 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
     return static_cast<size_t>(sqlite3_changes(native_handle()));
   }
 
-  size_t run_prepared_delete_impl(prepared_statement_t& prepared_statement) {
+  size_t run_prepared_delete_from_impl(prepared_statement_t& prepared_statement) {
     execute_statement(_handle, *prepared_statement._handle.get());
 
     return static_cast<size_t>(sqlite3_changes(native_handle()));
@@ -194,36 +212,23 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
     return static_cast<size_t>(sqlite3_changes(native_handle()));
   }
 
- public:
-  using _connection_base_t = connection_base;
-  using _config_t = connection_config;
-  using _config_ptr_t = std::shared_ptr<const connection_config>;
-  using _handle_t = detail::connection_handle;
-  using _handle_ptr_t = std::unique_ptr<_handle_t>;
-
-  using _prepared_statement_t = prepared_statement_t;
-
-  struct _tags {
-    using _null_result_is_trivial_value = std::true_type;
-  };
-
   //! select returns a result (which can be iterated row by row)
   template <typename Select>
-  bind_result_t select(const Select& s) {
+  bind_result_t _select(const Select& s) {
     context_t context{this};
     auto query = to_sql_string(context, s);
     return select_impl(query);
   }
 
   template <typename Select>
-  _prepared_statement_t prepare_select(Select& s) {
+  _prepared_statement_t _prepare_select(Select& s) {
     context_t context{this};
     auto query = to_sql_string(context, s);
     return prepare_impl(query);
   }
 
   template <typename PreparedSelect>
-  bind_result_t run_prepared_select(const PreparedSelect& s) {
+  bind_result_t _run_prepared_select(const PreparedSelect& s) {
     s._prepared_statement._reset();
     s._bind_params();
     return run_prepared_select_impl(s._prepared_statement);
@@ -231,21 +236,21 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
 
   //! insert returns the last auto_incremented id (or zero, if there is none)
   template <typename Insert>
-  size_t insert(const Insert& i) {
+  size_t _insert(const Insert& i) {
     context_t context{this};
     auto query = to_sql_string(context, i);
     return insert_impl(query);
   }
 
   template <typename Insert>
-  _prepared_statement_t prepare_insert(Insert& i) {
+  _prepared_statement_t _prepare_insert(Insert& i) {
     context_t context{this};
     auto query = to_sql_string(context, i);
     return prepare_impl(query);
   }
 
   template <typename PreparedInsert>
-  size_t run_prepared_insert(const PreparedInsert& i) {
+  size_t _run_prepared_insert(const PreparedInsert& i) {
     i._prepared_statement._reset();
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
@@ -253,108 +258,103 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
 
   //! update returns the number of affected rows
   template <typename Update>
-  size_t update(const Update& u) {
+  size_t _update(const Update& u) {
     context_t context{this};
     auto query = to_sql_string(context, u);
     return update_impl(query);
   }
 
   template <typename Update>
-  _prepared_statement_t prepare_update(Update& u) {
+  _prepared_statement_t _prepare_update(Update& u) {
     context_t context{this};
     auto query = to_sql_string(context, u);
     return prepare_impl(query);
   }
 
   template <typename PreparedUpdate>
-  size_t run_prepared_update(const PreparedUpdate& u) {
+  size_t _run_prepared_update(const PreparedUpdate& u) {
     u._prepared_statement._reset();
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
 
-  //! remove returns the number of removed rows
+  //! delete_from returns the number of deleted rows
   template <typename Remove>
-  size_t remove(const Remove& r) {
+  size_t _delete_from(const Remove& r) {
     context_t context{this};
     auto query = to_sql_string(context, r);
-    return remove_impl(query);
+    return delete_from_impl(query);
   }
 
   template <typename Remove>
-  _prepared_statement_t prepare_remove(Remove& r) {
+  _prepared_statement_t _prepare_delete_from(Remove& r) {
     context_t context{this};
     auto query = to_sql_string(context, r);
     return prepare_impl(query);
   }
 
   template <typename PreparedRemove>
-  size_t run_prepared_delete(const PreparedRemove& r) {
+  size_t _run_prepared_delete_from(const PreparedRemove& r) {
     r._prepared_statement._reset();
     r._bind_params();
-    return run_prepared_delete_impl(r._prepared_statement);
+    return run_prepared_delete_from_impl(r._prepared_statement);
   }
 
   //! Execute a single arbitrary statement (e.g. create a table)
   //! Throws an exception if multiple statements are passed (e.g. separated by
   //! semicolon).
-  size_t execute(const std::string& statement) {
-    auto prepared = prepare_statement(_handle, statement);
-    execute_statement(_handle, prepared);
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
-  }
-
-  template <typename Execute,
-            typename Enable = typename std::enable_if<
-                not std::is_convertible<Execute, std::string>::value,
-                void>::type>
-  size_t execute(const Execute& x) {
+  template <typename Execute>
+  size_t _execute(const Execute& r) {
     context_t context{this};
-    auto query = to_sql_string(context, x);
-    return execute(query);
+    auto query = to_sql_string(context, r);
+    return execute_impl(query);
   }
 
   template <typename Execute>
-  _prepared_statement_t prepare_execute(Execute& x) {
+  _prepared_statement_t _prepare_execute(Execute& x) {
     context_t context{this};
     auto query = to_sql_string(context, x);
     return prepare_impl(query);
   }
 
   template <typename PreparedExecute>
-  size_t run_prepared_execute(const PreparedExecute& x) {
+  size_t _run_prepared_execute(const PreparedExecute& x) {
     x._prepared_statement._reset();
     x._bind_params();
     return run_prepared_execute_impl(x._prepared_statement);
   }
 
-  //! call run on the argument
+ public:
   template <typename T>
-  auto _run(const T& t, ::sqlpp::consistent_t) -> decltype(t._run(*this)) {
-    return t._run(*this);
-  }
-
-  template <typename Check, typename T>
-  auto _run(const T& t, Check) -> Check;
-
-  template <typename T>
-    requires(sqlpp::statement_run_check_t<T>::value)
+    requires(sqlpp::is_statement_v<T>)
   auto operator()(const T& t) {
+    sqlpp::statement_run_check_t<T>::verify();
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
   template <typename T>
-    requires(sqlpp::statement_prepare_check_t<T>::value)
+    requires(sqlpp::is_prepared_statement_v<T>)
+  auto operator()(const T& t) {
+    return sqlpp::statement_handler_t{}.run(t, *this);
+  }
+
+  size_t operator()(std::string_view t) {
+    return execute_impl(t);
+  }
+
+  template <typename T>
+    requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
+    sqlpp::statement_prepare_check_t<T>::verify();
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 
   //! set the transaction isolation level for this connection
   void set_default_isolation_level(isolation_level level) {
     if (level == sqlpp::isolation_level::read_uncommitted) {
-      execute("pragma read_uncommitted = true");
+      execute_impl("pragma read_uncommitted = true");
     } else {
-      execute("pragma read_uncommitted = false");
+      execute_impl("pragma read_uncommitted = false");
     }
   }
 
