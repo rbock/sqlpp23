@@ -31,6 +31,10 @@
 int main(int, char*[]) {
   const auto bar = test::TabBar{};
 
+  // star
+  SQLPP_COMPARE(count(sqlpp::star), "COUNT(*)");
+  SQLPP_COMPARE(count(sqlpp::distinct, sqlpp::star), "COUNT(DISTINCT *)");
+
   // Single column.
   SQLPP_COMPARE(count(bar.id), "COUNT(tab_bar.id)");
   SQLPP_COMPARE(count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");

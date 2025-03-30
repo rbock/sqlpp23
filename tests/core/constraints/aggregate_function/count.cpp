@@ -28,8 +28,26 @@
 
 #include <sqlpp23/tests/core/tables.h>
 
+namespace {
+SQLPP_CREATE_NAME_TAG(something);
+
+template <typename... Expressions>
+concept can_call_count_with =
+    requires(Expressions... expressions) { sqlpp::count(expressions...); };
+
+template <typename... Expressions>
+concept cannot_call_count_with = not(can_call_count_with<Expressions...>);
+}  // namespace
+
 int main() {
   const auto foo = test::TabFoo{};
+
+  static_assert(can_call_count_with<decltype(foo.id)>);
+  static_assert(can_call_count_with<sqlpp::star_t>);
+  static_assert(can_call_count_with<decltype(foo.textNnD)>);
+
+  static_assert(cannot_call_count_with<decltype(foo.id.as(something))>);
+  static_assert(cannot_call_count_with<decltype(foo)>);
 
   SQLPP_CHECK_STATIC_ASSERT(
       count(count(foo.id)),

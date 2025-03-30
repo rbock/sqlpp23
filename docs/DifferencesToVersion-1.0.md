@@ -118,3 +118,6 @@ Magic is dangerous, e.g. when used in comparison.
 
 ## dropped explicit requirement for where
 sqlpp11 used to require where in select, update, delete_from. This is inconsistent with the goal of the library: Prevent incorrect statements. However, while a missing `WHERE` might be an algorithmic mistake, it does not make the statement incorrect.
+
+## allow count(sqlpp::star)
+Taken from sqlpp17

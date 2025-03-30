@@ -28,8 +28,27 @@
 
 #include <sqlpp23/tests/core/tables.h>
 
+namespace {
+SQLPP_CREATE_NAME_TAG(something);
+
+template <typename... Expressions>
+concept can_call_max_with =
+    requires(Expressions... expressions) { sqlpp::max(expressions...); };
+
+template <typename... Expressions>
+concept cannot_call_max_with =
+    not(can_call_max_with<Expressions...>);
+}
+
 int main() {
-  const auto foo = test::TabFoo{};
+  auto foo = test::TabFoo{};
+
+  static_assert(can_call_max_with<decltype(foo.id)>);
+  static_assert(can_call_max_with<decltype(foo.textNnD)>);
+
+  static_assert(cannot_call_max_with<sqlpp::star_t>);
+  static_assert(cannot_call_max_with<decltype(foo.id.as(something))>);
+  static_assert(cannot_call_max_with<decltype(foo)>);
 
   SQLPP_CHECK_STATIC_ASSERT(max(count(foo.id)),
                             "max() must not be used on an aggregate function");

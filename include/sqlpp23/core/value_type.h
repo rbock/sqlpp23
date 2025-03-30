@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <type_traits>
+#include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename T>
