@@ -155,18 +155,9 @@ auto tuple_to_sql_string_impl(Context& context,
                               const Strategy& strategy,
                               const std::index_sequence<Is...>&
                               /*unused*/) -> std::string {
-  // Note: A braced-init-list does guarantee the order of evaluation according
-  // to 12.6.1 [class.explicit.init] paragraph 2 and 8.5.4 [dcl.init.list]
-  // paragraph 4. See for example:
-  // "http://en.cppreference.com/w/cpp/utility/integer_sequence" See also:
-  // "http://stackoverflow.com/questions/6245735/pretty-print-stdtuple/6245777#6245777"
-  // Beware of gcc-bug: "http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51253",
-  // otherwise an empty swallow struct could be used.
+  // See https://en.cppreference.com/w/cpp/language/eval_order
   auto result = std::string{};
-  using swallow = int[];
-  (void)swallow{0,  // workaround against -Wpedantic GCC warning "zero-size
-                    // array 'int [0]'"
-                (result += strategy(context, std::get<Is>(t), Is), 0)...};
+  ((result += strategy(context, std::get<Is>(t), Is)), ...);
   return result;
 }
 

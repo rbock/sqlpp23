@@ -330,10 +330,7 @@ template <typename Context, typename... Clauses>
 auto to_sql_string(Context& context, const statement_t<Clauses...>& t)
     -> std::string {
   auto result = std::string{};
-  using swallow = int[];
-  (void)swallow{
-      0,
-      (result += to_sql_string(context, static_cast<const Clauses&>(t)), 0)...};
+  ((result += to_sql_string(context, static_cast<const Clauses&>(t))), ...);
 
   return result;
 }

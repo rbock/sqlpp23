@@ -72,26 +72,22 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
 
   template <typename Target>
   void _bind_fields(Target& target) {
-    using swallow = int[];
-    (void)swallow{(result_field<Is, FieldSpecs>::_bind_field(target), 0)...};
+    (result_field<Is, FieldSpecs>::_bind_field(target), ...);
   }
 
   template <typename Target>
   void _read_fields(Target& target) {
-    using swallow = int[];
-    (void)swallow{(result_field<Is, FieldSpecs>::_read_field(target), 0)...};
+    (result_field<Is, FieldSpecs>::_read_field(target), ...);
   }
 
   template <typename Callable>
   void _apply(Callable& callable) const {
-    using swallow = int[];
-    (void)swallow{(result_field<Is, FieldSpecs>::_apply(callable), 0)...};
+    (result_field<Is, FieldSpecs>::_apply(callable), ...);
   }
 
   template <typename Callable>
   void _apply(const Callable& callable) const {
-    using swallow = int[];
-    (void)swallow{(result_field<Is, FieldSpecs>::_apply(callable), 0)...};
+    (result_field<Is, FieldSpecs>::_apply(callable), ...);
   }
 };
 }  // namespace detail
