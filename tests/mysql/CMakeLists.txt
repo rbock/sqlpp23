@@ -23,6 +23,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 find_package(Threads REQUIRED)
+add_library(sqlpp23_mysql_testing INTERFACE)
+target_include_directories(sqlpp23_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 add_subdirectory(constraints)
 add_subdirectory(types)

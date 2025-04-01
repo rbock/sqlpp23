@@ -23,6 +23,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+function(create_test name)
+    set(target sqlpp23_sqlite3_usage_${name})
+    add_executable(${target} ${name}.cpp)
+    sqlpp_slite3_test_add_target_link_libraries(${target})
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+create_test(aggregate_functions)
+
 set(test_files
     DateTime.cpp
     Sample.cpp

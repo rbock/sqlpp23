@@ -22,8 +22,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp23_mysql_testing INTERFACE)
-target_include_directories(sqlpp23_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+function(create_test name)
+    set(target sqlpp23_mysql_usage_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing Threads::Threads)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+create_test(aggregate_functions)
 
 set(test_files
     Json.cpp

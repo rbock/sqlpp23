@@ -29,10 +29,16 @@
 
 #include <sqlpp23/core/aggregate_function/enable_over.h>
 #include <sqlpp23/core/clause/select_flags.h>
+#include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/type_traits.h>
+
+namespace sqlpp::alias {
+SQLPP_CREATE_NAME_TAG(sum_);
+}
+
 
 namespace sqlpp {
 template <typename Flag, typename Expr>

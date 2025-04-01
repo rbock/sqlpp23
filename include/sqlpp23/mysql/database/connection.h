@@ -164,8 +164,9 @@ class connection_base : public sqlpp::connection {
 
   // direct execution
 
-  void execute(std::string_view statement) {
+  size_t execute_impl(std::string_view statement) {
     execute_statement(_handle, statement);
+    return mysql_affected_rows(_handle->native_handle());
   }
 
   char_result_t select_impl(const std::string& statement) {
@@ -225,6 +226,28 @@ class connection_base : public sqlpp::connection {
   uint64_t run_prepared_delete_from_impl(prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+  }
+
+  //! execute
+  template <typename Execute>
+  size_t _execute(const Execute& i) {
+    context_t context(this);
+    const auto query = to_sql_string(context, i);
+    return execute_impl(query);
+  }
+
+  template <typename Execute>
+  _prepared_statement_t _prepare_execute(Execute& u) {
+    context_t context(this);
+    const auto query = to_sql_string(context, u);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Execute>>::size(),
+                        0);
+  }
+
+  template <typename PreparedExecute>
+  size_t _run_prepared_execute(const PreparedExecute& u) {
+    u._bind_params();
+    return run_prepared_update_impl(u._prepared_statement);
   }
 
   template <typename Select>
@@ -339,8 +362,7 @@ class connection_base : public sqlpp::connection {
   //!  need to fetch results before issuing
   //!    the next statement on the same connection.
   size_t operator()(std::string_view t) {
-    execute(t);
-    return mysql_affected_rows(_handle->native_handle());
+    return execute_impl(t);
   }
 
   //! call prepare on the argument
