@@ -39,7 +39,6 @@ namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(count_);
 }
 
-
 namespace sqlpp {
 template <typename Flag, typename Expr>
 struct count_t : public enable_as<count_t<Flag, Expr>>,

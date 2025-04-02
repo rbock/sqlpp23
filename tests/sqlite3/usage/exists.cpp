@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,22 +24,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+#include <iostream>
+
+#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include "Tables.h"
 
-SQLPP_CREATE_NAME_TAG(v);
-
+namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
-  const auto val = sqlpp::value(17);
+  try {
+    const auto tab = test::TabSample{};
+    auto db = sql::make_test_connection();
 
-  SQLPP_COMPARE(exists(select(val.as(v))), "EXISTS (SELECT 17 AS v)");
-  SQLPP_COMPARE(true and exists(select(val.as(v))),
-                "1 AND EXISTS (SELECT 17 AS v)");
-  SQLPP_COMPARE(exists(select(val.as(v))) and true,
-                "EXISTS (SELECT 17 AS v) AND 1");
+    test::createTabSample(db);
 
-  SQLPP_COMPARE(exists(select(val.as(v))).as(sqlpp::alias::exists_),
-                "EXISTS (SELECT 17 AS v) AS exists_");
+    // clear the table
+    db(truncate(tab));
 
+    // insert
+    db(insert_into(tab).set(tab.alpha = 7));
+
+    // select exists
+    for (const auto& row :
+         db(select(exists(select(tab.id).from(tab).where(tab.alpha == 7))
+                       .as(sqlpp::alias::exists_)))) {
+      assert(row.exists_ == true);
+    }
+
+    // select exists
+    for (const auto& row : db(select(exists(
+              select(tab.id).from(tab).where(tab.alpha == 8)).as(sqlpp::alias::exists_)))) {
+      assert(row.exists_ == false);
+    }
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return 1;
+  }
   return 0;
 }

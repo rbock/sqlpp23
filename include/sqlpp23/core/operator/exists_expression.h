@@ -29,7 +29,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/type_traits.h>
+
+namespace sqlpp::alias {
+SQLPP_CREATE_NAME_TAG(exists_);
+}
 
 namespace sqlpp {
 template <typename Select>

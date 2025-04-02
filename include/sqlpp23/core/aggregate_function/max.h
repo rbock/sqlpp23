@@ -39,7 +39,6 @@ namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(max_);
 }
 
-
 namespace sqlpp {
 template <typename Flag, typename Expr>
 struct max_t : public enable_as<max_t<Flag, Expr>>,

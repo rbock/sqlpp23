@@ -39,7 +39,6 @@ namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(sum_);
 }
 
-
 namespace sqlpp {
 template <typename Flag, typename Expr>
 struct sum_t : public enable_as<sum_t<Flag, Expr>>,

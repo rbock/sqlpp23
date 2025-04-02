@@ -39,7 +39,6 @@ namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(min_);
 }
 
-
 namespace sqlpp {
 template <typename Flag, typename Expr>
 struct min_t : public enable_as<min_t<Flag, Expr>>,

@@ -30,6 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(aggregate_functions)
+create_test(exists)
 
 set(test_files
     Json.cpp
