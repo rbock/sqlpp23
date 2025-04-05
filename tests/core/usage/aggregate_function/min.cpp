@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,31 +24,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+#include <iostream>
+
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
 
+SQLPP_CREATE_NAME_TAG(min_distinct);
+
 int main(int, char*[]) {
-  const auto bar = test::TabBar{};
+  try {
+    const auto tab = test::TabFoo{};
+    auto db = MockDb{};
 
-  // star
-  SQLPP_COMPARE(count(sqlpp::star), "COUNT(*)");
+    // clear the table
+    db(truncate(tab));
 
-  // Single column.
-  SQLPP_COMPARE(count(bar.id), "COUNT(tab_bar.id)");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");
+    // insert
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
 
-  // Expression.
-  SQLPP_COMPARE(count(bar.id + 7), "COUNT(tab_bar.id + 7)");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id + 7),
-                "COUNT(DISTINCT tab_bar.id + 7)");
+    // select min
+    for (const auto& row : db(select(
+            min(tab.intN).as(sqlpp::alias::min_),
+            min(sqlpp::distinct, tab.intN).as(min_distinct)
+            ).from(tab))) {
+      std::ignore = row.min_;
+      std::ignore = row.min_distinct;
+    }
 
-  // With sub select.
-  SQLPP_COMPARE(count(select(sqlpp::value(7).as(sqlpp::alias::a))),
-                "COUNT(SELECT 7 AS a)");
-  SQLPP_COMPARE(
-      count(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))),
-      "COUNT(DISTINCT SELECT 7 AS a)");
-
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return 1;
+  }
   return 0;
 }

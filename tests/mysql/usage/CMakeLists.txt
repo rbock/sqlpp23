@@ -29,7 +29,7 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-create_test(aggregate_functions)
+add_subdirectory(aggregate_function)
 create_test(exists)
 
 set(test_files

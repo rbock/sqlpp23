@@ -28,6 +28,7 @@
  */
 
 #include <sqlpp23/core/aggregate_function/enable_over.h>
+#include <sqlpp23/core/basic/star.h>
 #include <sqlpp23/core/clause/select_flags.h>
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
@@ -81,6 +82,10 @@ auto count(T t) -> count_t<no_flag_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "count() must not be used on an aggregate function");
   return {std::move(t)};
+}
+
+inline auto count(star_t s) -> count_t<no_flag_t, star_t> {
+  return {std::move(s)};
 }
 
 template <typename T>

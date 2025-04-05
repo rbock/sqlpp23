@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,31 +24,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+
+#include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp23/tests/postgresql/tables.h>
 
+SQLPP_CREATE_NAME_TAG(sum_distinct);
+
+namespace sql = sqlpp::postgresql;
 int main(int, char*[]) {
-  const auto bar = test::TabBar{};
+  try {
+    const auto tab = test::TabFoo{};
+    auto db = sql::make_test_connection();
 
-  // star
-  SQLPP_COMPARE(count(sqlpp::star), "COUNT(*)");
+    test::createTabFoo(db);
 
-  // Single column.
-  SQLPP_COMPARE(count(bar.id), "COUNT(tab_bar.id)");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");
+    // clear the table
+    db(truncate(tab));
 
-  // Expression.
-  SQLPP_COMPARE(count(bar.id + 7), "COUNT(tab_bar.id + 7)");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id + 7),
-                "COUNT(DISTINCT tab_bar.id + 7)");
+    // insert
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
 
-  // With sub select.
-  SQLPP_COMPARE(count(select(sqlpp::value(7).as(sqlpp::alias::a))),
-                "COUNT(SELECT 7 AS a)");
-  SQLPP_COMPARE(
-      count(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))),
-      "COUNT(DISTINCT SELECT 7 AS a)");
+    // clear the table
+    db(truncate(tab));
 
+    // insert
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
+
+    // select sum
+    for (const auto& row : db(select(
+            sum(tab.intN).as(sqlpp::alias::sum_),
+            sum(sqlpp::distinct, tab.intN).as(sum_distinct)
+            ).from(tab))) {
+      assert(row.sum_ == 23);
+      assert(row.sum_distinct == 16);
+    }
+
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return 1;
+  }
   return 0;
 }

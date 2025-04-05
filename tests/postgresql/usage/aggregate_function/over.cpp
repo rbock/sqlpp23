@@ -25,12 +25,23 @@
  */
 
 #include <cassert>
-#include <iostream>
 
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 #include <sqlpp23/tests/postgresql/tables.h>
+
+auto require_close(int line, double l, double r) -> void
+{
+  if (std::abs(l - r) > 0.001) {
+    std::cerr << line << ": abs(";
+    std::cerr << sqlpp::to_sql_string(std::cerr, l);
+    std::cerr << " - ";
+    std::cerr << sqlpp::to_sql_string(std::cerr, r);
+    std::cerr << ") > 0.001\n";
+    throw std::runtime_error("Unexpected result");
+  }
+}
 
 namespace sql = sqlpp::postgresql;
 int main(int, char*[]) {
@@ -45,21 +56,22 @@ int main(int, char*[]) {
 
     // insert
     db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
     db(insert_into(tab).set(tab.intN = 9));
 
-    // select aggregates
+    // select aggregates with over()
     for (const auto& row : db(select(
-            avg(tab.intN).as(sqlpp::alias::avg_),
-            count(tab.intN).as(sqlpp::alias::count_),
-            max(tab.intN).as(sqlpp::alias::max_),
-            min(tab.intN).as(sqlpp::alias::min_),
-            sum(tab.intN).as(sqlpp::alias::sum_)
+            avg(tab.intN).over().as(sqlpp::alias::avg_),
+            count(tab.intN).over().as(sqlpp::alias::count_),
+            max(tab.intN).over().as(sqlpp::alias::max_),
+            min(tab.intN).over().as(sqlpp::alias::min_),
+            sum(tab.intN).over().as(sqlpp::alias::sum_)
             ).from(tab))) {
-      assert(row.avg_ == 8);
-      assert(row.count_ == 2);
-      assert(row.max_ == 9);
-      assert(row.min_ == 7);
-      assert(row.sum_ == 16);
+      require_close(__LINE__, row.avg_.value(), 7.666);
+      assert(row.count_ == 3);
+      assert(row.max_.value() == 9);
+      assert(row.min_.value() == 7);
+      assert(row.sum_.value() == 23);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

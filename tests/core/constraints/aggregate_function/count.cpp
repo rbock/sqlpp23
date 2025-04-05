@@ -27,6 +27,7 @@
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
 #include <sqlpp23/tests/core/tables.h>
+#include "sqlpp23/core/clause/select_flags.h"
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
@@ -43,9 +44,11 @@ int main() {
   const auto foo = test::TabFoo{};
 
   static_assert(can_call_count_with<decltype(foo.id)>);
+  static_assert(can_call_count_with<sqlpp::distinct_t, decltype(foo.id)>);
   static_assert(can_call_count_with<sqlpp::star_t>);
   static_assert(can_call_count_with<decltype(foo.textNnD)>);
 
+  static_assert(cannot_call_count_with<sqlpp::distinct_t, sqlpp::star_t>);
   static_assert(cannot_call_count_with<decltype(foo.id.as(something))>);
   static_assert(cannot_call_count_with<decltype(foo)>);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,31 +24,44 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
+
+#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include "../Tables.h"
 
+SQLPP_CREATE_NAME_TAG(min_distinct);
+
+namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
-  const auto bar = test::TabBar{};
+  sql::global_library_init();
+  try {
+    const auto tab = test::TabSample{};
+    auto db = sql::make_test_connection();
 
-  // star
-  SQLPP_COMPARE(count(sqlpp::star), "COUNT(*)");
+    test::createTabSample(db);
 
-  // Single column.
-  SQLPP_COMPARE(count(bar.id), "COUNT(tab_bar.id)");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");
+    // clear the table
+    db(truncate(tab));
 
-  // Expression.
-  SQLPP_COMPARE(count(bar.id + 7), "COUNT(tab_bar.id + 7)");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id + 7),
-                "COUNT(DISTINCT tab_bar.id + 7)");
+    // insert
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
 
-  // With sub select.
-  SQLPP_COMPARE(count(select(sqlpp::value(7).as(sqlpp::alias::a))),
-                "COUNT(SELECT 7 AS a)");
-  SQLPP_COMPARE(
-      count(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))),
-      "COUNT(DISTINCT SELECT 7 AS a)");
+    // select min
+    for (const auto& row : db(select(
+            min(tab.intN).as(sqlpp::alias::min_),
+            min(sqlpp::distinct, tab.intN).as(min_distinct)
+            ).from(tab))) {
+      assert(row.min_ == 7);
+      assert(row.min_distinct == 7);
+    }
 
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return 1;
+  }
   return 0;
 }

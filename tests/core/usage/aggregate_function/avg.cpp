@@ -27,40 +27,32 @@
 #include <cassert>
 #include <iostream>
 
-#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/tables.h>
 
-namespace sql = sqlpp::mysql;
+SQLPP_CREATE_NAME_TAG(avg_distinct);
+
 int main(int, char*[]) {
-  sql::global_library_init();
   try {
-    const auto tab = test::TabSample{};
-    auto db = sql::make_test_connection();
-
-    test::createTabSample(db);
+    const auto tab = test::TabFoo{};
+    auto db = MockDb{};
 
     // clear the table
     db(truncate(tab));
 
     // insert
     db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
     db(insert_into(tab).set(tab.intN = 9));
 
-    // select aggregates
+    // select avg
     for (const auto& row : db(select(
             avg(tab.intN).as(sqlpp::alias::avg_),
-            count(tab.intN).as(sqlpp::alias::count_),
-            max(tab.intN).as(sqlpp::alias::max_),
-            min(tab.intN).as(sqlpp::alias::min_),
-            sum(tab.intN).as(sqlpp::alias::sum_)
+            avg(sqlpp::distinct, tab.intN).as(avg_distinct)
             ).from(tab))) {
-      assert(row.avg_ == 8);
-      assert(row.count_ == 2);
-      assert(row.max_ == 9);
-      assert(row.min_ == 7);
-      assert(row.sum_ == 16);
+      std::ignore = row.avg_;
+      std::ignore = row.avg_distinct;
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

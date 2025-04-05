@@ -32,11 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 struct star_t {};
 
-template <>
-struct value_type_of<star_t> {
-  using type = star_t;
-};
-
 inline constexpr auto star = star_t{};
 
 template <typename Context>

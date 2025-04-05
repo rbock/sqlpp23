@@ -31,7 +31,7 @@ function(create_test name)
 endfunction()
 
 create_test(exists)
-create_test(aggregate_functions)
+add_subdirectory(aggregate_function)
 
 set(test_files
     Basic.cpp

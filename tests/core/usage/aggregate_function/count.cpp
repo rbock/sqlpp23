@@ -27,39 +27,44 @@
 #include <cassert>
 #include <iostream>
 
-#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/tables.h>
 
-namespace sql = sqlpp::sqlite3;
+SQLPP_CREATE_NAME_TAG(count_1);
+SQLPP_CREATE_NAME_TAG(count_star);
+
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabSample{};
-    auto db = sql::make_test_connection();
-
-    test::createTabSample(db);
+    const auto tab = test::TabFoo{};
+    auto db = MockDb{};
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.alpha = 7));
-    db(insert_into(tab).set(tab.alpha = 9));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
 
-    // select aggregates
+    // select count
     for (const auto& row : db(select(
-            avg(tab.alpha).as(sqlpp::alias::avg_),
-            count(tab.alpha).as(sqlpp::alias::count_),
-            max(tab.alpha).as(sqlpp::alias::max_),
-            min(tab.alpha).as(sqlpp::alias::min_),
-            sum(tab.alpha).as(sqlpp::alias::sum_)
+            count(tab.intN).as(sqlpp::alias::count_),
+            sqlpp::count(1).as(count_1),
+            count(tab.intN).as(count_star)
             ).from(tab))) {
-      assert(row.avg_ == 8);
-      assert(row.count_ == 2);
-      assert(row.max_ == 9);
-      assert(row.min_ == 7);
-      assert(row.sum_ == 16);
+      std::ignore = row.count_;
+      std::ignore = row.count_1;
+      std::ignore = row.count_star;
+    }
+
+    // select distinct count
+    for (const auto& row : db(select(
+            count(sqlpp::distinct, tab.intN).as(sqlpp::alias::count_),
+            count(sqlpp::distinct, 1).as(count_1)
+            ).from(tab))) {
+      std::ignore = row.count_;
+      std::ignore = row.count_1;
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

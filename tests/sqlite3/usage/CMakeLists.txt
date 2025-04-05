@@ -30,8 +30,8 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-create_test(aggregate_functions)
 create_test(exists)
+add_subdirectory(aggregate_function)
 
 set(test_files
     DateTime.cpp
