@@ -2,7 +2,7 @@
 
 # Insert
 
-# Single row insert
+## Single row insert
 
 You can insert single rows like this:
 
@@ -19,7 +19,7 @@ Note that the library will force you to provide assignments for every column tha
 - is not auto-incremented, and
 - cannot be NULL.
 
-# Default values
+## Default values
 
 Default values are implicitly assigned if you don't specify an assignment for the respective column.
 You can also make it explicit by assigning `sqlpp::default_value`, e.g.
@@ -36,7 +36,7 @@ db(insert_into(tab).default_values());
 
 Of course, this only works if all columns actually have a default value.
 
-# Multi row insert
+## Multi row insert
 
 This is how you could insert multiple rows at a time:
 

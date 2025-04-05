@@ -93,4 +93,14 @@ runtime:
   version above. The only difference is that the result rows will contain a
   column called `blobX` of type `blob` which will contain `nullopt`.
 
+> \[!IMPORTANT\] sqlpp23's ability to validate statements is reduced if
+> `dynamic` is used.
+
+- It can check that static components do not depend on dynamic components. In
+  the example above, it you could not select `bar.blobX` without wrapping it
+  into a `dynamic` call because `bar` is joined dynamically, only.
+- If you are using multiple `dynamic` components, the library *cannot* check if
+  the conditions match. For instance, you could join on one condition and add a
+  column with another. This might end up in incorrect statements.
+
 [**\< Index**](README.md)
