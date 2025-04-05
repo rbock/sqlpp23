@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**\< Index**](README.md)
 
 # Select
 
@@ -133,6 +133,24 @@ something similar:
 select(all_of(foo)).from(foo).where(condition);
 ```
 
+### Select with dynamic columns
+
+Columns can be selected conditionally using [`dynamic`](dynamic.md):
+
+```C++
+select(
+    foo.id,                          // statically selected
+    dynamic(maybe1, foo.textN),       // dynamically selected, if maybe1 == true
+    dynamic(maybe2, bar.id.as(barId)) // dynamically selected, if maybe2 == true
+    ).from(foo.cross_join(bar)).where(condition);
+```
+
+Dynamically selected columns are represented as `std::optional` in the result
+row. In case the condition (e.g. `maybe1`) is false:
+
+- the column serializes to `NULL as <name>`
+- the field in the result row will be `std::nullopt`
+
 ### Alternative syntax for selecting columns
 
 All examples above called the `select()` function with one or more arguments,
@@ -165,6 +183,8 @@ select(foo.id, foo.name).flags(sqlpp::all);
 The latter is shorter than the former, but the former is closer to SQL syntax
 and probably easier to read. Both forms will result in the same SQL.
 
+Flags can be added conditionally using [`dynamic`](dynamic.md):
+
 ## From
 
 The `from` method expects one argument. This can be a
@@ -177,6 +197,19 @@ The `from` method expects one argument. This can be a
 
 See [tables](tables.md) for more details.
 
+`from` can also be called with a [`dynamic`](dynamic.md) argument. In case the
+dynamic condition is false, no `FROM` will be included in the serialized
+statement.
+
+```c++
+select(
+    sqlpp::value(7).as(something),
+    dynamic(maybe, foo.id))        // foo.id is selected if `maybe == true`
+  .from(dynamic(maybe, foo));      // `FROM` clause only present if `maybe == true`
+```
+
+References to the table(s) of a dynamic `from` arg must also be dynamic.
+
 ### Where
 
 The where condition can be set via the `where` method, which takes a boolean
@@ -186,18 +219,39 @@ expression argument, for instance:
 select(all_of(foo)).from(foo).where(foo.id != 17 and foo.name.like("%cake"));
 ```
 
+`where` can also be called with a [`dynamic`](dynamic.md) argument. In case the
+dynamic condition is false, no `WHERE` will be included in the serialized
+statement.
+
+```c++
+select(foo.id).from(foo)
+    .where(dynamic(maybe, foo.id > 17));
+```
+
 ### Group By
 
 The method `group_by` takes one or more expression arguments, for instance:
 
 ```C++
-select(all_of(foo)).from(foo).group_by(foo.name);
+select(all_of(foo)).from(foo).group_by(foo.name, foo.dep);
 ```
+
+`group_by` arguments can be [`dynamic`](dynamic.md). `dynamic` arguments will
+not be serialized if their conditions are false. If all arguments are dynamic
+and all conditions are false, the `GROUP BY` clause will not be serialized at
+all.
+
+Note that dynamic `group_by` columns can only be used dynamically as aggregate
+values `select` or `having`.
 
 ### Having
 
 The having condition can be set via the `having` method, just like the `where`
 method.
+
+`having` can also be called with a [`dynamic`](dynamic.md) argument. In case the
+dynamic condition is false, no `HAVING` will be included in the serialized
+statement.
 
 ### Order By
 
@@ -208,6 +262,11 @@ expression adorned with `.asc()` or `.desc()`, e.g.
 select(all_of(foo)).from(foo).order_by(foo.name.asc());
 ```
 
+`order_by` arguments can be [`dynamic`](dynamic.md). `dynamic` arguments will
+not be serialized if their conditions are false. If all arguments are dynamic
+and all conditions are false, the `ORDER BY` clause will not be serialized at
+all.
+
 ### Limit And Offset
 
 The methods `limit` and `offset` take a `size_t` argument, for instance:
@@ -215,6 +274,10 @@ The methods `limit` and `offset` take a `size_t` argument, for instance:
 ```C++
 select(all_of(foo)).from(foo).unconditionally().limit(10u).offset(20u);
 ```
+
+`limit` and `offset` can also be called with [`dynamic`](dynamic.md) arguments.
+In case the dynamic condition is false, the `LIMIT` or `OFFSET` clause will not
+be included in the serialized statement.
 
 ### For Update
 
@@ -278,4 +341,4 @@ while(!result.empty())
 }
 ```
 
-[**< Index**](README.md)
+[**\< Index**](README.md)

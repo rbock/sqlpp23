@@ -42,7 +42,7 @@
 
 namespace sqlpp {
 template <typename Expr>
-struct dynamic_t : public enable_as<dynamic_t<Expr>> {
+struct dynamic_t {
   dynamic_t(std::optional<Expr> expr) : _expr(std::move(expr)) {
     SQLPP_STATIC_ASSERT(
         parameters_of_t<Expr>::empty(),
