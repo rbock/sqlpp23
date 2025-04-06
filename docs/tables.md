@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**\< Index**](README.md)
 
 # Tables
 
@@ -14,36 +14,57 @@ also a specific one for
 If you look at the output, you will see why a generator is helpful. Here is a
 [sample](https://github.com/rbock/sqlpp23/blob/main/tests/core/usage/Sample.h).
 
-### Tables
+## Raw tables
 
-This is the most simple case.
+The generated code contains classes representing database tables. Objects can be
+default-constructed, e.g.
 
-```C++
-select(all_of(foo)).from(foo).where(foo.id == 17);
+```c++
+constexpr auto foo = test::TabFoo{};
 ```
 
-### Aliased Tables
+Columns of the table are represented as data members of the table objects.
 
-Table aliases are useful in self-joins.
+Tables and columns can be used in sqlpp23 statements very similar to SQL tables
+and columns can be used in SQL statements, e.g.
 
 ```C++
-// Outside of functions
-SQLPP_ALIAS_PROVIDER(left);
-SQLPP_ALIAS_PROVIDER(right);
-[...]
-
-// Inside a function
-auto l = foo.as(left);
-auto r = foo.as(right);
-select(all_of(l)).from(l.join(r).on(l.x == r.y)).unconditionally();
+db(insert_into(foo).set(foo.intN = 29, foo.textN = std::nullopt));
+for (const auto& row : db(select(all_of(foo)).from(foo).where(foo.id == 17))) {
+  // ...
+}
 ```
 
-Aliased tables might also be used to increase the readability of generated SQL
-code, for instance if you have very long table names.
+## Common tables expressions (CTEs)
 
-### Joins
+Non-recursive CTEs are constructed like this:
 
-You can join two tables like this:
+```c++
+const auto x =
+    cte(sqlpp::alias::x)             // Call `sqlpp::cte` with a name
+      .as(select(foo.id).from(foo)); // Give is it a meaning via as operator.
+                                     // The argument has to provide a result
+                                     // like a select statement.
+```
+
+Recursive CTEs are constructed in two steps:
+
+```c++
+// First, you construct the base, e.g.
+const auto x_base =
+    cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+
+// Then, you union with the recursion statement, e.g.
+const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a))
+                                    .from(x_base)
+                                    .where(x_base.a < 10));
+```
+
+CTEs are made available to a statement using the [`with`](with.md) clause.
+
+## Joins
+
+You can join two tables or CTEs like this:
 
 ```C++
 foo.join(bar).on(foo.id == bar.foo);
@@ -65,4 +86,28 @@ The following join types are supported:
 - `cross_join` (this is the only join that does not require/allow an `on`
   condition).
 
-[**< Index**](README.md)
+## Aliased tables
+
+Both tables and CTEs can be aliased using the `.as()` operator. This can be
+useful for self-joins, for instance.
+
+```C++
+// Outside of functions
+SQLPP_ALIAS_PROVIDER(left);
+SQLPP_ALIAS_PROVIDER(right);
+SQLPP_ALIAS_PROVIDER(r_id);
+[...]
+
+// Inside a function
+auto l = foo.as(left);
+auto r = foo.as(right);
+for (const auto& row : db(select(l.id, r.id.as(r_id))
+                             .from(l.join(r).on(l.x == r.y)))) {
+  // ...
+}
+```
+
+Aliased tables might also be used to increase the readability of generated SQL
+code, for instance if you have very long table names.
+
+[**\< Index**](README.md)
