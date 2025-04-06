@@ -219,7 +219,7 @@ expression argument, for instance:
 select(all_of(foo)).from(foo).where(foo.id != 17 and foo.name.like("%cake"));
 ```
 
-`where` can also be called with a [`dynamic`](dynamic.md) argument. In case the
+`where` can be called with a [`dynamic`](dynamic.md) argument. In case the
 dynamic condition is false, no `WHERE` will be included in the serialized
 statement.
 

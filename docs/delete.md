@@ -8,6 +8,14 @@ Deleting rows from tables is straight forward:
 db(delete_from(tab).where(tab.alpha == 35));
 ```
 
+## `where`
+
+The `where` clause specifies which rows should be affected.
+
+`where` can be called with a [`dynamic`](dynamic.md) argument. In case the
+dynamic condition is false, no `WHERE` will be included in the serialized
+statement.
+
 ## Truncate
 
 If you want to delete all rows from a table, the truncate function might be the

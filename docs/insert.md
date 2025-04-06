@@ -19,6 +19,9 @@ Note that the library will force you to provide assignments for every column tha
 - is not auto-incremented, and
 - cannot be NULL.
 
+`set` arguments for columns with a default value can be [`dynamic`](dynamic.md). Note that if *all* arguments are dynamic with
+`false` conditions, the statement becomes invalid.
+
 ## Default values
 
 Default values are implicitly assigned if you don't specify an assignment for the respective column.
