@@ -16,8 +16,12 @@ columns and functions. Everything has strong types which allow the compiler to
 help you a lot. At compile time, it will tell about most of those pesky
 oversight errors you can might make (typos, comparing apples with oranges,
 forgetting tables in a select statement, etc). And it does not stop at query
-construction. Results have ranges, and strongly typed members, so that you can
-browse through results in a type-safe manner, worthy of modern C++.
+construction. Results can be iterated as ranges, and rows have strongly typed,
+aptly named data members, so that you can browse through results in a type-safe
+manner.
+
+And of course, code completion in your IDE will/should be able to help writing
+correct statements even faster.
 
 The following pages will tell you how to use it:
 
@@ -26,7 +30,7 @@ The following pages will tell you how to use it:
   - [Code generation](ddl2cpp.md)
 - **Statements**
   - [Connection](connection.md)
-  - [Select](select.md)
+  - [Select](select.md), see also [`with`](with.md)
   - [Insert](insert.md)
   - [Update](update.md)
   - [Delete](delete.md)
