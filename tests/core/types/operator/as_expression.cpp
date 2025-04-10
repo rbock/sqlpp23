@@ -28,9 +28,9 @@
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
-template <typename T, typename ValueType>
+template <typename T, typename DataType>
 using is_select_column_data_type =
-    std::is_same<sqlpp::select_column_data_type_of_t<T>, ValueType>;
+    std::is_same<sqlpp::select_column_data_type_of_t<T>, DataType>;
 
 template <typename Value>
 void test_as_expression(Value v) {

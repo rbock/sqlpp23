@@ -38,26 +38,26 @@ void test_aggregate_functions(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using OptValueType = sqlpp::data_type_of_t<std::optional<Value>>;
+  using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
 
   // Aggregate of non-nullable
   static_assert(
       is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value,
       "");
   static_assert(
-      is_same_type<decltype(max(v_not_null).over()), OptValueType>::value, "");
+      is_same_type<decltype(max(v_not_null).over()), OptDataType>::value, "");
   static_assert(
-      is_same_type<decltype(min(v_not_null).over()), OptValueType>::value, "");
+      is_same_type<decltype(min(v_not_null).over()), OptDataType>::value, "");
 
   // Aggregate of nullable
   static_assert(
       is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value,
       "");
   static_assert(
-      is_same_type<decltype(max(v_maybe_null).over()), OptValueType>::value,
+      is_same_type<decltype(max(v_maybe_null).over()), OptDataType>::value,
       "");
   static_assert(
-      is_same_type<decltype(min(v_maybe_null).over()), OptValueType>::value,
+      is_same_type<decltype(min(v_maybe_null).over()), OptDataType>::value,
       "");
 
   // Aggregate functions enable the `as` member function.
@@ -117,20 +117,20 @@ void test_numeric_aggregate_functions(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using ValueType = typename std::conditional<std::is_same<Value, bool>::value,
+  using DataType = typename std::conditional<std::is_same<Value, bool>::value,
                                               int, Value>::type;
-  using OptValueType = sqlpp::data_type_of_t<std::optional<ValueType>>;
+  using OptDataType = sqlpp::data_type_of_t<std::optional<DataType>>;
   using OptFloat = sqlpp::data_type_of_t<std::optional<float>>;
 
   // Aggregate of non-nullable
   static_assert(
-      is_same_type<decltype(sum(v_not_null).over()), OptValueType>::value, "");
+      is_same_type<decltype(sum(v_not_null).over()), OptDataType>::value, "");
   static_assert(is_same_type<decltype(avg(v_not_null).over()), OptFloat>::value,
                 "");
 
   // Aggregate of nullable
   static_assert(
-      is_same_type<decltype(sum(v_maybe_null).over()), OptValueType>::value,
+      is_same_type<decltype(sum(v_maybe_null).over()), OptDataType>::value,
       "");
   static_assert(
       is_same_type<decltype(avg(v_maybe_null).over()), OptFloat>::value, "");

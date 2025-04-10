@@ -33,8 +33,8 @@ SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
 template <typename Value>
 void test_any(Value v) {
-  using ValueType = sqlpp::data_type_of_t<Value>;
-  using OptValueType = sqlpp::data_type_of_t<std::optional<Value>>;
+  using DataType = sqlpp::data_type_of_t<Value>;
+  using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
 
   // Selectable values.
   const auto v_not_null = sqlpp::value(v).as(r_not_null);
@@ -54,11 +54,11 @@ void test_any(Value v) {
   static_assert(
       std::is_same<sqlpp::data_type_of_t<
                        sqlpp::remove_any_t<decltype(any(select(v_not_null)))>>,
-                   ValueType>::value,
+                   DataType>::value,
       "");
   static_assert(std::is_same<sqlpp::data_type_of_t<sqlpp::remove_any_t<
                                  decltype(any(select(v_maybe_null)))>>,
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
 
   // ANY expressions do not have `as` member function.

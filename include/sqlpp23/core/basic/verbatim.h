@@ -34,8 +34,8 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename ValueType>
-struct verbatim_t : public enable_as<verbatim_t<ValueType>> {
+template <typename DataType>
+struct verbatim_t : public enable_as<verbatim_t<DataType>> {
   verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim)) {}
   verbatim_t(const verbatim_t&) = default;
   verbatim_t(verbatim_t&&) = default;
@@ -46,27 +46,27 @@ struct verbatim_t : public enable_as<verbatim_t<ValueType>> {
   std::string _verbatim;
 };
 
-template <typename ValueType>
-struct is_clause<verbatim_t<ValueType>> : public std::true_type {};
+template <typename DataType>
+struct is_clause<verbatim_t<DataType>> : public std::true_type {};
 
-template <typename Statement, typename ValueType>
-struct consistency_check<Statement, verbatim_t<ValueType>> {
+template <typename Statement, typename DataType>
+struct consistency_check<Statement, verbatim_t<DataType>> {
   using type = consistent_t;
 };
-template <typename ValueType>
-struct data_type_of<verbatim_t<ValueType>> {
+template <typename DataType>
+struct data_type_of<verbatim_t<DataType>> {
   // Since we do not know what's going on inside the verbatim, we assume it can
   // be null.
-  using type = sqlpp::force_optional_t<ValueType>;
+  using type = sqlpp::force_optional_t<DataType>;
 };
 
-template <typename Context, typename ValueType>
-auto to_sql_string(Context&, const verbatim_t<ValueType>& t) -> std::string {
+template <typename Context, typename DataType>
+auto to_sql_string(Context&, const verbatim_t<DataType>& t) -> std::string {
   return t._verbatim;
 }
 
-template <typename ValueType, typename StringType>
-auto verbatim(StringType s) -> verbatim_t<ValueType> {
+template <typename DataType, typename StringType>
+auto verbatim(StringType s) -> verbatim_t<DataType> {
   return {s};
 }
 

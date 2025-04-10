@@ -38,49 +38,49 @@ void test_case_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using ValueType = sqlpp::data_type_of_t<decltype(v_not_null)>;
-  using OptValueType = sqlpp::data_type_of_t<decltype(v_maybe_null)>;
+  using DataType = sqlpp::data_type_of_t<decltype(v_not_null)>;
+  using OptDataType = sqlpp::data_type_of_t<decltype(v_maybe_null)>;
 
   // Variations of nullable and non-nullable values
   static_assert(
       is_same_type<
           decltype(case_when(c_not_null).then(v_not_null).else_(v_not_null)),
-          ValueType>::value,
+          DataType>::value,
       "");
   static_assert(
       is_same_type<
           decltype(case_when(c_not_null).then(v_not_null).else_(v_maybe_null)),
-          OptValueType>::value,
+          OptDataType>::value,
       "");
   static_assert(
       is_same_type<
           decltype(case_when(c_not_null).then(v_maybe_null).else_(v_not_null)),
-          OptValueType>::value,
+          OptDataType>::value,
       "");
   static_assert(is_same_type<decltype(case_when(c_not_null)
                                           .then(v_maybe_null)
                                           .else_(v_maybe_null)),
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
   static_assert(
       is_same_type<
           decltype(case_when(c_maybe_null).then(v_not_null).else_(v_not_null)),
-          OptValueType>::value,
+          OptDataType>::value,
       "");
   static_assert(is_same_type<decltype(case_when(c_maybe_null)
                                           .then(v_not_null)
                                           .else_(v_maybe_null)),
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
   static_assert(is_same_type<decltype(case_when(c_maybe_null)
                                           .then(v_maybe_null)
                                           .else_(v_not_null)),
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
   static_assert(is_same_type<decltype(case_when(c_maybe_null)
                                           .then(v_maybe_null)
                                           .else_(v_maybe_null)),
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
 
   // Incomplete case expressions have no value.

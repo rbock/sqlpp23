@@ -42,8 +42,8 @@ void test_assign_expression(const Column& col, const Value& v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using ValueType = decltype(v_not_null);
-  using OptValueType = decltype(v_maybe_null);
+  using DataType = decltype(v_not_null);
+  using OptDataType = decltype(v_maybe_null);
 
   // Assignments have no value
   static_assert(
@@ -69,11 +69,11 @@ void test_assign_expression(const Column& col, const Value& v) {
       "");
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col = v_not_null)>,
-                   sqlpp::detail::type_vector<Column, ValueType>>::value,
+                   sqlpp::detail::type_vector<Column, DataType>>::value,
       "");
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col = v_maybe_null)>,
-                   sqlpp::detail::type_vector<Column, OptValueType>>::value,
+                   sqlpp::detail::type_vector<Column, OptDataType>>::value,
       "");
 
   // Assign expressions do not have the `as` member function.
@@ -97,8 +97,8 @@ void test_compound_assign_expression(const Column& col, const Value& v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using ValueType = decltype(v_not_null);
-  using OptValueType = decltype(v_maybe_null);
+  using DataType = decltype(v_not_null);
+  using OptDataType = decltype(v_maybe_null);
 
   // Assignments have no value
   static_assert(not sqlpp::has_data_type<decltype(col += v_not_null)>::value,
@@ -123,20 +123,20 @@ void test_compound_assign_expression(const Column& col, const Value& v) {
   // Assignment nodes
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col += v_not_null)>,
-                   sqlpp::detail::type_vector<Column, ValueType>>::value,
+                   sqlpp::detail::type_vector<Column, DataType>>::value,
       "");
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col += v_maybe_null)>,
-                   sqlpp::detail::type_vector<Column, OptValueType>>::value,
+                   sqlpp::detail::type_vector<Column, OptDataType>>::value,
       "");
 
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col -= v_not_null)>,
-                   sqlpp::detail::type_vector<Column, ValueType>>::value,
+                   sqlpp::detail::type_vector<Column, DataType>>::value,
       "");
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col -= v_maybe_null)>,
-                   sqlpp::detail::type_vector<Column, OptValueType>>::value,
+                   sqlpp::detail::type_vector<Column, OptDataType>>::value,
       "");
 
   // Assign expressions do not have the `as` member function.

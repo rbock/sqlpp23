@@ -38,22 +38,22 @@ void test_sum(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using ValueType = typename std::conditional<std::is_same<Value, bool>::value,
+  using DataType = typename std::conditional<std::is_same<Value, bool>::value,
                                               int, Value>::type;
-  using OptValueType = sqlpp::data_type_of_t<std::optional<ValueType>>;
+  using OptDataType = sqlpp::data_type_of_t<std::optional<DataType>>;
 
   // sum non-nullable can be null because there could be zero result rows.
-  static_assert(is_same_type<decltype(sum(v_not_null)), OptValueType>::value,
+  static_assert(is_same_type<decltype(sum(v_not_null)), OptDataType>::value,
                 "");
   static_assert(is_same_type<decltype(sum(sqlpp::distinct, v_not_null)),
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
 
   // sum nullable
-  static_assert(is_same_type<decltype(sum(v_maybe_null)), OptValueType>::value,
+  static_assert(is_same_type<decltype(sum(v_maybe_null)), OptDataType>::value,
                 "");
   static_assert(is_same_type<decltype(sum(sqlpp::distinct, v_maybe_null)),
-                             OptValueType>::value,
+                             OptDataType>::value,
                 "");
 
   // sum enables the `as` member function.

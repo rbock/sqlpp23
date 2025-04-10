@@ -32,9 +32,9 @@
 
 namespace sqlpp {
 // Serialize parameters
-template <typename ValueType, typename NameType>
+template <typename DataType, typename NameType>
 auto to_sql_string(postgresql::context_t& context,
-                   const parameter_t<ValueType, NameType>&) -> std::string {
+                   const parameter_t<DataType, NameType>&) -> std::string {
   return std::string("$") + std::to_string(++context._count);
 }
 

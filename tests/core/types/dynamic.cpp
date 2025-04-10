@@ -31,14 +31,14 @@
 SQLPP_CREATE_NAME_TAG(r_not_null);
 SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
-template <typename T, typename ValueType>
+template <typename T, typename DataType>
 using is_select_column_data_type =
-    std::is_same<sqlpp::select_column_data_type_of_t<T>, ValueType>;
+    std::is_same<sqlpp::select_column_data_type_of_t<T>, DataType>;
 
 template <typename Value>
 void test_dynamic(Value v) {
-  using ValueType = sqlpp::data_type_of_t<Value>;
-  using OptValueType = std::optional<ValueType>;
+  using DataType = sqlpp::data_type_of_t<Value>;
+  using OptDataType = std::optional<DataType>;
 
   auto v_not_null = dynamic(true, sqlpp::value(v));
   auto v_maybe_null = dynamic(true, sqlpp::value(std::make_optional(v)));
@@ -61,16 +61,16 @@ void test_dynamic(Value v) {
                 "");
 
   static_assert(
-      is_select_column_data_type<decltype(v_not_null), OptValueType>::value,
+      is_select_column_data_type<decltype(v_not_null), OptDataType>::value,
       "");
   static_assert(
-      is_select_column_data_type<decltype(v_maybe_null), OptValueType>::value,
+      is_select_column_data_type<decltype(v_maybe_null), OptDataType>::value,
       "");
   static_assert(is_select_column_data_type<decltype(v_not_null_alias),
-                                            OptValueType>::value,
+                                            OptDataType>::value,
                 "");
   static_assert(is_select_column_data_type<decltype(v_maybe_null_alias),
-                                            OptValueType>::value,
+                                            OptDataType>::value,
                 "");
 
   static_assert(not sqlpp::select_column_has_name<decltype(v_not_null)>::value,

@@ -90,10 +90,10 @@ template <typename Operator, typename L, typename R>
 using arithmetic_data_type_t =
     typename arithmetic_data_type<Operator, L, R>::type;
 
-#define SQLPP_ARITHMETIC_DATA_TYPE(Op, Left, Right, ValueType) \
+#define SQLPP_ARITHMETIC_DATA_TYPE(Op, Left, Right, DataType) \
   template <>                                                   \
   struct arithmetic_data_type<Op, Left, Right> {               \
-    using type = ValueType;                                     \
+    using type = DataType;                                     \
   };
 
 // Operator plus

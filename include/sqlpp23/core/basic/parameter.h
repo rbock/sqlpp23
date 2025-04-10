@@ -33,11 +33,11 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename ValueType, typename NameTag>
-struct parameter_t : public enable_as<parameter_t<ValueType, NameTag>>,
-                     public enable_comparison<parameter_t<ValueType, NameTag>> {
+template <typename DataType, typename NameTag>
+struct parameter_t : public enable_as<parameter_t<DataType, NameTag>>,
+                     public enable_comparison<parameter_t<DataType, NameTag>> {
   using _instance_t =
-      typename NameTag::template _member_t<parameter_value_t<ValueType>>;
+      typename NameTag::template _member_t<parameter_value_t<DataType>>;
   parameter_t() = default;
 
   parameter_t(const parameter_t&) = default;
@@ -47,18 +47,18 @@ struct parameter_t : public enable_as<parameter_t<ValueType, NameTag>>,
   ~parameter_t() = default;
 };
 
-template <typename ValueType, typename NameTag>
-struct parameters_of<parameter_t<ValueType, NameTag>> {
-  using type = detail::type_vector<parameter_t<ValueType, NameTag>>;
+template <typename DataType, typename NameTag>
+struct parameters_of<parameter_t<DataType, NameTag>> {
+  using type = detail::type_vector<parameter_t<DataType, NameTag>>;
 };
 
-template <typename ValueType, typename NameTag>
-struct data_type_of<parameter_t<ValueType, NameTag>> {
-  using type = ValueType;
+template <typename DataType, typename NameTag>
+struct data_type_of<parameter_t<DataType, NameTag>> {
+  using type = DataType;
 };
 
-template <typename Context, typename ValueType, typename NameTag>
-auto to_sql_string(Context&, const parameter_t<ValueType, NameTag>&)
+template <typename Context, typename DataType, typename NameTag>
+auto to_sql_string(Context&, const parameter_t<DataType, NameTag>&)
     -> std::string {
   return "?";
 }
@@ -71,10 +71,10 @@ auto parameter(const NamedExpr& /*unused*/)
   return {};
 }
 
-template <typename ValueType, typename NameTagProvider>
-auto parameter(const ValueType& /*unused*/, const NameTagProvider& /*unused*/)
-    -> parameter_t<data_type_of_t<ValueType>, name_tag_of_t<NameTagProvider>> {
-  static_assert(has_data_type<ValueType>::value,
+template <typename DataType, typename NameTagProvider>
+auto parameter(const DataType& /*unused*/, const NameTagProvider& /*unused*/)
+    -> parameter_t<data_type_of_t<DataType>, name_tag_of_t<NameTagProvider>> {
+  static_assert(has_data_type<DataType>::value,
                 "first argument is not a value type");
   static_assert(has_name_tag<NameTagProvider>::value,
                 "second argument does not have a name");

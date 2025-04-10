@@ -99,8 +99,8 @@ inline auto to_sql_string(context_t&, const truncate_t&) -> std::string {
 }
 
 // Serialize parameters
-template <typename ValueType, typename NameType>
-auto to_sql_string(context_t& context, const parameter_t<ValueType, NameType>&)
+template <typename DataType, typename NameType>
+auto to_sql_string(context_t& context, const parameter_t<DataType, NameType>&)
     -> std::string {
   return "?" + std::to_string(++context._count);
 }

@@ -34,9 +34,9 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename ValueType, typename Expr>
+template <typename DataType, typename Expr>
 struct parameterized_verbatim_t
-    : public enable_as<parameterized_verbatim_t<ValueType, Expr>> {
+    : public enable_as<parameterized_verbatim_t<DataType, Expr>> {
   parameterized_verbatim_t(const Expr expr,
                            std::string verbatim_lhs,
                            std::string verbatim_rhs)
@@ -55,37 +55,37 @@ struct parameterized_verbatim_t
   std::string _verbatim_lhs, _verbatim_rhs;
 };
 
-template <typename ValueType, typename Expr>
-struct is_clause<parameterized_verbatim_t<ValueType, Expr>>
+template <typename DataType, typename Expr>
+struct is_clause<parameterized_verbatim_t<DataType, Expr>>
     : public std::true_type {};
 
-template <typename Statement, typename ValueType, typename Expr>
-struct consistency_check<Statement, parameterized_verbatim_t<ValueType, Expr>> {
+template <typename Statement, typename DataType, typename Expr>
+struct consistency_check<Statement, parameterized_verbatim_t<DataType, Expr>> {
   using type = consistent_t;
 };
 
-template <typename ValueType, typename Expr>
-struct data_type_of<parameterized_verbatim_t<ValueType, Expr>> {
+template <typename DataType, typename Expr>
+struct data_type_of<parameterized_verbatim_t<DataType, Expr>> {
   // Since we do not know what's going on inside the verbatim, we assume it can
   // be null.
-  using type = sqlpp::force_optional_t<ValueType>;
+  using type = sqlpp::force_optional_t<DataType>;
 };
 
-template <typename ValueType, typename Expr>
-struct nodes_of<parameterized_verbatim_t<ValueType, Expr>> {
+template <typename DataType, typename Expr>
+struct nodes_of<parameterized_verbatim_t<DataType, Expr>> {
   using type = detail::type_vector<Expr>;
 };
 
-template <typename Context, typename ValueType, typename Expr>
+template <typename Context, typename DataType, typename Expr>
 auto to_sql_string(Context& context,
-                   const parameterized_verbatim_t<ValueType, Expr>& t)
+                   const parameterized_verbatim_t<DataType, Expr>& t)
     -> std::string {
   return t._verbatim_lhs + to_sql_string(context, t._expr) + t._verbatim_rhs;
 }
 
-template <typename ValueType, typename Expr>
+template <typename DataType, typename Expr>
 auto parameterized_verbatim(std::string lhs, Expr expr, std::string rhs)
-    -> parameterized_verbatim_t<ValueType, Expr> {
+    -> parameterized_verbatim_t<DataType, Expr> {
   static_assert(has_data_type<Expr>::value,
                 "parameterized_verbatim() requires an expression as argument");
   return {expr, lhs, rhs};

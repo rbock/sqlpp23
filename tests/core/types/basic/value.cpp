@@ -27,19 +27,19 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 
-template <typename T, typename ValueType>
-using is_data_type = std::is_same<sqlpp::data_type_of_t<T>, ValueType>;
+template <typename T, typename DataType>
+using is_data_type = std::is_same<sqlpp::data_type_of_t<T>, DataType>;
 
 template <typename Value>
 void test_value(Value v) {
-  using ValueType = sqlpp::data_type_of_t<Value>;
-  using OptValueType = std::optional<ValueType>;
+  using DataType = sqlpp::data_type_of_t<Value>;
+  using OptDataType = std::optional<DataType>;
 
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  static_assert(is_data_type<decltype(v_not_null), ValueType>::value, "");
-  static_assert(is_data_type<decltype(v_maybe_null), OptValueType>::value, "");
+  static_assert(is_data_type<decltype(v_not_null), DataType>::value, "");
+  static_assert(is_data_type<decltype(v_maybe_null), OptDataType>::value, "");
 
   static_assert(not sqlpp::can_be_null<decltype(v_not_null)>::value, "");
   static_assert(sqlpp::can_be_null<decltype(v_maybe_null)>::value, "");

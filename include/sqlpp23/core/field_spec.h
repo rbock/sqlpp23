@@ -33,20 +33,20 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename NameTag, typename ValueType>
+template <typename NameTag, typename DataType>
 struct field_spec_t {
-  using result_data_type = result_value_t<ValueType>;  // Used in result_row_t.
-  using data_type = ValueType;  // This is used by column_t.
+  using result_data_type = result_value_t<DataType>;  // Used in result_row_t.
+  using data_type = DataType;  // This is used by column_t.
 };
 
-template <typename NameTag, typename ValueType>
-struct name_tag_of<field_spec_t<NameTag, ValueType>> {
+template <typename NameTag, typename DataType>
+struct name_tag_of<field_spec_t<NameTag, DataType>> {
   using type = NameTag;
 };
 
-template <typename NameTag, typename ValueType>
-struct data_type_of<field_spec_t<NameTag, ValueType>> {
-  using type = ValueType;
+template <typename NameTag, typename DataType>
+struct data_type_of<field_spec_t<NameTag, DataType>> {
+  using type = DataType;
 };
 
 template <typename Left, typename Right, typename Enable = void>
@@ -75,7 +75,7 @@ struct is_field_compatible<field_spec_t<LeftNameTag, LeftValue>,
 
 template <typename Statement, typename NamedExpr>
 struct make_field_spec {
-  using ValueType = select_column_data_type_of_t<NamedExpr>;
+  using DataType = select_column_data_type_of_t<NamedExpr>;
   static constexpr bool _depends_on_optional_table =
       provided_optional_tables_of_t<Statement>::contains_any(
           required_tables_of_t<NamedExpr>{});
@@ -83,8 +83,8 @@ struct make_field_spec {
   using type =
       field_spec_t<select_column_name_tag_of_t<NamedExpr>,
                    std::conditional_t<_depends_on_optional_table,
-                                      sqlpp::force_optional_t<ValueType>,
-                                      ValueType>>;
+                                      sqlpp::force_optional_t<DataType>,
+                                      DataType>>;
 };
 
 template <typename Statement, typename NamedExpr>

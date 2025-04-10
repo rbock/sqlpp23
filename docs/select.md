@@ -197,7 +197,7 @@ and probably easier to read. Both forms will result in the same SQL.
 
 Flags can be added conditionally using [`dynamic`](dynamic.md):
 
-## From
+### From
 
 The `from` method expects one argument. This can be a
 
