@@ -28,7 +28,7 @@
 
 template <typename T, typename Value>
 using is_same_type =
-    std::is_same<sqlpp::value_type_of_t<T>, sqlpp::value_type_of_t<Value>>;
+    std::is_same<sqlpp::data_type_of_t<T>, sqlpp::data_type_of_t<Value>>;
 
 template <typename Value>
 void test_case_expression(Value v) {
@@ -38,8 +38,8 @@ void test_case_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using ValueType = sqlpp::value_type_of_t<decltype(v_not_null)>;
-  using OptValueType = sqlpp::value_type_of_t<decltype(v_maybe_null)>;
+  using ValueType = sqlpp::data_type_of_t<decltype(v_not_null)>;
+  using OptValueType = sqlpp::data_type_of_t<decltype(v_maybe_null)>;
 
   // Variations of nullable and non-nullable values
   static_assert(
@@ -85,8 +85,8 @@ void test_case_expression(Value v) {
 
   // Incomplete case expressions have no value.
   static_assert(
-      not sqlpp::has_value_type<decltype(case_when(c_not_null))>::value, "");
-  static_assert(not sqlpp::has_value_type<
+      not sqlpp::has_data_type<decltype(case_when(c_not_null))>::value, "");
+  static_assert(not sqlpp::has_data_type<
                     decltype(case_when(c_not_null).then(v_not_null))>::value,
                 "");
 

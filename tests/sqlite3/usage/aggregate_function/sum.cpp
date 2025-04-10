@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "../Tables.h"
 
-SQLPP_CREATE_NAME_TAG(sum_distinct);
-
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
@@ -52,10 +50,10 @@ int main(int, char*[]) {
     // select sum
     for (const auto& row : db(select(
             sum(tab.alpha).as(sqlpp::alias::sum_),
-            sum(sqlpp::distinct, tab.alpha).as(sum_distinct)
+            sum(sqlpp::distinct, tab.alpha).as(sqlpp::alias::distinct_sum_)
             ).from(tab))) {
       assert(row.sum_ == 23);
-      assert(row.sum_distinct == 16);
+      assert(row.distinct_sum_ == 16);
     }
 
   } catch (const std::exception& e) {

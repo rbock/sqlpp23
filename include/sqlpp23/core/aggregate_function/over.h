@@ -50,7 +50,7 @@ template <typename Expr>
 struct nodes_of<over_t<Expr>> : public nodes_of<Expr> {};
 
 template <typename Expr>
-struct value_type_of<over_t<Expr>> : public value_type_of<Expr> {};
+struct data_type_of<over_t<Expr>> : public data_type_of<Expr> {};
 
 template <typename Expr>
 using check_over_args = std::enable_if_t<is_aggregate_function<Expr>::value>;

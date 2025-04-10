@@ -29,8 +29,8 @@
 SQLPP_CREATE_NAME_TAG(cheese);
 
 template <typename T, typename ValueType>
-using is_select_column_value_type =
-    std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
+using is_select_column_data_type =
+    std::is_same<sqlpp::select_column_data_type_of_t<T>, ValueType>;
 
 template <typename Value>
 void test_as_expression(Value v) {
@@ -40,12 +40,12 @@ void test_as_expression(Value v) {
   auto v_dynamic_maybe_null =
       dynamic(true, sqlpp::value(std::make_optional(v)).as(cheese));
 
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_not_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_data_type<decltype(v_dynamic_not_null)>::value,
                 "");
   static_assert(
-      not sqlpp::has_value_type<decltype(v_dynamic_maybe_null)>::value, "");
+      not sqlpp::has_data_type<decltype(v_dynamic_maybe_null)>::value, "");
 
   static_assert(sqlpp::has_name_tag<decltype(v_not_null)>::value, "");
   static_assert(sqlpp::has_name_tag<decltype(v_maybe_null)>::value, "");

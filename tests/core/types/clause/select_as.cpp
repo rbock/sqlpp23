@@ -30,11 +30,11 @@
 
 namespace {
 template <typename T, typename V>
-using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
+using is_same_type = std::is_same<sqlpp::data_type_of_t<T>, V>;
 
 template <typename T, typename V>
 using is_select_column_same_type =
-    std::is_same<sqlpp::select_column_value_type_of_t<T>, V>;
+    std::is_same<sqlpp::select_column_data_type_of_t<T>, V>;
 
 SQLPP_CREATE_NAME_TAG(always);
 SQLPP_CREATE_NAME_TAG(sometimes);
@@ -48,8 +48,8 @@ void test_select_as(Value v) {
   auto v_not_null = sqlpp::value(v).as(always);
   auto v_maybe_null = sqlpp::value(std::make_optional(v)).as(sometimes);
 
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::value_type_of_t<std::optional<Value>>;
+  using ValueType = sqlpp::data_type_of_t<Value>;
+  using OptValueType = sqlpp::data_type_of_t<std::optional<Value>>;
 
   // SINGLE VALUE, NOT NULL
   {
@@ -66,7 +66,7 @@ void test_select_as(Value v) {
     static_assert(sqlpp::is_table<decltype(s.as(something))>::value, "");
 
     // A named select of a single value has no value.
-    static_assert(not sqlpp::has_value_type<decltype(s.as(something))>::value,
+    static_assert(not sqlpp::has_data_type<decltype(s.as(something))>::value,
                   "");
 
     // The column of a single-value pseudo table can be used as named value
@@ -106,7 +106,7 @@ void test_select_as(Value v) {
     static_assert(sqlpp::is_table<decltype(s.as(something))>::value, "");
 
     // A named select of a single value has no value.
-    static_assert(not sqlpp::has_value_type<decltype(s.as(something))>::value,
+    static_assert(not sqlpp::has_data_type<decltype(s.as(something))>::value,
                   "");
 
     // The column of a single-value pseudo table can be used as named value
@@ -133,7 +133,7 @@ void test_select_as(Value v) {
 
   // SINGLE PARAMETER, NOT NULL
   {
-    auto p = parameter(sqlpp::value_type_of_t<Value>{}, always);
+    auto p = parameter(sqlpp::data_type_of_t<Value>{}, always);
     auto s = select(p.as(always));
 
     using P = decltype(p);
@@ -186,11 +186,11 @@ void test_select_as(Value v) {
     auto s = select(v_not_null, v_maybe_null);
 
     // A select of multiple values can not be used as a value.
-    static_assert(not sqlpp::has_value_type<decltype(s)>::value, "");
+    static_assert(not sqlpp::has_data_type<decltype(s)>::value, "");
 
     // A select of multiple values can be named and used as a named value.
     static_assert(sqlpp::has_name_tag<decltype(s.as(something))>::value, "");
-    static_assert(not sqlpp::has_value_type<decltype(s.as(something))>::value,
+    static_assert(not sqlpp::has_data_type<decltype(s.as(something))>::value,
                   "");
 
     // A select of multiple values can be named and used as a pseudo table

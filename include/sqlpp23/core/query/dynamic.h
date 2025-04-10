@@ -77,7 +77,7 @@ struct dynamic_t {
   std::optional<Expr> _expr;
 };
 
-// No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage
+// No data_type_of or name_tag_of defined for dynamic_t, to prevent its usage
 // outside of select columns or similar explicitly allowed areas.
 
 template <typename Expr>
@@ -96,7 +96,7 @@ struct nodes_of<dynamic_t<Expr>> {
 
 // Constructing from optional
 template <typename Expr>
-  requires(has_value_type<Expr>::value or is_select_flag<Expr>::value or
+  requires(has_data_type<Expr>::value or is_select_flag<Expr>::value or
            is_as_expression<Expr>::value or is_assignment<Expr>::value or
            is_table<Expr>::value or is_sort_order<Expr>::value or
            is_statement<Expr>::value)
@@ -106,7 +106,7 @@ auto dynamic(std::optional<Expr> t) -> dynamic_t<Expr> {
 
 // Constructing from condition and value
 template <typename Expr>
-  requires(has_value_type<Expr>::value or is_select_flag<Expr>::value or
+  requires(has_data_type<Expr>::value or is_select_flag<Expr>::value or
            is_as_expression<Expr>::value or is_assignment<Expr>::value or
            is_table<Expr>::value or is_sort_order<Expr>::value or
            is_statement<Expr>::value)

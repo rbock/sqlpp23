@@ -46,8 +46,8 @@ struct value_t : public enable_as<value_t<T>>,
 };
 
 template <typename T>
-struct value_type_of<value_t<T>> {
-  using type = value_type_of_t<T>;
+struct data_type_of<value_t<T>> {
+  using type = data_type_of_t<T>;
 };
 
 template <typename T>
@@ -66,7 +66,7 @@ auto to_sql_string(Context& context, const value_t<T>& t) -> std::string {
 
 template <typename T>
 using check_value_arg =
-    std::enable_if_t<not std::is_same<value_type_of_t<T>, no_value_t>::value and
+    std::enable_if_t<not std::is_same<data_type_of_t<T>, no_value_t>::value and
                      values_are_comparable<T, T>::value>;
 
 template <typename T, typename = check_value_arg<T>>

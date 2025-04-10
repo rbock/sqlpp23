@@ -103,16 +103,16 @@ int Prepared(int, char*[]) {
     P npl;
     static_assert(
         std::is_same<
-            sqlpp::parameter_value_t<sqlpp::value_type_of_t<decltype(t.id)>>,
+            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.id)>>,
             decltype(npl.id)>::value,
         "type requirement");
     static_assert(
         std::is_same<
-            sqlpp::parameter_value_t<sqlpp::value_type_of_t<decltype(t.textN)>>,
+            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.textN)>>,
             decltype(npl.textN)>::value,
         "type requirement");
     static_assert(std::is_same<sqlpp::parameter_value_t<
-                                   sqlpp::value_type_of_t<decltype(t.boolNn)>>,
+                                   sqlpp::data_type_of_t<decltype(t.boolNn)>>,
                                decltype(npl.boolNn)>::value,
                   "type requirement");
   }
@@ -130,16 +130,16 @@ int Prepared(int, char*[]) {
 
     static_assert(
         std::is_same<
-            sqlpp::parameter_value_t<sqlpp::value_type_of_t<decltype(t.id)>>,
+            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.id)>>,
             decltype(npl.id)>::value,
         "type requirement");
     static_assert(
         std::is_same<
-            sqlpp::parameter_value_t<sqlpp::value_type_of_t<decltype(t.textN)>>,
+            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.textN)>>,
             decltype(npl.textN)>::value,
         "type requirement");
     static_assert(std::is_same<sqlpp::parameter_value_t<
-                                   sqlpp::value_type_of_t<decltype(t.boolNn)>>,
+                                   sqlpp::data_type_of_t<decltype(t.boolNn)>>,
                                decltype(npl.boolNn)>::value,
                   "type requirement");
     npl.id = 7;

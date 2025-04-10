@@ -113,7 +113,7 @@ int main() {
                            decltype(std::optional<int>(std::nullopt))>::value,
         "");
 
-    // Fail: Cannot use nullopt, as we need a value_type for the CASE
+    // Fail: Cannot use nullopt, as we need a data_type for the CASE
     // expression.
     static_assert(not can_call_then_with<CW, decltype(std::nullopt)>::value,
                   "");

@@ -77,10 +77,10 @@ int main(int, char*[]) {
 
     // select distinct count
     for (const auto& row : db(select(
-            count(sqlpp::distinct, tab.intN).as(sqlpp::alias::count_),
+            count(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_count_),
             count(sqlpp::distinct, 1).as(count_1)
             ).from(tab))) {
-      assert(row.count_ == 2);
+      assert(row.distinct_count_ == 2);
       assert(row.count_1 == 1);
     }
   } catch (const std::exception& e) {

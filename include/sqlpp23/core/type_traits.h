@@ -47,7 +47,7 @@
 #include <sqlpp23/core/type_traits/nodes_of.h>
 #include <sqlpp23/core/type_traits/optional.h>
 #include <sqlpp23/core/type_traits/tables_of.h>
-#include <sqlpp23/core/type_traits/value_type.h>
+#include <sqlpp23/core/type_traits/data_type.h>
 #include <sqlpp23/core/wrapped_static_assert.h>
 
 namespace sqlpp {
@@ -75,7 +75,7 @@ template <typename T>
 struct has_default : public std::false_type {};
 
 template <typename T>
-struct can_be_null : public is_optional<value_type_of_t<T>> {};
+struct can_be_null : public is_optional<data_type_of_t<T>> {};
 
 template <>
 struct can_be_null<std::nullopt_t> : public std::true_type {};
@@ -456,7 +456,7 @@ using result_row_of_t = typename result_row_of<Statement, Clause>::type;
 template <typename T>
 struct is_select_column {
   static constexpr bool value =
-      has_value_type_v<remove_as_t<remove_dynamic_t<T>>> and
+      has_data_type_v<remove_as_t<remove_dynamic_t<T>>> and
       has_name_tag_v<remove_dynamic_t<T>>;
 };
 

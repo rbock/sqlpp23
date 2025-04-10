@@ -39,8 +39,8 @@ struct result_row_impl;
 
 template <std::size_t index, typename FieldSpec>
 struct result_field
-    : public member_t<FieldSpec, typename FieldSpec::result_value_type> {
-  using _field = member_t<FieldSpec, typename FieldSpec::result_value_type>;
+    : public member_t<FieldSpec, typename FieldSpec::result_data_type> {
+  using _field = member_t<FieldSpec, typename FieldSpec::result_data_type>;
 
   result_field() = default;
 

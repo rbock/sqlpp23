@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "../Tables.h"
 
-SQLPP_CREATE_NAME_TAG(min_distinct);
-
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
@@ -52,10 +50,10 @@ int main(int, char*[]) {
     // select min
     for (const auto& row : db(select(
             min(tab.alpha).as(sqlpp::alias::min_),
-            min(sqlpp::distinct, tab.alpha).as(min_distinct)
+            min(sqlpp::distinct, tab.alpha).as(sqlpp::alias::distinct_min_)
             ).from(tab))) {
       assert(row.min_ == 7);
-      assert(row.min_distinct == 7);
+      assert(row.distinct_min_ == 7);
     }
 
   } catch (const std::exception& e) {

@@ -62,10 +62,10 @@ using check_logical_args =
     std::enable_if_t<is_boolean<L>::value and is_boolean<R>::value>;
 
 template <typename L, typename Operator, typename R>
-struct value_type_of<logical_expression<L, Operator, R>>
+struct data_type_of<logical_expression<L, Operator, R>>
     : std::conditional<
-          sqlpp::is_optional<value_type_of_t<L>>::value or
-              sqlpp::is_optional<value_type_of_t<remove_dynamic_t<R>>>::value,
+          sqlpp::is_optional<data_type_of_t<L>>::value or
+              sqlpp::is_optional<data_type_of_t<remove_dynamic_t<R>>>::value,
           std::optional<boolean>,
           boolean> {};
 

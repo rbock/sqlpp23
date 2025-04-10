@@ -24,14 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "sqlpp23/core/aggregate_function/sum.h"
 #include <cassert>
 
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
 #include "../Tables.h"
-
-SQLPP_CREATE_NAME_TAG(sum_distinct);
 
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
@@ -53,10 +52,10 @@ int main(int, char*[]) {
     // select sum
     for (const auto& row : db(select(
             sum(tab.intN).as(sqlpp::alias::sum_),
-            sum(sqlpp::distinct, tab.intN).as(sum_distinct)
+            sum(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_sum_)
             ).from(tab))) {
       assert(row.sum_ == 23);
-      assert(row.sum_distinct == 16);
+      assert(row.distinct_sum_ == 16);
     }
 
   } catch (const std::exception& e) {

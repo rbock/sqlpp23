@@ -57,12 +57,12 @@ struct nodes_of<case_t<When, Then, Else>> {
 };
 
 template <typename When, typename Then, typename Else>
-struct value_type_of<case_t<When, Then, Else>>
+struct data_type_of<case_t<When, Then, Else>>
     : public std::conditional<can_be_null<When>::value or
                                   can_be_null<Then>::value or
                                   can_be_null<Else>::value,
-                              force_optional_t<value_type_of_t<Then>>,
-                              value_type_of_t<Then>> {};
+                              force_optional_t<data_type_of_t<Then>>,
+                              data_type_of_t<Then>> {};
 
 template <typename When, typename Then, typename Else>
 struct requires_parentheses<case_t<When, Then, Else>> : public std::true_type {
@@ -80,7 +80,7 @@ class case_then_t {
   ~case_then_t() = default;
 
   template <typename Else,
-            typename = std::enable_if_t<has_value_type<Else>::value>>
+            typename = std::enable_if_t<has_data_type<Else>::value>>
   auto else_(Else else_) -> case_t<When, Then, Else> {
     SQLPP_STATIC_ASSERT(
         (values_are_comparable<Then, Else>::value),
@@ -110,7 +110,7 @@ class case_when_t {
   ~case_when_t() = default;
 
   template <typename Then,
-            typename = std::enable_if_t<has_value_type<Then>::value>>
+            typename = std::enable_if_t<has_data_type<Then>::value>>
   auto then(Then t) -> case_then_t<When, Then> {
     return case_then_t<When, Then>{_when, std::move(t)};
   }

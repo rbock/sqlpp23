@@ -49,9 +49,9 @@ int Union(int, char*[]) {
 
   // t.textN can be null, f.textNnD cannot
   static_assert(
-      sqlpp::is_optional<sqlpp::value_type_of_t<decltype(t.textN)>>::value, "");
+      sqlpp::is_optional<sqlpp::data_type_of_t<decltype(t.textN)>>::value, "");
   static_assert(not sqlpp::is_optional<
-                    sqlpp::value_type_of_t<decltype(f.textNnD)>>::value,
+                    sqlpp::data_type_of_t<decltype(f.textNnD)>>::value,
                 "");
   db(select(t.textN).from(t).union_all(
       select(f.textNnD.as(greek::textN)).from(f)));

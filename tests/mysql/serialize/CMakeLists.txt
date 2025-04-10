@@ -25,4 +25,4 @@
 add_subdirectory(clause)
 add_subdirectory(function)
 add_subdirectory(name)
-add_subdirectory(value_types)
+add_subdirectory(data_types)

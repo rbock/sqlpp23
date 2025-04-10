@@ -102,8 +102,8 @@ struct required_static_tables_of<column_t<_Table, ColumnSpec>>
     : public required_tables_of<column_t<_Table, ColumnSpec>> {};
 
 template <typename _Table, typename ColumnSpec>
-struct value_type_of<column_t<_Table, ColumnSpec>> {
-  using type = typename ColumnSpec::value_type;
+struct data_type_of<column_t<_Table, ColumnSpec>> {
+  using type = typename ColumnSpec::data_type;
 };
 
 template <typename Context, typename _Table, typename ColumnSpec>

@@ -29,7 +29,7 @@
 
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/type_traits/group_by_column.h>
-#include <sqlpp23/core/type_traits/value_type.h>
+#include <sqlpp23/core/type_traits/data_type.h>
 
 namespace sqlpp {
 // `group_by` takes columns as parameters.
@@ -74,7 +74,7 @@ struct requires_parentheses<group_by_column<Expr>>
     : public requires_parentheses<Expr> {};
 
 template <typename Expr>
-struct value_type_of<group_by_column<Expr>> : public value_type_of<Expr> {};
+struct data_type_of<group_by_column<Expr>> : public data_type_of<Expr> {};
 
 template <typename Context, typename Expr>
 auto to_sql_string(Context& context, const group_by_column<Expr>& t)
@@ -84,7 +84,7 @@ auto to_sql_string(Context& context, const group_by_column<Expr>& t)
 
 template <typename Expr>
 using check_declare_group_by_column_args =
-    std::enable_if_t<has_value_type<Expr>::value and
+    std::enable_if_t<has_data_type<Expr>::value and
                      not is_group_by_column<Expr>::value>;
 
 template <typename Expr, typename = check_declare_group_by_column_args<Expr>>

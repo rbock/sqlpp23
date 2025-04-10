@@ -133,6 +133,18 @@ something similar:
 select(all_of(foo)).from(foo).where(condition);
 ```
 
+### Aggregates
+
+`select` will not let you mix aggregates (see [`group_by`](#group-by) and
+[aggregate functions](aggregate_functions.md)) and non-aggregates, e.g.
+
+````c++
+// This will fail to compile as  it mixes aggregate and non-aggregate values.
+db(select(
+     foo.id,      // non-aggregate
+     max(foo.id)) // aggregate
+    .from(foo));
+
 ### Select with dynamic columns
 
 Columns can be selected conditionally using [`dynamic`](dynamic.md):
@@ -143,7 +155,7 @@ select(
     dynamic(maybe1, foo.textN),       // dynamically selected, if maybe1 == true
     dynamic(maybe2, bar.id.as(barId)) // dynamically selected, if maybe2 == true
     ).from(foo.cross_join(bar)).where(condition);
-```
+````
 
 Dynamically selected columns are represented as `std::optional` in the result
 row. In case the condition (e.g. `maybe1`) is false:
@@ -230,11 +242,14 @@ select(foo.id).from(foo)
 
 ### Group By
 
-The method `group_by` takes one or more expression arguments, for instance:
+The `group_by` clause takes one or more expression arguments, for instance:
 
 ```C++
 select(all_of(foo)).from(foo).group_by(foo.name, foo.dep);
 ```
+
+It can be used to control data ranges for
+[`aggregate functions`](aggregate_functions.md).
 
 `group_by` arguments can be [`dynamic`](dynamic.md). `dynamic` arguments will
 not be serialized if their conditions are false. If all arguments are dynamic

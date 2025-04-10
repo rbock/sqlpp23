@@ -32,12 +32,12 @@ SQLPP_CREATE_NAME_TAG(r_not_null);
 SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
 template <typename T, typename ValueType>
-using is_select_column_value_type =
-    std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
+using is_select_column_data_type =
+    std::is_same<sqlpp::select_column_data_type_of_t<T>, ValueType>;
 
 template <typename Value>
 void test_dynamic(Value v) {
-  using ValueType = sqlpp::value_type_of_t<Value>;
+  using ValueType = sqlpp::data_type_of_t<Value>;
   using OptValueType = std::optional<ValueType>;
 
   auto v_not_null = dynamic(true, sqlpp::value(v));
@@ -47,11 +47,11 @@ void test_dynamic(Value v) {
   auto v_not_null_alias = dynamic(true, v_alias);
   auto v_maybe_null_alias = dynamic(true, v_maybe_alias);
 
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null_alias)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null_alias)>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null_alias)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null_alias)>::value,
                 "");
 
   static_assert(not sqlpp::has_name_tag<decltype(v_not_null)>::value, "");
@@ -61,15 +61,15 @@ void test_dynamic(Value v) {
                 "");
 
   static_assert(
-      is_select_column_value_type<decltype(v_not_null), OptValueType>::value,
+      is_select_column_data_type<decltype(v_not_null), OptValueType>::value,
       "");
   static_assert(
-      is_select_column_value_type<decltype(v_maybe_null), OptValueType>::value,
+      is_select_column_data_type<decltype(v_maybe_null), OptValueType>::value,
       "");
-  static_assert(is_select_column_value_type<decltype(v_not_null_alias),
+  static_assert(is_select_column_data_type<decltype(v_not_null_alias),
                                             OptValueType>::value,
                 "");
-  static_assert(is_select_column_value_type<decltype(v_maybe_null_alias),
+  static_assert(is_select_column_data_type<decltype(v_maybe_null_alias),
                                             OptValueType>::value,
                 "");
 

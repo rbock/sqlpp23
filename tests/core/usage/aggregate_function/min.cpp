@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
 
-SQLPP_CREATE_NAME_TAG(min_distinct);
-
 int main(int, char*[]) {
   try {
     const auto tab = test::TabFoo{};
@@ -49,10 +47,10 @@ int main(int, char*[]) {
     // select min
     for (const auto& row : db(select(
             min(tab.intN).as(sqlpp::alias::min_),
-            min(sqlpp::distinct, tab.intN).as(min_distinct)
+            min(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_min_)
             ).from(tab))) {
       std::ignore = row.min_;
-      std::ignore = row.min_distinct;
+      std::ignore = row.distinct_min_;
     }
 
   } catch (const std::exception& e) {

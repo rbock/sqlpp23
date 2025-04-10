@@ -47,10 +47,10 @@ struct bit_expression : public enable_as<bit_expression<L, Operator, R>> {
 };
 
 template <typename L, typename Operator, typename R>
-struct value_type_of<bit_expression<L, Operator, R>> {
+struct data_type_of<bit_expression<L, Operator, R>> {
   using type =
-      std::conditional_t<sqlpp::is_optional<value_type_of_t<L>>::value or
-                             sqlpp::is_optional<value_type_of_t<R>>::value,
+      std::conditional_t<sqlpp::is_optional<data_type_of_t<L>>::value or
+                             sqlpp::is_optional<data_type_of_t<R>>::value,
                          std::optional<integral>,
                          integral>;
 };

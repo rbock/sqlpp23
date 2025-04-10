@@ -28,11 +28,11 @@
 
 namespace {
 template <typename T>
-using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
+using is_bool = std::is_same<sqlpp::data_type_of_t<T>, sqlpp::boolean>;
 
 template <typename T>
 using is_maybe_bool =
-    std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::boolean>>;
+    std::is_same<sqlpp::data_type_of_t<T>, std::optional<sqlpp::boolean>>;
 }  // namespace
 
 template <typename Value>

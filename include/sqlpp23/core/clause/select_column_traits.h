@@ -39,19 +39,19 @@
 namespace sqlpp {
 // Get value type
 template <typename T>
-struct select_column_value_type_of : public value_type_of<T> {};
+struct select_column_data_type_of : public data_type_of<T> {};
 template <typename T>
-using select_column_value_type_of_t =
-    typename select_column_value_type_of<T>::type;
+using select_column_data_type_of_t =
+    typename select_column_data_type_of<T>::type;
 
 template <typename T>
-struct select_column_value_type_of<dynamic_t<T>> {
-  using type = sqlpp::force_optional_t<select_column_value_type_of_t<T>>;
+struct select_column_data_type_of<dynamic_t<T>> {
+  using type = sqlpp::force_optional_t<select_column_data_type_of_t<T>>;
 };
 
 template <typename T, typename NameTag>
-struct select_column_value_type_of<as_expression<T, NameTag>>
-    : public select_column_value_type_of<T> {};
+struct select_column_data_type_of<as_expression<T, NameTag>>
+    : public select_column_data_type_of<T> {};
 
 // Get name tag
 template <typename T>
@@ -71,10 +71,10 @@ struct select_column_name_tag_of<as_expression<T, NameTag>> {
 
 // Test for value
 template <typename T>
-struct select_column_has_value_type
+struct select_column_has_data_type
     : public std::integral_constant<
           bool,
-          not std::is_same<select_column_value_type_of_t<T>,
+          not std::is_same<select_column_data_type_of_t<T>,
                            no_value_t>::value> {};
 
 // Test for name
@@ -94,7 +94,7 @@ struct select_columns_have_values {
 template <typename... Columns>
 struct select_columns_have_values<std::tuple<Columns...>> {
   static constexpr bool value =
-      logic::all<select_column_has_value_type<Columns>::value...>::value;
+      logic::all<select_column_has_data_type<Columns>::value...>::value;
 };
 
 template <typename... Columns>

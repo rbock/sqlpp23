@@ -28,7 +28,7 @@
 
 template <typename T>
 void test_boolean() {
-  static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>::value,
+  static_assert(std::is_same<sqlpp::data_type_of_t<T>, sqlpp::boolean>::value,
                 "");
   static_assert(sqlpp::is_boolean<T>::value, "");
   static_assert(sqlpp::is_numeric<T>::value, "");

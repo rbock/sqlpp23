@@ -32,39 +32,39 @@ void test_order_expression(Value v) {
   auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   // Sort order expressions have no value.
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.asc())>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null.asc())>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.desc())>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null.desc())>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.order(
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null.order(
                     sqlpp::sort_type::asc))>::value,
                 "");
 
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.asc())>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.asc())>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.desc())>::value,
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.desc())>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.order(
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.order(
                     sqlpp::sort_type::asc))>::value,
                 "");
 
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(
+  static_assert(not sqlpp::has_data_type<decltype(dynamic(
                     true, v_not_null.asc()))>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(
+  static_assert(not sqlpp::has_data_type<decltype(dynamic(
                     true, v_not_null.desc()))>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(
+  static_assert(not sqlpp::has_data_type<decltype(dynamic(
                     true, v_not_null.order(sqlpp::sort_type::asc)))>::value,
                 "");
 
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(
+  static_assert(not sqlpp::has_data_type<decltype(dynamic(
                     true, v_maybe_null.asc()))>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(
+  static_assert(not sqlpp::has_data_type<decltype(dynamic(
                     true, v_maybe_null.desc()))>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(
+  static_assert(not sqlpp::has_data_type<decltype(dynamic(
                     true, v_maybe_null.order(sqlpp::sort_type::asc)))>::value,
                 "");
 

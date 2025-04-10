@@ -29,32 +29,32 @@ void createTabFoo(Db& db) {
 struct TabFoo_ : public ::sqlpp::name_tag_base {
   struct Id : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-    using value_type = ::sqlpp::integral;
+    using data_type = ::sqlpp::integral;
     using has_default = std::true_type;
   };
   struct TextNnD : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(text_nn_d, textNnD);
-    using value_type = ::sqlpp::text;
+    using data_type = ::sqlpp::text;
     using has_default = std::true_type;
   };
   struct IntN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(int_n, intN);
-    using value_type = std::optional<::sqlpp::integral>;
+    using data_type = std::optional<::sqlpp::integral>;
     using has_default = std::true_type;
   };
   struct DoubleN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(double_n, doubleN);
-    using value_type = std::optional<::sqlpp::floating_point>;
+    using data_type = std::optional<::sqlpp::floating_point>;
     using has_default = std::true_type;
   };
   struct BoolN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(bool_n, boolN);
-    using value_type = std::optional<::sqlpp::boolean>;
+    using data_type = std::optional<::sqlpp::boolean>;
     using has_default = std::true_type;
   };
   struct BlobN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(blob_n, blobN);
-    using value_type = std::optional<::sqlpp::blob>;
+    using data_type = std::optional<::sqlpp::blob>;
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_foo, tabFoo);
@@ -80,22 +80,22 @@ void createTabBar(Db& db) {
 struct TabBar_ : public ::sqlpp::name_tag_base {
   struct Id : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-    using value_type = ::sqlpp::integral;
+    using data_type = ::sqlpp::integral;
     using has_default = std::true_type;
   };
   struct TextN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(text_n, textN);
-    using value_type = std::optional<::sqlpp::text>;
+    using data_type = std::optional<::sqlpp::text>;
     using has_default = std::true_type;
   };
   struct BoolNn : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(bool_nn, boolNn);
-    using value_type = ::sqlpp::boolean;
+    using data_type = ::sqlpp::boolean;
     using has_default = std::true_type;
   };
   struct IntN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(int_n, intN);
-    using value_type = std::optional<::sqlpp::integral>;
+    using data_type = std::optional<::sqlpp::integral>;
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_bar, tabBar);
@@ -121,27 +121,27 @@ void createTabDateTime(Db& db) {
 struct TabDateTime_ : public ::sqlpp::name_tag_base {
   struct DayPointN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(day_point_n, dayPointN);
-    using value_type = std::optional<::sqlpp::day_point>;
+    using data_type = std::optional<::sqlpp::day_point>;
     using has_default = std::true_type;
   };
   struct TimePointN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_point_n, timePointN);
-    using value_type = std::optional<::sqlpp::time_point>;
+    using data_type = std::optional<::sqlpp::time_point>;
     using has_default = std::true_type;
   };
   struct TimeOfDayN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_of_day_n, timeOfDayN);
-    using value_type = std::optional<::sqlpp::time_of_day>;
+    using data_type = std::optional<::sqlpp::time_of_day>;
     using has_default = std::true_type;
   };
   struct TimePointNTz : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_point_n_tz, timePointNTz);
-    using value_type = std::optional<::sqlpp::time_point>;
+    using data_type = std::optional<::sqlpp::time_point>;
     using has_default = std::true_type;
   };
   struct TimeOfDayNTz : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_of_day_n_tz, timeOfDayNTz);
-    using value_type = std::optional<::sqlpp::time_of_day>;
+    using data_type = std::optional<::sqlpp::time_of_day>;
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_date_time, tabDateTime);
@@ -168,12 +168,12 @@ void createBlobSample(Db& db) {
 struct BlobSample_ : public ::sqlpp::name_tag_base {
   struct Id : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-    using value_type = ::sqlpp::integral;
+    using data_type = ::sqlpp::integral;
     using has_default = std::true_type;
   };
   struct Data : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(data, data);
-    using value_type = std::optional<::sqlpp::blob>;
+    using data_type = std::optional<::sqlpp::blob>;
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(blob_sample, blobSample);
@@ -195,12 +195,12 @@ void createTabExcept(Db& db) {
 struct TabExcept_ : public ::sqlpp::name_tag_base {
   struct IntSmallNU : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(int_small_n_u, intSmallNU);
-    using value_type = std::optional<::sqlpp::integral>;
+    using data_type = std::optional<::sqlpp::integral>;
     using has_default = std::true_type;
   };
   struct TextShortN : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(text_short_n, textShortN);
-    using value_type = std::optional<::sqlpp::text>;
+    using data_type = std::optional<::sqlpp::text>;
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_except, tabExcept);

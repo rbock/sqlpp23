@@ -24,14 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "sqlpp23/core/aggregate_function/min.h"
 #include <cassert>
 
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
 #include "../Tables.h"
-
-SQLPP_CREATE_NAME_TAG(min_distinct);
 
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
@@ -53,10 +52,10 @@ int main(int, char*[]) {
     // select min
     for (const auto& row : db(select(
             min(tab.intN).as(sqlpp::alias::min_),
-            min(sqlpp::distinct, tab.intN).as(min_distinct)
+            min(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_min_)
             ).from(tab))) {
       assert(row.min_ == 7);
-      assert(row.min_distinct == 7);
+      assert(row.distinct_min_ == 7);
     }
 
   } catch (const std::exception& e) {

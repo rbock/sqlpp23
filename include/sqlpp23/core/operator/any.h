@@ -43,7 +43,7 @@ struct any_t {
   Select _select;
 };
 
-// No value_type_of defined for any_t, because it is to be used with basic
+// No data_type_of defined for any_t, because it is to be used with basic
 // comparison operators, only.
 
 template <typename Select>
@@ -70,7 +70,7 @@ auto to_sql_string(Context& context, const any_t<Select>& t) -> std::string {
 }
 
 template <typename Select>
-using check_any_args = std::enable_if_t<has_value_type<Select>::value>;
+using check_any_args = std::enable_if_t<has_data_type<Select>::value>;
 
 template <typename... Clauses,
           typename = check_any_args<statement_t<Clauses...>>>

@@ -174,8 +174,8 @@ struct prepare_check<Statement, select_column_list_t<Columns...>> {
 };
 
 template <typename Column>
-struct value_type_of<select_column_list_t<Column>>
-    : public select_column_value_type_of<Column> {};
+struct data_type_of<select_column_list_t<Column>>
+    : public select_column_data_type_of<Column> {};
 
 template <typename... Columns>
 struct is_result_clause<select_column_list_t<Columns...>>

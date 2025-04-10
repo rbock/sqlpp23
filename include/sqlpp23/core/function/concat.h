@@ -49,9 +49,9 @@ struct concat_t : public enable_comparison<concat_t<Args...>>,
 };
 
 template <typename... Args>
-struct value_type_of<concat_t<Args...>> {
+struct data_type_of<concat_t<Args...>> {
   using type = std::conditional_t<
-      logic::any<is_optional<value_type_of_t<Args>>::value...>::value,
+      logic::any<is_optional<data_type_of_t<Args>>::value...>::value,
       std::optional<sqlpp::text>,
       sqlpp::text>;
 };

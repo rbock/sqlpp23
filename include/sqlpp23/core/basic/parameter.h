@@ -53,7 +53,7 @@ struct parameters_of<parameter_t<ValueType, NameTag>> {
 };
 
 template <typename ValueType, typename NameTag>
-struct value_type_of<parameter_t<ValueType, NameTag>> {
+struct data_type_of<parameter_t<ValueType, NameTag>> {
   using type = ValueType;
 };
 
@@ -65,16 +65,16 @@ auto to_sql_string(Context&, const parameter_t<ValueType, NameTag>&)
 
 template <typename NamedExpr>
 auto parameter(const NamedExpr& /*unused*/)
-    -> parameter_t<value_type_of_t<NamedExpr>, name_tag_of_t<NamedExpr>> {
-  static_assert(has_value_type<NamedExpr>::value, "not a named expression");
+    -> parameter_t<data_type_of_t<NamedExpr>, name_tag_of_t<NamedExpr>> {
+  static_assert(has_data_type<NamedExpr>::value, "not a named expression");
   static_assert(has_name_tag<NamedExpr>::value, "not a named expression");
   return {};
 }
 
 template <typename ValueType, typename NameTagProvider>
 auto parameter(const ValueType& /*unused*/, const NameTagProvider& /*unused*/)
-    -> parameter_t<value_type_of_t<ValueType>, name_tag_of_t<NameTagProvider>> {
-  static_assert(has_value_type<ValueType>::value,
+    -> parameter_t<data_type_of_t<ValueType>, name_tag_of_t<NameTagProvider>> {
+  static_assert(has_data_type<ValueType>::value,
                 "first argument is not a value type");
   static_assert(has_name_tag<NameTagProvider>::value,
                 "second argument does not have a name");

@@ -24,14 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "sqlpp23/core/aggregate_function/avg.h"
 #include <cassert>
 
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 #include <sqlpp23/tests/postgresql/tables.h>
-
-SQLPP_CREATE_NAME_TAG(avg_distinct);
 
 auto require_close(int line, double l, double r) -> void
 {
@@ -64,12 +63,12 @@ int main(int, char*[]) {
     // select avg
     for (const auto& row : db(select(
             avg(tab.intN).as(sqlpp::alias::avg_),
-            avg(sqlpp::distinct, tab.intN).as(avg_distinct)
+            avg(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_avg_)
             ).from(tab))) {
       assert(row.avg_.has_value());
-      assert(row.avg_distinct.has_value());
+      assert(row.distinct_avg_.has_value());
       require_close(__LINE__, row.avg_.value(), 7.666666);
-      require_close(__LINE__, row.avg_distinct.value(), 8);
+      require_close(__LINE__, row.distinct_avg_.value(), 8);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

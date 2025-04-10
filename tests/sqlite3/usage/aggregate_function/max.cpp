@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "../Tables.h"
 
-SQLPP_CREATE_NAME_TAG(max_distinct);
-
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
@@ -52,10 +50,10 @@ int main(int, char*[]) {
     // select max
     for (const auto& row : db(select(
             max(tab.alpha).as(sqlpp::alias::max_),
-            max(sqlpp::distinct, tab.alpha).as(max_distinct)
+            max(sqlpp::distinct, tab.alpha).as(sqlpp::alias::distinct_max_)
             ).from(tab))) {
       assert(row.max_ == 9);
-      assert(row.max_distinct == 9);
+      assert(row.distinct_max_ == 9);
     }
 
   } catch (const std::exception& e) {

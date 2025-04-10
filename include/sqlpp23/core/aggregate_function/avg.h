@@ -37,6 +37,7 @@
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(avg_);
+SQLPP_CREATE_NAME_TAG(distinct_avg_);
 }
 
 namespace sqlpp {
@@ -64,7 +65,7 @@ struct nodes_of<avg_t<Flag, Expr>> {
 };
 
 template <typename Flag, typename Expr>
-struct value_type_of<avg_t<Flag, Expr>> {
+struct data_type_of<avg_t<Flag, Expr>> {
   using type = sqlpp::force_optional_t<floating_point>;
 };
 

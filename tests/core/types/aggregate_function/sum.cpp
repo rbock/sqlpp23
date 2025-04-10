@@ -30,7 +30,7 @@
 
 namespace {
 template <typename T, typename V>
-using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
+using is_same_type = std::is_same<sqlpp::data_type_of_t<T>, V>;
 }
 
 template <typename Value>
@@ -40,7 +40,7 @@ void test_sum(Value v) {
 
   using ValueType = typename std::conditional<std::is_same<Value, bool>::value,
                                               int, Value>::type;
-  using OptValueType = sqlpp::value_type_of_t<std::optional<ValueType>>;
+  using OptValueType = sqlpp::data_type_of_t<std::optional<ValueType>>;
 
   // sum non-nullable can be null because there could be zero result rows.
   static_assert(is_same_type<decltype(sum(v_not_null)), OptValueType>::value,

@@ -67,7 +67,7 @@ int main(int, char*[]) {
       "tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
 
   using T = decltype(count(bar.id).as(id_count));
-  static_assert(sqlpp::has_value_type_v<
+  static_assert(sqlpp::has_data_type_v<
                     sqlpp::remove_as_t<sqlpp::remove_dynamic_t<T>>> and
                 sqlpp::has_name_tag_v<sqlpp::remove_dynamic_t<T>>);
   // Column and aggregate function

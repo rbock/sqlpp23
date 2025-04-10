@@ -157,8 +157,8 @@ struct prepare_check<Statement,
 };
 
 template <typename Column>
-struct value_type_of<postgresql::returning_column_list_t<Column>>
-    : public value_type_of<Column> {};
+struct data_type_of<postgresql::returning_column_list_t<Column>>
+    : public data_type_of<Column> {};
 
 template <typename Column>
 struct name_tag_of<postgresql::returning_column_list_t<Column>>

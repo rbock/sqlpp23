@@ -79,7 +79,7 @@ class result_t {
   class iterator {
    public:
     using iterator_category = std::input_iterator_tag;
-    using value_type = result_row_t;
+    using data_type = result_row_t;
     using pointer = const result_row_t*;
     using reference = const result_row_t&;
     using difference_type = std::ptrdiff_t;

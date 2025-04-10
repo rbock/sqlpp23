@@ -54,10 +54,10 @@ using check_comparison_args =
     std::enable_if_t<values_are_comparable<L, R>::value>;
 
 template <typename L, typename Operator, typename R>
-struct value_type_of<comparison_expression<L, Operator, R>>
+struct data_type_of<comparison_expression<L, Operator, R>>
     : std::conditional<
-          sqlpp::is_optional<value_type_of_t<L>>::value or
-              sqlpp::is_optional<value_type_of_t<remove_any_t<R>>>::value,
+          sqlpp::is_optional<data_type_of_t<L>>::value or
+              sqlpp::is_optional<data_type_of_t<remove_any_t<R>>>::value,
           std::optional<boolean>,
           boolean> {};
 
@@ -67,22 +67,22 @@ struct op_is_distinct_from;
 struct op_is_not_distinct_from;
 
 template <typename L>
-struct value_type_of<comparison_expression<L, op_is_null, std::nullopt_t>> {
+struct data_type_of<comparison_expression<L, op_is_null, std::nullopt_t>> {
   using type = boolean;
 };
 
 template <typename L>
-struct value_type_of<comparison_expression<L, op_is_not_null, std::nullopt_t>> {
+struct data_type_of<comparison_expression<L, op_is_not_null, std::nullopt_t>> {
   using type = boolean;
 };
 
 template <typename L, typename R>
-struct value_type_of<comparison_expression<L, op_is_distinct_from, R>> {
+struct data_type_of<comparison_expression<L, op_is_distinct_from, R>> {
   using type = boolean;
 };
 
 template <typename L, typename R>
-struct value_type_of<comparison_expression<L, op_is_not_distinct_from, R>> {
+struct data_type_of<comparison_expression<L, op_is_not_distinct_from, R>> {
   using type = boolean;
 };
 
@@ -110,7 +110,7 @@ struct less {
 
 // We are using remove_any_t in the basic comparison operators to allow
 // comparison with ANY-expressions. Note: any_t does not have a specialization
-// for value_type_of to disallow it from being used in other contexts.
+// for data_type_of to disallow it from being used in other contexts.
 template <typename L,
           typename R,
           typename = check_comparison_args<L, remove_any_t<R>>>

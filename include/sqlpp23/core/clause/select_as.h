@@ -79,7 +79,7 @@ auto to_sql_string(Context& context,
          name_to_sql_string(context, NameTag{});
 }
 
-// No value_type_of defined. select_as_t represents a table, not a value.
+// No data_type_of defined. select_as_t represents a table, not a value.
 // Rationale: select.as() requires prepare_check to be used as tbale, whereas
 // using as value just requires consistency.
 

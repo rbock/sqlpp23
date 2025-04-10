@@ -65,7 +65,7 @@ struct consistency_check<Statement, parameterized_verbatim_t<ValueType, Expr>> {
 };
 
 template <typename ValueType, typename Expr>
-struct value_type_of<parameterized_verbatim_t<ValueType, Expr>> {
+struct data_type_of<parameterized_verbatim_t<ValueType, Expr>> {
   // Since we do not know what's going on inside the verbatim, we assume it can
   // be null.
   using type = sqlpp::force_optional_t<ValueType>;
@@ -86,7 +86,7 @@ auto to_sql_string(Context& context,
 template <typename ValueType, typename Expr>
 auto parameterized_verbatim(std::string lhs, Expr expr, std::string rhs)
     -> parameterized_verbatim_t<ValueType, Expr> {
-  static_assert(has_value_type<Expr>::value,
+  static_assert(has_data_type<Expr>::value,
                 "parameterized_verbatim() requires an expression as argument");
   return {expr, lhs, rhs};
 }

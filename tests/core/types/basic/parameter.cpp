@@ -36,7 +36,7 @@ void test_parameter() {
     auto p = parameter(foo.id);
     using P = decltype(p);
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<P>, sqlpp::integral>::value, "");
+        std::is_same<sqlpp::data_type_of_t<P>, sqlpp::integral>::value, "");
     static_assert(std::is_same<sqlpp::parameters_of_t<P>,
                                sqlpp::detail::type_vector<P>>::value,
                   "");
@@ -51,7 +51,7 @@ void test_parameter() {
   {
     auto p = parameter(foo.doubleN);
     using P = decltype(p);
-    static_assert(std::is_same<sqlpp::value_type_of_t<P>,
+    static_assert(std::is_same<sqlpp::data_type_of_t<P>,
                                std::optional<sqlpp::floating_point>>::value,
                   "");
     static_assert(std::is_same<sqlpp::parameters_of_t<P>,
@@ -67,7 +67,7 @@ void test_parameter() {
     auto p = parameter(sqlpp::integral{}, something);
     using P = decltype(p);
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<P>, sqlpp::integral>::value, "");
+        std::is_same<sqlpp::data_type_of_t<P>, sqlpp::integral>::value, "");
     static_assert(std::is_same<sqlpp::parameters_of_t<P>,
                                sqlpp::detail::type_vector<P>>::value,
                   "");
@@ -79,7 +79,7 @@ void test_parameter() {
   {
     auto p = parameter(std::optional<sqlpp::blob>{}, something);
     using P = decltype(p);
-    static_assert(std::is_same<sqlpp::value_type_of_t<P>,
+    static_assert(std::is_same<sqlpp::data_type_of_t<P>,
                                std::optional<sqlpp::blob>>::value,
                   "");
     static_assert(std::is_same<sqlpp::parameters_of_t<P>,

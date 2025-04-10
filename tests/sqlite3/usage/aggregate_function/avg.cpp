@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include "../Tables.h"
 
-SQLPP_CREATE_NAME_TAG(avg_distinct);
-
 auto require_close(int line, double l, double r) -> void
 {
   if (std::abs(l - r) > 0.001) {
@@ -64,12 +62,12 @@ int main(int, char*[]) {
     // select avg
     for (const auto& row : db(select(
             avg(tab.alpha).as(sqlpp::alias::avg_),
-            avg(sqlpp::distinct, tab.alpha).as(avg_distinct)
+            avg(sqlpp::distinct, tab.alpha).as(sqlpp::alias::distinct_avg_)
             ).from(tab))) {
       assert(row.avg_.has_value());
-      assert(row.avg_distinct.has_value());
+      assert(row.distinct_avg_.has_value());
       require_close(__LINE__, row.avg_.value(), 7.666666);
-      require_close(__LINE__, row.avg_distinct.value(), 8);
+      require_close(__LINE__, row.distinct_avg_.value(), 8);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

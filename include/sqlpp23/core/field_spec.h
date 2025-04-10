@@ -35,8 +35,8 @@
 namespace sqlpp {
 template <typename NameTag, typename ValueType>
 struct field_spec_t {
-  using result_value_type = result_value_t<ValueType>;  // Used in result_row_t.
-  using value_type = ValueType;  // This is used by column_t.
+  using result_data_type = result_value_t<ValueType>;  // Used in result_row_t.
+  using data_type = ValueType;  // This is used by column_t.
 };
 
 template <typename NameTag, typename ValueType>
@@ -45,7 +45,7 @@ struct name_tag_of<field_spec_t<NameTag, ValueType>> {
 };
 
 template <typename NameTag, typename ValueType>
-struct value_type_of<field_spec_t<NameTag, ValueType>> {
+struct data_type_of<field_spec_t<NameTag, ValueType>> {
   using type = ValueType;
 };
 
@@ -75,7 +75,7 @@ struct is_field_compatible<field_spec_t<LeftNameTag, LeftValue>,
 
 template <typename Statement, typename NamedExpr>
 struct make_field_spec {
-  using ValueType = select_column_value_type_of_t<NamedExpr>;
+  using ValueType = select_column_data_type_of_t<NamedExpr>;
   static constexpr bool _depends_on_optional_table =
       provided_optional_tables_of_t<Statement>::contains_any(
           required_tables_of_t<NamedExpr>{});

@@ -52,11 +52,11 @@ using check_between_args =
                      values_are_comparable<L, R2>::value>;
 
 template <typename L, typename R1, typename R2>
-struct value_type_of<between_expression<L, R1, R2>>
+struct data_type_of<between_expression<L, R1, R2>>
     : public std::conditional<
-          sqlpp::is_optional<value_type_of_t<L>>::value or
-              sqlpp::is_optional<value_type_of_t<R1>>::value or
-              sqlpp::is_optional<value_type_of_t<R2>>::value,
+          sqlpp::is_optional<data_type_of_t<L>>::value or
+              sqlpp::is_optional<data_type_of_t<R1>>::value or
+              sqlpp::is_optional<data_type_of_t<R2>>::value,
           std::optional<boolean>,
           boolean> {};
 

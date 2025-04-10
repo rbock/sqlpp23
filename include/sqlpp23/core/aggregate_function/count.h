@@ -38,6 +38,7 @@
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(count_);
+SQLPP_CREATE_NAME_TAG(distinct_count_);
 }
 
 namespace sqlpp {
@@ -65,7 +66,7 @@ struct nodes_of<count_t<Flag, Expr>> {
 };
 
 template <typename Flag, typename Expr>
-struct value_type_of<count_t<Flag, Expr>> {
+struct data_type_of<count_t<Flag, Expr>> {
   using type = integral;
 };
 
@@ -77,7 +78,7 @@ auto to_sql_string(Context& context, const count_t<Flag, Expr>& t)
 }
 
 template <typename T>
-requires(has_value_type_v<T>)
+requires(has_data_type_v<T>)
 auto count(T t) -> count_t<no_flag_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "count() must not be used on an aggregate function");
@@ -89,7 +90,7 @@ inline auto count(star_t s) -> count_t<no_flag_t, star_t> {
 }
 
 template <typename T>
-requires(has_value_type_v<T>)
+requires(has_data_type_v<T>)
 auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "count() must not be used on an aggregate function");

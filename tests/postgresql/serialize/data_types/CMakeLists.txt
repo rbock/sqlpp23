@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,11 +22,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_compile name)
-    set(target sqlpp23_core_types_value_type_${name})
+function(create_test name)
+    set(target sqlpp23_postgresql_serialize_data_types_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
+    add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-test_compile(boolean)
+create_test(blob)
+create_test(day_point)
+create_test(microseconds)
+create_test(text)
+create_test(time_point)
 

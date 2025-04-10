@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 #include <sqlpp23/tests/postgresql/tables.h>
 
-SQLPP_CREATE_NAME_TAG(min_distinct);
-
 namespace sql = sqlpp::postgresql;
 int main(int, char*[]) {
   try {
@@ -52,10 +50,10 @@ int main(int, char*[]) {
     // select min
     for (const auto& row : db(select(
             min(tab.intN).as(sqlpp::alias::min_),
-            min(sqlpp::distinct, tab.intN).as(min_distinct)
+            min(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_min_)
             ).from(tab))) {
       assert(row.min_ == 7);
-      assert(row.min_distinct == 7);
+      assert(row.distinct_min_ == 7);
     }
 
   } catch (const std::exception& e) {

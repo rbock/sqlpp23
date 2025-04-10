@@ -29,7 +29,7 @@
 
 #include <sqlpp23/core/detail/type_vector.h>
 #include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/type_traits/value_type.h>
+#include <sqlpp23/core/type_traits/data_type.h>
 
 namespace sqlpp {
 // `group_by` takes columns as parameters.

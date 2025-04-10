@@ -194,10 +194,10 @@ struct is_result_clause<statement_t<Clauses...>> {
 };
 
 template <typename... Clauses>
-struct value_type_of<statement_t<Clauses...>> {
+struct data_type_of<statement_t<Clauses...>> {
   using type = std::conditional_t<
       statement_consistency_check_t<statement_t<Clauses...>>::value,
-      value_type_of_t<result_type_provider_t<Clauses...>>,
+      data_type_of_t<result_type_provider_t<Clauses...>>,
       no_value_t>;
 };
 

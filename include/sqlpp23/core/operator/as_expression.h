@@ -52,7 +52,7 @@ struct name_tag_of<as_expression<Expression, NameTag>> {
   using type = NameTag;
 };
 
-// No value_type_of defined for as_expression to prevent its usage outside of
+// No data_type_of defined for as_expression to prevent its usage outside of
 // select columns.
 
 template <typename Expression, typename NameTag>
@@ -72,7 +72,7 @@ auto to_sql_string(Context& context,
 }
 
 template <typename Expr, typename NameTagProvider>
-  requires(has_value_type_v<Expr> and not is_dynamic<Expr>::value and
+  requires(has_data_type_v<Expr> and not is_dynamic<Expr>::value and
            not is_as_expression<Expr>::value and
            has_name_tag_v<NameTagProvider>)
 constexpr auto as(Expr expr, const NameTagProvider&)

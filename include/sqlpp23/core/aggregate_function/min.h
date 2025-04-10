@@ -37,6 +37,7 @@
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(min_);
+SQLPP_CREATE_NAME_TAG(distinct_min_);
 }
 
 namespace sqlpp {
@@ -64,8 +65,8 @@ struct nodes_of<min_t<Flag, Expr>> {
 };
 
 template <typename Flag, typename Expr>
-struct value_type_of<min_t<Flag, Expr>> {
-  using type = sqlpp::force_optional_t<value_type_of_t<Expr>>;
+struct data_type_of<min_t<Flag, Expr>> {
+  using type = sqlpp::force_optional_t<data_type_of_t<Expr>>;
 };
 
 template <typename Context, typename Flag, typename Expr>

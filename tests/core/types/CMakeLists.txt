@@ -41,5 +41,5 @@ add_subdirectory(operator)
 add_subdirectory(query)
 add_subdirectory(statement)
 add_subdirectory(type_traits)
-add_subdirectory(value_type)
+add_subdirectory(data_type)
 

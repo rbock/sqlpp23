@@ -30,11 +30,11 @@
 
 namespace {
 template <typename T>
-using is_integral = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>;
+using is_integral = std::is_same<sqlpp::data_type_of_t<T>, sqlpp::integral>;
 
 template <typename T>
 using is_maybe_integral =
-    std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::integral>>;
+    std::is_same<sqlpp::data_type_of_t<T>, std::optional<sqlpp::integral>>;
 }  // namespace
 
 template <typename Value>

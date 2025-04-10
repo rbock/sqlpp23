@@ -1,4 +1,4 @@
-# Copyright (c) 2025, Roland Bock
+# Copyright (c) 2024, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,13 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test name)
-    set(target sqlpp23_mysql_serialize_value_types_${name})
+function(test_compile name)
+    set(target sqlpp23_core_types_data_type_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing Threads::Threads)
-    add_test(NAME ${target} COMMAND ${target})
+    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
 endfunction()
 
-create_test(float)
-create_test(text)
+test_compile(boolean)
 

@@ -154,7 +154,7 @@ int SelectType(int, char*[]) {
   // Test an alias of a select of a single numeric table column
   {
     using T = decltype(select(t.id).from(t).as(alias::b));
-    static_assert(not sqlpp::has_value_type<T>::value, "type requirement");
+    static_assert(not sqlpp::has_data_type<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "red to not be boolean");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
     static_assert(sqlpp::is_table<T>::value, "type requirement");
@@ -164,7 +164,7 @@ int SelectType(int, char*[]) {
   // table column
   {
     using T = decltype(select(t.id.as(alias::a)).from(t).as(alias::b));
-    static_assert(not sqlpp::has_value_type<T>::value, "type requirement");
+    static_assert(not sqlpp::has_data_type<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
     static_assert(sqlpp::is_table<T>::value, "type requirement");
@@ -204,12 +204,12 @@ int SelectType(int, char*[]) {
     using A = sqlpp::get_result_row_t<decltype(a)>;
     using B = sqlpp::get_result_row_t<decltype(b)>;
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<decltype(t.id)>,
+        std::is_same<sqlpp::data_type_of_t<decltype(t.id)>,
                      sqlpp::remove_optional_t<
-                         sqlpp::value_type_of_t<decltype(f.intN)>>>::value,
-        "Two bigint columns must have identical base_value_type");
+                         sqlpp::data_type_of_t<decltype(f.intN)>>>::value,
+        "Two bigint columns must have identical base_data_type");
     static_assert(std::is_same<A, B>::value,
-                  "select with identical columns(name/value_type) need to have "
+                  "select with identical columns(name/data_type) need to have "
                   "identical result_types");
   }
 

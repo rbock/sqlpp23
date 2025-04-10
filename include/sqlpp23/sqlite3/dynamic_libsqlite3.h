@@ -132,7 +132,7 @@ DYNDEFINE(sqlite3_value_bytes16);
 DYNDEFINE(sqlite3_value_double);
 DYNDEFINE(sqlite3_value_int);
 DYNDEFINE(sqlite3_value_int64);
-DYNDEFINE(sqlite3_value_type);
+DYNDEFINE(sqlite3_data_type);
 DYNDEFINE(sqlite3_value_numeric_type);
 DYNDEFINE(sqlite3_set_auxdata);
 DYNDEFINE(sqlite3_result_blob);

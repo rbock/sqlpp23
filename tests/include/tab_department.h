@@ -14,17 +14,17 @@ namespace model {
 struct TabDepartment_ : public ::sqlpp::name_tag_base {
   struct Id : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-    using value_type = ::sqlpp::integral;
+    using data_type = ::sqlpp::integral;
     using has_default = std::true_type;
   };
   struct Name : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(name, name);
-    using value_type = std::optional<::sqlpp::text>;
+    using data_type = std::optional<::sqlpp::text>;
     using has_default = std::true_type;
   };
   struct Division : public ::sqlpp::name_tag_base {
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(division, division);
-    using value_type = ::sqlpp::text;
+    using data_type = ::sqlpp::text;
     using has_default = std::true_type;
   };
   SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_department, tabDepartment);

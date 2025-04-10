@@ -24,14 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "sqlpp23/core/aggregate_function/avg.h"
 #include <cassert>
 #include <iostream>
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
-
-SQLPP_CREATE_NAME_TAG(avg_distinct);
 
 int main(int, char*[]) {
   try {
@@ -49,10 +48,10 @@ int main(int, char*[]) {
     // select avg
     for (const auto& row : db(select(
             avg(tab.intN).as(sqlpp::alias::avg_),
-            avg(sqlpp::distinct, tab.intN).as(avg_distinct)
+            avg(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_avg_)
             ).from(tab))) {
       std::ignore = row.avg_;
-      std::ignore = row.avg_distinct;
+      std::ignore = row.distinct_avg_;
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

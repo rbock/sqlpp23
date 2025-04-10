@@ -33,8 +33,8 @@ SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
 template <typename Value>
 void test_any(Value v) {
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::value_type_of_t<std::optional<Value>>;
+  using ValueType = sqlpp::data_type_of_t<Value>;
+  using OptValueType = sqlpp::data_type_of_t<std::optional<Value>>;
 
   // Selectable values.
   const auto v_not_null = sqlpp::value(v).as(r_not_null);
@@ -44,19 +44,19 @@ void test_any(Value v) {
   // ANY expression are not to be in most expressions and therefore have no
   // value defined.
   static_assert(
-      not sqlpp::has_value_type<decltype(any(select(v_not_null)))>::value, "");
+      not sqlpp::has_data_type<decltype(any(select(v_not_null)))>::value, "");
   static_assert(
-      not sqlpp::has_value_type<decltype(any(select(v_maybe_null)))>::value,
+      not sqlpp::has_data_type<decltype(any(select(v_maybe_null)))>::value,
       "");
 
   // ANY expression can be used in basic comparison expressions, which use
   // remove_any_t to look inside.
   static_assert(
-      std::is_same<sqlpp::value_type_of_t<
+      std::is_same<sqlpp::data_type_of_t<
                        sqlpp::remove_any_t<decltype(any(select(v_not_null)))>>,
                    ValueType>::value,
       "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<
+  static_assert(std::is_same<sqlpp::data_type_of_t<sqlpp::remove_any_t<
                                  decltype(any(select(v_maybe_null)))>>,
                              OptValueType>::value,
                 "");

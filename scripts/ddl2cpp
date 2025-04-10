@@ -711,9 +711,9 @@ def createHeader():
                 , file=header)
             columnCanBeNull = not column.notNull and not column.isPrimaryKey
             if columnCanBeNull:
-                print("      using value_type = std::optional<::sqlpp::" + columnType + ">;", file=header)
+                print("      using data_type = std::optional<::sqlpp::" + columnType + ">;", file=header)
             else:
-                print("      using value_type = ::sqlpp::" + columnType + ";", file=header)
+                print("      using data_type = ::sqlpp::" + columnType + ";", file=header)
             columnHasDefault = column.hasDefaultValue or \
                                columnCanBeNull or \
                                column.hasAutoValue or \

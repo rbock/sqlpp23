@@ -30,7 +30,7 @@
 
 namespace {
 template <typename T, typename V>
-using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
+using is_same_type = std::is_same<sqlpp::data_type_of_t<T>, V>;
 }
 
 template <typename Value>

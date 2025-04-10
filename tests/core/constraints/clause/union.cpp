@@ -135,8 +135,8 @@ int main() {
         select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);
     // Different value type
     static_assert(
-        not std::is_same<sqlpp::value_type_of_t<decltype(foo.id)>,
-                         sqlpp::value_type_of_t<decltype(foo.intN)>>::value,
+        not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
+                         sqlpp::data_type_of_t<decltype(foo.intN)>>::value,
         "");
     CHECK_UNION_STATIC_ASSERTS(s_foo_int, s_foo_int_n,
                                "both arguments in a union have to have the "

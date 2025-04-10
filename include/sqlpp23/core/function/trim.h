@@ -47,7 +47,7 @@ struct trim_t : public enable_as<trim_t<Expr>> {
 };
 
 template <typename Expr>
-struct value_type_of<trim_t<Expr>> : public value_type_of<Expr> {};
+struct data_type_of<trim_t<Expr>> : public data_type_of<Expr> {};
 
 template <typename Expr>
 struct nodes_of<trim_t<Expr>> {

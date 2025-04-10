@@ -41,12 +41,12 @@ void test_exists(Value v) {
   // EXISTS expression can be used in basic comparison expressions, which use
   // remove_exists_t to look inside.
   static_assert(
-      std::is_same<sqlpp::value_type_of_t<decltype(exists(select(v_not_null)))>,
+      std::is_same<sqlpp::data_type_of_t<decltype(exists(select(v_not_null)))>,
                    sqlpp::boolean>::value,
       "");
   static_assert(
       std::is_same<
-          sqlpp::value_type_of_t<decltype(exists(select(v_maybe_null)))>,
+          sqlpp::data_type_of_t<decltype(exists(select(v_maybe_null)))>,
           sqlpp::boolean>::value,
       "");
 

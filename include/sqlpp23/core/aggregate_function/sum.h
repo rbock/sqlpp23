@@ -37,6 +37,7 @@
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(sum_);
+SQLPP_CREATE_NAME_TAG(distinct_sum_);
 }
 
 namespace sqlpp {
@@ -64,11 +65,11 @@ struct nodes_of<sum_t<Flag, Expr>> {
 };
 
 template <typename Flag, typename Expr>
-struct value_type_of<sum_t<Flag, Expr>> {
+struct data_type_of<sum_t<Flag, Expr>> {
   using type =
       sqlpp::force_optional_t<std::conditional_t<is_boolean<Expr>::value,
                                                  integral,
-                                                 value_type_of_t<Expr>>>;
+                                                 data_type_of_t<Expr>>>;
 };
 
 template <typename Context, typename Flag, typename Expr>

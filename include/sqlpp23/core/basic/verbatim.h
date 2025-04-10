@@ -54,7 +54,7 @@ struct consistency_check<Statement, verbatim_t<ValueType>> {
   using type = consistent_t;
 };
 template <typename ValueType>
-struct value_type_of<verbatim_t<ValueType>> {
+struct data_type_of<verbatim_t<ValueType>> {
   // Since we do not know what's going on inside the verbatim, we assume it can
   // be null.
   using type = sqlpp::force_optional_t<ValueType>;

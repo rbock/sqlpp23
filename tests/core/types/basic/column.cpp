@@ -67,7 +67,7 @@ void test_column() {
                   "");
 
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<Id>, sqlpp::integral>::value, "");
+        std::is_same<sqlpp::data_type_of_t<Id>, sqlpp::integral>::value, "");
 
     // tab_foo.id AS cheese
     // This is only useful SELECT. It therefore exposes no value directly.
@@ -96,7 +96,7 @@ void test_column() {
                   "");
 
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<Cheese>, sqlpp::no_value_t>::value,
+        std::is_same<sqlpp::data_type_of_t<Cheese>, sqlpp::no_value_t>::value,
         "");
 
     // (tab_foo AS bar).id
@@ -127,7 +127,7 @@ void test_column() {
                   "");
 
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<BarId>, sqlpp::integral>::value,
+        std::is_same<sqlpp::data_type_of_t<BarId>, sqlpp::integral>::value,
         "");
 
     // (tab_foo as bar).id.as(cheese)
@@ -157,7 +157,7 @@ void test_column() {
                                sqlpp::required_tables_of_t<BarCheese>>::value,
                   "");
 
-    static_assert(std::is_same<sqlpp::value_type_of_t<BarCheese>,
+    static_assert(std::is_same<sqlpp::data_type_of_t<BarCheese>,
                                sqlpp::no_value_t>::value,
                   "");
   }
@@ -191,7 +191,7 @@ void test_column() {
                                sqlpp::required_tables_of_t<TextN>>::value,
                   "");
 
-    static_assert(std::is_same<sqlpp::value_type_of_t<TextN>,
+    static_assert(std::is_same<sqlpp::data_type_of_t<TextN>,
                                std::optional<sqlpp::text>>::value,
                   "");
   }
@@ -226,7 +226,7 @@ void test_column() {
                   "");
 
     static_assert(
-        std::is_same<sqlpp::value_type_of_t<BoolNn>, sqlpp::boolean>::value,
+        std::is_same<sqlpp::data_type_of_t<BoolNn>, sqlpp::boolean>::value,
         "");
   }
 

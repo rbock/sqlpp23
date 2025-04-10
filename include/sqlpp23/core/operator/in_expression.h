@@ -78,17 +78,17 @@ using check_in_args = std::enable_if_t<
     logic::all<values_are_comparable<L, Args>::value...>::value>;
 
 template <typename L, typename Operator, typename R>
-struct value_type_of<in_expression<L, Operator, std::vector<R>>>
-    : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
-                           sqlpp::is_optional<value_type_of_t<R>>::value,
+struct data_type_of<in_expression<L, Operator, std::vector<R>>>
+    : std::conditional<sqlpp::is_optional<data_type_of_t<L>>::value or
+                           sqlpp::is_optional<data_type_of_t<R>>::value,
                        std::optional<boolean>,
                        boolean> {};
 
 template <typename L, typename Operator, typename... Args>
-struct value_type_of<in_expression<L, Operator, std::tuple<Args...>>>
-    : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
+struct data_type_of<in_expression<L, Operator, std::tuple<Args...>>>
+    : std::conditional<sqlpp::is_optional<data_type_of_t<L>>::value or
                            logic::any<sqlpp::is_optional<
-                               value_type_of_t<Args>>::value...>::value,
+                               data_type_of_t<Args>>::value...>::value,
                        std::optional<boolean>,
                        boolean> {};
 

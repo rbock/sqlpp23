@@ -30,11 +30,11 @@
 
 namespace {
 template <typename T>
-using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
+using is_bool = std::is_same<sqlpp::data_type_of_t<T>, sqlpp::boolean>;
 
 template <typename T>
 using is_maybe_bool =
-    std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::boolean>>;
+    std::is_same<sqlpp::data_type_of_t<T>, std::optional<sqlpp::boolean>>;
 }  // namespace
 
 template <typename Column, typename Value>
@@ -47,11 +47,11 @@ void test_assign_expression(const Column& col, const Value& v) {
 
   // Assignments have no value
   static_assert(
-      not sqlpp::has_value_type<decltype(col = sqlpp::default_value)>::value,
+      not sqlpp::has_data_type<decltype(col = sqlpp::default_value)>::value,
       "");
-  static_assert(not sqlpp::has_value_type<decltype(col = v_not_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(col = v_not_null)>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(col = v_maybe_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(col = v_maybe_null)>::value,
                 "");
 
   // Assignments have no name
@@ -101,13 +101,13 @@ void test_compound_assign_expression(const Column& col, const Value& v) {
   using OptValueType = decltype(v_maybe_null);
 
   // Assignments have no value
-  static_assert(not sqlpp::has_value_type<decltype(col += v_not_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(col += v_not_null)>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(col += v_maybe_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(col += v_maybe_null)>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(col -= v_not_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(col -= v_not_null)>::value,
                 "");
-  static_assert(not sqlpp::has_value_type<decltype(col -= v_maybe_null)>::value,
+  static_assert(not sqlpp::has_data_type<decltype(col -= v_maybe_null)>::value,
                 "");
 
   // Assignments have no name

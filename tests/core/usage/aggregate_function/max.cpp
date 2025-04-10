@@ -31,8 +31,6 @@
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
 
-SQLPP_CREATE_NAME_TAG(max_distinct);
-
 int main(int, char*[]) {
   try {
     const auto tab = test::TabFoo{};
@@ -49,10 +47,10 @@ int main(int, char*[]) {
     // select max
     for (const auto& row : db(select(
             max(tab.intN).as(sqlpp::alias::max_),
-            max(sqlpp::distinct, tab.intN).as(max_distinct)
+            max(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_max_)
             ).from(tab))) {
       std::ignore = row.max_;
-      std::ignore = row.max_distinct;
+      std::ignore = row.distinct_max_;
     }
 
   } catch (const std::exception& e) {
