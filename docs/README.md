@@ -41,8 +41,7 @@ The following pages will tell you how to use it:
   - [Functions](functions.md)
   - [Sub Selects](sub_select.md)
 - **Invoking Statements**
-  - [Direct Execution](direct_execution.md)
-  - [Prepared Statements](prepared_statement.md)
+  - [Statement execution](statement_execution.md)
   - [Transaction](transaction.md)
 - **Advanced Topics**
   - [Thread Safety](thread_safety.md)
