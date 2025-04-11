@@ -1,4 +1,4 @@
-# Copyright (c) 2013 - 2021, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -23,44 +23,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(create_test name)
-    set(target sqlpp23_mysql_usage_${name})
+    set(target sqlpp23_mysql_usage_statement_${name})
     add_executable(${target} ${name}.cpp)
     target_link_libraries(${target} PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing Threads::Threads)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-add_subdirectory(aggregate_function)
-add_subdirectory(statement)
-create_test(exists)
+create_test(string)
 
-set(test_files
-    Json.cpp
-    CustomQuery.cpp
-    DateTime.cpp
-    Sample.cpp
-    Select.cpp
-    Union.cpp
-    DynamicSelect.cpp
-    MoveConstructor.cpp
-    Prepared.cpp
-    Truncated.cpp
-    Update.cpp
-    DeleteFrom.cpp
-    Connection.cpp
-    ConnectionPool.cpp
-)
-
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp23_mysql_tests ${test_sources})
-target_link_libraries(sqlpp23_mysql_tests PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing)
-target_link_libraries(sqlpp23_mysql_tests PRIVATE Threads::Threads)
-if(NOT MSVC)
-    target_compile_options(sqlpp23_mysql_tests PRIVATE -Wall -Wextra -pedantic)
-endif()
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp23.mysql.usage.${test}
-        COMMAND sqlpp23_mysql_tests ${test}
-    )
-endforeach()

@@ -11,8 +11,8 @@ Using sqlpp23, SQL statements can be executed by calling `operator()` on a conne
 ## String execution
 
 ```c++
-// Do nothing at all
-const size_t affected_rows = db("NULL");
+// Select pretty much nothing
+const size_t affected_rows = db("SELECT NULL");
 ```
 
 Executing SQL statements in string form can be useful for statement types that are not supported by sqlpp23, like `CREATE TABLE`, for instance.

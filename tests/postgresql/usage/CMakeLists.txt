@@ -32,6 +32,7 @@ endfunction()
 
 create_test(exists)
 add_subdirectory(aggregate_function)
+add_subdirectory(statement)
 
 set(test_files
     Basic.cpp

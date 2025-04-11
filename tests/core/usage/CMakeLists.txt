@@ -52,4 +52,5 @@ foreach(test_file IN LISTS test_files)
 endforeach()
 
 add_subdirectory(aggregate_function)
+add_subdirectory(statement)
 

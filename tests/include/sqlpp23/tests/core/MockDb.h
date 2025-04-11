@@ -78,7 +78,7 @@ struct MockDb : public sqlpp::connection {
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
-  auto operator()(std::string_view) { return 0; }
+  auto operator()(std::string_view) { return size_t{}; }
 
   template <typename Statement>
   size_t _execute(const Statement& x) {
