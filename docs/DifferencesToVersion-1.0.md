@@ -1,25 +1,48 @@
-# New data types
+[**\< Index**](README.md)
 
-## optional
-Nullable values are represented as `std::optional` if you are using C++17 or later, `sqlpp::compat::optional` otherwise.
+# Differences between sqlpp11 and sqlpp23
 
-## string_view
-Text results are represented as `std::string_view` if you are using C++17 or later, `sqlpp::compat::string_view` otherwise.
+This is a (probably incomplete) list of differences as of April 2025.
 
-# span<uint8_t>
-Blob results are represented as `std::span<uint8_t>` if you are using C++20 or later, `sqlpp::compat::span<uint8_t>` otherwise.
+## Data types
 
-# Result values
-Result rows are represented as structs with the respective columns represented as data members. In version 1.0, these data members used to have a type that wrapped the actual data and provided conversion operators and functions to check for NULL.
+See [data types](data_types.md).
 
-Now data members have the correct data type, e.g. `int64_t` or `optional<string_view>`.
+### Result rows
+Result fields are represented as data members of their result rows. In sqlpp11, they are implemented using wrapper classes that offer functions to test `is_null` and a conversion operator to the underlying data type.
+
+In sqlpp23, result fields have the "correct" type, e.g. `int64_t` for integral values.
+
+### Nullable
+In sqlpp11, nullable values are represented as `sqlpp::value_or_null` in expressions (with`sqlpp::null` representing NULL) and somewhat obscure wrappers in result rows.
+
+In sqlpp23, nullable values are consistently represented as `std::optional`, with `std::nullopt` representing `NULL`.
+
+### text
+In sqlpp11, text results are represented as `std::string`.
+
+In sqlpp23, text results are represented as `std::string_view`.
+
+## blob
+In sqlpp11, blob results are represented as `std::vector<uint8_t>`.
+
+In sqlpp23, blob results are represented as `std::span<uint8_t>`.
+
+## Dynamic queries
+
+
+## Constraints
+
+## Operators
+
+## Dropped things
 
 # No read-only columns
 Version 1.0 had the concept of read-only columns, e.g. you could not modify a column with auto-increment values.
 
 This concept has been removed. In most cases, you will still not want to modify columns with auto-increment values, but you can do it now, if you want to.
 
-# IS DISCTINCT FROM
+# IS DISTINCT FROM
 Version 1.0 used to have `is_equal_to_or_null` which translated to either `=` or `IS NULL`. While useful, this did not work with parameters.
 
 The library now offers `is_distinct_from` and `is_not_distinct_from` which safely compares with actual values and `NULL`.
@@ -110,8 +133,6 @@ Magic is dangerous, e.g. when used in comparison.
 
 ## Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
 
-## unconditionally() has been replaced with where(true)
-
 ## dropped ppgn (cannot support it)
 
 ## Added truncate
@@ -121,3 +142,6 @@ sqlpp11 used to require where in select, update, delete_from. This is inconsiste
 
 ## allow count(sqlpp::star)
 Taken from sqlpp17
+
+[**\< Index**](README.md)
+
