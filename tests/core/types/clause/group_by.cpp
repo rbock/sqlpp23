@@ -50,11 +50,6 @@ void test_group_by() {
   using Id = decltype(id);
   using TextNnD = decltype(textNnD);
 
-  // Test that declared group by columns are considered group by columns
-  static_assert(
-      sqlpp::is_group_by_column<decltype(declare_group_by_column(v))>::value,
-      "");
-
   // Static columns are listed as such in known_aggregate_columns_of_t.
   {
     const auto g = group_by(id);
@@ -93,7 +88,7 @@ void test_group_by() {
 
   // Declared columns are listed similar to regular columns.
   {
-    const auto g = group_by(declare_group_by_column(v));
+    const auto g = group_by(v);
     using AC = decltype(known_aggregate_columns_of(g));
     using SAC = decltype(known_static_aggregate_columns_of(g));
 
@@ -101,7 +96,7 @@ void test_group_by() {
     static_assert(std::is_same<SAC, type_set<V>>::value, "");
   }
   {
-    const auto g = group_by(dynamic(true, declare_group_by_column(v)));
+    const auto g = group_by(dynamic(true, v));
     using AC = decltype(known_aggregate_columns_of(g));
     using SAC = decltype(known_static_aggregate_columns_of(g));
 

@@ -43,7 +43,6 @@
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/type_traits/aggregates.h>
 #include <sqlpp23/core/type_traits/ctes_of.h>
-#include <sqlpp23/core/type_traits/group_by_column.h>
 #include <sqlpp23/core/type_traits/nodes_of.h>
 #include <sqlpp23/core/type_traits/optional.h>
 #include <sqlpp23/core/type_traits/tables_of.h>

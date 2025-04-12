@@ -83,11 +83,6 @@ struct has_default<column_t<_Table, ColumnSpec>>
 template <typename _Table, typename ColumnSpec>
 struct is_column<column_t<_Table, ColumnSpec>> : public std::true_type {};
 
-// Can be used in group_by
-template <typename _Table, typename ColumnSpec>
-struct is_group_by_column<column_t<_Table, ColumnSpec>>
-    : public std::true_type {};
-
 template <typename _Table, typename ColumnSpec>
 struct name_tag_of<column_t<_Table, ColumnSpec>>
     : public name_tag_of<ColumnSpec> {};

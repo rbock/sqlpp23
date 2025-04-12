@@ -130,34 +130,34 @@ int main(int, char*[]) {
                                dynamic(false, foo.textNnD), foo.boolN),
                 "NULL AS id, NULL AS text_nn_d, tab_foo.bool_n");
 
-  // Single declared column
-  SQLPP_COMPARE(select_columns(declare_group_by_column(val).as(cheese)),
+  // Single value
+  SQLPP_COMPARE(select_columns(val.as(cheese)),
                 "17 AS cheese");
-  SQLPP_COMPARE(select_columns(declare_group_by_column(foo.id + 17).as(cake)),
+  SQLPP_COMPARE(select_columns((foo.id + 17).as(cake)),
                 "(tab_foo.id + 17) AS cake");
 
-  // Mixed declared column
-  SQLPP_COMPARE(select_columns(foo.id, declare_group_by_column(val).as(cheese)),
+  // Mixed column and value
+  SQLPP_COMPARE(select_columns(foo.id, val.as(cheese)),
                 "tab_foo.id, 17 AS cheese");
-  SQLPP_COMPARE(select_columns(declare_group_by_column(val).as(cake), foo.id),
+  SQLPP_COMPARE(select_columns(val.as(cake), foo.id),
                 "17 AS cake, tab_foo.id");
 
-  // Mixed dynamic declared column
+  // Mixed column and dynamic value
   SQLPP_COMPARE(
       select_columns(foo.id,
-                     dynamic(true, declare_group_by_column(val).as(cheese))),
+                     dynamic(true, val.as(cheese))),
       "tab_foo.id, 17 AS cheese");
   SQLPP_COMPARE(
-      select_columns(dynamic(true, declare_group_by_column(val).as(cake)),
+      select_columns(dynamic(true, val.as(cake)),
                      foo.id),
       "17 AS cake, tab_foo.id");
 
   SQLPP_COMPARE(
       select_columns(foo.id,
-                     dynamic(false, declare_group_by_column(val).as(cheese))),
+                     dynamic(false, val.as(cheese))),
       "tab_foo.id, NULL AS cheese");
   SQLPP_COMPARE(
-      select_columns(dynamic(false, declare_group_by_column(val).as(cake)),
+      select_columns(dynamic(false, val.as(cake)),
                      foo.id),
       "NULL AS cake, tab_foo.id");
 

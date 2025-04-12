@@ -29,7 +29,6 @@
 
 #include <sqlpp23/core/clause/expression_static_check.h>
 #include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/group_by_column.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
@@ -93,13 +92,13 @@ struct prepare_check<Statement, group_by_t<Expressions...>> {
 template <typename... Expressions>
 struct known_aggregate_columns_of<group_by_t<Expressions...>> {
   using type =
-      detail::type_set<raw_group_by_column_t<remove_dynamic_t<Expressions>>...>;
+      detail::type_set<remove_dynamic_t<Expressions>...>;
 };
 
 namespace detail {
 template <typename Column>
 struct make_static_aggregate_column_set {
-  using type = detail::type_set<raw_group_by_column_t<Column>>;
+  using type = detail::type_set<Column>;
 };
 template <typename Column>
 struct make_static_aggregate_column_set<dynamic_t<Column>> {
@@ -128,13 +127,8 @@ struct no_group_by_t {
     SQLPP_STATIC_ASSERT(sizeof...(Expressions),
                         "at least one column required in group_by()");
     SQLPP_STATIC_ASSERT(
-        logic::all<
-            is_group_by_column<remove_dynamic_t<Expressions>>::value...>::value,
-        "all arguments for group_by() must be columns or expressions wrapped "
-        "in declare_group_by_column()");
-    SQLPP_STATIC_ASSERT(
-        logic::none<contains_aggregate_function<raw_group_by_column_t<
-            remove_dynamic_t<Expressions>>>::value...>::value,
+        logic::none<contains_aggregate_function<
+            remove_dynamic_t<Expressions>>::value...>::value,
         "arguments for group_by() must not contain aggregate functions");
 
     return new_statement<no_group_by_t>(

@@ -61,15 +61,11 @@ int main() {
                             "at least one column required in group_by()");
 
   // group_by(<arguments with no value>) cannot be called.
-  static_assert(can_call_group_by_with<decltype(bar.boolNn)>,
-                "OK, argument a column");
-  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>,
-                "OK, argument a column");
-  static_assert(can_call_group_by_with<decltype(sqlpp::declare_group_by_column(
-                    bar.id + 7))>,
-                "OK, declared group by column");
-  static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>,
-                "OK, but will fail later: 7 has a value, but is not a column");
+  static_assert(can_call_group_by_with<decltype(bar.boolNn)>);
+  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>);
+  static_assert(can_call_group_by_with<decltype(bar.id + 7)>);
+  static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>);
+
   static_assert(
       cannot_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>,
       "not value: assignment");
@@ -77,31 +73,10 @@ int main() {
       cannot_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,
       "not value: tuple");
 
-  // group_by(<at least one non-group-by column>) is inconsistent and cannot be
-  // constructed.
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(sqlpp::value(7)),
-                            "all arguments for group_by() must be columns or "
-                            "expressions wrapped in declare_group_by_column()");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(bar.id, max(foo.id)),
-                            "all arguments for group_by() must be columns or "
-                            "expressions wrapped in declare_group_by_column()");
-
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(dynamic(maybe, sqlpp::value(7))),
-                            "all arguments for group_by() must be columns or "
-                            "expressions wrapped in declare_group_by_column()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::group_by(bar.id, dynamic(maybe, max(foo.id))),
-      "all arguments for group_by() must be columns or expressions wrapped in "
-      "declare_group_by_column()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::group_by(dynamic(maybe, bar.id), max(foo.id)),
-      "all arguments for group_by() must be columns or expressions wrapped in "
-      "declare_group_by_column()");
-
   // group_by(<containing aggregate functions>) is inconsistent and cannot be
   // constructed.
   SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::group_by(declare_group_by_column(max(foo.id))),
+      sqlpp::group_by(max(foo.id)),
       "arguments for group_by() must not contain aggregate functions");
 
   // group_by is not required

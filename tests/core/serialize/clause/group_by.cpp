@@ -76,26 +76,26 @@ int main(int, char*[]) {
                 "");
 
   // Single declared column
-  SQLPP_COMPARE(group_by(declare_group_by_column(val)), " GROUP BY 17");
+  SQLPP_COMPARE(group_by(val), " GROUP BY 17");
   // Note that the parentheses are superflous but also don't hurt.
-  SQLPP_COMPARE(group_by(declare_group_by_column(foo.id + 17)),
+  SQLPP_COMPARE(group_by(foo.id + 17),
                 " GROUP BY (tab_foo.id + 17)");
 
   // Mixed declared column
-  SQLPP_COMPARE(group_by(foo.id, declare_group_by_column(val)),
+  SQLPP_COMPARE(group_by(foo.id, val),
                 " GROUP BY tab_foo.id, 17");
-  SQLPP_COMPARE(group_by(declare_group_by_column(val), foo.id),
+  SQLPP_COMPARE(group_by(val, foo.id),
                 " GROUP BY 17, tab_foo.id");
 
   // Mixed dynamic declared column
-  SQLPP_COMPARE(group_by(foo.id, dynamic(true, declare_group_by_column(val))),
+  SQLPP_COMPARE(group_by(foo.id, dynamic(true, val)),
                 " GROUP BY tab_foo.id, 17");
-  SQLPP_COMPARE(group_by(dynamic(true, declare_group_by_column(val)), foo.id),
+  SQLPP_COMPARE(group_by(dynamic(true, val), foo.id),
                 " GROUP BY 17, tab_foo.id");
 
-  SQLPP_COMPARE(group_by(foo.id, dynamic(false, declare_group_by_column(val))),
+  SQLPP_COMPARE(group_by(foo.id, dynamic(false, val)),
                 " GROUP BY tab_foo.id");
-  SQLPP_COMPARE(group_by(dynamic(false, declare_group_by_column(val)), foo.id),
+  SQLPP_COMPARE(group_by(dynamic(false, val), foo.id),
                 " GROUP BY tab_foo.id");
 
   return 0;

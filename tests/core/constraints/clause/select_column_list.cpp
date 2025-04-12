@@ -245,6 +245,39 @@ int main() {
         "");
   }
 
+  // Non-column group by
+  {
+    const auto c = foo.id + foo.intN;
+    auto s = select(c.as(something))
+                 .from(foo)
+                 .group_by(c);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
+                               sqlpp::consistent_t>::value,
+                  "");
+  }
+  {
+    const auto c = foo.id + foo.intN;
+    auto s = select((foo.doubleN + c).as(something))
+                 .from(foo)
+                 .group_by(foo.doubleN, c);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
+                               sqlpp::consistent_t>::value,
+                  "");
+  }
+  {
+    const auto c = foo.id + foo.intN;
+    auto s = select((foo.id + c).as(something))
+                 .from(foo)
+                 .group_by(foo.doubleN, c);
+    using S = decltype(s);
+    static_assert(
+        std::is_same<
+            sqlpp::statement_consistency_check_t<S>,
+            sqlpp::assert_select_columns_with_group_by_are_aggregates_t>::value,
+        "");
+  }
   // ----------------------------
   // ------- Join  --------------
   // ----------------------------

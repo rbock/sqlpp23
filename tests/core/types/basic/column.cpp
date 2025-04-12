@@ -41,7 +41,6 @@ void test_column() {
 
     static_assert(not sqlpp::is_table<Id>::value, "");
     static_assert(sqlpp::has_default<Id>::value, "");
-    static_assert(sqlpp::is_group_by_column<Id>::value, "");
 
     // Columns are aggregates when in group by, otherwise they are
     // non-aggregates. But they are never neutral.
@@ -74,7 +73,6 @@ void test_column() {
     // It does require its table, though.
     static_assert(not sqlpp::is_table<Cheese>::value, "");
     static_assert(not sqlpp::has_default<Cheese>::value, "");
-    static_assert(not sqlpp::is_group_by_column<Cheese>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<Cheese>,
                                cheese_t::_sqlpp_name_tag>::value,
@@ -102,7 +100,6 @@ void test_column() {
     // (tab_foo AS bar).id
     static_assert(not sqlpp::is_table<BarId>::value, "");
     static_assert(sqlpp::has_default<BarId>::value, "");
-    static_assert(sqlpp::is_group_by_column<BarId>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BarId>,
                                test::TabFoo_::Id::_sqlpp_name_tag>::value,
@@ -133,7 +130,6 @@ void test_column() {
     // (tab_foo as bar).id.as(cheese)
     static_assert(not sqlpp::is_table<BarCheese>::value, "");
     static_assert(not sqlpp::has_default<BarCheese>::value, "");
-    static_assert(not sqlpp::is_group_by_column<BarCheese>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BarCheese>,
                                cheese_t::_sqlpp_name_tag>::value,
@@ -170,7 +166,6 @@ void test_column() {
 
     static_assert(not sqlpp::is_table<TextN>::value, "");
     static_assert(sqlpp::has_default<TextN>::value, "");
-    static_assert(sqlpp::is_group_by_column<TextN>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<TextN>,
                                test::TabBar_::TextN::_sqlpp_name_tag>::value,
@@ -204,7 +199,6 @@ void test_column() {
 
     static_assert(not sqlpp::is_table<BoolNn>::value, "");
     static_assert(not sqlpp::has_default<BoolNn>::value, "");
-    static_assert(sqlpp::is_group_by_column<BoolNn>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BoolNn>,
                                test::TabBar_::BoolNn::_sqlpp_name_tag>::value,
