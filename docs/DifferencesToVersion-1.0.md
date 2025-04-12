@@ -6,49 +6,46 @@ This is a (probably incomplete) list of differences as of April 2025.
 
 ## Data types
 
-See [data types](data_types.md).
-
-### Result rows
-Result fields are represented as data members of their result rows. In sqlpp11, they are implemented using wrapper classes that offer functions to test `is_null` and a conversion operator to the underlying data type.
-
-In sqlpp23, result fields have the "correct" type, e.g. `int64_t` for integral values.
-
-### Nullable
-In sqlpp11, nullable values are represented as `sqlpp::value_or_null` in expressions (with`sqlpp::null` representing NULL) and somewhat obscure wrappers in result rows.
-
-In sqlpp23, nullable values are consistently represented as `std::optional`, with `std::nullopt` representing `NULL`.
-
-### text
-In sqlpp11, text results are represented as `std::string`.
-
-In sqlpp23, text results are represented as `std::string_view`.
-
-## blob
-In sqlpp11, blob results are represented as `std::vector<uint8_t>`.
-
-In sqlpp23, blob results are represented as `std::span<uint8_t>`.
-
-## Dynamic queries
-
-
-## Constraints
-
-## Operators
-
-## Dropped things
-
-# No read-only columns
-Version 1.0 had the concept of read-only columns, e.g. you could not modify a column with auto-increment values.
-
-This concept has been removed. In most cases, you will still not want to modify columns with auto-increment values, but you can do it now, if you want to.
-
-# IS DISTINCT FROM
-Version 1.0 used to have `is_equal_to_or_null` which translated to either `=` or `IS NULL`. While useful, this did not work with parameters.
-
-The library now offers `is_distinct_from` and `is_not_distinct_from` which safely compares with actual values and `NULL`.
-
-# Selecting aggregate functions
-The automatic name for selected aggregate functions drops the `_`.
+| % | sqlpp11 | sqlpp23 |
+| :------------- | :------------- | :----- |
+| **Data types** | | |
+| nullable values | `sqlpp::value_or_null` | `std::optional` |
+| `NULL` | `sqlpp::null` | `std::nullopt` |
+| `TEXT` result fields | `std::string` | `std::string_view` |
+| `BLOB` result fields | `std::vector<uint8_t>` | `std::span<uint8_t>` |
+| | | |
+| **Dynamic queries** | | |
+| statements | separate calls to add dynamic parts with very few compile time checks | directly embedded in statement using `dynamic()` with many compile time checks |
+| `where` conditions | dynamic `and` supported without nesting | dynamic `and` and `or` supported at any nesting level |
+| result fields | dynamic result fields in `std::map<std::string, std::string>` | correctly typed and named data members of result rows |
+| | | |
+| **Constraints** | | |
+| read-only columns  | e.g. for auto-increment | *dropped* |
+| required `where`  | in `select`, `update`, `remove` | *dropped* |
+| `unconditionally()`  | to explicitly omit `where` or `on` condition in joins | *dropped* |
+| | | |
+| **Clauses** | | |
+| `DELETE FROM`  | `remove_from` | `delete_from` |
+| `LIMIT` & `OFFSET`  | require unsigned argument | any integer argument |
+| `TRUNCATE`  | N/A | `truncate` |
+| custom queries  | `sqlpp::custom_query` | clauses can be concatenated using `operator<<` |
+| | | |
+| **Functions** | | |
+| `COUNT(*)` | N/A | `count(sqlpp::star)` |
+| `SOME` | `some` | *dropped* (use `any`) |
+| aggregate functions | auto-named in `select` | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
+| | | |
+| **Operators** | | |
+| Unary `operator+()` | present | *dropped* |
+| comparison with value or `NULL` | `is_equal_to_or_null` (does not work with parameters) | `is_distinct_from` and `is_not_distinct_from` |
+| | | |
+| **Sub queries** | | |
+| `select(...).as(...)` | Could be table or value (depending on the context) | Always a table unless wrapped by `value()` |
+| | | |
+| **Misc** | | |
+| `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB` |
+| `value_list` | required for operator `in()` | *dropped* |
+| `ppgen` | pre-processor code generation for tables | *dropped* |
 
 # Aggregates and non-aggregates
 They must not be mixed in a select.
@@ -60,88 +57,22 @@ They must not be mixed in a select.
 
 If group_by is specified in the select, then all columns have to be aggregate expressions.
 
-# Join
-unconditional joins are cross joins. The "unconditional" function is dropped.
-Added join tables (other than the left-most) can be dynamic.
-
-# Dynamic queries
-We don't always have a completely fixed structure for our queries. For instance, there might columns that we only want to select under certain circumstances. In version 1.0, this was handled by dynamic queries. Now we introduce conditional query parts that may or may not be used at runtime:
-
-## Select optional columns
-select(tab.id, dynamic(condition, tab.bigData)).from(tab).where(tab.id == 17);
-
-If `condition == true` then `bigData` will be selected, otherwise `NULL` will be selected.
-
-## Join optional table
-select(tabA.id).from(tabA.cross_join(dynamic(condition, tabB))).where(tab.id == 17);
-
-If `condition == true` then the cross join will be part of the query, otherwise not. Obviously, that means that you need to make sure that query parts that rely on `tabB` in this example also depend on the same condition.
-
-## Optional AND operand
-select(tab.id).from(tab).where(tab.id == 17 and dynamic(condition, tab.desert != "cheesecake"));
-
-If `condition == true`, then the dynamic part will evaluate to `tab.desert != "cheesecake")`. Otherwise it will be treated as `true` (and the AND expression will be collapsed).
-
-## Optional OR operand
-select(tab.id).from(tab).where(tab.id == 17 or dynamic(condition, tab.desert != "cheesecake"));
-
-If `condition == true`, then the dynamic part will evaluate to `tab.desert != "cheesecake")`. Otherwise it will be treated as `false` (and the OR expression will be collapsed).
-
 ## CTE
 cte.join is now allowed.
 
-## DELETE FROM
-This used to be called `remove_from` in 1.0, it has been renamed to `delete_from` to be closer to SQL.
-
-## Dropped features
-Unary operator+()
-
-## Limit and offset
-These accept integral values (not just unsigned integral)
-
-## select_as
+## Need to document: select_as
 select_ref_t is not fully type safe (but should offer reasonable protection).
 The reason for this is to reduce the sheer size of the serialized type, e.g. in error messages.
 
-## cte_ref and friends
+## Need to document: cte_ref and friends
 Not new, but also not documented before: Need to document that you need to be a bit careful with aliased CTEs as we use cte_ref in columns, from, and join.
-
-## Dropped `eval`
-eval(db, expr) was a wrapper returning `db(select(expr.as(a))).front().a`. With text and blob now being references, eval could now return dangling references.\
-It seems much clearer for folks to just call db(select(something)) themselves...
-
-## Dropped value_list
-Now you can just do `tab.id.in(std::vector<int>{1, 2, 3, 4})`
-
-## Dropped `some`
-`some` is the same as `any`. Just use `any`.
 
 ## Introduced declare_group_by_column
 
-## Dynamic columns in group by are considered known aggregate columns
-This is just too unnerving (consider `select((5 + tab.id).as(something))....group_by(dynamic(cond, tab.id))`, or combinations with dynamic in the select column).
-
-## Custom query is now expressed with statement_t::operator<<
-This also means that custom queries now use the LAST return-value-clause (just like any other statement)
-
-## statement_t.as() yields a table, not a value
-
-## sqlite3: No magic conversion of uint64_t to int64_t during serialization.
-Magic is dangerous, e.g. when used in comparison.
-
-## order_by/group_by will be omitted if all args are dynamically dropped
-
-## Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
+## Need to document?
+Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
 
 ## dropped ppgn (cannot support it)
-
-## Added truncate
-
-## dropped explicit requirement for where
-sqlpp11 used to require where in select, update, delete_from. This is inconsistent with the goal of the library: Prevent incorrect statements. However, while a missing `WHERE` might be an algorithmic mistake, it does not make the statement incorrect.
-
-## allow count(sqlpp::star)
-Taken from sqlpp17
 
 [**\< Index**](README.md)
 
