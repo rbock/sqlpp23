@@ -46,3 +46,6 @@ The following pages will tell you how to use it:
 - **Advanced Topics**
   - [Thread Safety](thread_safety.md)
   - [Connection Pool](connection_pool.md)
+
+If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be
+interested in the [differences](differences-to-sqlpp11.md).
