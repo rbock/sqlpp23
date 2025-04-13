@@ -45,6 +45,7 @@ This is a (probably incomplete) list of differences as of April 2025.
 | `value_list` | required for operator `in()` | *dropped* |
 | `ppgen` | pre-processor code generation for tables | *dropped* |
 | sqlite2cpp.py | ddl2cpp variant for sqlite3 | *dropped* |
+| dynamic loading | ability to load connector library dynamically | *dropped* (was unmaintained) |
 
 [**\< Index**](README.md)
 

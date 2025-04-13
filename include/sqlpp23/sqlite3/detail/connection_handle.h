@@ -36,16 +36,8 @@
 #include <sqlite3.h>
 #endif
 
-#ifdef SQLPP_DYNAMIC_LOADING
-#include <sqlpp23/sqlite3/dynamic_libsqlite3.h>
-#endif
-
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
-
-#ifdef SQLPP_DYNAMIC_LOADING
-using namespace dynamic;
-#endif
 
 namespace sqlpp::sqlite3::detail {
 struct connection_handle {
@@ -54,9 +46,6 @@ struct connection_handle {
 
   connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, sqlite{nullptr, sqlite3_close} {
-#ifdef SQLPP_DYNAMIC_LOADING
-    init_sqlite("");
-#endif
 
     ::sqlite3* sqlite_ptr;
     const auto rc = sqlite3_open_v2(

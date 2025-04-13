@@ -50,19 +50,12 @@
 #include <sqlpp23/sqlite3/prepared_statement.h>
 #include <sqlpp23/sqlite3/to_sql_string.h>
 
-#ifdef SQLPP_DYNAMIC_LOADING
-#include <sqlpp23/sqlite3/dynamic_libsqlite3.h>
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif
 
 namespace sqlpp::sqlite3 {
-#ifdef SQLPP_DYNAMIC_LOADING
-using namespace dynamic;
-#endif
 
 namespace detail {
 inline detail::prepared_statement_handle_t prepare_statement(

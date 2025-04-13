@@ -38,13 +38,6 @@
 
 #include <sqlpp23/postgresql/database/connection_handle.h>
 
-#ifdef SQLPP_DYNAMIC_LOADING
-#include <sqlpp23/postgresql/dynamic_libpq.h>
-#endif
-
-#ifdef SQLPP_DYNAMIC_LOADING
-using namespace dynamic;
-#endif
 namespace sqlpp::postgresql::detail {
 struct DLL_PUBLIC statement_handle_t {
   connection_handle& connection;

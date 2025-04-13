@@ -46,17 +46,10 @@
 #include <sqlpp23/postgresql/result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
 
-#ifdef SQLPP_DYNAMIC_LOADING
-#include <sqlpp23/postgresql/dynamic_libpq.h>
-#endif
-
 struct pg_conn;
 typedef struct pg_conn PGconn;
 
 namespace sqlpp::postgresql {
-#ifdef SQLPP_DYNAMIC_LOADING
-using namespace dynamic;
-#endif
 
 namespace detail {
 inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(

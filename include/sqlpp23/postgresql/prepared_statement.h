@@ -37,10 +37,6 @@
 #include <string>
 
 namespace sqlpp::postgresql {
-#ifdef SQLPP_DYNAMIC_LOADING
-using namespace dynamic;
-#endif
-
 // Forward declaration
 class connection_base;
 

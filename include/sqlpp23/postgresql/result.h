@@ -29,7 +29,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 #include <libpq-fe.h>
@@ -38,15 +37,7 @@
 #include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/visibility.h>
 
-#ifdef SQLPP_DYNAMIC_LOADING
-#include <sqlpp23/postgresql/dynamic_libpq.h>
-#endif
-
 namespace sqlpp::postgresql {
-#ifdef SQLPP_DYNAMIC_LOADING
-using namespace dynamic;
-#endif
-
 class DLL_PUBLIC Result {
  public:
   Result() : m_result(nullptr) {}
