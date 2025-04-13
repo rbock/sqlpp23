@@ -41,9 +41,10 @@ This is a (probably incomplete) list of differences as of April 2025.
 | `select(...).as(...)` | Could be table or value (depending on the context) | Always a table unless wrapped by `value()` |
 | | | |
 | **Misc** | | |
-| `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB` |
+| `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
 | `value_list` | required for operator `in()` | *dropped* |
 | `ppgen` | pre-processor code generation for tables | *dropped* |
+| sqlite2cpp.py | ddl2cpp variant for sqlite3 | *dropped* |
 
 [**\< Index**](README.md)
 
