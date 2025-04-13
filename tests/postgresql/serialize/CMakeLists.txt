@@ -29,9 +29,6 @@ set(test_files
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp23_postgresql_serialize_tests ${test_sources})
 target_link_libraries(sqlpp23_postgresql_serialize_tests PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
-if(NOT MSVC)
-    target_compile_options(sqlpp23_postgresql_serialize_tests PRIVATE -Wall -Wextra -pedantic)
-endif()
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
