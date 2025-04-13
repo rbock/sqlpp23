@@ -30,9 +30,9 @@
 
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
-#include "sqlpp23/tests/core/result_helpers.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace sql = sqlpp::mysql;
 int Sample(int, char*[]) {
@@ -40,12 +40,12 @@ int Sample(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
 
-    test::createTabSample(db);
+    test::createTabBar(db);
     test::createTabFoo(db);
 
     assert(not db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a);
 
-    const auto tab = test::TabSample{};
+    const auto tab = test::TabBar{};
     // clear the table
     db(delete_from(tab));
 
@@ -68,7 +68,7 @@ int Sample(int, char*[]) {
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
       std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN
-                << ", row.boolN: " << row.boolN << std::endl;
+                << ", row.boolNn: " << row.boolNn << std::endl;
     };
     // insert
     db(insert_into(tab).default_values());
@@ -77,19 +77,19 @@ int Sample(int, char*[]) {
     for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab)))) {
       std::cerr << "intN: " << row.intN << std::endl;
       std::cerr << "textN: " << row.textN << std::endl;
-      std::cerr << "boolN: " << row.boolN << std::endl;
+      std::cerr << "boolNn: " << row.boolNn << std::endl;
     }
-    db(insert_into(tab).set(tab.textN = "kaesekuchen", tab.boolN = true));
+    db(insert_into(tab).set(tab.textN = "kaesekuchen", tab.boolNn = true));
     db(insert_into(tab).set(tab.textN = "kaesekuchen",
-                            dynamic(true, tab.boolN = true)));
+                            dynamic(true, tab.boolNn = true)));
     db(insert_into(tab).default_values());
-    db(insert_into(tab).set(tab.textN = "", tab.boolN = true));
+    db(insert_into(tab).set(tab.textN = "", tab.boolNn = true));
 
     // update
     db(update(tab)
-           .set(tab.boolN = false)
+           .set(tab.boolNn = false)
            .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
-    db(update(tab).set(tab.boolN = true).where(tab.intN.in(1)));
+    db(update(tab).set(tab.boolNn = true).where(tab.intN.in(1)));
 
     // remove
     {
@@ -141,22 +141,22 @@ int Sample(int, char*[]) {
                              .from(tab)
                              .where(tab.intN != parameter(tab.intN) and
                                     tab.textN != parameter(tab.textN) and
-                                    tab.boolN != parameter(tab.boolN)));
+                                    tab.boolNn != parameter(tab.boolNn)));
     ps.params.intN = 7;
     ps.params.textN = "wurzelbrunft";
-    ps.params.boolN = true;
+    ps.params.boolNn = true;
     for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
-      std::cerr << "bound result: boolN: " << row.boolN << std::endl;
+      std::cerr << "bound result: boolNn: " << row.boolNn << std::endl;
     }
 
     std::cerr << "--------" << std::endl;
-    ps.params.boolN = false;
+    ps.params.boolNn = false;
     for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
-      std::cerr << "bound result: boolN: " << row.boolN << std::endl;
+      std::cerr << "bound result: boolNn: " << row.boolNn << std::endl;
     }
 
     std::cerr << "--------" << std::endl;
@@ -164,18 +164,18 @@ int Sample(int, char*[]) {
     for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
-      std::cerr << "bound result: boolN: " << row.boolN << std::endl;
+      std::cerr << "bound result: boolNn: " << row.boolNn << std::endl;
     }
 
     auto pi = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN),
-                                              tab.boolN = true));
+                                              tab.boolNn = true));
     pi.params.textN = "prepared cake";
     std::cerr << "Inserted: " << db(pi) << std::endl;
 
     auto pu = db.prepare(update(tab)
-                             .set(tab.boolN = parameter(tab.boolN))
+                             .set(tab.boolNn = parameter(tab.boolNn))
                              .where(tab.textN == "prepared cake"));
-    pu.params.boolN = false;
+    pu.params.boolNn = false;
     std::cerr << "Updated: " << db(pu) << std::endl;
 
     auto pr =
@@ -184,7 +184,7 @@ int Sample(int, char*[]) {
     std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
     for (const auto& row :
-         db(select(case_when(tab.boolN).then(tab.intN).else_(foo.intN).as(
+         db(select(case_when(tab.boolNn).then(tab.intN).else_(foo.intN).as(
                        tab.intN))
                 .from(tab.cross_join(foo)))) {
       std::cerr << row.intN << std::endl;

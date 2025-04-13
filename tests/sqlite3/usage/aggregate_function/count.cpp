@@ -29,7 +29,7 @@
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "../Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 SQLPP_CREATE_NAME_TAG(count_1);
 SQLPP_CREATE_NAME_TAG(count_star);
@@ -49,22 +49,22 @@ auto require_close(int line, double l, double r) -> void
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabSample{};
+    const auto tab = test::TabFoo{};
     auto db = sql::make_test_connection();
 
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.alpha = 7));
-    db(insert_into(tab).set(tab.alpha = 7));
-    db(insert_into(tab).set(tab.alpha = 9));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
 
     // select count
     for (const auto& row : db(select(
-            count(tab.alpha).as(sqlpp::alias::count_),
+            count(tab.intN).as(sqlpp::alias::count_),
             sqlpp::count(1).as(count_1),
             count(sqlpp::star).as(count_star)
             ).from(tab))) {
@@ -75,7 +75,7 @@ int main(int, char*[]) {
 
     // select distinct count
     for (const auto& row : db(select(
-            count(sqlpp::distinct, tab.alpha).as(sqlpp::alias::distinct_count_),
+            count(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_count_),
             count(sqlpp::distinct, 1).as(count_1)
             ).from(tab))) {
       assert(row.distinct_count_ == 2);

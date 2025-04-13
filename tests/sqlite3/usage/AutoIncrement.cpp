@@ -30,7 +30,7 @@
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -41,9 +41,9 @@
 namespace sql = sqlpp::sqlite3;
 int AutoIncrement(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  test::createTabFoo(db);
 
-  const auto tab = test::TabSample{};
+  const auto tab = test::TabFoo{};
   db(insert_into(tab).default_values());
   db(insert_into(tab).default_values());
   db(insert_into(tab).default_values());

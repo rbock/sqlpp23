@@ -31,7 +31,8 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
+
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -40,7 +41,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-const auto intSample = test::IntegralSample{};
+const auto foo = test::TabFoo{};
 
 template <typename L, typename R>
 auto require_equal(int line, const L& l, const R& r) -> void {
@@ -55,7 +56,7 @@ auto require_equal(int line, const L& l, const R& r) -> void {
 
 int Integral(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createIntegralSample(db);
+  test::createTabFoo(db);
 
   // The connector supports uint64_t values and will always retrieve the correct
   // value from the database. Sqlite3 stores the values as int64_t internally
@@ -75,45 +76,45 @@ int Integral(int, char*[]) {
   uint32_t uint32_t_value = std::numeric_limits<uint32_t>::max();
   int32_t int32_t_value = std::numeric_limits<int32_t>::max();
 
-  db(insert_into(intSample).set(
-      intSample.signedValue = int64_t_value_max,
-      intSample.unsignedValue = uint64_t_value_supported));
+  db(insert_into(foo).set(
+      foo.intN = int64_t_value_max,
+      foo.uIntN = uint64_t_value_supported));
 
-  auto prepared_insert = db.prepare(insert_into(intSample).set(
-      intSample.signedValue = parameter(intSample.signedValue),
-      intSample.unsignedValue = parameter(intSample.unsignedValue)));
-  prepared_insert.params.signedValue = int64_t_value_min;
-  prepared_insert.params.unsignedValue = uint64_t_value_unsupported;
+  auto prepared_insert = db.prepare(insert_into(foo).set(
+      foo.intN = parameter(foo.intN),
+      foo.uIntN = parameter(foo.uIntN)));
+  prepared_insert.params.intN = int64_t_value_min;
+  prepared_insert.params.uIntN = uint64_t_value_unsupported;
   db(prepared_insert);
 
-  db(insert_into(intSample).set(intSample.signedValue = size_t_value_min,
-                                intSample.unsignedValue = size_t_value_max));
-  db(insert_into(intSample).set(intSample.signedValue = int32_t_value,
-                                intSample.unsignedValue = uint32_t_value));
+  db(insert_into(foo).set(foo.intN = size_t_value_min,
+                                foo.uIntN = size_t_value_max));
+  db(insert_into(foo).set(foo.intN = int32_t_value,
+                                foo.uIntN = uint32_t_value));
 
   auto q =
-      select(intSample.signedValue, intSample.unsignedValue).from(intSample);
+      select(foo.intN, foo.uIntN).from(foo);
 
   auto rows = db(q);
 
-  require_equal(__LINE__, rows.front().signedValue.value(), int64_t_value_max);
-  require_equal(__LINE__, rows.front().unsignedValue.value(),
+  require_equal(__LINE__, rows.front().intN.value(), int64_t_value_max);
+  require_equal(__LINE__, rows.front().uIntN.value(),
                 uint64_t_value_supported);
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().signedValue.value(), int64_t_value_min);
-  require_equal(__LINE__, rows.front().unsignedValue.value(),
+  require_equal(__LINE__, rows.front().intN.value(), int64_t_value_min);
+  require_equal(__LINE__, rows.front().uIntN.value(),
                 uint64_t_value_unsupported);
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().signedValue.value(), int64_t{});
+  require_equal(__LINE__, rows.front().intN.value(), int64_t{});
   // the uint64_t_value_max gets truncated to int64_t_value_max
-  require_equal(__LINE__, rows.front().unsignedValue.value(),
+  require_equal(__LINE__, rows.front().uIntN.value(),
                 static_cast<uint64_t>(int64_t_value_max));
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().signedValue.value(), int32_t_value);
-  require_equal(__LINE__, rows.front().unsignedValue.value(), uint32_t_value);
+  require_equal(__LINE__, rows.front().intN.value(), int32_t_value);
+  require_equal(__LINE__, rows.front().uIntN.value(), uint32_t_value);
   rows.pop_front();
 
   return 0;

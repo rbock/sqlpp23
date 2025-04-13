@@ -30,29 +30,29 @@
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
-#include "sqlpp23/tests/core/result_helpers.h"
+#include <sqlpp23/tests/mysql/tables.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 
 const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 int Truncated(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
-    db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheese"));
-    db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheesecake"));
+    db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheese"));
+    db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
 
     {
       for (const auto& row :
            db(db.prepare(sqlpp::select(all_of(tab)).from(tab)))) {
         std::cerr << ">>> row.intN: " << row.intN
-                  << ", row.textN: " << row.textN
+                  << ", row.textNnD: " << row.textNnD
                   << ", row.boolN: " << row.boolN << std::endl;
       }
     }
@@ -62,9 +62,9 @@ int Truncated(int, char*[]) {
           sqlpp::select(all_of(tab)).from(tab).where(tab.id == 1).limit(1u)));
       auto& row = result.front();
 
-      std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN
+      std::cerr << ">>> row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
                 << ", row.boolN: " << row.boolN << std::endl;
-      assert(row.textN == "cheese");
+      assert(row.textNnD == "cheese");
     }
 
     {
@@ -72,9 +72,9 @@ int Truncated(int, char*[]) {
           sqlpp::select(all_of(tab)).from(tab).where(tab.id == 2).limit(1u)));
       auto& row = result.front();
 
-      std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN
+      std::cerr << ">>> row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
                 << ", row.boolN: " << row.boolN << std::endl;
-      assert(row.textN == "cheesecake");
+      assert(row.textNnD == "cheesecake");
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

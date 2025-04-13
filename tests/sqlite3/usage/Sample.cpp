@@ -31,7 +31,7 @@
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -55,87 +55,87 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
 namespace sql = sqlpp::sqlite3;
 int Sample(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
   test::createTabFoo(db);
+  test::createTabBar(db);
 
-  const auto tab = test::TabSample{};
+  const auto tab = test::TabFoo{};
 
   // clear the table
   db(delete_from(tab));
 
   // explicit all_of(tab)
   for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta
-              << ", row.gamma: " << row.gamma << std::endl;
+    std::cerr << "row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
+              << ", row.boolN: " << row.boolN << std::endl;
   };
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   // selecting a table implicitly expands to all_of(tab)
   for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta
-              << ", row.gamma: " << row.gamma << std::endl;
+    std::cerr << "row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
+              << ", row.boolN: " << row.boolN << std::endl;
   };
   // insert
   std::cerr << "no of required columns: "
-            << sqlpp::required_insert_columns_of_t<test::TabSample>::size()
+            << sqlpp::required_insert_columns_of_t<test::TabFoo>::size()
             << std::endl;
   db(insert_into(tab).default_values());
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
-  db(insert_into(tab).set(tab.gamma = true, dynamic(true, tab.alpha = 7)));
-  db(insert_into(tab).set(tab.gamma = true, dynamic(false, tab.alpha = 7)));
+  db(insert_into(tab).set(tab.boolN = true, dynamic(true, tab.intN = 7)));
+  db(insert_into(tab).set(tab.boolN = true, dynamic(false, tab.intN = 7)));
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
 
   // update
-  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
+  db(update(tab).set(tab.boolN = false).where(tab.intN.in(1)));
   db(update(tab)
-         .set(tab.gamma = false)
-         .where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
+         .set(tab.boolN = false)
+         .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
 
   // delete
-  db(delete_from(tab).where(tab.alpha == tab.alpha + 3));
+  db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
   auto result = db(select(all_of(tab)).from(tab));
   std::cerr
       << "Accessing a field directly from the result (using the current row): "
-      << result.begin()->alpha << std::endl;
-  std::cerr << "Can do that again, no problem: " << result.begin()->alpha
+      << result.begin()->intN << std::endl;
+  std::cerr << "Can do that again, no problem: " << result.begin()->intN
             << std::endl;
 
   auto tx = start_transaction(db);
-  test::TabFoo foo;
+  test::TabBar bar;
   for (const auto& row :
-       db(select(all_of(tab), value(select(max(foo.omega).as(something))
-                                        .from(foo)
-                                        .where(foo.omega > tab.alpha))
+       db(select(all_of(tab), value(select(max(bar.intN).as(something))
+                                        .from(bar)
+                                        .where(bar.intN > tab.intN))
                                   .as(something))
               .from(tab))) {
-    std::optional<int64_t> x = row.alpha;
+    std::optional<int64_t> x = row.intN;
     std::optional<int64_t> a = row.something;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();
 
   for (const auto& row :
-       db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)))) {
-    std::cerr << row.alpha << std::endl;
+       db(select(tab.intN).from(tab.join(bar).on(tab.intN == bar.intN)))) {
+    std::cerr << row.intN << std::endl;
   }
 
-  for (const auto& row : db(select(tab.alpha).from(
-           tab.left_outer_join(foo).on(tab.alpha == foo.omega)))) {
-    std::cerr << row.alpha << std::endl;
+  for (const auto& row : db(select(tab.intN).from(
+           tab.left_outer_join(bar).on(tab.intN == bar.intN)))) {
+    std::cerr << row.intN << std::endl;
   }
 
   auto ps = db.prepare(select(all_of(tab))
                            .from(tab)
-                           .where(tab.alpha != parameter(tab.alpha) and
-                                  tab.beta != parameter(tab.beta) and
-                                  tab.gamma != parameter(tab.gamma)));
-  ps.params.alpha = 7;
-  ps.params.beta = "wurzelbrunft";
-  ps.params.gamma = true;
+                           .where(tab.intN != parameter(tab.intN) and
+                                  tab.textNnD != parameter(tab.textNnD) and
+                                  tab.boolN != parameter(tab.boolN)));
+  ps.params.intN = 7;
+  ps.params.textNnD = "wurzelbrunft";
+  ps.params.boolN = true;
   for (const auto& row : db(ps)) {
-    std::cerr << "bound result: alpha: " << row.alpha << std::endl;
-    std::cerr << "bound result: beta: " << row.beta << std::endl;
-    std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+    std::cerr << "bound result: intN: " << row.intN << std::endl;
+    std::cerr << "bound result: textNnD: " << row.textNnD << std::endl;
+    std::cerr << "bound result: boolN: " << row.boolN << std::endl;
   }
 
   std::cerr << "--------" << std::endl;
@@ -144,44 +144,44 @@ int Sample(int, char*[]) {
                     .as(something)))
           .front()
           .something;
-  ps.params.alpha = last_id.value();
-  ps.params.gamma = false;
+  ps.params.intN = last_id.value();
+  ps.params.boolN = false;
   for (const auto& row : db(ps)) {
-    std::cerr << "bound result: alpha: " << row.alpha << std::endl;
-    std::cerr << "bound result: beta: " << row.beta << std::endl;
-    std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+    std::cerr << "bound result: intN: " << row.intN << std::endl;
+    std::cerr << "bound result: textNnD: " << row.textNnD << std::endl;
+    std::cerr << "bound result: boolN: " << row.boolN << std::endl;
   }
 
   std::cerr << "--------" << std::endl;
-  ps.params.beta = "kaesekuchen";
+  ps.params.textNnD = "kaesekuchen";
   for (const auto& row : db(ps)) {
-    std::cerr << "bound result: alpha: " << row.alpha << std::endl;
-    std::cerr << "bound result: beta: " << row.beta << std::endl;
-    std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+    std::cerr << "bound result: intN: " << row.intN << std::endl;
+    std::cerr << "bound result: textNnD: " << row.textNnD << std::endl;
+    std::cerr << "bound result: boolN: " << row.boolN << std::endl;
   }
 
   auto pi = db.prepare(
-      insert_into(tab).set(tab.beta = parameter(tab.beta), tab.gamma = true));
-  pi.params.beta = "prepared cake";
+      insert_into(tab).set(tab.textNnD = parameter(tab.textNnD), tab.boolN = true));
+  pi.params.textNnD = "prepared cake";
   std::cerr << "Inserted: " << db(pi) << std::endl;
 
   auto pu = db.prepare(update(tab)
-                           .set(tab.gamma = parameter(tab.gamma))
-                           .where(tab.beta == "prepared cake"));
-  pu.params.gamma = false;
+                           .set(tab.boolN = parameter(tab.boolN))
+                           .where(tab.textNnD == "prepared cake"));
+  pu.params.boolN = false;
   std::cerr << "Updated: " << db(pu) << std::endl;
 
-  auto pr = db.prepare(delete_from(tab).where(tab.beta != parameter(tab.beta)));
-  pr.params.beta = "prepared cake";
+  auto pr = db.prepare(delete_from(tab).where(tab.textNnD != parameter(tab.textNnD)));
+  pr.params.textNnD = "prepared cake";
   std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
   // Check that a prepared select is default-constructible
   {
     auto s = select(all_of(tab))
                  .from(tab)
-                 .where((tab.beta.like(parameter(tab.beta)) and
-                         tab.alpha == parameter(tab.alpha)) or
-                        tab.gamma != parameter(tab.gamma));
+                 .where((tab.textNnD.like(parameter(tab.textNnD)) and
+                         tab.intN == parameter(tab.intN)) or
+                        tab.boolN != parameter(tab.boolN));
     using P = decltype(db.prepare(s));
     P p;  // You must not use this one yet!
     p = db.prepare(s);
@@ -190,29 +190,29 @@ int Sample(int, char*[]) {
   {
     // insert_or with static assignments
     auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(
-        tab.beta = "test", tab.gamma = true));
+        tab.textNnD = "test", tab.boolN = true));
     std::cerr << i << std::endl;
 
-    i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.beta = "test",
-                                                          tab.gamma = true));
+    i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.textNnD = "test",
+                                                          tab.boolN = true));
     std::cerr << i << std::endl;
   }
 
   {
     // insert_or with a dynamic assignment
     auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(
-        tab.beta = "test", dynamic(true, tab.gamma = true)));
+        tab.textNnD = "test", dynamic(true, tab.boolN = true)));
     std::cerr << i << std::endl;
 
     i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(
-        tab.beta = "test", dynamic(true, tab.gamma = true)));
+        tab.textNnD = "test", dynamic(true, tab.boolN = true)));
     std::cerr << i << std::endl;
   }
 
   assert(db(select(count(tab.id).as(something)).from(tab)).begin()->something);
   assert(db(select(all_of(tab))
                 .from(tab)
-                .where(tab.alpha.not_in(select(tab.alpha).from(tab))))
+                .where(tab.intN.not_in(select(tab.intN).from(tab))))
              .empty());
 
   auto x = sqlpp::statement_t<>{} << sqlpp::verbatim("PRAGMA user_version = 1");
@@ -224,14 +224,14 @@ int Sample(int, char*[]) {
   std::cerr << pragmaValue << std::endl;
 
   // Testing sub select tables and unconditional joins
-  const auto subQuery = select(tab.alpha).from(tab).as(sub);
-  for (const auto& row : db(select(subQuery.alpha).from(subQuery))) {
-    std::cerr << row.alpha;
+  const auto subQuery = select(tab.intN).from(tab).as(sub);
+  for (const auto& row : db(select(subQuery.intN).from(subQuery))) {
+    std::cerr << row.intN;
   }
 
   for (const auto& row :
-       db(select(subQuery.alpha).from(tab.cross_join(subQuery)))) {
-    std::cerr << "row.alpha: " << row.alpha << std::endl;
+       db(select(subQuery.intN).from(tab.cross_join(subQuery)))) {
+    std::cerr << "row.intN: " << row.intN << std::endl;
   }
 
   return 0;

@@ -30,14 +30,14 @@
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace {
 const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabSample{};
+const auto tab = test::TabBar{};
 
 SQLPP_CREATE_NAME_TAG(something);
 }  // namespace
@@ -57,7 +57,7 @@ void testPreparedStatementResult(sql::connection& db) {
   auto preparedSelectAll =
       db.prepare(sqlpp::select(count(tab.intN).as(something)).from(tab));
   auto preparedUpdateAll =
-      db.prepare(sqlpp::update(tab).set(tab.boolN = false));
+      db.prepare(sqlpp::update(tab).set(tab.boolNn = false));
 
   {
     // explicit result scope
@@ -73,7 +73,7 @@ int Prepared(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabBar(db);
 
     testPreparedStatementResult(db);
   } catch (const std::exception& e) {

@@ -51,7 +51,7 @@ int Json(int, char*[]) {
 
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace test {
 SQLPP_CREATE_NAME_TAG(value);

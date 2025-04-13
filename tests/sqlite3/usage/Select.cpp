@@ -32,10 +32,10 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
@@ -49,8 +49,8 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount) {
   size_t i = 0;
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
-    std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha
-              << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+    std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
+              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
     assert(row.id == static_cast<int64_t>(i));
   };
@@ -60,8 +60,8 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount) {
   i = 0;
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
-    std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha
-              << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+    std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
+              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
     assert(row.id == static_cast<int64_t>(i));
   };
@@ -91,92 +91,90 @@ SQLPP_CREATE_NAME_TAG(something);
 
 int Select(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  test::createTabFoo(db);
 
   testSelectAll(db, 0);
   db(insert_into(tab).default_values());
   testSelectAll(db, 1);
-  db(insert_into(tab).set(tab.gamma = true, tab.beta = " cheesecake "));
+  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = " cheesecake "));
   testSelectAll(db, 2);
-  db(insert_into(tab).set(tab.gamma = true, tab.beta = " cheesecake "));
+  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = " cheesecake "));
   testSelectAll(db, 3);
 
   // test functions and operators
-  db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.in(1, 2, 3)));
+  db(select(all_of(tab)).from(tab).where(tab.intN.is_null()));
+  db(select(all_of(tab)).from(tab).where(tab.intN.is_not_null()));
+  db(select(all_of(tab)).from(tab).where(tab.intN.in(1, 2, 3)));
   db(select(all_of(tab))
          .from(tab)
-         .where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
+         .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
+  db(select(all_of(tab)).from(tab).where(tab.intN.not_in(1, 2, 3)));
   db(select(all_of(tab))
          .from(tab)
-         .where(tab.alpha.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.alpha).as(something)).from(tab));
-  db(select(avg(tab.alpha).as(something)).from(tab));
-  db(select(max(tab.alpha).as(something)).from(tab));
-  db(select(min(tab.alpha).as(something)).from(tab));
+         .where(tab.intN.not_in(std::vector<int>{1, 2, 3, 4})));
+  db(select(count(tab.intN).as(something)).from(tab));
+  db(select(avg(tab.intN).as(something)).from(tab));
+  db(select(max(tab.intN).as(something)).from(tab));
+  db(select(min(tab.intN).as(something)).from(tab));
   db(select(
-         exists(select(tab.alpha).from(tab).where(tab.alpha > 7)).as(something))
+         exists(select(tab.intN).from(tab).where(tab.intN > 7)).as(something))
          .from(tab));
-  db(select(trim(tab.beta).as(something)).from(tab));
+  db(select(trim(tab.textNnD).as(something)).from(tab));
 
-  // db(select(not_exists(select(tab.alpha).from(tab).where(tab.alpha >
-  // 7))).from(tab)); db(select(all_of(tab)).from(tab).where(tab.alpha ==
-  // any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
+  // db(select(not_exists(select(tab.intN).from(tab).where(tab.intN >
+  // 7))).from(tab)); db(select(all_of(tab)).from(tab).where(tab.intN ==
+  // any(select(tab.intN).from(tab).where(tab.intN < 3))));
 
-  db(select(all_of(tab)).from(tab).where((tab.alpha + tab.alpha) > 3));
-  db(select(all_of(tab)).from(tab).where((tab.beta + tab.beta) == ""));
+  db(select(all_of(tab)).from(tab).where((tab.intN + tab.intN) > 3));
+  db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD) == ""));
   db(select(all_of(tab))
          .from(tab)
-         .where((tab.beta + tab.beta).like(R"(%'\"%)")));
+         .where((tab.textNnD + tab.textNnD).like(R"(%'\"%)")));
 
   // update
-  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
+  db(update(tab).set(tab.boolN = false).where(tab.intN.in(1)));
   db(update(tab)
-         .set(tab.gamma = false)
-         .where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
+         .set(tab.boolN = false)
+         .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
 
   // delete
-  db(delete_from(tab).where(tab.alpha == tab.alpha + 3));
+  db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
   auto result = db(select(all_of(tab)).from(tab));
   std::cerr
       << "Accessing a field directly from the result (using the current row): "
-      << result.begin()->alpha << std::endl;
-  std::cerr << "Can do that again, no problem: " << result.begin()->alpha
+      << result.begin()->intN << std::endl;
+  std::cerr << "Can do that again, no problem: " << result.begin()->intN
             << std::endl;
 
   std::cerr << "--------------------------------------" << std::endl;
   auto tx = start_transaction(db);
   for (const auto& row :
        db(select(all_of(tab),
-                 value(select(max(tab.alpha).as(something)).from(tab))
+                 value(select(max(tab.intN).as(something)).from(tab))
                      .as(something))
               .from(tab))) {
-    const auto x = row.alpha;
+    const auto x = row.intN;
     const auto a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
   for (const auto& row :
-       db(select(tab.alpha, tab.beta, tab.gamma, trim(tab.beta).as(something))
+       db(select(tab.intN, tab.textNnD, tab.boolN, trim(tab.textNnD).as(something))
               .from(tab))) {
-    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta
-              << ", row.gamma: " << row.gamma << ", row.something: '"
+    std::cerr << ">>> row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
+              << ", row.boolN: " << row.boolN << ", row.something: '"
               << row.something << "'" << std::endl;
     // check something
-    assert((not row.beta and not row.something) ||
-           string_util::trim(std::string(row.beta.value())) ==
-               row.something.value());
+    assert(string_util::trim(std::string(row.textNnD)) == row.something);
     // end
   };
 
   for (const auto& row :
        db(select(all_of(tab),
-                 value(select(trim(tab.beta).as(something)).from(tab))
+                 value(select(trim(tab.textNnD).as(something)).from(tab))
                      .as(something))
               .from(tab))) {
-    const std::optional<int64_t> x = row.alpha;
+    const std::optional<int64_t> x = row.intN;
     const std::optional<std::string_view> a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }

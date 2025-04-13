@@ -6,6 +6,7 @@ CREATE TABLE tab_foo
   text_nn_d varchar(255) NOT NULL DEFAULT '',
   int_n bigint,
   double_n double precision,
+-- u_int_n bigint UNSIGNED,  -- there are no unsigned integers in postgresql
   bool_n bool,
   blob_n bytea
 );

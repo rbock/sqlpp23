@@ -29,9 +29,9 @@
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 namespace sql = sqlpp::mysql;
 
@@ -39,18 +39,18 @@ int Update(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
-    db(insert_into(tab).set(tab.textN = "1", tab.boolN = false));
-    db(insert_into(tab).set(tab.textN = "2", tab.boolN = false));
-    db(insert_into(tab).set(tab.textN = "3", tab.boolN = false));
+    db(insert_into(tab).set(tab.textNnD = "1", tab.boolN = false));
+    db(insert_into(tab).set(tab.textNnD = "2", tab.boolN = false));
+    db(insert_into(tab).set(tab.textNnD = "3", tab.boolN = false));
 
     db(sql::update(tab)
            .set(tab.boolN = true)
            .order_by(tab.intN.desc())
            .limit(1u));
     for (const auto& row :
-         db(sqlpp::select(tab.boolN).from(tab).where(tab.textN == "3"))) {
+         db(sqlpp::select(tab.boolN).from(tab).where(tab.textNnD == "3"))) {
       if (not row.boolN.has_value())
         throw std::runtime_error("no value for bool_n");
     }

@@ -29,28 +29,28 @@
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "../Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabSample{};
+    const auto tab = test::TabFoo{};
     auto db = sql::make_test_connection();
 
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.alpha = 7));
-    db(insert_into(tab).set(tab.alpha = 7));
-    db(insert_into(tab).set(tab.alpha = 9));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.intN = 9));
 
     // select max
     for (const auto& row : db(select(
-            max(tab.alpha).as(sqlpp::alias::max_),
-            max(sqlpp::distinct, tab.alpha).as(sqlpp::alias::distinct_max_)
+            max(tab.intN).as(sqlpp::alias::max_),
+            max(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_max_)
             ).from(tab))) {
       assert(row.max_ == 9);
       assert(row.distinct_max_ == 9);

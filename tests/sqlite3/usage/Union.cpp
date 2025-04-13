@@ -29,7 +29,7 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -38,7 +38,7 @@
 #endif
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
@@ -49,17 +49,17 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
 
 int Union(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  test::createTabFoo(db);
 
   auto u =
       select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));
 
   for (const auto& row : db(u)) {
-    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 
   for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab)))) {
-    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 
   return 0;

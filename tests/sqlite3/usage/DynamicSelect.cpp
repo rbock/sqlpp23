@@ -29,7 +29,7 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -47,14 +47,14 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
 namespace sql = sqlpp::sqlite3;
 int DynamicSelect(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  test::createTabFoo(db);
 
-  const auto tab = test::TabSample{};
+  const auto tab = test::TabFoo{};
 
-  auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-  i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
-  i.add_values(tab.beta = "cheesecake", tab.gamma = false);
-  i.add_values(tab.beta = "kaesekuchen", tab.gamma = true);
+  auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
+  i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
+  i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
+  i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
   auto last_insert_rowid = db(i);
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;
@@ -62,25 +62,25 @@ int DynamicSelect(int, char*[]) {
   // Just to demonstrate that you can call basically any function
   std::cerr << "last insert rowid: "
             << db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")
-                             .as(tab.alpha)))
+                             .as(tab.intN)))
                    .front()
-                   .alpha
+                   .intN
             << std::endl;
 
   std::cerr << "last insert rowid: "
             << db(select(dynamic(true, sqlpp::verbatim<sqlpp::integral>(
                                            "last_insert_rowid()")
-                                           .as(tab.alpha))))
+                                           .as(tab.intN))))
                    .front()
-                   .alpha
+                   .intN
             << std::endl;
 
   std::cerr << "last insert rowid: "
             << db(select(dynamic(false, sqlpp::verbatim<sqlpp::integral>(
                                             "last_insert_rowid()")
-                                            .as(tab.alpha))))
+                                            .as(tab.intN))))
                    .front()
-                   .alpha
+                   .intN
             << std::endl;
 
   return 0;

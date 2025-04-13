@@ -30,30 +30,30 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 int Union(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
     auto u =
         select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));
 
     for (const auto& row : db(u)) {
-      std::cout << row.intN << row.textN << row.boolN << std::endl;
+      std::cout << row.intN << row.textNnD << row.boolN << std::endl;
     }
 
     for (const auto& row :
          db(u.union_distinct(select(all_of(tab)).from(tab)))) {
-      std::cout << row.intN << row.textN << row.boolN << std::endl;
+      std::cout << row.intN << row.textNnD << row.boolN << std::endl;
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

@@ -27,7 +27,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "TabSample.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -43,38 +43,34 @@ SQLPP_CREATE_NAME_TAG(left);
 namespace sql = sqlpp::sqlite3;
 int main() {
   auto db = sql::make_test_connection();
-  sql::connection_config config  db.execute(
-      "CREATE TABLE tab_sample (\
-        alpha bigint(20) DEFAULT NULL,\
-            beta varchar(255) DEFAULT NULL,\
-            gamma bool\
-            )");
 
-  const auto tab = TabSample{};
+  test::createTabFoo(db);
 
-  auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-  i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
-  // i.add_values(tab.beta = "cheesecake", tab.gamma = false)
-  // i.add_values(tab.beta = "kaesekuchen", tab.gamma = true)
+  const auto tab = test::TabFoo{};
+
+  auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
+  i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
+  // i.add_values(tab.textNnD = "cheesecake", tab.boolN = false)
+  // i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true)
   auto last_insert_rowid = db(i);
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;
 
   // Just to demonstrate that you can call basically any function
   std::cerr << "last insert rowid: "
-            << db(select(sqlpp::verbatim<sqlpp::integer>("last_insert_rowid()")
-                             .as(tab.alpha)))
+            << db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")
+                             .as(tab.intN)))
                    .front()
-                   .alpha
+                   .intN
             << std::endl;
 
-  // select a static (alpha) and a dynamic column (beta)
-  auto s = dynamic_select(db).dynamic_columns(tab.alpha.as(left)).from(tab);
-  s.selected_columns.add(tab.beta);
-  s.selected_columns.add(tab.gamma);
+  // select a static (intN) and a dynamic column (textNnD)
+  auto s = dynamic_select(db).dynamic_columns(tab.intN.as(left)).from(tab);
+  s.selected_columns.add(tab.textNnD);
+  s.selected_columns.add(tab.boolN);
   for (const auto& row : db(s)) {
-    std::cerr << "row.alpha: " << row.left << ", row.beta: " << row.at("beta")
-              << ", row.gamma: " << row.at("gamma") << std::endl;
+    std::cerr << "row.intN: " << row.left << ", row.textNnD: " << row.at("beta")
+              << ", row.boolN: " << row.at("boolN") << std::endl;
   };
   return 0;
 }

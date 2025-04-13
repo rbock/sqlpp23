@@ -30,7 +30,7 @@
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {

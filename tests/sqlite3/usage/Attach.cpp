@@ -29,7 +29,7 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -43,20 +43,23 @@ int Attach(int, char*[]) {
   // Opening a connection to an in-memory database and creating a table in it
   auto config = sql::make_test_config();
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  test::createTabFoo(db);
 
   // Attaching another in-memory database and creating the same table in it
   auto other = db.attach(*config, "other");
-  db(R"(CREATE TABLE other.tab_sample (
-  id INTEGER PRIMARY KEY,
-  alpha bigint(20) DEFAULT NULL,
-  beta varchar(255) DEFAULT NULL,
-  gamma boolean
+  db(R"(CREATE TABLE other.tab_foo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  text_nn_d varchar(255) NOT NULL DEFAULT '',
+  int_n bigint,
+  double_n double precision,
+  u_int_n bigint UNSIGNED,
+  bool_n bool,
+  blob_n blob
 ))");
 
-  auto left = test::TabSample{};
+  auto left = test::TabFoo{};
   auto right =
-      schema_qualified_table(other, test::TabSample{})
+      schema_qualified_table(other, test::TabFoo{})
           .as(sqlpp::alias::right);  // this is a table in the attached database
 
   // inserting in one tab_sample

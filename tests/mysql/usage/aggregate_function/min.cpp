@@ -30,16 +30,16 @@
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "../Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
   sql::global_library_init();
   try {
-    const auto tab = test::TabSample{};
+    const auto tab = test::TabFoo{};
     auto db = sql::make_test_connection();
 
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
     // clear the table
     db(truncate(tab));

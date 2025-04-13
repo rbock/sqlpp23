@@ -29,7 +29,7 @@
 #include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace {
 struct on_duplicate_key_update {
@@ -55,18 +55,18 @@ struct on_duplicate_key_update {
 };
 }  // namespace
 
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 namespace sql = sqlpp::mysql;
 int CustomQuery(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
     // Create a MYSQL style custom "insert on duplicate update"
-    db(sqlpp::insert_into(tab).set(tab.textN = "sample", tab.boolN = true)
-       << on_duplicate_key_update(db, tab.textN = "sample")(db,
+    db(sqlpp::insert_into(tab).set(tab.textNnD = "sample", tab.boolN = true)
+       << on_duplicate_key_update(db, tab.textNnD = "sample")(db,
                                                             tab.boolN = false)
               .get());
   } catch (const std::exception& e) {

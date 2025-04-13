@@ -29,7 +29,7 @@
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
@@ -48,20 +48,20 @@ int DynamicSelect(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
-    const auto tab = test::TabSample{};
+    const auto tab = test::TabFoo{};
     db(insert_into(tab).set(tab.boolN = true));
-    auto i = insert_into(tab).columns(tab.textN, tab.boolN);
-    i.add_values(tab.textN = "rhabarbertorte", tab.boolN = false);
-    i.add_values(tab.textN = "cheesecake", tab.boolN = false);
-    i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
+    auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
+    i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
+    i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
+    i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
     db(i);
 
-    auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab);
+    auto s = select(tab.intN, dynamic(false, tab.textNnD)).from(tab);
 
     for (const auto& row : db(s)) {
-      std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN
+      std::cerr << "row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
                 << std::endl;
     };
   } catch (const std::exception& e) {

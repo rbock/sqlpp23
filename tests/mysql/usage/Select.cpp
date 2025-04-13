@@ -32,14 +32,14 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace {
 const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 SQLPP_CREATE_NAME_TAG(something);
 SQLPP_CREATE_NAME_TAG(max_int_n);
@@ -51,7 +51,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
-              << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
+              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
     assert(i == row.id);
   };
@@ -63,7 +63,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
-              << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
+              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
     assert(i == row.id);
   };
@@ -75,7 +75,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
-              << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
+              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
     assert(i == row.id);
   };
@@ -86,14 +86,14 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
 int Select(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createTabSample(db);
+    test::createTabFoo(db);
 
     testSelectAll(db, 0);
     db(insert_into(tab).default_values());
     testSelectAll(db, 1);
-    db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheesecake"));
+    db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
     testSelectAll(db, 2);
-    db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheesecake"));
+    db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
     testSelectAll(db, 3);
 
     // Test size functionality
@@ -124,10 +124,10 @@ int Select(int, char*[]) {
                   any(select(tab.intN).from(tab).where(tab.intN < 3))));
 
     db(select(all_of(tab)).from(tab).where(tab.intN + tab.intN > 3));
-    db(select(all_of(tab)).from(tab).where((tab.textN + tab.textN) == ""));
+    db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD) == ""));
     db(select(all_of(tab))
            .from(tab)
-           .where((tab.textN + tab.textN).like("%'\"%")));
+           .where((tab.textNnD + tab.textNnD).like("%'\"%")));
 
     // insert
     db(insert_into(tab).set(tab.boolN = true));

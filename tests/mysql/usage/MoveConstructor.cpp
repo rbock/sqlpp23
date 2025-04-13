@@ -31,7 +31,7 @@
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/mysql/tables.h>
 
 namespace sql = sqlpp::mysql;
 int MoveConstructor(int, char*[]) {
@@ -41,18 +41,18 @@ int MoveConstructor(int, char*[]) {
     std::vector<sql::connection> connections;
     connections.emplace_back(sql::connection(config));
 
-    test::createTabSample(connections.at(0));
+    test::createTabFoo(connections.at(0));
 
     assert(connections.at(0).is_transaction_active() == false);
     connections.at(0).start_transaction();
     auto db = std::move(connections.at(0));
     assert(db.is_transaction_active());
-    const auto tab = test::TabSample{};
+    const auto tab = test::TabFoo{};
     db(insert_into(tab).set(tab.boolN = true));
-    auto i = insert_into(tab).columns(tab.textN, tab.boolN);
-    i.add_values(tab.textN = "rhabarbertorte", tab.boolN = false);
-    i.add_values(tab.textN = "cheesecake", tab.boolN = false);
-    i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
+    auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
+    i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
+    i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
+    i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
     db(i);
 
     db.commit_transaction();

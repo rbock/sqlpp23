@@ -30,7 +30,7 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "Tables.h"
+#include <sqlpp23/tests/sqlite3/tables.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -39,7 +39,7 @@
 #endif
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabSample{};
+const auto tab = test::TabFoo{};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
@@ -51,17 +51,17 @@ std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
 int With(int, char*[]) {
 #if SQLITE_VERSION_NUMBER >= 3008003
   auto db = sql::make_test_connection();
-  test::createTabSample(db);
+  test::createTabFoo(db);
 
   auto a = sqlpp::cte(sqlpp::alias::a)
-               .as(select(all_of(tab)).from(tab).where(tab.alpha > 3));
-  for (const auto& row : db(with(a)(select(a.alpha).from(a)))) {
-    std::cout << row.alpha << std::endl;
+               .as(select(all_of(tab)).from(tab).where(tab.intN > 3));
+  for (const auto& row : db(with(a)(select(a.intN).from(a)))) {
+    std::cout << row.intN << std::endl;
   }
 
   for (const auto& row : db(with(a.union_all(select(all_of(a)).from(a)))(
            select(all_of(a)).from(a)))) {
-    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 
 #endif
