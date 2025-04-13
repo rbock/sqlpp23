@@ -1,3 +1,5 @@
+# Allow use as module
+
 # Need to document: aggregates
 They must not be mixed in a select.
 
@@ -19,3 +21,24 @@ Not new, but also not documented before: Need to document that you need to be a 
 Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
 
 
+## coalesce
+https://github.com/rbock/sqlpp11/issues/453
+
+# dynamic do_update?
+https://github.com/rbock/sqlpp11/issues/493
+
+# implement cast?
+Implement cast, to support something like cast_as<sqlpp::day_point>(mt.startTime),
+see https://github.com/rbock/sqlpp11/issues/606
+
+# [PostgreSQL] on_conflict with more than one column
+See https://github.com/rbock/sqlpp11/issues/586
+
+# EXTRACT function for date/time
+See https://github.com/rbock/sqlpp11/issues/611
+
+# Upgrade case statement to allow for multiple when clauses.
+See https://github.com/rbock/sqlpp11/issues/600
+
+# Support for pragma tables
+See https://github.com/rbock/sqlpp11/issues/553
