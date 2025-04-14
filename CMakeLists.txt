@@ -42,7 +42,7 @@ option(BUILD_SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
 
 option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON)
 
-set(SQLPP11_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
+set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
 
 ### Dependencies
 if(DEPENDENCY_CHECK AND BUILD_MYSQL_CONNECTOR)
@@ -110,7 +110,7 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
 )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
-    DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+    DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
 
 install_component(NAME Sqlpp23 TARGETS sqlpp23 DIRECTORY)
@@ -123,7 +123,7 @@ if(BUILD_SQLCIPHER_CONNECTOR)
     install_component(NAME Sqlpp23SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3)
 
     install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindSQLCipher.cmake
-        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     )
 endif()
 
@@ -131,7 +131,7 @@ if(BUILD_MYSQL_CONNECTOR)
     install_component(NAME Sqlpp23MySQL TARGETS sqlpp23_mysql DIRECTORY mysql)
 
     install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMySQL.cmake
-        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     )
 endif()
 
@@ -139,7 +139,7 @@ if(BUILD_MARIADB_CONNECTOR)
     install_component(NAME Sqlpp23MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql)
 
     install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMariaDB.cmake
-        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     )
 endif()
 
