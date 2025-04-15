@@ -16,6 +16,10 @@ This is a (probably incomplete) list of differences as of April 2025.
 | `TEXT` result fields | `std::string` | `std::string_view` |
 | `BLOB` result fields | `std::vector<uint8_t>` | `std::span<uint8_t>` |
 | | | |
+|| **Names** | | |
+| creating names | `SQLPP_ALIAS_PROVIDER` | `SQLPP_CREATE_NAME_TAG` |
+| creating quoted names | `SQLPP_QUOTED_ALIAS_PROVIDER` | `SQLPP_CREATE_QUOTED_NAME_TAG` |
+| | | |
 | **Dynamic queries** | | |
 | clauses | separate calls to add dynamic parts with very few compile time checks | directly embedded in statement using `dynamic()` with many compile time checks |
 | `where` conditions | dynamic `and` supported without nesting | dynamic `and` and `or` supported at any nesting level |
