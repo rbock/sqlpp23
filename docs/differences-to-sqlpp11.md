@@ -6,16 +6,25 @@ This is a (probably incomplete) list of differences as of April 2025.
 
 | % | sqlpp11 | sqlpp23 |
 | :------------- | :------------- | :----- |
-| **Data types** | | |
+| **IDE code completion** | | |
+| statement data members | all public | fewer and private (less noisy) |
+| connection functions | all public | *only* API public (less noisy) |
+| | | |
+|| **Data types** | | |
 | nullable values | `sqlpp::value_or_null` | `std::optional` |
 | `NULL` | `sqlpp::null` | `std::nullopt` |
 | `TEXT` result fields | `std::string` | `std::string_view` |
 | `BLOB` result fields | `std::vector<uint8_t>` | `std::span<uint8_t>` |
 | | | |
 | **Dynamic queries** | | |
-| statements | separate calls to add dynamic parts with very few compile time checks | directly embedded in statement using `dynamic()` with many compile time checks |
+| clauses | separate calls to add dynamic parts with very few compile time checks | directly embedded in statement using `dynamic()` with many compile time checks |
 | `where` conditions | dynamic `and` supported without nesting | dynamic `and` and `or` supported at any nesting level |
 | result fields | dynamic result fields in `std::map<std::string, std::string>` | correctly typed and named data members of result rows |
+| | | |
+|| **Executing statements** | | |
+| `operator()` | executes statements, but not strings | executes statements and strings |
+| `execute` | executes strings and non-select statements | *dropped* |
+| `query` | executes select statements | *dropped* |
 | | | |
 | **Constraints** | | |
 | read-only columns  | e.g. for auto-increment | *dropped* |
