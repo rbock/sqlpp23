@@ -4,6 +4,8 @@
 
 This is a (probably incomplete) list of differences as of April 2025.
 
+If seems a bit dry, try [tony tables](tony_tables.md).
+
 | % | sqlpp11 | sqlpp23 |
 | :------------- | :------------- | :----- |
 | **IDE code completion** | | |

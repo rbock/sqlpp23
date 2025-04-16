@@ -12,7 +12,7 @@ CREATE TABLE foo (
 );
 ```
 
-(This is SQL for brevity, not C++, see [here](Tables.md) for details on how to
+(This is SQL for brevity, not C++, see [here](tables.md) for details on how to
 define types representing the tables and columns you want to work with)
 
 Lets also assume we have an object `db` representing a connection to your

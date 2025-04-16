@@ -25,6 +25,8 @@ Connectors for MariaDB, MySQL, PostgreSQL, sqlite3, sqlcipher are included in th
 
 Documentation is found in [docs](docs/README.md).
 
+If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be interested in [differences](docs/differences-to-sqlpp11.md).
+
 Examples:
 ---------
 Let's assume we have a database connection object `db` and a table object `foo` representing something like
