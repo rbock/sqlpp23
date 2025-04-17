@@ -119,7 +119,7 @@ int Sample(int, char*[]) {
                  .from(tab));
       if (const auto& row = *result.begin()) {
         const int64_t a = row.intN.value_or(0);
-        const std::optional<long long> m = row.a;
+        const std::optional<int64_t> m = row.a;
         std::cerr << __LINE__ << " row.intN: " << a << ", row.max: " << m
                   << std::endl;
       }
