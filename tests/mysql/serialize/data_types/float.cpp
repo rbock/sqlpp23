@@ -24,6 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#define NOMINMAX
+#endif
+
 #include <sqlpp23/core/basic/value.h>
 #include <sqlpp23/tests/mysql/serialize_helpers.h>
 
