@@ -24,8 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define NOMINMAX
-
 #include <iostream>
 
 #include <mysql.h>
