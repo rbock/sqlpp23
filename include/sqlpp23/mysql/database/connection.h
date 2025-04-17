@@ -28,6 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#define NOMINMAX
+#endif
+
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/query/statement_handler.h>

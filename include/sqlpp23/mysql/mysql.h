@@ -28,6 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+#define NOMINMAX
+#endif
+
 #include <sqlpp23/mysql/char_result.h>
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/mysql/database/connection_pool.h>

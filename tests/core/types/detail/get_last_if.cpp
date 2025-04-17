@@ -41,24 +41,24 @@ void test_get_last_if() {
       "");
   static_assert(
       std::is_same<sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop,
-                                                int, float, long>,
-                   long>::value,
+                                                int, float, long long>,
+                   long long>::value,
       "");
   static_assert(
       std::is_same<sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop,
-                                                int, float, long, short>,
+                                                int, float, long long, short>,
                    short>::value,
       "");
   static_assert(
       std::is_same<
           sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop, int,
-                                       float, long, short, size_t>,
+                                       float, long long, short, size_t>,
           short>::value,
       "");
   static_assert(
       std::is_same<
           sqlpp::detail::get_last_if_t<sqlpp::is_numeric, sqlpp::noop, int,
-                                       float, long, short, size_t>,
+                                       float, long long, short, size_t>,
           size_t>::value,
       "");
 
@@ -80,13 +80,13 @@ void test_get_last_if() {
       "");
   static_assert(
       std::is_same<sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop,
-                                                int, float, long, double>,
-                   long>::value,
+                                                int, float, long long, double>,
+                   long long>::value,
       "");
   static_assert(
       std::is_same<
           sqlpp::detail::get_last_if_t<sqlpp::is_integral, sqlpp::noop, int,
-                                       float, long, short, double>,
+                                       float, long long, short, double>,
           short>::value,
       "");
 }
