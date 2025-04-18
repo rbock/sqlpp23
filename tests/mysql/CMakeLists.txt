@@ -25,7 +25,9 @@
 find_package(Threads REQUIRED)
 add_library(sqlpp23_mysql_testing INTERFACE)
 target_include_directories(sqlpp23_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
+if (MSVC)
+  target_compile_options(sqlpp23_mysql_testing INTERFACE -DNOMINMAX)
+endif ()
 
 add_subdirectory(constraints)
 add_subdirectory(types)
