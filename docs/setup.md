@@ -33,9 +33,10 @@ correctly linked and include directories are set correctly.
 
 ## Build and install
 
-[!IMPORTANT] MSVC users will need to define the preprocessor macro `NOMINMAX`
-when using the mysql backend (mysql.h includes windows.h which defines `min`
-and `max` unless told not to).
+> [!IMPORTANT]
+> MSVC users will need to define the preprocessor macro `NOMINMAX`
+> when using the mysql backend (mysql.h includes windows.h which defines `min`
+> and `max` unless told not to).
 
 **Note**: Depending on how you use the lib, you might not need to install it
 (see Basic Usage).
