@@ -24,10 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _MSC_VER
-#define NOMINMAX
-#endif
-
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>

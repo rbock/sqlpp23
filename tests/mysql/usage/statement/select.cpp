@@ -25,10 +25,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _MSC_VER
-#define NOMINMAX
-#endif
-
 #include <cassert>
 
 #include <sqlpp23/mysql/mysql.h>

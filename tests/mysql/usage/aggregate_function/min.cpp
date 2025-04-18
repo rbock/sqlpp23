@@ -24,10 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _MSC_VER
-#define NOMINMAX
-#endif
-
 #include "sqlpp23/core/aggregate_function/min.h"
 #include <cassert>
 
