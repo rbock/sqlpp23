@@ -33,6 +33,7 @@
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/mysql/detail/prepared_statement_handle.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
@@ -74,12 +75,13 @@ class bind_result_t {
   template <typename ResultRow>
   void next(ResultRow& result_row) {
     if (_invalid()) {
-      result_row._invalidate();
+      sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       return;
     }
 
     if (&result_row != _result_row_address) {
-      result_row._bind_fields(*this);  // sets row data to mysql bind data
+      // bind row data to mysql bind data
+      sqlpp::detail::result_row_bridge{}.bind_fields(result_row, *this);
       _result_row_address = &result_row;
     }
 
@@ -90,13 +92,14 @@ class bind_result_t {
 
     if (next_impl()) {
       if (not result_row) {
-        result_row._validate();
+        sqlpp::detail::result_row_bridge{}.validate(result_row);
       }
-      result_row._read_fields(
-          *this);  // translates bind_data to row data where required
+      // translates bind_data to row data where required
+      sqlpp::detail::result_row_bridge{}.read_fields(result_row, *this);
     } else {
-      if (result_row)
-        result_row._invalidate();
+      if (result_row) {
+        sqlpp::detail::result_row_bridge{}.invalidate(result_row);
+      }
     }
   }
 

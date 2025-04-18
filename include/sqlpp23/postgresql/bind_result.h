@@ -27,18 +27,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <span>
-#include <sstream>
 #include <string_view>
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
-
-#include "detail/prepared_statement_handle.h"
+#include <sqlpp23/core/query/result_row.h>
+#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
 
 #ifdef _MSC_VER
 #include <iso646.h>
@@ -162,18 +160,18 @@ class bind_result_t {
   template <typename ResultRow>
   void next(ResultRow& result_row) {
     if (!this->_handle) {
-      result_row._invalidate();
+      sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       return;
     }
 
     if (this->next_impl()) {
-      if (!result_row) {
-        result_row._validate();
+      if (not result_row) {
+        sqlpp::detail::result_row_bridge{}.validate(result_row);
       }
-      result_row._read_fields(*this);
+      sqlpp::detail::result_row_bridge{}.read_fields(result_row, *this);
     } else {
       if (result_row) {
-        result_row._invalidate();
+        sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       }
     }
   }

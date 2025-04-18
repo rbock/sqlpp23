@@ -48,6 +48,8 @@ struct group_by_t {
   group_by_t& operator=(group_by_t&&) = default;
   ~group_by_t() = default;
 
+ private:
+  friend reader_t;
   std::tuple<Expressions...> _expressions;
 };
 

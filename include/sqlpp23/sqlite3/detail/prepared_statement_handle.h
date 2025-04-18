@@ -27,11 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef SQLPP_USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/sqlite3/export.h>
-#include <memory>
-#include <string>
-#include <vector>
 
 #ifdef _MSC_VER
 #pragma warning(push)

@@ -34,6 +34,7 @@
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
+#include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/mysql/char_result_row.h>
 #include <sqlpp23/mysql/detail/result_handle.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
@@ -77,18 +78,19 @@ class char_result_t {
   template <typename ResultRow>
   void next(ResultRow& result_row) {
     if (_invalid()) {
-      result_row._invalidate();
+      sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       return;
     }
 
     if (next_impl()) {
       if (not result_row) {
-        result_row._validate();
+        sqlpp::detail::result_row_bridge{}.validate(result_row);
       }
-      result_row._read_fields(*this);
+      sqlpp::detail::result_row_bridge{}.read_fields(result_row, *this);
     } else {
-      if (result_row)
-        result_row._invalidate();
+      if (result_row) {
+        sqlpp::detail::result_row_bridge{}.invalidate(result_row);
+      }
     }
   }
 

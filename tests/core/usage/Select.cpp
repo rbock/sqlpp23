@@ -32,9 +32,9 @@
 #include <iostream>
 
 struct to_cerr {
-  template <typename Field>
-  auto operator()(const Field& field) const -> void {
-    std::cerr << field << std::endl;
+  template <typename... Fields>
+  auto operator()(const Fields&... fields) const -> void {
+    (std::cerr << ... << fields);
   }
 };
 
@@ -174,7 +174,7 @@ int Select(int, char*[]) {
   }
 
   for (const auto& row : db(select(all_of(t)).from(t))) {
-    for_each_field(row, to_cerr{});
+    std::apply(to_cerr{}, row.as_tuple());
   }
 
   {

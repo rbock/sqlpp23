@@ -30,6 +30,7 @@
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/transaction.h>
 #include <sqlpp23/core/query/statement_handler.h>
+#include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <iostream>
 #include "sqlpp23/core/type_traits.h"
@@ -60,7 +61,7 @@ struct MockDb : public sqlpp::connection {
 
     template <typename ResultRow>
     void next(ResultRow& result_row) {
-      result_row._invalidate();
+      sqlpp::detail::result_row_bridge{}.invalidate(result_row);
     }
   };
 

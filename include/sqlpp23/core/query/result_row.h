@@ -42,6 +42,7 @@ struct result_field
     : public member_t<FieldSpec, typename FieldSpec::result_data_type> {
   using _field = member_t<FieldSpec, typename FieldSpec::result_data_type>;
 
+ protected:
   result_field() = default;
 
   template <typename Target>
@@ -53,21 +54,12 @@ struct result_field
   void _read_field(Target& target) {
     target.read_field(index, _field::operator()());
   }
-
-  template <typename Callable>
-  void _apply(Callable& callable) const {
-    callable(_field::operator()());
-  }
-
-  template <typename Callable>
-  void _apply(const Callable& callable) const {
-    callable(_field::operator()());
-  }
 };
 
 template <std::size_t... Is, typename... FieldSpecs>
 struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
     : public result_field<Is, FieldSpecs>... {
+ protected:
   result_row_impl() = default;
 
   template <typename Target>
@@ -80,37 +72,28 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
     (result_field<Is, FieldSpecs>::_read_field(target), ...);
   }
 
-  template <typename Callable>
-  void _apply(Callable& callable) const {
-    (result_field<Is, FieldSpecs>::_apply(callable), ...);
-  }
-
-  template <typename Callable>
-  void _apply(const Callable& callable) const {
-    (result_field<Is, FieldSpecs>::_apply(callable), ...);
+  auto _as_tuple() const {
+    return std::make_tuple(result_field<Is, FieldSpecs>::operator()()...);
   }
 };
+
+class result_row_bridge;
 }  // namespace detail
 
 template <typename... FieldSpecs>
 struct result_row_t : public detail::result_row_impl<
                           std::make_index_sequence<sizeof...(FieldSpecs)>,
                           FieldSpecs...> {
-  using _impl =
-      detail::result_row_impl<std::make_index_sequence<sizeof...(FieldSpecs)>,
-                              FieldSpecs...>;
-  bool _is_valid{false};
-
-  result_row_t() : _impl() {}
+  result_row_t() = default;
 
   result_row_t(const result_row_t&) = delete;
   result_row_t(result_row_t&&) = default;
   result_row_t& operator=(const result_row_t&) = delete;
   result_row_t& operator=(result_row_t&&) = default;
 
-  void _validate() { _is_valid = true; }
-
-  void _invalidate() { _is_valid = false; }
+  auto as_tuple() const {
+    return _impl::_as_tuple();
+  }
 
   bool operator==(const result_row_t& rhs) const {
     return _is_valid == rhs._is_valid;
@@ -118,7 +101,14 @@ struct result_row_t : public detail::result_row_impl<
 
   explicit operator bool() const { return _is_valid; }
 
-  static constexpr size_t static_size() { return sizeof...(FieldSpecs); }
+ private:
+  friend class detail::result_row_bridge;
+  using _impl =
+      detail::result_row_impl<std::make_index_sequence<sizeof...(FieldSpecs)>,
+                              FieldSpecs...>;
+  void _validate() { _is_valid = true; }
+
+  void _invalidate() { _is_valid = false; }
 
   template <typename Target>
   void _bind_fields(Target& target) {
@@ -130,16 +120,29 @@ struct result_row_t : public detail::result_row_impl<
     _impl::_read_fields(target);
   }
 
-  template <typename Callable>
-  void _apply(Callable& callable) const {
-    _impl::_apply(callable);
+  bool _is_valid{false};
+};
+
+namespace detail {
+class result_row_bridge {
+  public:
+  template<typename... FieldSpecs, typename Target>
+  void bind_fields(result_row_t<FieldSpecs...>& row, Target& target) {
+    row._bind_fields(target);
   }
 
-  template <typename Callable>
-  void _apply(const Callable& callable) const {
-    _impl::_apply(callable);
+  template<typename... FieldSpecs, typename Target>
+  void read_fields(result_row_t<FieldSpecs...>& row, Target& target) {
+    row._read_fields(target);
   }
+
+  template<typename... FieldSpecs>
+  void validate(result_row_t<FieldSpecs...>& row) { row._validate(); }
+
+  template<typename... FieldSpecs>
+  void invalidate(result_row_t<FieldSpecs...>& row) { row._invalidate(); }
 };
+}  // namespace detail
 
 template <typename Lhs, typename Rhs, typename Enable = void>
 struct is_result_compatible {
@@ -155,13 +158,4 @@ struct is_result_compatible<
       logic::all<is_field_compatible<LFields, RFields>::value...>::value;
 };
 
-template <typename Row, typename Callable>
-void for_each_field(const Row& row, const Callable& callable) {
-  row._apply(callable);
-}
-
-template <typename Row, typename Callable>
-void for_each_field(const Row& row, Callable& callable) {
-  row._apply(callable);
-}
 }  // namespace sqlpp

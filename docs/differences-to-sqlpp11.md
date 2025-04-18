@@ -15,8 +15,11 @@ If seems a bit dry, follow the links to examples.
 | **Data types** | | |
 | nullable values | `sqlpp::value_or_null` | `std::optional` |
 | `NULL` | `sqlpp::null` | `std::nullopt` |
-| `TEXT` result fields | `std::string` | `std::string_view` |
-| `BLOB` result fields | `std::vector<uint8_t>` | `std::span<uint8_t>` |
+| **Result row** | | |
+| result fields | specializations of the `result_field_t` template | standard types, like `int64_t`, `std::optional<int64_t>`, or `std::string_view` |
+| `TEXT` result fields | convertible to `std::string` | `std::string_view` |
+| `BLOB` result fields | convertible to `std::vector<uint8_t>` | `std::span<uint8_t>` |
+| programmatic access | `for_each_field` | `result_row_t::as_tuple()` |
 | | | |
 | [**Names**](tony_tables/names.md) | | |
 | creating names | `SQLPP_ALIAS_PROVIDER` | `SQLPP_CREATE_NAME_TAG` |
