@@ -159,8 +159,8 @@ int Select(int, char*[]) {
                         .as(max_int_n))
                  .from(tab));
       if (const auto& row = *result.begin()) {
-        std::optional<long> a = row.intN;
-        std::optional<long> m = row.max_int_n;
+        std::optional<int64_t> a = row.intN;
+        std::optional<int64_t> m = row.max_int_n;
         std::cerr << "-----------------------------" << a << ", " << m
                   << std::endl;
       }

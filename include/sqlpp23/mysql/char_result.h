@@ -178,7 +178,7 @@ class char_result_t {
     if (is_null) {
       value.reset();
     } else {
-      if (not value) {
+      if (not value.has_value()) {
         value = T{};
       }
       read_field(index, *value);

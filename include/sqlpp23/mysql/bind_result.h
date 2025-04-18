@@ -108,12 +108,12 @@ class bind_result_t {
                 << std::endl;
 
     auto& buffer{_handle->result_buffers[index]};
-    new (&buffer._bool) bool{};
+    new (&buffer.bool_) bool{};
 
     MYSQL_BIND& param{_handle->result_params[index]};
     param.buffer_type = MYSQL_TYPE_TINY;
-    param.buffer = &buffer._bool;
-    param.buffer_length = sizeof(buffer._bool);
+    param.buffer = &buffer.bool_;
+    param.buffer_length = sizeof(buffer.bool_);
     param.length = &buffer.length;
     param.is_null = &buffer.is_null;
     param.is_unsigned = false;
@@ -126,12 +126,12 @@ class bind_result_t {
                 << std::endl;
 
     auto& buffer{_handle->result_buffers[index]};
-    new (&buffer._int64) int64_t{};
+    new (&buffer.int64_) int64_t{};
 
     MYSQL_BIND& param{_handle->result_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
-    param.buffer = &buffer._int64;
-    param.buffer_length = sizeof(buffer._int64);
+    param.buffer = &buffer.int64_;
+    param.buffer_length = sizeof(buffer.int64_);
     param.length = &buffer.length;
     param.is_null = &buffer.is_null;
     param.is_unsigned = false;
@@ -144,12 +144,12 @@ class bind_result_t {
                 << index << std::endl;
 
     auto& buffer{_handle->result_buffers[index]};
-    new (&buffer._uint64) uint64_t{};
+    new (&buffer.uint64_) uint64_t{};
 
     MYSQL_BIND& param{_handle->result_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
-    param.buffer = &buffer._uint64;
-    param.buffer_length = sizeof(buffer._uint64);
+    param.buffer = &buffer.uint64_;
+    param.buffer_length = sizeof(buffer.uint64_);
     param.length = &buffer.length;
     param.is_null = &buffer.is_null;
     param.is_unsigned = true;
@@ -162,12 +162,12 @@ class bind_result_t {
                 << index << std::endl;
 
     auto& buffer{_handle->result_buffers[index]};
-    new (&buffer._double) double{};
+    new (&buffer.double_) double{};
 
     MYSQL_BIND& param{_handle->result_params[index]};
     param.buffer_type = MYSQL_TYPE_DOUBLE;
-    param.buffer = &buffer._double;
-    param.buffer_length = sizeof(buffer._double);
+    param.buffer = &buffer.double_;
+    param.buffer_length = sizeof(buffer.double_);
     param.length = &buffer.length;
     param.is_null = &buffer.is_null;
     param.is_unsigned = false;
@@ -210,12 +210,12 @@ class bind_result_t {
 
   void bind_chrono_field(size_t index, enum_field_types buffer_type) {
     auto& buffer{_handle->result_buffers[index]};
-    new (&buffer._mysql_time) MYSQL_TIME{};
+    new (&buffer.mysql_time_) MYSQL_TIME{};
 
     MYSQL_BIND& param{_handle->result_params[index]};
     param.buffer_type = buffer_type;
-    param.buffer = &buffer._mysql_time;
-    param.buffer_length = sizeof(buffer._mysql_time);
+    param.buffer = &buffer.mysql_time_;
+    param.buffer_length = sizeof(buffer.mysql_time_);
     param.length = &buffer.length;
     param.is_null = &buffer.is_null;
     param.is_unsigned = false;
@@ -256,28 +256,28 @@ class bind_result_t {
     if (_handle->debug)
       std::cerr << "MySQL debug: reading bool result at index: " << index
                 << std::endl;
-    value = _handle->result_buffers[index]._bool;
+    value = _handle->result_buffers[index].bool_;
   }
 
   void read_field(size_t index, int64_t& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: reading integral result at index: " << index
                 << std::endl;
-    value = _handle->result_buffers[index]._int64;
+    value = _handle->result_buffers[index].int64_;
   }
 
   void read_field(size_t index, uint64_t& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: reading unsigned integral result at index: "
                 << index << std::endl;
-    value = _handle->result_buffers[index]._uint64;
+    value = _handle->result_buffers[index].uint64_;
   }
 
   void read_field(size_t index, double& value) {
     if (_handle->debug)
       std::cerr << "MySQL debug: reading floating point result at index: "
                 << index << std::endl;
-    value = _handle->result_buffers[index]._double;
+    value = _handle->result_buffers[index].double_;
   }
 
   void refetch_if_required(size_t index) {
@@ -332,7 +332,7 @@ class bind_result_t {
       std::cerr << "MySQL debug: reading date result at index: " << index
                 << std::endl;
 
-    const auto& dt = _handle->result_buffers[index]._mysql_time;
+    const auto& dt = _handle->result_buffers[index].mysql_time_;
     if (dt.year > std::numeric_limits<int>::max())
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
@@ -345,7 +345,7 @@ class bind_result_t {
       std::cerr << "MySQL debug: reading date time result at index: " << index
                 << std::endl;
 
-    const auto& dt = _handle->result_buffers[index]._mysql_time;
+    const auto& dt = _handle->result_buffers[index].mysql_time_;
     if (dt.year > std::numeric_limits<int>::max())
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
@@ -362,7 +362,7 @@ class bind_result_t {
       std::cerr << "MySQL debug: reading date time result at index: " << index
                 << std::endl;
 
-    const auto& dt = _handle->result_buffers[index]._mysql_time;
+    const auto& dt = _handle->result_buffers[index].mysql_time_;
     value = std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +
             std::chrono::seconds(dt.second) +
             std::chrono::microseconds(dt.second_part);
@@ -374,7 +374,7 @@ class bind_result_t {
       value.reset();
       return;
     }
-    if (!value)
+    if (!value.has_value())
       value = T{};
     read_field(index, *value);
   }

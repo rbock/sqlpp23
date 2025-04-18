@@ -38,11 +38,11 @@ struct bind_result_buffer {
   my_bool error;
   union  // unnamed union injects members into scope
   {
-    bool _bool;
-    int64_t _int64;
-    uint64_t _uint64;
-    double _double;
-    MYSQL_TIME _mysql_time;
+    bool bool_;
+    int64_t int64_;
+    uint64_t uint64_;
+    double double_;
+    MYSQL_TIME mysql_time_;
   };
   std::vector<char> var_buffer;  // text and blobs
 };
