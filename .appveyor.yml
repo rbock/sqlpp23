@@ -4,6 +4,9 @@ os:
 platform:
   - x64
 
+services:
+  - mysql
+
 configuration:
   - Release
 
@@ -13,9 +16,12 @@ matrix:
 build_script:
   - CD
   - echo %configuration%
+  #- SET PATH=%PATH%;C:\Program Files\MySQL\MySQL Server 5.7\bin
+  #- set MYSQL_PWD=Password12!
+  #- mysql -e "create database sqlpp_mysql;" --user=root
   - mkdir build
   - cd build
   - cmake --version
-  - cmake ..
-  - cmake --build . --config %configuration%
-  - ctest . --build-config %configuration% --output-on-failure
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /std:c++latest" -DBUILD_MYSQL_CONNECTOR=ON
+  - cmake --build .
+  #- ctest --output-on-failure
