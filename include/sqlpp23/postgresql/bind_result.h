@@ -329,7 +329,7 @@ class bind_result_t {
     if (_handle->result.is_null(_handle->count, index)) {
       value.reset();
     } else {
-      if (not value) {
+      if (not value.has_value()) {
         value = T{};
       }
       read_field(_index, *value);
