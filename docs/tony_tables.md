@@ -2,9 +2,63 @@
 
 # Tony tables
 
-## select
+## `DELETE FROM`
 
 <table>
+<tr>
+<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
+</tr>
+</tr>
+<tr><td colspan=2>
+
+  **delete from**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+remove_from(tab).where(tab.id == 11);
+```
+
+</td>
+<td valign="top">
+
+```c++
+delete_from(tab).where(tab.id == 11);
+```
+
+</td>
+</tr>
+<tr><td colspan=2>
+
+  **truncate**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+remove_from(tab).unconditionally();
+```
+
+</td>
+<td valign="top">
+
+```c++
+truncate(tab);
+```
+
+</td>
+</tr>
+</table>
+
+## `SELECT`
+
+<table>
+<tr>
+<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
+</tr>
 </tr>
 <tr><td colspan=2>
 
@@ -25,9 +79,6 @@ select(tab.id).from(tab);
 ```
 
 </td>
-</tr>
-<tr>
-<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
 </tr>
 <tr><td colspan=2>
 
@@ -134,7 +185,7 @@ for (const auto& row :
 </tr>
 <tr><td colspan=2>
 
-  **Nested Dynamic**
+  **Nested dynamic**
 
 </td></tr>
 <tr>
