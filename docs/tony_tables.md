@@ -2,6 +2,70 @@
 
 # Tony tables
 
+## select
+
+<table>
+</tr>
+<tr><td colspan=2>
+
+  **Unconditional select**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+select(tab.id).from(tab).unconditionally();
+```
+</td>
+<td valign="top">
+
+```c++
+select(tab.id).from(tab);
+```
+
+</td>
+</tr>
+<tr>
+<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
+</tr>
+<tr><td colspan=2>
+
+  **Dynamically selected colum**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+auto s = dynamic_select(db, tab.id)
+             .from(tab)
+             .unconditionally();
+if (maybe) {
+  s.selected_columns.add(tab.int_value);
+}
+for (const auto& row : db(s)) {
+  const int64_t id = row.id;
+  const std::string need_to_parse =
+      row.at("int_value");
+}
+```
+</td>
+<td valign="top">
+
+```c++
+for (const auto& row :
+     db(select(tab.id,
+               dynamic(maybe, tab.int_value))
+            .from(tab))) {
+  const int64_t id = row.id;
+  const int64_t = row.int_value;
+}
+```
+
+</td>
+</table>
+
 ## Dynamic conditions
 
 Conditions can be used in `where`, `having`, for instance. The tables here use `where` as an example.
@@ -43,7 +107,7 @@ for (const auto& row :
 
 </td>
 </tr>
-<td colspan=2>
+<tr><td colspan=2>
 
   **Dynamic OR**
 
@@ -62,6 +126,33 @@ for (const auto& row :
      db(select(tab.id).from(tab).where(
          tab.lang == "c++" or
          dynamic(maybe_23, tab_version >= 23)))) {
+  do_something(row.id);
+}
+```
+
+</td>
+</tr>
+<tr><td colspan=2>
+
+  **Nested Dynamic**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+// Not supported.
+```
+</td>
+<td valign="top">
+
+```c++
+for (const auto& row :
+     db(select(tab.id).from(tab).where(
+         tab.lang == "c++" and
+         (tab.legacy == true or
+          dynamic(maybe_23,
+                  tab_version >= 23))))) {
   do_something(row.id);
 }
 ```
