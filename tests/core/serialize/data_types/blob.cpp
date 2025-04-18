@@ -24,11 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <array>
+#include <vector>
+
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
-
-#include <vector>
-#include <array>
 
 int main(int, char*[]) {
   // vector<uint8_t>
