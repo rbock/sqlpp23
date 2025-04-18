@@ -4,7 +4,7 @@
 
 This is a (probably incomplete) list of differences as of April 2025.
 
-If seems a bit dry, try [tony tables](tony_tables.md).
+If seems a bit dry, follow the links to examples.
 
 | % | sqlpp11 | sqlpp23 |
 | :------------- | :------------- | :----- |
@@ -12,35 +12,35 @@ If seems a bit dry, try [tony tables](tony_tables.md).
 | statement data members | all public | fewer and private (less noisy) |
 | connection functions | all public | *only* API public (less noisy) |
 | | | |
-|| **Data types** | | |
+| **Data types** | | |
 | nullable values | `sqlpp::value_or_null` | `std::optional` |
 | `NULL` | `sqlpp::null` | `std::nullopt` |
 | `TEXT` result fields | `std::string` | `std::string_view` |
 | `BLOB` result fields | `std::vector<uint8_t>` | `std::span<uint8_t>` |
 | | | |
-|| **Names** | | |
+| [**Names**](tony_tables/names.md) | | |
 | creating names | `SQLPP_ALIAS_PROVIDER` | `SQLPP_CREATE_NAME_TAG` |
 | creating quoted names | `SQLPP_QUOTED_ALIAS_PROVIDER` | `SQLPP_CREATE_QUOTED_NAME_TAG` |
 | | | |
-| **Dynamic queries** | | |
+| [**Dynamic queries**](tony_tables/dynamic_queries.md) | | |
 | clauses | separate calls to add dynamic parts with very few compile time checks | directly embedded in statement using `dynamic()` with many compile time checks |
 | `where` conditions | dynamic `and` supported without nesting | dynamic `and` and `or` supported at any nesting level |
 | result fields | dynamic result fields in `std::map<std::string, std::string>` | correctly typed and named data members of result rows |
 | | | |
-|| **Executing statements** | | |
+| **Executing statements** | | |
 | `operator()` | executes statements, but not strings | executes statements and strings |
 | `execute` | executes strings and non-select statements | *dropped* |
 | `query` | executes select statements | *dropped* |
 | | | |
-| **Constraints** | | |
+| [**Constraints**](tony_tables/constraints.md) | | |
 | read-only columns  | e.g. for auto-increment | *dropped* |
 | required `where`  | in `select`, `update`, `remove` | *dropped* |
 | `unconditionally()`  | to explicitly omit `where` or `on` condition in joins | *dropped* |
 | | | |
-| **Clauses** | | |
+| [**Clauses**](tony_tables/clauses.md) | | |
 | `DELETE FROM`  | `remove_from` | `delete_from` |
-| `LIMIT` & `OFFSET`  | require unsigned argument | any integer argument |
 | `TRUNCATE`  | N/A | `truncate` |
+| `LIMIT` & `OFFSET`  | require unsigned argument | any integer argument |
 | custom queries  | `sqlpp::custom_query` | clauses can be concatenated using `operator<<` |
 | | | |
 | **Functions** | | |

@@ -1,57 +1,6 @@
-[**\< Index**](README.md)
+[**\< Differences**](../differences-to-sqlpp11.md)
 
-# Tony tables
-
-## `DELETE FROM`
-
-<table>
-<tr>
-<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
-</tr>
-</tr>
-<tr><td colspan=2>
-
-  **delete from**
-
-</td></tr>
-<tr>
-<td  valign="top">
-
-```c++
-remove_from(tab).where(tab.id == 11);
-```
-
-</td>
-<td valign="top">
-
-```c++
-delete_from(tab).where(tab.id == 11);
-```
-
-</td>
-</tr>
-<tr><td colspan=2>
-
-  **truncate**
-
-</td></tr>
-<tr>
-<td  valign="top">
-
-```c++
-remove_from(tab).unconditionally();
-```
-
-</td>
-<td valign="top">
-
-```c++
-truncate(tab);
-```
-
-</td>
-</tr>
-</table>
+# Before and after: dynamic queries
 
 ## `SELECT`
 
@@ -59,26 +8,6 @@ truncate(tab);
 <tr>
 <th align="left">sqlpp11</th><th align="left">sqlpp23</th>
 </tr>
-</tr>
-<tr><td colspan=2>
-
-  **Unconditional select**
-
-</td></tr>
-<tr>
-<td  valign="top">
-
-```c++
-select(tab.id).from(tab).unconditionally();
-```
-</td>
-<td valign="top">
-
-```c++
-select(tab.id).from(tab);
-```
-
-</td>
 </tr>
 <tr><td colspan=2>
 
@@ -212,5 +141,5 @@ for (const auto& row :
 </tr>
 </table>
 
-[**\< Index**](README.md)
+[**\< Differences**](../differences-to-sqlpp11.md)
 

@@ -97,7 +97,7 @@ int CustomQuery(int, char*[]) {
             .get());
 
   // A custom (select ... into) with adjusted return type
-  // The first argument with a return type is the select, but the custom query
+  // The last clause with a return type is the select, but the custom query
   // is really an insert. Thus, we tell it so.
   auto c = select(all_of(t)).from(t)
            << into(f) << with_result_type_of(insert_into(f));
