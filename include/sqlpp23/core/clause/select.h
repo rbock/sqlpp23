@@ -40,7 +40,6 @@
 #include <sqlpp23/core/clause/select_flag_list.h>
 #include <sqlpp23/core/clause/union.h>
 #include <sqlpp23/core/clause/where.h>
-#include <sqlpp23/core/clause/with.h>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/wrong.h>
 
@@ -60,8 +59,7 @@ struct consistency_check<Statement, select_t> {
   using type = consistent_t;
 };
 
-using blank_select_t = statement_t<no_with_t,
-                                   select_t,
+using blank_select_t = statement_t<select_t,
                                    no_select_flag_list_t,
                                    no_select_column_list_t,
                                    no_from_t,

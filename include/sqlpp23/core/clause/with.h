@@ -48,11 +48,6 @@ struct with_t {
   with_t& operator=(with_t&&) = default;
   ~with_t() = default;
 
-  template <typename Statement>
-  auto operator()(Statement&& statement) {
-    return new_statement<no_with_t>(std::forward<Statement>(statement), *this);
-  }
-
  private:
   friend reader_t;
   std::tuple<Ctes...> _ctes;

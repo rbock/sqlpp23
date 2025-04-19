@@ -10,8 +10,7 @@ selected or used in a `where` clause.
 ```c++
 const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
 
-for (const auto& row : db(with(x)(
-                             select(x.id).from(x).where(x.id < 17)))) {
+for (const auto& row : db(with(x) << select(x.id).from(x).where(x.id < 17))) {
   // ...
 }
 ```

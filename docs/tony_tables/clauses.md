@@ -53,6 +53,46 @@ truncate(tab);
 </tr>
 </table>
 
+## `WITH`
+
+<table>
+<tr>
+<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
+</tr>
+</tr>
+<tr><td colspan=2>
+
+  **with ... select**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+const auto a = get_my_cte();
+
+for (const auto& row :
+     db(with(a)(select(a.intN).from(a)))) {
+  // use row.intN
+}
+```
+
+</td>
+<td valign="top">
+
+```c++
+const auto a = get_my_cte();
+
+for (const auto& row :
+     db(with(a) << select(a.intN).from(a))) {
+  // use row.intN
+}
+```
+
+</td>
+</tr>
+</table>
+
 ## Custom queries
 
 Custom queries can be used to construct statements that the library does not support directly.

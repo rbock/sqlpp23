@@ -42,8 +42,9 @@ If seems a bit dry, follow the links to examples.
 | | | |
 | [**Clauses**](tony_tables/clauses.md) | | |
 | `DELETE FROM`  | `remove_from` | `delete_from` |
-| `TRUNCATE`  | N/A | `truncate` |
 | `LIMIT` & `OFFSET`  | require unsigned argument | any integer argument |
+| `TRUNCATE`  | N/A | `truncate` |
+| `WITH`  | connect `with` with statement using `operator()` | connect `with` with statement using `operator<<` |
 | custom queries  | `sqlpp::custom_query` | clauses can be concatenated using `operator<<` |
 | | | |
 | **Functions** | | |

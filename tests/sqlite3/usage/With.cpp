@@ -55,12 +55,12 @@ int With(int, char*[]) {
 
   auto a = sqlpp::cte(sqlpp::alias::a)
                .as(select(all_of(tab)).from(tab).where(tab.intN > 3));
-  for (const auto& row : db(with(a)(select(a.intN).from(a)))) {
+  for (const auto& row : db(with(a) << select(a.intN).from(a))) {
     std::cout << row.intN << std::endl;
   }
 
-  for (const auto& row : db(with(a.union_all(select(all_of(a)).from(a)))(
-           select(all_of(a)).from(a)))) {
+  for (const auto& row : db(with(a.union_all(select(all_of(a)).from(a)))
+                            << select(all_of(a)).from(a))) {
     std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 
