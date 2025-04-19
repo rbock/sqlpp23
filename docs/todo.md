@@ -2,6 +2,12 @@
 Add tests that use result_t in range operations. Also check if result_t::iterator satisfies the std::input_iterator concept.
 
 # Allow use as module
+## And/or: Suppress export of symbols
+
+Some compilers tend to export all the generated symbols, which is a bit annoying
+in case of template-heavy libraries like sqlpp23 (leads to larger files and
+longer compile/link/startup times, I believe). There are ways to suppress this
+in most compilers, afaik.
 
 # Need to document: aggregates
 They must not be mixed in a select.
@@ -45,3 +51,9 @@ See https://github.com/rbock/sqlpp11/issues/600
 
 # Support for pragma tables
 See https://github.com/rbock/sqlpp11/issues/553
+
+## Async support
+
+Obtain results in an asynchronous fashion, see #35, for instance.
+
+
