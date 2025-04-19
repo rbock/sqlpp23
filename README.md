@@ -1,10 +1,10 @@
 # sqlpp23
 
 sqlpp23 is a type safe embedded domain specific language for SQL queries and results in C++.
-It allows you to write SQL in the form of C++ expression:
+It allows you to write SQL in the form of C++ expressions:
 
-  * tables, columns, result fields are represented as structs or data members
-  * statements and clauses are constructed by functions
+  * Tables, columns, result fields are represented as structs or data members
+  * Statements and clauses are constructed by functions
   * Your IDE can help you write SQL in C++
   * Your compiler will find a lot of typical mistakes long before they hit integration tests or even production, e.g.
     * typos
