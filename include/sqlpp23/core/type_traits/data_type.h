@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <array>
 #include <cstdint>
 #include <optional>
 #include <span>

@@ -21,7 +21,6 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-add_subdirectory(core/)
 
 add_library(sqlpp23_testing INTERFACE)
 target_include_directories(sqlpp23_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -30,7 +29,9 @@ if (NOT MSVC)
     target_compile_options(sqlpp23_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
-if(BUILD_MYSQL_CONNECTOR)
+add_subdirectory(core)
+
+if(BUILD_MYSQL_CONNECTOR OR BUILD_MARIADB_CONNECTOR)
     add_subdirectory(mysql)
 endif()
 

@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <array>
 #include <cmath>
 #include <iomanip>
 #include <optional>
