@@ -1,5 +1,5 @@
-sqlpp23
-=======
+# sqlpp23
+
 sqlpp23 is a type safe embedded domain specific language for SQL queries and results in C++.
 It allows you to write SQL in the form of C++ expression:
 
@@ -27,8 +27,8 @@ Documentation is found in [docs](docs/README.md).
 
 If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be interested in [differences](docs/differences-to-sqlpp11.md).
 
-Examples:
----------
+## Examples:
+
 Let's assume we have a database connection object `db` and a table object `foo` representing something like
 
 ```SQL
@@ -51,7 +51,7 @@ db(update(foo).set(foo.name = std::nullopt).where(foo.name != "nobody"));
 
 [delete](docs/delete.md)
 ```C++
-db(remove_from(foo).where(not foo.hasFun));
+db(delete_from(foo).where(not foo.hasFun));
 ```
 
 [select](docs/select.md)
@@ -79,17 +79,20 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
   }
 ```
 
-Requirements:
--------------
+## Requirements:
+
 __Compiler:__
 sqlpp23 makes use of C++23 and requires a recent compiler and standard library.
 
 License:
--------------
+
 sqlpp23 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp23/blob/main/LICENSE).
 
-Getting involved:
-----------------
+## Status:
+[![Build status](https://ci.appveyor.com/api/projects/status/9kyafm5p1xq5j0ax/branch/main?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp23/branch/main)
+
+## Getting involved:
+
 Feature requests, bug reports, contributions to code or documentation are most welcome.
 
   * Issues at https://github.com/rbock/sqlpp23/issues
