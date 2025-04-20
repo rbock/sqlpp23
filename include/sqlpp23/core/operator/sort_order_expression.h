@@ -51,10 +51,6 @@ struct sort_order_expression {
 };
 
 template <typename L>
-using check_sort_order_args =
-    std::enable_if_t<values_are_comparable<L, L>::value>;
-
-template <typename L>
 struct nodes_of<sort_order_expression<L>> {
   using type = detail::type_vector<L>;
 };
@@ -76,17 +72,20 @@ auto to_sql_string(Context& context, const sort_order_expression<L>& t)
   return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
 }
 
-template <typename L, typename = check_sort_order_args<L>>
+template <typename L>
+requires(values_are_comparable<L, L>::value)
 constexpr auto asc(L l) -> sort_order_expression<L> {
   return {l, sort_type::asc};
 }
 
-template <typename L, typename = check_sort_order_args<L>>
+template <typename L>
+requires(values_are_comparable<L, L>::value)
 constexpr auto desc(L l) -> sort_order_expression<L> {
   return {l, sort_type::desc};
 }
 
-template <typename L, typename = check_sort_order_args<L>>
+template <typename L>
+requires(values_are_comparable<L, L>::value)
 constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
   return {l, order};
 }

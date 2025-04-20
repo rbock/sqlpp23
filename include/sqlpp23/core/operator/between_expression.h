@@ -47,11 +47,6 @@ struct between_expression : public enable_as<between_expression<L, R1, R2>> {
 };
 
 template <typename L, typename R1, typename R2>
-using check_between_args =
-    std::enable_if_t<values_are_comparable<L, R1>::value and
-                     values_are_comparable<L, R2>::value>;
-
-template <typename L, typename R1, typename R2>
 struct data_type_of<between_expression<L, R1, R2>>
     : public std::conditional<
           sqlpp::is_optional<data_type_of_t<L>>::value or
@@ -78,10 +73,9 @@ auto to_sql_string(Context& context, const between_expression<L, R1, R2>& t)
   return ret_val + operand_to_sql_string(context, t._r2);
 }
 
-template <typename L,
-          typename R1,
-          typename R2,
-          typename = check_between_args<L, R1, R2>>
+template <typename L, typename R1, typename R2>
+  requires(values_are_comparable<L, R1>::value and
+           values_are_comparable<L, R2>::value)
 constexpr auto between(L l, R1 r1, R2 r2) -> between_expression<L, R1, R2> {
   return {std::move(l), std::move(r1), std::move(r2)};
 }

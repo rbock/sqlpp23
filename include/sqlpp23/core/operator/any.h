@@ -69,11 +69,8 @@ auto to_sql_string(Context& context, const any_t<Select>& t) -> std::string {
   return "ANY (" + to_sql_string(context, t._select) + ")";
 }
 
-template <typename Select>
-using check_any_args = std::enable_if_t<has_data_type<Select>::value>;
-
-template <typename... Clauses,
-          typename = check_any_args<statement_t<Clauses...>>>
+template <typename... Clauses>
+  requires(has_data_type<statement_t<Clauses...>>::value)
 auto any(statement_t<Clauses...> t) -> any_t<statement_t<Clauses...>> {
   statement_consistency_check_t<statement_t<Clauses...>>::verify();
   return {std::move(t)};

@@ -60,15 +60,6 @@ struct nodes_of<bit_expression<L, Operator, R>> {
   using type = detail::type_vector<L, R>;
 };
 
-template <typename L, typename R>
-using check_bit_expression_args =
-    std::enable_if_t<is_integral<L>::value and is_integral<R>::value>;
-
-template <typename L, typename R>
-using check_bit_shift_expression_args =
-    std::enable_if_t<is_integral<L>::value and
-                     (is_integral<R>::value or is_unsigned_integral<R>::value)>;
-
 template <typename L, typename Operator, typename R>
 struct requires_parentheses<bit_expression<L, Operator, R>>
     : public std::true_type {};
@@ -85,7 +76,8 @@ struct bit_and {
   static constexpr auto symbol = " & ";
 };
 
-template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+template <typename L, typename R>
+  requires(is_integral<L>::value and is_integral<R>::value)
 constexpr auto operator&(L l, R r) -> bit_expression<L, bit_and, R> {
   return {std::move(l), std::move(r)};
 }
@@ -94,7 +86,8 @@ struct bit_or {
   static constexpr auto symbol = " | ";
 };
 
-template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+template <typename L, typename R>
+  requires(is_integral<L>::value and is_integral<R>::value)
 constexpr auto operator|(L l, R r) -> bit_expression<L, bit_or, R> {
   return {std::move(l), std::move(r)};
 }
@@ -103,7 +96,8 @@ struct bit_xor {
   static constexpr auto symbol = " ^ ";
 };
 
-template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+template <typename L, typename R>
+  requires(is_integral<L>::value and is_integral<R>::value)
 constexpr auto operator^(L l, R r) -> bit_expression<L, bit_xor, R> {
   return {std::move(l), std::move(r)};
 }
@@ -112,7 +106,8 @@ struct bit_not {
   static constexpr auto symbol = "~";
 };
 
-template <typename R, typename = check_bit_expression_args<R, R>>
+template <typename R>
+  requires(is_integral<R>::value)
 constexpr auto operator~(R r) -> bit_expression<noop, bit_not, R> {
   return {{}, std::move(r)};
 }
@@ -121,9 +116,9 @@ struct bit_shift_left {
   static constexpr auto symbol = " << ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_bit_shift_expression_args<L, R>>
+template <typename L, typename R>
+  requires(is_integral<L>::value and
+           (is_integral<R>::value or is_unsigned_integral<R>::value))
 constexpr auto operator<<(L l, R r) -> bit_expression<L, bit_shift_left, R> {
   return {std::move(l), std::move(r)};
 }
@@ -132,9 +127,9 @@ struct bit_shift_right {
   static constexpr auto symbol = " >> ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_bit_shift_expression_args<L, R>>
+template <typename L, typename R>
+  requires(is_integral<L>::value and
+           (is_integral<R>::value or is_unsigned_integral<R>::value))
 constexpr auto operator>>(L l, R r) -> bit_expression<L, bit_shift_right, R> {
   return {std::move(l), std::move(r)};
 }

@@ -26,8 +26,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <type_traits>
-
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/query/statement.h>
@@ -51,10 +49,6 @@ struct exists_expression : public enable_as<exists_expression<Select>> {
 };
 
 template <typename Select>
-using check_exists_arg = std::enable_if_t<is_statement<Select>::value and
-                                          has_result_row<Select>::value>;
-
-template <typename Select>
 struct data_type_of<exists_expression<Select>> {
   using type = boolean;
 };
@@ -70,8 +64,9 @@ auto to_sql_string(Context& context, const exists_expression<Select>& t)
   return "EXISTS (" + to_sql_string(context, t._select) + ")";
 }
 
-template <typename... Clauses,
-          typename = check_exists_arg<statement_t<Clauses...>>>
+template <typename... Clauses>
+  requires(is_statement<statement_t<Clauses...>>::value and
+           has_result_row<statement_t<Clauses...>>::value)
 constexpr auto exists(statement_t<Clauses...> s)
     -> exists_expression<statement_t<Clauses...>> {
   statement_consistency_check_t<statement_t<Clauses...>>::verify();

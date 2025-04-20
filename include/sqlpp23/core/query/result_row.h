@@ -144,16 +144,15 @@ class result_row_bridge {
 };
 }  // namespace detail
 
-template <typename Lhs, typename Rhs, typename Enable = void>
+template <typename Lhs, typename Rhs>
 struct is_result_compatible {
   static constexpr auto value = false;
 };
 
 template <typename LDb, typename... LFields, typename RDb, typename... RFields>
-struct is_result_compatible<
-    result_row_t<LDb, LFields...>,
-    result_row_t<RDb, RFields...>,
-    typename std::enable_if<sizeof...(LFields) == sizeof...(RFields)>::type> {
+  requires(sizeof...(LFields) == sizeof...(RFields))
+struct is_result_compatible<result_row_t<LDb, LFields...>,
+                            result_row_t<RDb, RFields...>> {
   static constexpr auto value =
       logic::all<is_field_compatible<LFields, RFields>::value...>::value;
 };

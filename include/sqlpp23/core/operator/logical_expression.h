@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
+#include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/noop.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/query/dynamic.h>
@@ -56,10 +57,6 @@ struct logical_expression
   L _l;
   R _r;
 };
-
-template <typename L, typename R>
-using check_logical_args =
-    std::enable_if_t<is_boolean<L>::value and is_boolean<R>::value>;
 
 template <typename L, typename Operator, typename R>
 struct data_type_of<logical_expression<L, Operator, R>>
@@ -133,16 +130,12 @@ auto to_sql_string(Context& context,
   return to_sql_string(context, t._l);
 }
 
-template <typename L,
-          typename R,
-          typename = check_logical_args<L, remove_dynamic_t<R>>>
+template <StaticBoolean L, DynamicBoolean R>
 constexpr auto operator and(L l, R r) -> logical_expression<L, logical_and, R> {
   return {std::move(l), std::move(r)};
 }
 
-template <typename L,
-          typename R,
-          typename = check_logical_args<L, remove_dynamic_t<R>>>
+template <StaticBoolean L, DynamicBoolean R>
 constexpr auto operator||(L l, R r) -> logical_expression<L, logical_or, R> {
   return {std::move(l), std::move(r)};
 }
@@ -151,7 +144,7 @@ struct logical_not {
   static constexpr auto symbol = "NOT ";
 };
 
-template <typename R, typename = check_logical_args<R, R>>
+template <StaticBoolean R>
 constexpr auto operator!(R r) -> logical_expression<noop, logical_not, R> {
   return {{}, std::move(r)};
 }

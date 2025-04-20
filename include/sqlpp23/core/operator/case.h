@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/name/char_sequence.h>
 #include <sqlpp23/core/operator/enable_as.h>
@@ -79,13 +80,9 @@ class case_then_t {
   case_then_t& operator=(case_then_t&&) = default;
   ~case_then_t() = default;
 
-  template <typename Else,
-            typename = std::enable_if_t<has_data_type<Else>::value>>
+  template <typename Else>
+    requires(values_are_comparable<Then, Else>::value)
   auto else_(Else else_) -> case_t<When, Then, Else> {
-    SQLPP_STATIC_ASSERT(
-        (values_are_comparable<Then, Else>::value),
-        "argument of then() and else() are not of the same type");
-
     return case_t<When, Then, Else>{_when, _then, else_};
   }
 
@@ -109,8 +106,8 @@ class case_when_t {
   case_when_t& operator=(case_when_t&&) = default;
   ~case_when_t() = default;
 
-  template <typename Then,
-            typename = std::enable_if_t<has_data_type<Then>::value>>
+  template <typename Then>
+    requires(has_data_type<Then>::value)
   auto then(Then t) -> case_then_t<When, Then> {
     return case_then_t<When, Then>{_when, std::move(t)};
   }
@@ -128,7 +125,7 @@ auto to_sql_string(Context& context, const case_t<When, Then, Else>& t)
   return ret_val + " ELSE " + operand_to_sql_string(context, t._else) + " END";
 }
 
-template <typename When, typename = std::enable_if_t<is_boolean<When>::value>>
+template <StaticBoolean When>
 auto case_when(When when) -> case_when_t<When> {
   return case_when_t<When>{std::move(when)};
 }

@@ -137,10 +137,9 @@ int main() {
     // OK
     static_assert(can_call_else_with<CW, decltype(bar.textN)>::value, "");
     static_assert(can_call_else_with<CW, decltype(foo.textNnD)>::value, "");
-    static_assert(
-        can_call_else_with<CW,
-                           decltype(std::optional<int>(std::nullopt))>::value,
-        "");
+    static_assert(can_call_else_with<CW, decltype(std::optional<std::string>(
+                                             std::nullopt))>::value,
+                  "");
 
     // OK: the value type of CASE is determined by the THEN expression.
     static_assert(can_call_else_with<CW, decltype(std::nullopt)>::value, "");
@@ -152,11 +151,6 @@ int main() {
         not can_call_else_with<CW, decltype(bar.boolNn.as(something))>::value,
         "");
     static_assert(not can_call_else_with<CW, decltype(bar)>::value, "");
-
-    // Fail: Anything that does not have a text value.
-    SQLPP_CHECK_STATIC_ASSERT(
-        cw.else_(bar.id),
-        "argument of then() and else() are not of the same type");
   }
 
   // -----------------------
@@ -169,10 +163,9 @@ int main() {
     // OK
     static_assert(can_call_else_with<CW, decltype(bar.textN)>::value, "");
     static_assert(can_call_else_with<CW, decltype(foo.textNnD)>::value, "");
-    static_assert(
-        can_call_else_with<CW,
-                           decltype(std::optional<int>(std::nullopt))>::value,
-        "");
+    static_assert(can_call_else_with<CW, decltype(std::optional<std::string>(
+                                             std::nullopt))>::value,
+                  "");
 
     // OK: the value type of CASE is determined by the THEN expression.
     static_assert(can_call_else_with<CW, decltype(std::nullopt)>::value, "");
@@ -184,10 +177,5 @@ int main() {
         not can_call_else_with<CW, decltype(bar.boolNn.as(something))>::value,
         "");
     static_assert(not can_call_else_with<CW, decltype(bar)>::value, "");
-
-    // Fail: Anything that does not have a text value.
-    SQLPP_CHECK_STATIC_ASSERT(
-        cw.else_(bar.id),
-        "argument of then() and else() are not of the same type");
   }
 }

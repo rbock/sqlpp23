@@ -49,10 +49,6 @@ struct comparison_expression
   R _r;
 };
 
-template <typename L, typename R>
-using check_comparison_args =
-    std::enable_if_t<values_are_comparable<L, R>::value>;
-
 template <typename L, typename Operator, typename R>
 struct data_type_of<comparison_expression<L, Operator, R>>
     : std::conditional<
@@ -111,9 +107,8 @@ struct less {
 // We are using remove_any_t in the basic comparison operators to allow
 // comparison with ANY-expressions. Note: any_t does not have a specialization
 // for data_type_of to disallow it from being used in other contexts.
-template <typename L,
-          typename R,
-          typename = check_comparison_args<L, remove_any_t<R>>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator<(L l, R r) -> comparison_expression<L, less, R> {
   return {std::move(l), std::move(r)};
 }
@@ -122,9 +117,8 @@ struct less_equal {
   static constexpr auto symbol = " <= ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_comparison_args<L, remove_any_t<R>>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator<=(L l, R r) -> comparison_expression<L, less_equal, R> {
   return {std::move(l), std::move(r)};
 }
@@ -133,9 +127,8 @@ struct equal_to {
   static constexpr auto symbol = " = ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_comparison_args<L, remove_any_t<R>>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator==(L l, R r) -> comparison_expression<L, equal_to, R> {
   return {std::move(l), std::move(r)};
 }
@@ -144,9 +137,8 @@ struct not_equal_to {
   static constexpr auto symbol = " <> ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_comparison_args<L, remove_any_t<R>>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator!=(L l, R r)
     -> comparison_expression<L, not_equal_to, R> {
   return {std::move(l), std::move(r)};
@@ -156,9 +148,8 @@ struct greater_equal {
   static constexpr auto symbol = " >= ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_comparison_args<L, remove_any_t<R>>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator>=(L l, R r)
     -> comparison_expression<L, greater_equal, R> {
   return {std::move(l), std::move(r)};
@@ -168,9 +159,8 @@ struct greater {
   static constexpr auto symbol = " > ";
 };
 
-template <typename L,
-          typename R,
-          typename = check_comparison_args<L, remove_any_t<R>>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator>(L l, R r) -> comparison_expression<L, greater, R> {
   return {std::move(l), std::move(r)};
 }
@@ -201,7 +191,8 @@ struct op_is_distinct_from {
   // DISTINCT FROM` sqlite3 has `IS NOT`
 };
 
-template <typename L, typename R, typename = check_comparison_args<L, R>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, R>::value)
 constexpr auto is_distinct_from(L l, R r)
     -> comparison_expression<L, op_is_distinct_from, R> {
   return {l, r};
@@ -213,7 +204,8 @@ struct op_is_not_distinct_from {
   // sqlite3 has `IS`
 };
 
-template <typename L, typename R, typename = check_comparison_args<L, R>>
+template <typename L, typename R>
+  requires(values_are_comparable<L, R>::value)
 constexpr auto is_not_distinct_from(L l, R r)
     -> comparison_expression<L, op_is_not_distinct_from, R> {
   return {l, r};
@@ -224,10 +216,7 @@ struct op_like {
 };
 
 template <typename L, typename R>
-using check_like_args =
-    std::enable_if_t<is_text<L>::value and is_text<R>::value>;
-
-template <typename L, typename R, typename = check_comparison_args<L, R>>
+  requires(is_text<L>::value and is_text<R>::value)
 constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R> {
   return {std::move(l), std::move(r)};
 }
