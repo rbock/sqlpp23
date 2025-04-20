@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -45,37 +46,36 @@ struct operator_not_in {
 
 template <typename L, typename Operator, typename Container>
 struct in_expression : public enable_as<in_expression<L, Operator, Container>> {
-  constexpr in_expression(L l, Container r)
-      : _l(std::move(l)), _r(std::move(r)) {}
+  constexpr in_expression(L lhs, Container rhs)
+      : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   in_expression(const in_expression&) = default;
   in_expression(in_expression&&) = default;
   in_expression& operator=(const in_expression&) = default;
   in_expression& operator=(in_expression&&) = default;
   ~in_expression() = default;
 
-  L _l;
-  Container _r;
+ private:
+  friend reader_t;
+  L _lhs;
+  Container _rhs;
 };
 
 template <typename L, typename Operator, typename... Args>
 struct in_expression<L, Operator, std::tuple<Args...>>
     : public enable_as<in_expression<L, Operator, std::tuple<Args...>>> {
-  constexpr in_expression(L l, std::tuple<Args...> r)
-      : _l(std::move(l)), _r(std::move(r)) {}
+  constexpr in_expression(L lhs, std::tuple<Args...> rhs)
+      : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   in_expression(const in_expression&) = default;
   in_expression(in_expression&&) = default;
   in_expression& operator=(const in_expression&) = default;
   in_expression& operator=(in_expression&&) = default;
   ~in_expression() = default;
 
-  L _l;
-  std::tuple<Args...> _r;
+ private:
+  friend reader_t;
+  L _lhs;
+  std::tuple<Args...> _rhs;
 };
-
-template <typename L, typename... Args>
-using check_in_args = std::enable_if_t<
-    (sizeof...(Args) != 0) and
-    logic::all<values_are_comparable<L, Args>::value...>::value>;
 
 template <typename L, typename Operator, typename R>
 struct data_type_of<in_expression<L, Operator, std::vector<R>>>
@@ -114,11 +114,11 @@ template <typename Context, typename L, typename Operator, typename... Args>
 auto to_sql_string(Context& context,
                    const in_expression<L, Operator, std::tuple<Args...>>& t)
     -> std::string {
-  auto result = operand_to_sql_string(context, t._l) + Operator::symbol + " (";
+  auto result = operand_to_sql_string(context, read.lhs(t)) + Operator::symbol + " (";
   if (sizeof...(Args) == 1) {
-    result += to_sql_string(context, std::get<0>(t._r));
+    result += to_sql_string(context, std::get<0>(read.rhs(t)));
   } else {
-    result += tuple_to_sql_string(context, t._r, tuple_operand{", "});
+    result += tuple_to_sql_string(context, read.rhs(t), tuple_operand{", "});
   }
   result += ")";
   return result;
@@ -131,24 +131,16 @@ template <typename Context, typename L, typename Operator, typename R>
 auto to_sql_string(Context& context,
                    const in_expression<L, Operator, std::vector<R>>& t)
     -> std::string {
-  if (t._r.empty()) {
-    // SQL would normally treat this as a bug in the query.
-    // IN requires one parameter at least.
-    // But the statement "L NOT IN empty_set" is true, so let's treat this as a
-    // bool result.
-    return to_sql_string(context,
-                         std::is_same<Operator, operator_not_in>::value);
-  }
-  auto result = to_sql_string(context, t._l) + Operator::symbol + " (";
+  auto result = to_sql_string(context, read.lhs(t)) + Operator::symbol + " (";
   bool first = true;
-  for (const auto& entry : t._r) {
+  for (const auto& entry : read.rhs(t)) {
     if (first) {
       first = false;
     } else {
       result += ", ";
     }
 
-    if (t._r.size() == 1) {
+    if (read.rhs(t).size() == 1) {
       // A single entry does not need extra parentheses.
       result += to_sql_string(context, entry);
     } else {
@@ -159,42 +151,52 @@ auto to_sql_string(Context& context,
   return result;
 }
 
-template <typename L, typename... Args, typename = check_in_args<L, Args...>>
-constexpr auto in(L l, std::tuple<Args...> args)
+template <typename L, typename... Args>
+  requires((sizeof...(Args) != 0) and
+           logic::all<values_are_comparable<L, Args>::value...>::value)
+constexpr auto in(L lhs, std::tuple<Args...> args)
     -> in_expression<L, operator_in, std::tuple<Args...>> {
   static_assert(sizeof...(Args) > 0, "");
-  return {std::move(l), std::move(args)};
+  return {std::move(lhs), std::move(args)};
 }
 
-template <typename L, typename... Args, typename = check_in_args<L, Args...>>
-constexpr auto in(L l, Args... args)
+template <typename L, typename... Args>
+  requires((sizeof...(Args) != 0) and
+           logic::all<values_are_comparable<L, Args>::value...>::value)
+constexpr auto in(L lhs, Args... args)
     -> in_expression<L, operator_in, std::tuple<Args...>> {
   static_assert(sizeof...(Args) > 0, "");
-  return {std::move(l), std::make_tuple(std::move(args)...)};
+  return {std::move(lhs), std::make_tuple(std::move(args)...)};
 }
 
-template <typename L, typename Arg, typename = check_in_args<L, Arg>>
-constexpr auto in(L l, std::vector<Arg> args)
+template <typename L, typename Arg>
+  requires(values_are_comparable<L, Arg>::value)
+constexpr auto in(L lhs, std::vector<Arg> args)
     -> in_expression<L, operator_in, std::vector<Arg>> {
-  return {std::move(l), std::move(args)};
+  return {std::move(lhs), std::move(args)};
 }
 
-template <typename L, typename... Args, typename = check_in_args<L, Args...>>
-constexpr auto not_in(L l, std::tuple<Args...> args)
+template <typename L, typename... Args>
+  requires((sizeof...(Args) != 0) and
+           logic::all<values_are_comparable<L, Args>::value...>::value)
+constexpr auto not_in(L lhs, std::tuple<Args...> args)
     -> in_expression<L, operator_not_in, std::tuple<Args...>> {
-  return {std::move(l), std::move(args)};
+  return {std::move(lhs), std::move(args)};
 }
 
-template <typename L, typename... Args, typename = check_in_args<L, Args...>>
-constexpr auto not_in(L l, Args... args)
+template <typename L, typename... Args>
+  requires((sizeof...(Args) != 0) and
+           logic::all<values_are_comparable<L, Args>::value...>::value)
+constexpr auto not_in(L lhs, Args... args)
     -> in_expression<L, operator_not_in, std::tuple<Args...>> {
-  return {std::move(l), std::make_tuple(std::move(args)...)};
+  return {std::move(lhs), std::make_tuple(std::move(args)...)};
 }
 
-template <typename L, typename Arg, typename = check_in_args<L, Arg>>
-constexpr auto not_in(L l, std::vector<Arg> args)
+template <typename L, typename Arg>
+  requires(values_are_comparable<L, Arg>::value)
+constexpr auto not_in(L lhs, std::vector<Arg> args)
     -> in_expression<L, operator_not_in, std::vector<Arg>> {
-  return {std::move(l), std::move(args)};
+  return {std::move(lhs), std::move(args)};
 }
 
 }  // namespace sqlpp

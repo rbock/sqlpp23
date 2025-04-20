@@ -58,10 +58,9 @@ int main(int, char*[]) {
   SQLPP_COMPARE(val.not_in(std::vector<expr_t>{expr, expr, expr}),
                 "17 NOT IN ((17 + 4), (17 + 4), (17 + 4))");
 
-  // IN expressions with no arguments would be an error in SQL, but the library
-  // interprets the intent gracefully.
-  SQLPP_COMPARE(val.in(std::vector<expr_t>{}), "0");
-  SQLPP_COMPARE(val.not_in(std::vector<expr_t>{}), "1");
+  // IN expressions with no arguments are an error in SQL. No magic protection.
+  SQLPP_COMPARE(val.in(std::vector<expr_t>{}), "17 IN ()");
+  SQLPP_COMPARE(val.not_in(std::vector<expr_t>{}), "17 NOT IN ()");
 
   return 0;
 }

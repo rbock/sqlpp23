@@ -50,15 +50,20 @@ If seems a bit dry, follow the links to examples.
 | **Functions** | | |
 | `COUNT(*)` | N/A | `count(sqlpp::star)` |
 | `SOME` | `some` | *dropped* (use `any`) |
-| aggregate functions | auto-named in `select` | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
 | | | |
 | **Operators** | | |
+| `IN` | `in` requires `sqlpp::value_list` to pass `std::vector` | `something.in(my_vector)` |
+| `NOT IN` | `not_in` requires `sqlpp::value_list` to pass `std::vector` | `something.not_in(my_vector)` |
 | Unary `operator+()` | present | *dropped* |
 | comparison with value or `NULL` | `is_equal_to_or_null` (does not work with parameters) | `is_distinct_from` and `is_not_distinct_from` |
 | | | |
 | **Sub queries** | | |
 | `select(...).as(...)` | Could be table or value (depending on the context) | Always a table unless wrapped by `value()` |
 | | | |
+| **Magic** | | |
+| `IN` | `x.in(sqlpp::value_list(vector{}))` interpreted as `false` | *no magic*: `x IN ()` |
+| `NOT IN` | `x.not_in(sqlpp::value_list(vector{}))` interpreted as `true` | *no magic*: `x NOT IN ()` |
+| aggregate functions | auto-named in `select` but not otherwise | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
 | **Misc** | | |
 | `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
 | `value_list` | required for operator `in()` | *dropped* |
