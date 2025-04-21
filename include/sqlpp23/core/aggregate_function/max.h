@@ -32,7 +32,8 @@
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp::alias {
@@ -44,16 +45,17 @@ namespace sqlpp {
 template <typename Flag, typename Expr>
 struct max_t : public enable_as<max_t<Flag, Expr>>,
                public enable_comparison<max_t<Flag, Expr>>,
-               public enable_over<max_t<Flag, Expr>> {
-  constexpr max_t(Expr expr) : _expr(std::move(expr)) {}
-
-  max_t(const max_t&) = default;
-  max_t(max_t&&) = default;
-  max_t& operator=(const max_t&) = default;
-  max_t& operator=(max_t&&) = default;
+               public enable_over {
+  constexpr max_t(Expr expr) : _expression(std::move(expr)) {}
+  constexpr max_t(const max_t&) = default;
+  constexpr max_t(max_t&&) = default;
+  constexpr max_t& operator=(const max_t&) = default;
+  constexpr max_t& operator=(max_t&&) = default;
   ~max_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expr _expression;
 };
 
 template <typename Flag, typename Expr>
@@ -73,7 +75,7 @@ template <typename Context, typename Flag, typename Expr>
 auto to_sql_string(Context& context, const max_t<Flag, Expr>& t)
     -> std::string {
   return "MAX(" + to_sql_string(context, Flag()) +
-         to_sql_string(context, t._expr) + ")";
+         to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename T>

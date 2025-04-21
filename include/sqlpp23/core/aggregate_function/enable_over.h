@@ -32,17 +32,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp {
 // To be used as CRTP base for aggregate expressions that should offer the
 // over() member function.
-template <typename Expr>
 class enable_over {
-  constexpr auto derived() const -> const Expr& {
-    return static_cast<const Expr&>(*this);
-  }
-
  public:
-  constexpr auto over() const { return ::sqlpp::over(this->derived()); }
+  template<typename Aggregate>
+  constexpr auto over(this Aggregate&& aggregate) { return ::sqlpp::over(std::forward<Aggregate>(aggregate)); }
 };
 
 template <typename T>
-struct has_enabled_over : public std::is_base_of<enable_over<T>, T> {};
+struct has_enabled_over : public std::is_base_of<enable_over, T> {};
 
 }  // namespace sqlpp

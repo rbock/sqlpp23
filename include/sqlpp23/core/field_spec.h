@@ -49,7 +49,7 @@ struct data_type_of<field_spec_t<NameTag, DataType>> {
   using type = DataType;
 };
 
-template <typename Left, typename Right, typename Enable = void>
+template <typename Left, typename Right>
 struct is_field_compatible {
   static constexpr auto value = false;
 };

@@ -32,7 +32,8 @@
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp::alias {
@@ -44,16 +45,17 @@ namespace sqlpp {
 template <typename Flag, typename Expr>
 struct min_t : public enable_as<min_t<Flag, Expr>>,
                public enable_comparison<min_t<Flag, Expr>>,
-               enable_over<min_t<Flag, Expr>> {
-  constexpr min_t(Expr expr) : _expr(std::move(expr)) {}
-
-  min_t(const min_t&) = default;
-  min_t(min_t&&) = default;
-  min_t& operator=(const min_t&) = default;
-  min_t& operator=(min_t&&) = default;
+               public enable_over {
+  constexpr min_t(Expr expr) : _expression(std::move(expr)) {}
+  constexpr min_t(const min_t&) = default;
+  constexpr min_t(min_t&&) = default;
+  constexpr min_t& operator=(const min_t&) = default;
+  constexpr min_t& operator=(min_t&&) = default;
   ~min_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expr _expression;
 };
 
 template <typename Flag, typename Expr>
@@ -73,7 +75,7 @@ template <typename Context, typename Flag, typename Expr>
 auto to_sql_string(Context& context, const min_t<Flag, Expr>& t)
     -> std::string {
   return "MIN(" + to_sql_string(context, Flag()) +
-         to_sql_string(context, t._expr) + ")";
+         to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename T>

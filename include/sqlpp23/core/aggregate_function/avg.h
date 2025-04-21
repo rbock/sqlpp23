@@ -32,7 +32,8 @@
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp::alias {
@@ -44,16 +45,17 @@ namespace sqlpp {
 template <typename Flag, typename Expr>
 struct avg_t : public enable_as<avg_t<Flag, Expr>>,
                public enable_comparison<avg_t<Flag, Expr>>,
-               public enable_over<avg_t<Flag, Expr>> {
-  constexpr avg_t(Expr expr) : _expr(std::move(expr)) {}
-
-  avg_t(const avg_t&) = default;
-  avg_t(avg_t&&) = default;
-  avg_t& operator=(const avg_t&) = default;
-  avg_t& operator=(avg_t&&) = default;
+               public enable_over {
+  constexpr avg_t(Expr expression) : _expression(std::move(expression)) {}
+  constexpr avg_t(const avg_t&) = default;
+  constexpr avg_t(avg_t&&) = default;
+  constexpr avg_t& operator=(const avg_t&) = default;
+  constexpr avg_t& operator=(avg_t&&) = default;
   ~avg_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expr _expression;
 };
 
 template <typename Flag, typename Expr>
@@ -73,7 +75,7 @@ template <typename Context, typename Flag, typename Expr>
 auto to_sql_string(Context& context, const avg_t<Flag, Expr>& t)
     -> std::string {
   return "AVG(" + to_sql_string(context, Flag()) +
-         to_sql_string(context, t._expr) + ")";
+         to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename T>

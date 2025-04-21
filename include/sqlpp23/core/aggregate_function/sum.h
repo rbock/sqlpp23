@@ -32,7 +32,8 @@
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp::alias {
@@ -44,16 +45,17 @@ namespace sqlpp {
 template <typename Flag, typename Expr>
 struct sum_t : public enable_as<sum_t<Flag, Expr>>,
                public enable_comparison<sum_t<Flag, Expr>>,
-               enable_over<sum_t<Flag, Expr>> {
-  constexpr sum_t(Expr expr) : _expr(std::move(expr)) {}
-
-  sum_t(const sum_t&) = default;
-  sum_t(sum_t&&) = default;
-  sum_t& operator=(const sum_t&) = default;
-  sum_t& operator=(sum_t&&) = default;
+               public enable_over {
+  constexpr sum_t(Expr expr) : _expression(std::move(expr)) {}
+  constexpr sum_t(const sum_t&) = default;
+  constexpr sum_t(sum_t&&) = default;
+  constexpr sum_t& operator=(const sum_t&) = default;
+  constexpr sum_t& operator=(sum_t&&) = default;
   ~sum_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expr _expression;
 };
 
 template <typename Flag, typename Expr>
@@ -76,7 +78,7 @@ template <typename Context, typename Flag, typename Expr>
 auto to_sql_string(Context& context, const sum_t<Flag, Expr>& t)
     -> std::string {
   return "SUM(" + to_sql_string(context, Flag()) +
-         to_sql_string(context, t._expr) + ")";
+         to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename T>

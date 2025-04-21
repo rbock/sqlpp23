@@ -29,21 +29,24 @@
 
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Expr>
 struct over_t : public enable_as<over_t<Expr>>,
                 public enable_comparison<over_t<Expr>> {
-  over_t(Expr expr) : _expr(expr) {}
-
-  over_t(const over_t&) = default;
-  over_t(over_t&&) = default;
-  over_t& operator=(const over_t&) = default;
-  over_t& operator=(over_t&&) = default;
+  constexpr over_t(Expr expr) : _expression(expr) {}
+  constexpr over_t(const over_t&) = default;
+  constexpr over_t(over_t&&) = default;
+  constexpr over_t& operator=(const over_t&) = default;
+  constexpr over_t& operator=(over_t&&) = default;
   ~over_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expr _expression;
 };
 
 template <typename Expr>
@@ -54,7 +57,7 @@ struct data_type_of<over_t<Expr>> : public data_type_of<Expr> {};
 
 template <typename Context, typename Expr>
 auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string {
-  return operand_to_sql_string(context, t._expr) + " OVER()";
+  return operand_to_sql_string(context, read.expression(t)) + " OVER()";
 }
 
 template <typename Expr>

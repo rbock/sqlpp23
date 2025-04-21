@@ -33,7 +33,8 @@
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/static_assert.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp::alias {
@@ -45,16 +46,17 @@ namespace sqlpp {
 template <typename Flag, typename Expr>
 struct count_t : public enable_as<count_t<Flag, Expr>>,
                  public enable_comparison<count_t<Flag, Expr>>,
-                 public enable_over<count_t<Flag, Expr>> {
-  constexpr count_t(Expr expr) : _expr(std::move(expr)) {}
-
-  count_t(const count_t&) = default;
-  count_t(count_t&&) = default;
-  count_t& operator=(const count_t&) = default;
-  count_t& operator=(count_t&&) = default;
+                 public enable_over {
+  constexpr count_t(Expr expr) : _expression(std::move(expr)) {}
+  constexpr count_t(const count_t&) = default;
+  constexpr count_t(count_t&&) = default;
+  constexpr count_t& operator=(const count_t&) = default;
+  constexpr count_t& operator=(count_t&&) = default;
   ~count_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expr _expression;
 };
 
 template <typename Flag, typename Expr>
@@ -74,7 +76,7 @@ template <typename Context, typename Flag, typename Expr>
 auto to_sql_string(Context& context, const count_t<Flag, Expr>& t)
     -> std::string {
   return "COUNT(" + to_sql_string(context, Flag()) +
-         to_sql_string(context, t._expr) + ")";
+         to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename T>
