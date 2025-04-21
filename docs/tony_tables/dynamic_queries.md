@@ -44,6 +44,7 @@ for (const auto& row :
 ```
 
 </td>
+</tr>
 </table>
 
 ## Dynamic conditions

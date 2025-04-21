@@ -55,7 +55,7 @@ inline ::sqlpp::postgresql::connection make_test_connection(
 
   sql::connection db;
   try {
-    db.connectUsing(config);
+    db.connect_using(config);
   } catch (const sqlpp::exception&) {
     std::cerr << "For testing, you'll need to create a database called '"
               << config->dbname << "', accessible by user '" << config->user

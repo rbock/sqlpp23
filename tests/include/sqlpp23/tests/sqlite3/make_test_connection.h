@@ -47,7 +47,7 @@ inline ::sqlpp::sqlite3::connection make_test_connection() {
   auto config = make_test_config();
 
   sql::connection db;
-  db.connectUsing(config);
+  db.connect_using(config);
   return db;
 }
 }  // namespace sqlpp::postgresql

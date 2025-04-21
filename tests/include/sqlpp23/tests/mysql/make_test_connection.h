@@ -45,7 +45,7 @@ inline ::sqlpp::mysql::connection make_test_connection() {
   auto config = make_test_config();
   sql::connection db;
   try {
-    db.connectUsing(config);
+    db.connect_using(config);
   } catch (const sqlpp::exception&) {
     std::cerr << "For testing, you'll need to create a database called '"
               << config->database << "', accessible by user '" << config->user

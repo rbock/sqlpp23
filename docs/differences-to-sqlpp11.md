@@ -30,7 +30,8 @@ If seems a bit dry, follow the links to examples.
 | `where` conditions | dynamic `and` supported without nesting | dynamic `and` and `or` supported at any nesting level |
 | result fields | dynamic result fields in `std::map<std::string, std::string>` | correctly typed and named data members of result rows |
 | | | |
-| **Executing statements** | | |
+| **Database connection** | | |
+| connect | `connectUsing` | `connect_using` |
 | `operator()` | executes statements, but not strings | executes statements and strings |
 | `execute` | executes strings and non-select statements | *dropped* |
 | `query` | executes select statements | *dropped* |
@@ -51,7 +52,7 @@ If seems a bit dry, follow the links to examples.
 | `COUNT(*)` | N/A | `count(sqlpp::star)` |
 | `SOME` | `some` | *dropped* (use `any`) |
 | | | |
-| **Operators** | | |
+| [**Operators**](tony_tables/operators.md) | | |
 | `IN` | `in` requires `sqlpp::value_list` to pass `std::vector` | `something.in(my_vector)` |
 | `NOT IN` | `not_in` requires `sqlpp::value_list` to pass `std::vector` | `something.not_in(my_vector)` |
 | Unary `operator+()` | present | *dropped* |

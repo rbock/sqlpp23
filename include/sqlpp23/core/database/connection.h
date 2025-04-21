@@ -76,7 +76,7 @@ class normal_connection : public common_connection<ConnectionBase> {
   normal_connection& operator=(normal_connection&&) = default;
 
   // creates a connection handle and connects to database
-  void connectUsing(const _config_ptr_t& config) noexcept(false) {
+  void connect_using(const _config_ptr_t& config) noexcept(false) {
     ConnectionBase::_handle = std::make_unique<_handle_t>(config);
   }
 
