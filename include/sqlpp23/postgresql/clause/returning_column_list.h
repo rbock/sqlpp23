@@ -77,7 +77,7 @@ auto to_sql_string(context_t& context,
 template <typename... Columns>
 struct returning_column_list_result_methods_t {
   template <typename Statement, typename NameTagProvider>
-  auto as(this Statement&& statement, const NameTagProvider&)
+  auto as(this Statement&& self, const NameTagProvider&)
       -> select_as_t<std::decay_t<Statement>,
                      name_tag_of_t<NameTagProvider>,
                      make_field_spec_t<std::decay_t<Statement>, Columns>...> {
@@ -85,7 +85,7 @@ struct returning_column_list_result_methods_t {
     using table =
         select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
                     make_field_spec_t<std::decay_t<Statement>, Columns>...>;
-    return table(std::forward<Statement>(statement));
+    return table(std::forward<Statement>(self));
   }
 
  private:
@@ -93,18 +93,18 @@ struct returning_column_list_result_methods_t {
 
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement&& statement, Db& db) -> result_t<
+  auto _run(this Statement&& self, Db& db) -> result_t<
       decltype(sqlpp::statement_handler_t{}.select(std::declval<std::decay_t<Statement>>(), db)),
       result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>> {
-    return {statement_handler_t{}.select(std::forward<Statement>(statement), db)};
+    return {statement_handler_t{}.select(std::forward<Statement>(self), db)};
   }
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement&& statement, Db& db)
+  auto _prepare(this Statement&& self, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
     return {make_parameter_list_t<std::decay_t<Statement>>{},
-            statement_handler_t{}.prepare_select(std::forward<Statement>(statement), db)};
+            statement_handler_t{}.prepare_select(std::forward<Statement>(self), db)};
   }
 };
 }  // namespace postgresql
@@ -185,14 +185,14 @@ using make_returning_column_list_t = typename make_returning_column_list<
 struct no_returning_column_list_t {
   template <typename Statement, typename... Columns>
     requires(select_columns_have_values<Columns...>::value)
-  auto returning(this Statement&& statement, Columns... columns) {
+  auto returning(this Statement&& self, Columns... columns) {
     SQLPP_STATIC_ASSERT(sizeof...(Columns),
                         "at least one return column required");
     SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value,
                         "each return column must have a name");
 
     return new_statement<no_returning_column_list_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         make_returning_column_list_t<Columns...>{
             std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
   }

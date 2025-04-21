@@ -49,8 +49,8 @@ struct consistency_check<Statement, for_update_t> {
 
 struct no_for_update_t {
   template <typename Statement>
-  auto for_update(this Statement&& statement) {
-    return new_statement<no_for_update_t>(std::forward<Statement>(statement),
+  auto for_update(this Statement&& self) {
+    return new_statement<no_for_update_t>(std::forward<Statement>(self),
                                           for_update_t{});
   }
 };

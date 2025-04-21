@@ -35,37 +35,37 @@ namespace sqlpp {
 struct enable_join {
  public:
   template <typename Table, typename T>
-  auto join(this Table&& table, T t) {
-    return ::sqlpp::join(std::forward<Table>(table), std::move(t));
+  auto join(this Table&& self, T t) {
+    return ::sqlpp::join(std::forward<Table>(self), std::move(t));
   }
 
   template <typename Table, typename T>
-  auto inner_join(this Table&& table, T t) {
-    return ::sqlpp::inner_join(std::forward<Table>(table), std::move(t));
+  auto inner_join(this Table&& self, T t) {
+    return ::sqlpp::inner_join(std::forward<Table>(self), std::move(t));
   }
 
   template <typename Table, typename T>
-  auto left_outer_join(this Table&& table, T t) {
-    return ::sqlpp::left_outer_join(std::forward<Table>(table), std::move(t));
+  auto left_outer_join(this Table&& self, T t) {
+    return ::sqlpp::left_outer_join(std::forward<Table>(self), std::move(t));
   }
 
   template <typename Table, typename T>
-  auto right_outer_join(this Table&& table, T t) {
-    return ::sqlpp::right_outer_join(std::forward<Table>(table), std::move(t));
+  auto right_outer_join(this Table&& self, T t) {
+    return ::sqlpp::right_outer_join(std::forward<Table>(self), std::move(t));
   }
 
   template <typename Table, typename T>
-  auto full_outer_join(this Table&& table, T t) {
-    return ::sqlpp::full_outer_join(std::forward<Table>(table), std::move(t));
+  auto full_outer_join(this Table&& self, T t) {
+    return ::sqlpp::full_outer_join(std::forward<Table>(self), std::move(t));
   }
 
   template <typename Table, typename T>
-  auto cross_join(this Table&& table, T t) {
-    return ::sqlpp::cross_join(std::forward<Table>(table), std::move(t));
+  auto cross_join(this Table&& self, T t) {
+    return ::sqlpp::cross_join(std::forward<Table>(self), std::move(t));
   }
 };
 
-template <typename Table, typename T>
+template <typename T>
 struct has_enabled_join : public std::is_base_of<enable_join, T> {};
 
 }  // namespace sqlpp

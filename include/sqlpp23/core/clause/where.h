@@ -97,11 +97,11 @@ struct nodes_of<where_t<Expression>> {
 // NO WHERE YET
 struct no_where_t {
   template <typename Statement, DynamicBoolean Expression>
-  auto where(this Statement&& statement, Expression expression) {
+  auto where(this Statement&& self, Expression expression) {
     SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
                         "where() must not contain aggregate functions");
 
-    return new_statement<no_where_t>(std::forward<Statement>(statement),
+    return new_statement<no_where_t>(std::forward<Statement>(self),
                                      where_t<Expression>{expression});
   }
 };

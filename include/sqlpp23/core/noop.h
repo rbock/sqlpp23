@@ -42,17 +42,17 @@ struct no_result_methods_t {
 
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement&& statement, Db& db) {
-    return statement_handler_t{}.execute(std::forward<Statement>(statement), db);
+  auto _run(this Statement&& self, Db& db) {
+    return statement_handler_t{}.execute(std::forward<Statement>(self), db);
   }
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement&& statement, Db& db)
+  auto _prepare(this Statement&& self, Db& db)
       -> prepared_execute_t<Db, std::decay_t<Statement>> {
     return {{},
             statement_handler_t{}.prepare_execute(
-                std::forward<Statement>(statement), db)};
+                std::forward<Statement>(self), db)};
   }
 };
 

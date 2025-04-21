@@ -305,13 +305,13 @@ SQLPP_WRAPPED_STATIC_ASSERT(
 // NO INSERT COLUMNS/VALUES YET
 struct no_insert_value_list_t {
   template <typename Statement>
-  auto default_values(this Statement&& statement) {
+  auto default_values(this Statement&& self) {
     return new_statement<no_insert_value_list_t>(
-        std::forward<Statement>(statement), insert_default_values_t{});
+        std::forward<Statement>(self), insert_default_values_t{});
   }
 
   template <typename Statement, DynamicColumn... Columns>
-  auto columns(this Statement&& statement, Columns... cols) {
+  auto columns(this Statement&& self, Columns... cols) {
     SQLPP_STATIC_ASSERT(sizeof...(Columns),
                         "at least one column required in columns()");
     SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
@@ -321,12 +321,12 @@ struct no_insert_value_list_t {
         "columns() contains columns from several tables");
 
     return new_statement<no_insert_value_list_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         column_list_t<Columns...>{std::make_tuple(std::move(cols)...)});
   }
 
   template <typename Statement, DynamicAssignment... Assignments>
-  auto set(this Statement&& statement, Assignments... assignments) {
+  auto set(this Statement&& self, Assignments... assignments) {
     SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0,
                         "at least one assignment expression required in set()");
 
@@ -342,7 +342,7 @@ struct no_insert_value_list_t {
         "set() arguments must be assignment for exactly one table");
 
     return new_statement<no_insert_value_list_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         insert_set_t<Assignments...>{
             std::make_tuple(std::move(assignments)...)});
   }

@@ -86,9 +86,9 @@ struct provided_optional_tables_of<using_t<_Table>>
 // NO USING YET
 struct no_using_t {
   template <typename Statement, DynamicTable _Table>
-  auto using_(this Statement&& statement, _Table table) {
+  auto using_(this Statement&& self, _Table table) {
     return new_statement<no_using_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         using_t<table_ref_t<_Table>>{make_table_ref(table)});
   }
 };

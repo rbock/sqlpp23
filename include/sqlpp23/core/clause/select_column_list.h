@@ -100,7 +100,7 @@ struct result_row_of<Statement, select_column_list_t<Columns...>> {
 template <typename... Columns>
 struct select_result_methods_t {
   template <typename Statement, typename NameTagProvider>
-  auto as(this Statement&& statement, const NameTagProvider&)
+  auto as(this Statement&& self, const NameTagProvider&)
       -> select_as_t<std::decay_t<Statement>,
                      name_tag_of_t<NameTagProvider>,
                      make_field_spec_t<std::decay_t<Statement>, Columns>...> {
@@ -111,7 +111,7 @@ struct select_result_methods_t {
     using table =
         select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
                     make_field_spec_t<std::decay_t<Statement>, Columns>...>;
-    return table(std::forward<Statement>(statement));
+    return table(std::forward<Statement>(self));
   }
 
  private:
@@ -119,19 +119,19 @@ struct select_result_methods_t {
 
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement&& statement, Db& db) -> result_t<
-      decltype(statement_handler_t{}.select(std::forward<Statement>(statement), db)),
+  auto _run(this Statement&& self, Db& db) -> result_t<
+      decltype(statement_handler_t{}.select(std::forward<Statement>(self), db)),
       result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>> {
-    return {statement_handler_t{}.select(std::forward<Statement>(statement), db)};
+    return {statement_handler_t{}.select(std::forward<Statement>(self), db)};
   }
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement&& statement, Db& db)
+  auto _prepare(this Statement&& self, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
     return {{},
             statement_handler_t{}.prepare_select(
-                std::forward<Statement>(statement), db)};
+                std::forward<Statement>(self), db)};
   }
 };
 
@@ -200,12 +200,12 @@ using make_select_column_list_t =
 
 struct no_select_column_list_t {
   template <typename Statement, DynamicSelectColumn... _Columns>
-  auto columns(this Statement&& statement, _Columns... args) {
+  auto columns(this Statement&& self, _Columns... args) {
     SQLPP_STATIC_ASSERT(sizeof...(_Columns),
                         "at least one selected column required");
 
     return new_statement<no_select_column_list_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         make_select_column_list_t<_Columns...>{
             std::tuple_cat(detail::tupelize(std::move(args))...)});
   }

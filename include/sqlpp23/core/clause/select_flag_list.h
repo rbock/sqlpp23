@@ -72,7 +72,7 @@ struct no_select_flag_list_t {
   template <typename Statement, typename... Flags>
     requires(
         logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)
-  auto flags(this Statement&& statement, Flags... flags) {
+  auto flags(this Statement&& self, Flags... flags) {
     SQLPP_STATIC_ASSERT(sizeof...(Flags),
                         "at least one flag required in select_flags()");
     SQLPP_STATIC_ASSERT(
@@ -80,7 +80,7 @@ struct no_select_flag_list_t {
         "at least one duplicate argument detected in select_flags()");
 
     return new_statement<no_select_flag_list_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         select_flag_list_t<Flags...>{flags...});
   }
 };

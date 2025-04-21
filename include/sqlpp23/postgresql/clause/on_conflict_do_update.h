@@ -131,15 +131,15 @@ struct on_conflict_do_update_t {
   ~on_conflict_do_update_t() = default;
 
   template <typename Statement, DynamicBoolean Expression>
-  auto where(this Statement&& statement, Expression expression) {
+  auto where(this Statement&& self, Expression expression) {
     SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
                         "where() must not contain aggregate functions");
 
     auto new_clause =
         on_conflict_do_update_where_t<on_conflict_do_update_t, Expression>{
-            statement, std::move(expression)};
+            self, std::move(expression)};
     return new_statement<on_conflict_do_update_t>(
-        std::forward<Statement>(statement), std::move(new_clause));
+        std::forward<Statement>(self), std::move(new_clause));
   }
 
  private:

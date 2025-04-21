@@ -78,8 +78,8 @@ struct provided_tables_of<single_table_t<_Table>>
 // NO TABLE YET
 struct no_single_table_t {
   template <typename Statement, StaticRawTable _Table>
-  auto single_table(this Statement&& statement, _Table table) {
-    return new_statement<no_single_table_t>(std::forward<Statement>(statement),
+  auto single_table(this Statement&& self, _Table table) {
+    return new_statement<no_single_table_t>(std::forward<Statement>(self),
                                             single_table_t<_Table>{table});
   }
 };

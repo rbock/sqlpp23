@@ -84,9 +84,9 @@ struct provided_optional_tables_of<from_t<_Table>>
 
 struct no_from_t {
   template <typename Statement, DynamicTable _Table>
-  auto from(this Statement&& statement, _Table table) {
+  auto from(this Statement&& self, _Table table) {
     return new_statement<no_from_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         from_t<table_ref_t<_Table>>{make_table_ref(table)});
   }
 };

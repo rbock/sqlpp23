@@ -88,8 +88,8 @@ struct no_limit_t {
   template <typename Statement, typename Arg>
     requires(is_integral<remove_dynamic_t<Arg>>::value or
              is_unsigned_integral<remove_dynamic_t<Arg>>::value)
-  auto limit(this Statement&& statement, Arg arg) {
-    return new_statement<no_limit_t>(std::forward<Statement>(statement),
+  auto limit(this Statement&& self, Arg arg) {
+    return new_statement<no_limit_t>(std::forward<Statement>(self),
                                      limit_t<Arg>{std::move(arg)});
   }
 };

@@ -90,11 +90,8 @@ MAKE_CAN_CALL_JOIN_WITH(cross_join);
   SQLPP_CHECK_STATIC_ASSERT(full_outer_join(LHS, RHS), MESSAGE);  \
   SQLPP_CHECK_STATIC_ASSERT(cross_join(LHS, RHS), MESSAGE);
 
-struct weird_table : public sqlpp::enable_join<weird_table> {};
+struct weird_table : public sqlpp::enable_join {};
 
-inline auto make_table_ref(weird_table) -> weird_table {
-  return {};
-};
 }  // namespace
 
 namespace sqlpp {

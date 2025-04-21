@@ -79,9 +79,9 @@ struct on_conflict_t {
 
   // DO NOTHING
   template <typename Statement>
-  auto do_nothing(this Statement&& statement) {
-    auto new_clause = on_conflict_do_nothing_t<on_conflict_t>{statement, true};
-    return new_statement<on_conflict_t>(std::forward<Statement>(statement),
+  auto do_nothing(this Statement&& self) {
+    auto new_clause = on_conflict_do_nothing_t<on_conflict_t>{self, true};
+    return new_statement<on_conflict_t>(std::forward<Statement>(self),
                                         std::move(new_clause));
   }
 
@@ -89,13 +89,13 @@ struct on_conflict_t {
   template <typename Statement, typename... Assignments>
     requires(logic::all<sqlpp::is_assignment<
                  remove_dynamic_t<Assignments>>::value...>::value)
-  auto do_update(this Statement&& statement, Assignments... assignments) {
+  auto do_update(this Statement&& self, Assignments... assignments) {
     postgresql::check_on_conflict_do_update_set_t<
         sizeof...(Columns), remove_dynamic_t<Assignments>...>::verify();
 
     auto new_clause = on_conflict_do_update_t<on_conflict_t, Assignments...>{
-        statement, std::make_tuple(std::move(assignments)...)};
-    return new_statement<on_conflict_t>(std::forward<Statement>(statement),
+        self, std::make_tuple(std::move(assignments)...)};
+    return new_statement<on_conflict_t>(std::forward<Statement>(self),
                                         std::move(new_clause));
   }
 
@@ -130,9 +130,9 @@ struct consistency_check<Statement, postgresql::on_conflict_t<Columns...>> {
 namespace postgresql {
 struct no_on_conflict_t {
   template <typename Statement, DynamicColumn... Columns>
-  auto on_conflict(this Statement&& statement, Columns... columns) {
+  auto on_conflict(this Statement&& self, Columns... columns) {
     return new_statement<no_on_conflict_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         on_conflict_t<Columns...>{std::make_tuple(std::move(columns)...)});
   }
 };

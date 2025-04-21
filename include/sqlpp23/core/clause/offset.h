@@ -88,8 +88,8 @@ struct no_offset_t {
   template <typename Statement, typename Arg>
     requires(is_integral<remove_dynamic_t<Arg>>::value or
              is_unsigned_integral<remove_dynamic_t<Arg>>::value)
-  auto offset(this Statement&& statement, Arg arg) {
-    return new_statement<no_offset_t>(std::forward<Statement>(statement),
+  auto offset(this Statement&& self, Arg arg) {
+    return new_statement<no_offset_t>(std::forward<Statement>(self),
                                       offset_t<Arg>{std::move(arg)});
   }
 };

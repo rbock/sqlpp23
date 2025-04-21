@@ -147,7 +147,7 @@ struct have_correct_static_cte_dependencies {
 
 struct no_with_t {
   template <typename Statement, DynamicCte... Ctes>
-  auto with(this Statement&& statement, Ctes... ctes) {
+  auto with(this Statement&& self, Ctes... ctes) {
     SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,
                         "at least one CTE depends on another CTE that is not "
                         "defined left of it");
@@ -161,7 +161,7 @@ struct no_with_t {
         "CTEs in with need to have unique names");
 
     return new_statement<no_with_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         with_t<Ctes...>{std::make_tuple(std::move(ctes)...)});
   }
 };

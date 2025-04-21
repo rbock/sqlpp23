@@ -83,8 +83,8 @@ SQLPP_WRAPPED_STATIC_ASSERT(assert_into_t, "into() required");
 // NO INTO YET
 struct no_into_t {
   template <typename Statement, StaticRawTable _Table>
-  auto into(this Statement&& statement, _Table table) {
-    return new_statement<no_into_t>(std::forward<Statement>(statement),
+  auto into(this Statement&& self, _Table table) {
+    return new_statement<no_into_t>(std::forward<Statement>(self),
                                     into_t<_Table>{table});
   }
 };

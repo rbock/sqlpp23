@@ -114,8 +114,8 @@ struct prepare_check<Statement, having_t<Expression>> {
 // NO HAVING YET
 struct no_having_t {
   template <typename Statement, DynamicBoolean Expression>
-  auto having(this Statement&& statement, Expression expression) {
-    return new_statement<no_having_t>(std::forward<Statement>(statement),
+  auto having(this Statement&& self, Expression expression) {
+    return new_statement<no_having_t>(std::forward<Statement>(self),
                                       having_t<Expression>{expression});
   }
 };

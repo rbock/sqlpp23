@@ -47,16 +47,16 @@ struct insert_or_t {};
 
 struct insert_or_result_methods_t {
   template <typename Statement, typename Db>
-  auto _run(this Statement&& statement, Db& db) {
-    return statement_handler_t{}.insert(std::forward<Statement>(statement), db);
+  auto _run(this Statement&& self, Db& db) {
+    return statement_handler_t{}.insert(std::forward<Statement>(self), db);
   }
 
   template <typename Statement, typename Db>
-  auto _prepare(this Statement&& statement, Db& db)
+  auto _prepare(this Statement&& self, Db& db)
       -> prepared_insert_t<Db, std::decay_t<Statement>> {
     return {{},
             statement_handler_t{}.prepare_insert(
-                std::forward<Statement>(statement), db)};
+                std::forward<Statement>(self), db)};
   }
 };
 }  // namespace sqlite3

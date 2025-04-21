@@ -34,8 +34,10 @@ namespace sqlpp {
 // over() member function.
 class enable_over {
  public:
-  template<typename Aggregate>
-  constexpr auto over(this Aggregate&& aggregate) { return ::sqlpp::over(std::forward<Aggregate>(aggregate)); }
+  template <typename Aggregate>
+  constexpr auto over(this Aggregate&& self) {
+    return ::sqlpp::over(std::forward<Aggregate>(self));
+  }
 };
 
 template <typename T>

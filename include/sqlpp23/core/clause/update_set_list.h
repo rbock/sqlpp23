@@ -85,7 +85,7 @@ struct nodes_of<update_set_list_t<Assignments...>> {
 
 struct no_update_set_list_t {
   template <typename Statement, DynamicAssignment... Assignments>
-  auto set(this Statement&& statement, Assignments... assignments)
+  auto set(this Statement&& self, Assignments... assignments)
 
   {
     SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0,
@@ -99,7 +99,7 @@ struct no_update_set_list_t {
         "set() contains assignments for columns from more than one table");
 
     return new_statement<no_update_set_list_t>(
-        std::forward<Statement>(statement),
+        std::forward<Statement>(self),
         update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
   }
 };

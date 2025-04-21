@@ -38,81 +38,100 @@ namespace sqlpp {
 class enable_comparison {
  public:
   template <typename Expr, typename... Args>
-  constexpr auto in(this Expr&& expression, std::tuple<Args...> args) {
-    return sqlpp::in(std::forward<Expr>(expression), std::move(args));
+  constexpr auto in(this Expr&& self, std::tuple<Args...> args)
+      -> decltype(::sqlpp::in(std::forward<Expr>(self), std::move(args))) {
+    return ::sqlpp::in(std::forward<Expr>(self), std::move(args));
   }
 
   template <typename Expr, typename... Args>
-  constexpr auto in(this Expr&& expression, Args... args) {
-    return sqlpp::in(std::forward<Expr>(expression), std::move(args)...);
+  constexpr auto in(this Expr&& self, Args... args)
+      -> decltype(::sqlpp::in(std::forward<Expr>(self), std::move(args)...)) {
+    return ::sqlpp::in(std::forward<Expr>(self), std::move(args)...);
   }
 
   template <typename Expr, typename Arg>
-  constexpr auto in(this Expr&& expression, std::vector<Arg> args) {
-    return sqlpp::in(std::forward<Expr>(expression), std::move(args));
+  constexpr auto in(this Expr&& self, std::vector<Arg> args)
+      -> decltype(::sqlpp::in(std::forward<Expr>(self), std::move(args))) {
+    return ::sqlpp::in(std::forward<Expr>(self), std::move(args));
   }
 
   template <typename Expr, typename... Args>
-  constexpr auto not_in(this Expr&& expression, std::tuple<Args...> args) {
-    return sqlpp::not_in(std::forward<Expr>(expression), std::move(args));
+  constexpr auto not_in(this Expr&& self, std::tuple<Args...> args)
+      -> decltype(::sqlpp::not_in(std::forward<Expr>(self), std::move(args))) {
+    return ::sqlpp::not_in(std::forward<Expr>(self), std::move(args));
   }
 
   template <typename Expr, typename... Args>
-  constexpr auto not_in(this Expr&& expression, Args... args) {
-    return sqlpp::not_in(std::forward<Expr>(expression), std::move(args)...);
+  constexpr auto not_in(this Expr&& self, Args... args)
+      -> decltype(::sqlpp::not_in(std::forward<Expr>(self),
+                                  std::move(args)...)) {
+    return ::sqlpp::not_in(std::forward<Expr>(self), std::move(args)...);
   }
 
   template <typename Expr, typename Arg>
-  constexpr auto not_in(this Expr&& expression, std::vector<Arg> args) {
-    return sqlpp::not_in(std::forward<Expr>(expression), std::move(args));
+  constexpr auto not_in(this Expr&& self, std::vector<Arg> args)
+      -> decltype(::sqlpp::not_in(std::forward<Expr>(self), std::move(args))) {
+    return ::sqlpp::not_in(std::forward<Expr>(self), std::move(args));
   }
 
   template <typename Expr>
-  constexpr auto is_null(this Expr&& expression) {
-    return ::sqlpp::is_null(std::forward<Expr>(expression));
+  constexpr auto is_null(this Expr&& self)
+      -> decltype(::sqlpp::is_null(std::forward<Expr>(self))) {
+    return ::sqlpp::is_null(std::forward<Expr>(self));
   }
 
   template <typename Expr>
-  constexpr auto is_not_null(this Expr&& expression) {
-    return ::sqlpp::is_not_null(std::forward<Expr>(expression));
+  constexpr auto is_not_null(this Expr&& self)
+      -> decltype(::sqlpp::is_not_null(std::forward<Expr>(self))) {
+    return ::sqlpp::is_not_null(std::forward<Expr>(self));
   }
 
   template <typename Expr, typename R>
-  constexpr auto is_distinct_from(this Expr&& expression, R r) {
-    return ::sqlpp::is_distinct_from(std::forward<Expr>(expression),
-                                     std::move(r));
+  constexpr auto is_distinct_from(this Expr&& self, R r)
+      -> decltype(::sqlpp::is_distinct_from(std::forward<Expr>(self),
+                                            std::move(r))) {
+    return ::sqlpp::is_distinct_from(std::forward<Expr>(self), std::move(r));
   }
 
   template <typename Expr, typename R>
-  constexpr auto is_not_distinct_from(this Expr&& expression, R r) {
-    return ::sqlpp::is_not_distinct_from(std::forward<Expr>(expression),
+  constexpr auto is_not_distinct_from(this Expr&& self, R r)
+      -> decltype(::sqlpp::is_not_distinct_from(std::forward<Expr>(self),
+                                                std::move(r))) {
+    return ::sqlpp::is_not_distinct_from(std::forward<Expr>(self),
                                          std::move(r));
   }
 
   template <typename Expr, typename R1, typename R2>
-  constexpr auto between(this Expr&& expression, R1 r1, R2 r2) {
-    return ::sqlpp::between(std::forward<Expr>(expression), std::move(r1),
+  constexpr auto between(this Expr&& self, R1 r1, R2 r2)
+      -> decltype(::sqlpp::between(std::forward<Expr>(self),
+                                   std::move(r1),
+                                   std::move(r2))) {
+    return ::sqlpp::between(std::forward<Expr>(self), std::move(r1),
                             std::move(r2));
   }
 
   template <typename Expr>
-  constexpr auto asc(this Expr&& expression) {
-    return ::sqlpp::asc(std::forward<Expr>(expression));
+  constexpr auto asc(this Expr&& self)
+      -> decltype(::sqlpp::asc(std::forward<Expr>(self))) {
+    return ::sqlpp::asc(std::forward<Expr>(self));
   }
 
   template <typename Expr>
-  constexpr auto desc(this Expr&& expression) {
-    return ::sqlpp::desc(std::forward<Expr>(expression));
+  constexpr auto desc(this Expr&& self)
+      -> decltype(::sqlpp::desc(std::forward<Expr>(self))) {
+    return ::sqlpp::desc(std::forward<Expr>(self));
   }
 
   template <typename Expr>
-  constexpr auto order(this Expr&& expression, ::sqlpp::sort_type t) {
-    return ::sqlpp::order(std::forward<Expr>(expression), t);
+  constexpr auto order(this Expr&& self, ::sqlpp::sort_type t)
+      -> decltype(::sqlpp::order(std::forward<Expr>(self), t)) {
+    return ::sqlpp::order(std::forward<Expr>(self), t);
   }
 
   template <typename Expr, typename R>
-  constexpr auto like(this Expr&& expression, R r) {
-    return ::sqlpp::like(std::forward<Expr>(expression), std::move(r));
+  constexpr auto like(this Expr&& self, R r)
+      -> decltype(::sqlpp::like(std::forward<Expr>(self), std::move(r))) {
+    return ::sqlpp::like(std::forward<Expr>(self), std::move(r));
   }
 };
 

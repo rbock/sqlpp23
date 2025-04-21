@@ -60,17 +60,17 @@ struct delete_result_methods_t {
 
   // Execute
   template <typename Statement, typename Db>
-  auto _run(this Statement&& statement, Db& db) {
-    return statement_handler_t{}.delete_from(std::forward<Statement>(statement), db);
+  auto _run(this Statement&& self, Db& db) {
+    return statement_handler_t{}.delete_from(std::forward<Statement>(self), db);
   }
 
   // Prepare
   template <typename Statement, typename Db>
-  auto _prepare(this Statement&& statement, Db& db)
+  auto _prepare(this Statement&& self, Db& db)
       -> prepared_delete_t<Db, std::decay_t<Statement>> {
     return {{},
             statement_handler_t{}.prepare_delete_from(
-                std::forward<Statement>(statement), db)};
+                std::forward<Statement>(self), db)};
   }
 };
 
