@@ -35,8 +35,7 @@
 
 namespace sqlpp {
 template <typename Expr>
-struct over_t : public enable_as<over_t<Expr>>,
-                public enable_comparison<over_t<Expr>> {
+struct over_t : public enable_as, public enable_comparison {
   constexpr over_t(Expr expr) : _expression(expr) {}
   constexpr over_t(const over_t&) = default;
   constexpr over_t(over_t&&) = default;

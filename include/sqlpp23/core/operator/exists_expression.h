@@ -37,7 +37,7 @@ SQLPP_CREATE_NAME_TAG(exists_);
 
 namespace sqlpp {
 template <typename Select>
-struct exists_expression : public enable_as<exists_expression<Select>> {
+struct exists_expression : public enable_as {
   constexpr exists_expression(Select s) : _select(std::move(s)) {}
   exists_expression(const exists_expression&) = default;
   exists_expression(exists_expression&&) = default;

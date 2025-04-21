@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp {
 template <typename L, typename R1, typename R2>
-struct between_expression : public enable_as<between_expression<L, R1, R2>> {
+struct between_expression : public enable_as {
   constexpr between_expression(L l, R1 r1, R2 r2)
       : _l(std::move(l)), _r1(std::move(r1)), _r2(std::move(r2)) {}
   between_expression(const between_expression&) = default;

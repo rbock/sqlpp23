@@ -35,8 +35,7 @@
 
 namespace sqlpp {
 template <typename... Args>
-struct concat_t : public enable_comparison<concat_t<Args...>>,
-                  public enable_as<concat_t<Args...>> {
+struct concat_t : public enable_comparison, public enable_as {
   concat_t(const Args... args) : _args(std::move(args)...) {}
 
   concat_t(const concat_t&) = default;

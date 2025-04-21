@@ -33,8 +33,7 @@
 
 namespace sqlpp {
 template <typename T>
-struct value_t : public enable_as<value_t<T>>,
-                 public enable_comparison<value_t<T>> {
+struct value_t : public enable_as, public enable_comparison {
   value_t(T t) : _value(std::move(t)) {}
   value_t(const value_t&) = default;
   value_t(value_t&&) = default;

@@ -36,8 +36,7 @@
 
 namespace sqlpp {
 template <typename When, typename Then, typename Else>
-struct case_t : public enable_as<case_t<When, Then, Else>>,
-                public enable_comparison<case_t<When, Then, Else>> {
+struct case_t : public enable_as, public enable_comparison {
   case_t(When when, Then then, Else else_)
       : _when(when), _then(then), _else(else_) {}
 

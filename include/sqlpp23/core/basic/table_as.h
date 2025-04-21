@@ -38,7 +38,7 @@ namespace sqlpp {
 template <typename TableSpec, typename NameTag>
 struct table_as_t
     : public TableSpec::template _table_columns<table_as_t<TableSpec, NameTag>>,
-      public enable_join<table_as_t<TableSpec, NameTag>> {
+      public enable_join {
   static_assert(required_tables_of_t<TableSpec>::empty(),
                 "table aliases must not depend on external tables");
 };

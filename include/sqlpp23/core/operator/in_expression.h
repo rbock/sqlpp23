@@ -45,7 +45,7 @@ struct operator_not_in {
 };
 
 template <typename L, typename Operator, typename Container>
-struct in_expression : public enable_as<in_expression<L, Operator, Container>> {
+struct in_expression : public enable_as {
   constexpr in_expression(L lhs, Container rhs)
       : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   in_expression(const in_expression&) = default;
@@ -62,7 +62,7 @@ struct in_expression : public enable_as<in_expression<L, Operator, Container>> {
 
 template <typename L, typename Operator, typename... Args>
 struct in_expression<L, Operator, std::tuple<Args...>>
-    : public enable_as<in_expression<L, Operator, std::tuple<Args...>>> {
+    : public enable_as {
   constexpr in_expression(L lhs, std::tuple<Args...> rhs)
       : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   in_expression(const in_expression&) = default;

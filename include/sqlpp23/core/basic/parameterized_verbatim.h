@@ -35,8 +35,7 @@
 
 namespace sqlpp {
 template <typename DataType, typename Expr>
-struct parameterized_verbatim_t
-    : public enable_as<parameterized_verbatim_t<DataType, Expr>> {
+struct parameterized_verbatim_t : public enable_as {
   parameterized_verbatim_t(const Expr expr,
                            std::string verbatim_lhs,
                            std::string verbatim_rhs)

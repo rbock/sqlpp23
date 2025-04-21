@@ -29,13 +29,13 @@
 
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename DataType, typename NameTag>
-struct parameter_t : public enable_as<parameter_t<DataType, NameTag>>,
-                     public enable_comparison<parameter_t<DataType, NameTag>> {
+struct parameter_t : public enable_as, public enable_comparison {
   using _instance_t =
       typename NameTag::template _member_t<parameter_value_t<DataType>>;
   parameter_t() = default;

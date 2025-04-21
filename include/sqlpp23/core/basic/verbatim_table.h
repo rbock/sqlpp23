@@ -34,7 +34,7 @@
 
 namespace sqlpp {
 template <typename NameTag>
-struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<NameTag>> {
+struct verbatim_table_as_t : public enable_join {
   verbatim_table_as_t(std::string representation)
       : _representation(std::move(representation)) {}
 
@@ -66,7 +66,7 @@ auto to_sql_string(Context& context, const verbatim_table_as_t<NameTag>& t)
   return t._representation + " AS " + name_to_sql_string(context, NameTag{});
 }
 
-struct verbatim_table_t : public enable_join<verbatim_table_t> {
+struct verbatim_table_t : public enable_join {
   verbatim_table_t(std::string representation)
       : _representation(std::move(representation)) {}
 

@@ -35,7 +35,7 @@
 
 namespace sqlpp {
 template <typename DataType>
-struct verbatim_t : public enable_as<verbatim_t<DataType>> {
+struct verbatim_t : public enable_as {
   verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim)) {}
   verbatim_t(const verbatim_t&) = default;
   verbatim_t(verbatim_t&&) = default;

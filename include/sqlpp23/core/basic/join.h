@@ -34,7 +34,7 @@
 namespace sqlpp {
 // Join representation including condition
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
-struct join_t : enable_join<join_t<Lhs, JoinType, Rhs, Condition>> {
+struct join_t : enable_join {
   join_t(Lhs lhs, Rhs rhs, Condition condition)
       : _lhs(std::move(lhs)),
         _rhs(std::move(rhs)),

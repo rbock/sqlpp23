@@ -45,7 +45,7 @@ struct logical_or {
 
 template <typename L, typename Operator, typename R>
 struct logical_expression
-    : public enable_as<logical_expression<L, Operator, R>> {
+    : public enable_as {
   logical_expression() = delete;
   constexpr logical_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
   logical_expression(const logical_expression&) = default;

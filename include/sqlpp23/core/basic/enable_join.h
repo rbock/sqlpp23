@@ -29,53 +29,43 @@
 
 #include <sqlpp23/core/basic/join_fwd.h>
 #include <sqlpp23/core/type_traits.h>
+#include <utility>
 
 namespace sqlpp {
-template <typename Joinable>
 struct enable_join {
-  constexpr auto derived() const -> const Joinable& {
-    return static_cast<const Joinable&>(*this);
-  }
-
  public:
-  template <typename T>
-  auto join(T t) const
-      -> decltype(::sqlpp::join(this->derived(), std::move(t))) {
-    return ::sqlpp::join(this->derived(), std::move(t));
+  template <typename Table, typename T>
+  auto join(this Table&& table, T t) {
+    return ::sqlpp::join(std::forward<Table>(table), std::move(t));
   }
 
-  template <typename T>
-  auto inner_join(T t) const
-      -> decltype(::sqlpp::inner_join(this->derived(), std::move(t))) {
-    return ::sqlpp::inner_join(this->derived(), std::move(t));
+  template <typename Table, typename T>
+  auto inner_join(this Table&& table, T t) {
+    return ::sqlpp::inner_join(std::forward<Table>(table), std::move(t));
   }
 
-  template <typename T>
-  auto left_outer_join(T t) const
-      -> decltype(::sqlpp::left_outer_join(this->derived(), std::move(t))) {
-    return ::sqlpp::left_outer_join(this->derived(), std::move(t));
+  template <typename Table, typename T>
+  auto left_outer_join(this Table&& table, T t) {
+    return ::sqlpp::left_outer_join(std::forward<Table>(table), std::move(t));
   }
 
-  template <typename T>
-  auto right_outer_join(T t) const
-      -> decltype(::sqlpp::right_outer_join(this->derived(), std::move(t))) {
-    return ::sqlpp::right_outer_join(this->derived(), std::move(t));
+  template <typename Table, typename T>
+  auto right_outer_join(this Table&& table, T t) {
+    return ::sqlpp::right_outer_join(std::forward<Table>(table), std::move(t));
   }
 
-  template <typename T>
-  auto full_outer_join(T t) const
-      -> decltype(::sqlpp::full_outer_join(this->derived(), std::move(t))) {
-    return ::sqlpp::full_outer_join(this->derived(), std::move(t));
+  template <typename Table, typename T>
+  auto full_outer_join(this Table&& table, T t) {
+    return ::sqlpp::full_outer_join(std::forward<Table>(table), std::move(t));
   }
 
-  template <typename T>
-  auto cross_join(T t) const
-      -> decltype(::sqlpp::cross_join(this->derived(), std::move(t))) {
-    return ::sqlpp::cross_join(this->derived(), std::move(t));
+  template <typename Table, typename T>
+  auto cross_join(this Table&& table, T t) {
+    return ::sqlpp::cross_join(std::forward<Table>(table), std::move(t));
   }
 };
 
-template <typename T>
-struct has_enabled_join : public std::is_base_of<enable_join<T>, T> {};
+template <typename Table, typename T>
+struct has_enabled_join : public std::is_base_of<enable_join, T> {};
 
 }  // namespace sqlpp

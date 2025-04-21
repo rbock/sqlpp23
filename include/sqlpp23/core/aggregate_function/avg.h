@@ -43,9 +43,7 @@ SQLPP_CREATE_NAME_TAG(distinct_avg_);
 
 namespace sqlpp {
 template <typename Flag, typename Expr>
-struct avg_t : public enable_as<avg_t<Flag, Expr>>,
-               public enable_comparison<avg_t<Flag, Expr>>,
-               public enable_over {
+struct avg_t : public enable_as, public enable_comparison, public enable_over {
   constexpr avg_t(Expr expression) : _expression(std::move(expression)) {}
   constexpr avg_t(const avg_t&) = default;
   constexpr avg_t(avg_t&&) = default;

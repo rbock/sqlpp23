@@ -43,9 +43,7 @@ SQLPP_CREATE_NAME_TAG(distinct_sum_);
 
 namespace sqlpp {
 template <typename Flag, typename Expr>
-struct sum_t : public enable_as<sum_t<Flag, Expr>>,
-               public enable_comparison<sum_t<Flag, Expr>>,
-               public enable_over {
+struct sum_t : public enable_as, public enable_comparison, public enable_over {
   constexpr sum_t(Expr expr) : _expression(std::move(expr)) {}
   constexpr sum_t(const sum_t&) = default;
   constexpr sum_t(sum_t&&) = default;

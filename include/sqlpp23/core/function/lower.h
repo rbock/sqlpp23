@@ -33,7 +33,7 @@
 
 namespace sqlpp {
 template <typename Expr>
-struct lower_t : public enable_as<lower_t<Expr>> {
+struct lower_t : public enable_as {
   lower_t(const Expr expr) : _expr(expr) {}
 
   lower_t(const lower_t&) = default;

@@ -44,8 +44,8 @@ SQLPP_CREATE_NAME_TAG(distinct_count_);
 
 namespace sqlpp {
 template <typename Flag, typename Expr>
-struct count_t : public enable_as<count_t<Flag, Expr>>,
-                 public enable_comparison<count_t<Flag, Expr>>,
+struct count_t : public enable_as,
+                 public enable_comparison,
                  public enable_over {
   constexpr count_t(Expr expr) : _expression(std::move(expr)) {}
   constexpr count_t(const count_t&) = default;

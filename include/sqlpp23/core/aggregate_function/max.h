@@ -43,9 +43,7 @@ SQLPP_CREATE_NAME_TAG(distinct_max_);
 
 namespace sqlpp {
 template <typename Flag, typename Expr>
-struct max_t : public enable_as<max_t<Flag, Expr>>,
-               public enable_comparison<max_t<Flag, Expr>>,
-               public enable_over {
+struct max_t : public enable_as, public enable_comparison, public enable_over {
   constexpr max_t(Expr expr) : _expression(std::move(expr)) {}
   constexpr max_t(const max_t&) = default;
   constexpr max_t(max_t&&) = default;

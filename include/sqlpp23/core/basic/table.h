@@ -38,7 +38,7 @@
 namespace sqlpp {
 template <typename TableSpec>
 struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
-                 public enable_join<table_t<TableSpec>> {
+                 public enable_join {
   template <typename NameTagProvider>
   constexpr auto as(const NameTagProvider& /*unused*/) const
       -> table_as_t<TableSpec, name_tag_of_t<NameTagProvider>> {

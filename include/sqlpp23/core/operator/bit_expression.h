@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp {
 template <typename L, typename Operator, typename R>
-struct bit_expression : public enable_as<bit_expression<L, Operator, R>> {
+struct bit_expression : public enable_as {
   constexpr bit_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
   bit_expression(const bit_expression&) = default;
   bit_expression(bit_expression&&) = default;

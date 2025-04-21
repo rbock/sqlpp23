@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp23/core/basic/enable_join.h>
-#include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
@@ -51,7 +50,7 @@ struct select_member {
 template <typename Select, typename NameTag, typename... FieldSpecs>
 struct select_as_t
     : public select_member<NameTag, FieldSpecs>::type...,
-      public enable_join<select_as_t<Select, NameTag, FieldSpecs...>> {
+      public enable_join {
   select_as_t(Select select) : _expression(select) {}
 
   select_as_t(const select_as_t& rhs) = default;

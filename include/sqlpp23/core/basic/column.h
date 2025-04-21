@@ -40,8 +40,7 @@
 namespace sqlpp {
 // _Table can be a table_t or a cte_ref_t or a select_ref_t
 template <typename _Table, typename ColumnSpec>
-struct column_t : public enable_as<column_t<_Table, ColumnSpec>>,
-                  public enable_comparison<column_t<_Table, ColumnSpec>> {
+struct column_t : public enable_as, public enable_comparison {
   using _spec_t = ColumnSpec;
   using _table = _Table;
 

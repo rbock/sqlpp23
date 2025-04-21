@@ -32,7 +32,6 @@
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/operator/as_expression_fwd.h>
 #include <sqlpp23/core/operator/assign_expression.h>
-#include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/sort_order_expression.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/query/statement_fwd.h>

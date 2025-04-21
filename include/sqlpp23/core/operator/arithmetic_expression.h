@@ -60,9 +60,7 @@ struct modulus {
 };
 
 template <typename L, typename Operator, typename R>
-struct arithmetic_expression
-    : public enable_as<arithmetic_expression<L, Operator, R>>,
-      public enable_comparison<arithmetic_expression<L, Operator, R>> {
+struct arithmetic_expression : public enable_as, public enable_comparison {
   arithmetic_expression() = delete;
   constexpr arithmetic_expression(L l, R r) : _l(l), _r(r) {}
   arithmetic_expression(const arithmetic_expression&) = default;

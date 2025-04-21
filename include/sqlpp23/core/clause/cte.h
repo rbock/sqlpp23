@@ -133,10 +133,8 @@ struct cte_member {
 template <typename NameTagProvider,
           typename NewNameTagProvider,
           typename... FieldSpecs>
-struct cte_as_t
-    : public cte_member<NewNameTagProvider, FieldSpecs>::type...,
-      public enable_join<
-          cte_as_t<NameTagProvider, NewNameTagProvider, FieldSpecs...>> {
+struct cte_as_t : public cte_member<NewNameTagProvider, FieldSpecs>::type...,
+                  public enable_join {
   using _column_tuple_t =
       std::tuple<column_t<cte_ref_t<NewNameTagProvider>, FieldSpecs>...>;
   template <typename Context>
@@ -209,7 +207,7 @@ using check_cte_union_args_t = static_combined_check_t<
 template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
 struct cte_t
     : public cte_member<NameTagProvider, FieldSpecs>::type...,
-      public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>> {
+      public enable_join {
   using _column_tuple_t =
       std::tuple<column_t<cte_ref_t<NameTagProvider>, FieldSpecs>...>;
 

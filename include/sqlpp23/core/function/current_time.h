@@ -32,8 +32,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 
 namespace sqlpp {
-struct current_time_t : public enable_comparison<current_time_t>,
-                        public enable_as<current_time_t> {};
+struct current_time_t : public enable_comparison, public enable_as {};
 
 template <typename Context>
 auto to_sql_string(Context&, const current_time_t&) -> std::string {

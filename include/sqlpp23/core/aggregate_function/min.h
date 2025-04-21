@@ -43,9 +43,7 @@ SQLPP_CREATE_NAME_TAG(distinct_min_);
 
 namespace sqlpp {
 template <typename Flag, typename Expr>
-struct min_t : public enable_as<min_t<Flag, Expr>>,
-               public enable_comparison<min_t<Flag, Expr>>,
-               public enable_over {
+struct min_t : public enable_as, public enable_comparison, public enable_over {
   constexpr min_t(Expr expr) : _expression(std::move(expr)) {}
   constexpr min_t(const min_t&) = default;
   constexpr min_t(min_t&&) = default;
