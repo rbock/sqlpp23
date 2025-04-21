@@ -35,8 +35,7 @@ int main(int, char*[]) {
   // Operands in assignments are enclosed in parentheses as required.
   SQLPP_COMPARE(t.id = val, "id = 17");
   SQLPP_COMPARE(t.id = val + 4, "id = (17 + 4)");
-  SQLPP_COMPARE(t.id += 4, "id += 4");
-  SQLPP_COMPARE(t.id -= 4, "id -= 4");
+  SQLPP_COMPARE(t.intN = std::nullopt, "int_n = NULL");
 
   return 0;
 }

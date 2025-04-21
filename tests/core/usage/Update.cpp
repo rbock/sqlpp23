@@ -27,7 +27,6 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
-#include <iostream>
 #include "is_regular.h"
 
 int Update(int, char*[]) {
@@ -73,8 +72,8 @@ int Update(int, char*[]) {
   db(update(t).set(t.intN = std::nullopt));
   db(update(t).set(t.intN = sqlpp::default_value));
 
-  db(update(t).set(t.intN += t.id * 2, t.textN += " and cake"));
-  db(update(t).set(t.intN += t.id * 2, dynamic(maybe, t.textN += " and cake")));
+  db(update(t).set(t.intN = t.id * 2, t.textN = t.textN + " and cake"));
+  db(update(t).set(t.intN = t.id * 2, dynamic(maybe, t.textN = t.textN + " and cake")));
 
   return 0;
 }

@@ -61,12 +61,9 @@ auto get_rhs(dynamic_t<assign_expression<L, Operator, R>> e) -> dynamic_t<R> {
 }
 
 template <typename L, typename R>
-using check_assign_args =
-    std::enable_if_t<values_are_comparable<L, R>::value and
-                     (can_be_null<L>::value or not can_be_null<R>::value)>;
-
-template <typename L>
-using check_assign_default_args = std::enable_if_t<has_default<L>::value>;
+constexpr bool are_correct_assignment_args =
+    values_are_comparable<L, R>::value and
+    (can_be_null<L>::value or not can_be_null<R>::value);
 
 template <typename L, typename Operator, typename R>
 struct is_assignment<assign_expression<L, Operator, R>>
@@ -98,49 +95,20 @@ struct op_assign {
   static constexpr auto symbol = " = ";
 };
 
-template <typename _Table,
-          typename ColumnSpec,
-          typename R,
-          typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
+template <typename _Table, typename ColumnSpec, typename R>
+  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, R>)
 constexpr auto assign(column_t<_Table, ColumnSpec> column, R value)
     -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, R> {
   return {std::move(column), std::move(value)};
 }
 
-template <typename _Table,
-          typename ColumnSpec,
-          typename = check_assign_default_args<column_t<_Table, ColumnSpec>>>
+template <typename _Table, typename ColumnSpec>
+  requires(has_default<column_t<_Table, ColumnSpec>>::value)
 constexpr auto assign(column_t<_Table, ColumnSpec> column,
                       default_value_t value)
     -> assign_expression<column_t<_Table, ColumnSpec>,
                          op_assign,
                          default_value_t> {
-  return {std::move(column), std::move(value)};
-}
-
-struct op_plus_assign {
-  static constexpr auto symbol = " += ";
-};
-
-template <typename _Table,
-          typename ColumnSpec,
-          typename R,
-          typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
-constexpr auto plus_assign(column_t<_Table, ColumnSpec> column, R value)
-    -> assign_expression<column_t<_Table, ColumnSpec>, op_plus_assign, R> {
-  return {std::move(column), std::move(value)};
-}
-
-struct op_minus_assign {
-  static constexpr auto symbol = " -= ";
-};
-
-template <typename _Table,
-          typename ColumnSpec,
-          typename R,
-          typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
-constexpr auto minus_assign(column_t<_Table, ColumnSpec> column, R value)
-    -> assign_expression<column_t<_Table, ColumnSpec>, op_minus_assign, R> {
   return {std::move(column), std::move(value)};
 }
 

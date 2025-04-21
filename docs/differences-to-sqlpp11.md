@@ -63,6 +63,7 @@ If seems a bit dry, follow the links to examples.
 | **Magic** | | |
 | `IN` | `x.in(sqlpp::value_list(vector{}))` interpreted as `false` | *no magic*: `x IN ()` |
 | `NOT IN` | `x.not_in(sqlpp::value_list(vector{}))` interpreted as `true` | *no magic*: `x NOT IN ()` |
+| `operator+=` etc | `x += y` was translated into `x = x + y` | *no magic*  |
 | aggregate functions | auto-named in `select` but not otherwise | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
 | **Misc** | | |
 | `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
