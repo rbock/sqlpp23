@@ -60,9 +60,7 @@ auto to_sql_string(Context& context, const trim_t<Expr>& t) -> std::string {
 }
 
 template <typename T>
-using check_trim_args = std::enable_if_t<is_text<T>::value>;
-
-template <typename T, typename = check_trim_args<T>>
+  requires(is_text<T>::value)
 auto trim(T t) -> trim_t<T> {
   return {std::move(t)};
 }

@@ -195,17 +195,23 @@ using deep_check_join_on_condition = static_combined_check_t<
                            contains_all(required_static_tables_of_t<Expr>{}),
                    assert_join_provides_static_tables_for_on_t>>;
 
-template <typename Lhs, typename Rhs, typename Expr>
-using check_on_args = std::enable_if_t<sqlpp::is_boolean<Expr>::value>;
-
 template <typename Lhs, typename JoinType, typename Rhs>
 struct pre_join_t {
-  template <typename Expr, typename = check_on_args<Lhs, Rhs, Expr>>
+  pre_join_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
+  pre_join_t(const pre_join_t&) = default;
+  pre_join_t(pre_join_t&&) = default;
+  pre_join_t& operator=(const pre_join_t&) = default;
+  pre_join_t& operator=(pre_join_t&&) = default;
+  ~pre_join_t() = default;
+
+  template <typename Expr>
+    requires(sqlpp::is_boolean<Expr>::value)
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
     deep_check_join_on_condition<Lhs, Rhs, Expr>::verify();
     return {_lhs, _rhs, std::move(expr)};
   }
 
+ private:
   Lhs _lhs;
   Rhs _rhs;
 };

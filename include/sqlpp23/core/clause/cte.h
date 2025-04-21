@@ -228,9 +228,8 @@ struct cte_t
     return {};
   }
 
-  template <
-      typename Rhs,
-      typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+  template <typename Rhs>
+    requires(is_statement<remove_dynamic_t<Rhs>>::value)
   auto union_distinct(Rhs rhs) const
       -> cte_t<NameTagProvider,
                cte_union_t<distinct_t, Statement, Rhs>,
@@ -239,9 +238,8 @@ struct cte_t
     return cte_union_t<distinct_t, Statement, Rhs>{_statement, rhs};
   }
 
-  template <
-      typename Rhs,
-      typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+  template <typename Rhs>
+    requires(is_statement<remove_dynamic_t<Rhs>>::value)
   auto union_all(Rhs rhs) const -> cte_t<NameTagProvider,
                                          cte_union_t<all_t, Statement, Rhs>,
                                          FieldSpecs...> {

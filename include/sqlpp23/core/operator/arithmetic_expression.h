@@ -75,10 +75,6 @@ struct arithmetic_expression
   R _r;
 };
 
-template <typename L, typename R>
-using check_arithmetic_args =
-    std::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
-
 // L and R are expected to be numeric value types (boolean, integral,
 // unsigned_integral, or floating_point).
 template <typename Operator, typename L, typename R>
@@ -328,47 +324,45 @@ auto to_sql_string(Context& context,
   return ret_val + operand_to_sql_string(context, t._r);
 }
 
-template <typename L, typename R, typename = check_arithmetic_args<L, R>>
+template <typename L, typename R>
+  requires(is_numeric<L>::value and is_numeric<R>::value)
 constexpr auto operator+(L l, R r) -> arithmetic_expression<L, plus, R> {
   return {std::move(l), std::move(r)};
 }
 
 template <typename L, typename R>
-using check_concatenation_args =
-    std::enable_if_t<is_text<L>::value and is_text<R>::value>;
-
-template <typename L, typename R, typename = check_concatenation_args<L, R>>
+  requires(is_text<L>::value and is_text<R>::value)
 constexpr auto operator+(L l, R r) -> decltype(concat(l, r)) {
   return concat(std::move(l), std::move(r));
 }
 
-template <typename L, typename R, typename = check_arithmetic_args<L, R>>
+template <typename L, typename R>
+  requires(is_numeric<L>::value and is_numeric<R>::value)
 constexpr auto operator-(L l, R r) -> arithmetic_expression<L, minus, R> {
   return {std::move(l), std::move(r)};
 }
 
-template <typename L, typename R, typename = check_arithmetic_args<L, R>>
+template <typename L, typename R>
+  requires(is_numeric<L>::value and is_numeric<R>::value)
 constexpr auto operator*(L l, R r) -> arithmetic_expression<L, multiplies, R> {
   return {std::move(l), std::move(r)};
 }
 
-template <typename L, typename R, typename = check_arithmetic_args<L, R>>
+template <typename L, typename R>
+  requires(is_numeric<L>::value and is_numeric<R>::value)
 constexpr auto operator/(L l, R r) -> arithmetic_expression<L, divides, R> {
   return {std::move(l), std::move(r)};
 }
 
-template <typename R, typename = check_arithmetic_args<R, R>>
+template <typename R>
+  requires(is_numeric<R>::value)
 constexpr auto operator-(R r) -> arithmetic_expression<noop, negate, R> {
   return {{}, std::move(r)};
 }
 
 template <typename L, typename R>
-using check_modulus_args =
-    std::enable_if_t<(is_integral<L>::value or
-                      is_unsigned_integral<L>::value) and
-                     (is_integral<R>::value or is_unsigned_integral<R>::value)>;
-
-template <typename L, typename R, typename = check_modulus_args<L, R>>
+  requires((is_integral<L>::value or is_unsigned_integral<L>::value) and
+           (is_integral<R>::value or is_unsigned_integral<R>::value))
 constexpr auto operator%(L l, R r) -> arithmetic_expression<L, modulus, R> {
   return {std::move(l), std::move(r)};
 }

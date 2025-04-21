@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/basic/value.h>
 #include <sqlpp23/core/clause/expression_static_check.h>
+#include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
@@ -112,10 +113,7 @@ struct prepare_check<Statement, having_t<Expression>> {
 
 // NO HAVING YET
 struct no_having_t {
-  template <typename Statement,
-            typename Expression,
-            typename = std::enable_if_t<
-                is_boolean<remove_dynamic_t<Expression>>::value>>
+  template <typename Statement, DynamicBoolean Expression>
   auto having(this Statement&& statement, Expression expression) {
     return new_statement<no_having_t>(std::forward<Statement>(statement),
                                       having_t<Expression>{expression});

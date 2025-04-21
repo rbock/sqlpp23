@@ -26,12 +26,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* Hint
-   Most operators are using enable_if instead of wrapped static_assert.
-   This is because variants with static_assert would enter the overload
-   set and cause havoc.
-   */
-
 // logical
 #include <sqlpp23/core/operator/logical_expression.h>
 

@@ -52,15 +52,13 @@ struct nodes_of<over_t<Expr>> : public nodes_of<Expr> {};
 template <typename Expr>
 struct data_type_of<over_t<Expr>> : public data_type_of<Expr> {};
 
-template <typename Expr>
-using check_over_args = std::enable_if_t<is_aggregate_function<Expr>::value>;
-
 template <typename Context, typename Expr>
 auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string {
   return operand_to_sql_string(context, t._expr) + " OVER()";
 }
 
-template <typename Expr, typename = check_over_args<Expr>>
+template <typename Expr>
+  requires(is_aggregate_function<Expr>::value)
 auto over(Expr t) -> over_t<Expr> {
   return {std::move(t)};
 }

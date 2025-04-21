@@ -69,14 +69,9 @@ auto to_sql_string(Context& context, const concat_t<Args...>& t)
 }
 
 template <typename... Args>
-using check_concat_args =
-    std::enable_if_t<logic::all<is_text<Args>::value...>::value>;
-
-template <typename... Args,
-          typename = check_concat_args<remove_dynamic_t<Args>...>>
+  requires(sizeof...(Args) > 0 and
+           logic::all<is_text<remove_dynamic_t<Args>>::value...>::value)
 auto concat(Args... args) -> concat_t<Args...> {
-  SQLPP_STATIC_ASSERT(sizeof...(Args) > 0,
-                      "at least one argument required in concat()")
   return {std::move(args)...};
 }
 

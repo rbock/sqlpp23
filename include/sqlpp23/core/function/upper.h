@@ -59,9 +59,7 @@ auto to_sql_string(Context& context, const upper_t<Expr>& t) -> std::string {
 }
 
 template <typename T>
-using check_upper_args = std::enable_if_t<is_text<T>::value>;
-
-template <typename T, typename = check_upper_args<T>>
+  requires(is_text<T>::value)
 auto upper(T t) -> upper_t<T> {
   return {std::move(t)};
 }

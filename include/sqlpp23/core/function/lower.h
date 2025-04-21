@@ -59,9 +59,7 @@ auto to_sql_string(Context& context, const lower_t<Expr>& t) -> std::string {
 }
 
 template <typename T>
-using check_lower_args = std::enable_if_t<is_text<T>::value>;
-
-template <typename T, typename = check_lower_args<T>>
+  requires(is_text<T>::value)
 auto lower(T t) -> lower_t<T> {
   return {std::move(t)};
 }

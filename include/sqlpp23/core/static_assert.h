@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp23/core/consistent.h>
-#include <sqlpp23/core/inconsistent.h>
 
 namespace sqlpp {
 #if defined SQLPP_TEST_STATIC_ASSERT

@@ -367,8 +367,9 @@ class connection_base : public sqlpp::connection {
 
   //! call prepare on the argument
   template <typename T>
-    requires(sqlpp::statement_prepare_check_t<T>::value)
+    requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
+    sqlpp::statement_prepare_check_t<T>::verify();
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 

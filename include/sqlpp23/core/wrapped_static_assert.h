@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp23/core/consistent.h>
-#include <sqlpp23/core/inconsistent.h>
 #include <sqlpp23/core/static_assert.h>
 
 namespace sqlpp {

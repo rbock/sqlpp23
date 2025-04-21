@@ -65,11 +65,7 @@ auto to_sql_string(Context& context, const value_t<T>& t) -> std::string {
 }
 
 template <typename T>
-using check_value_arg =
-    std::enable_if_t<not std::is_same<data_type_of_t<T>, no_value_t>::value and
-                     values_are_comparable<T, T>::value>;
-
-template <typename T, typename = check_value_arg<T>>
+  requires(values_are_comparable<T, T>::value)
 auto value(T t) -> value_t<T> {
   return {std::move(t)};
 }

@@ -51,9 +51,9 @@ int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  // concat(<non arguments>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::concat(),
-                            "at least one argument required in concat()");
+  // concat(<non arguments>) cannot be called.
+  static_assert(not can_call_concat_with<>::value,
+                "No argument");
 
   // concat(<non-text-order arguments>) cannot be called.
   static_assert(not can_call_concat_with<decltype(bar.boolNn)>::value,

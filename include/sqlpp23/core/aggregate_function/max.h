@@ -77,16 +77,15 @@ auto to_sql_string(Context& context, const max_t<Flag, Expr>& t)
 }
 
 template <typename T>
-using check_max_arg = std::enable_if_t<values_are_comparable<T, T>::value>;
-
-template <typename T, typename = check_max_arg<T>>
+  requires(values_are_comparable<T, T>::value)
 auto max(T t) -> max_t<no_flag_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "max() must not be used on an aggregate function");
   return {std::move(t)};
 }
 
-template <typename T, typename = check_max_arg<T>>
+template <typename T>
+  requires(values_are_comparable<T, T>::value)
 auto max(const distinct_t& /*unused*/, T t) -> max_t<distinct_t, T> {
   SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
                       "max() must not be used on an aggregate function");
