@@ -29,7 +29,7 @@ The following pages will tell you how to use it:
   - [Setup](setup.md)
   - [Code generation](ddl2cpp.md)
 - **Statements**
-  - [Connection](connection.md)
+  - [Database connectors](connectors.md)
   - [Select](select.md), see also [`with`](with.md)
   - [Insert](insert.md)
   - [Update](update.md)

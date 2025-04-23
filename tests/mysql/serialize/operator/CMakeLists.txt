@@ -1,4 +1,4 @@
-# Copyright (c) 2023, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,8 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(clause)
-add_subdirectory(data_types)
-add_subdirectory(name)
-add_subdirectory(function)
-add_subdirectory(operator)
+function(create_test name)
+    set(target sqlpp23_mysql_serialize_operator_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing Threads::Threads)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+create_test(comparison)
+

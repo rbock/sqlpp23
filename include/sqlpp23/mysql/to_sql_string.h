@@ -29,6 +29,7 @@
 
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include "sqlpp23/core/operator/comparison_expression.h"
 
 namespace sqlpp {
 template <typename Lhs, typename Rhs, typename Condition>
@@ -41,6 +42,24 @@ auto to_sql_string(mysql::context_t&,
 }
 
 namespace mysql {
+template <typename L, typename R>
+auto to_sql_string(mysql::context_t& context,
+                   const comparison_expression<L, sqlpp::op_is_distinct_from, R>& t)
+    -> std::string {
+  // Note: Temporary required to enforce parameter ordering.
+  auto ret_val = "NOT (" + operand_to_sql_string(context, t._l) + " <=> ";
+  return ret_val + operand_to_sql_string(context, t._r) + ")";
+}
+
+template <typename L, typename R>
+auto to_sql_string(mysql::context_t& context,
+                   const comparison_expression<L, sqlpp::op_is_not_distinct_from, R>& t)
+    -> std::string {
+  // Note: Temporary required to enforce parameter ordering.
+  auto ret_val = operand_to_sql_string(context, t._l) + " <=> ";
+  return ret_val + operand_to_sql_string(context, t._r);
+}
+
 inline auto to_sql_string(mysql::context_t&, const insert_default_values_t&)
     -> std::string {
   return " () VALUES()";

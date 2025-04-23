@@ -23,6 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_subdirectory(clause)
-add_subdirectory(function)
 add_subdirectory(data_types)
+add_subdirectory(function)
+add_subdirectory(operator)
 

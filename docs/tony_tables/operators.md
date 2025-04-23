@@ -39,8 +39,9 @@ x.not_in(values);
 
 ## `IS DISTINCT FROM` and friends
 
-> [!NOTE] Different databases have different ways of spelling `IS DISTINCT FROM`.
-The connectors serialize appropriately.
+> [!NOTE]
+> Different databases have different ways of spelling `IS DISTINCT FROM`.
+> The connectors serialize appropriately.
 
 <table>
 <tr>

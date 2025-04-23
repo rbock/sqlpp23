@@ -98,6 +98,24 @@ inline auto to_sql_string(context_t&, const truncate_t&) -> std::string {
   return "DELETE FROM ";
 }
 
+template <typename L, typename R>
+auto to_sql_string(context_t& context,
+                   const comparison_expression<L, sqlpp::op_is_distinct_from, R>& t)
+    -> std::string {
+  // Note: Temporary required to enforce parameter ordering.
+  auto ret_val = operand_to_sql_string(context, t._l) + " IS NOT ";
+  return ret_val + operand_to_sql_string(context, t._r);
+}
+
+template <typename L, typename R>
+auto to_sql_string(context_t& context,
+                   const comparison_expression<L, sqlpp::op_is_not_distinct_from, R>& t)
+    -> std::string {
+  // Note: Temporary required to enforce parameter ordering.
+  auto ret_val = operand_to_sql_string(context, t._l) + " IS ";
+  return ret_val + operand_to_sql_string(context, t._r);
+}
+
 // Serialize parameters
 template <typename DataType, typename NameType>
 auto to_sql_string(context_t& context, const parameter_t<DataType, NameType>&)
