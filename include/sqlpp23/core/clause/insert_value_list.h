@@ -311,6 +311,7 @@ struct no_insert_value_list_t {
   }
 
   template <typename Statement, DynamicColumn... Columns>
+    requires(logic::none<is_const<Columns>::value...>::value)
   auto columns(this Statement&& self, Columns... cols) {
     SQLPP_STATIC_ASSERT(sizeof...(Columns),
                         "at least one column required in columns()");
@@ -369,6 +370,7 @@ auto insert_set(Assignments... assignments) {
 }
 
 template <DynamicColumn... Columns>
+  requires(logic::none<is_const<Columns>::value...>::value)
 auto insert_columns(Columns... cols) {
   return statement_t<no_insert_value_list_t>().columns(cols...);
 }

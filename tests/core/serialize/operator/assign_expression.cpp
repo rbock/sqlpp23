@@ -33,8 +33,8 @@ int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
   // Operands in assignments are enclosed in parentheses as required.
-  SQLPP_COMPARE(t.id = val, "id = 17");
-  SQLPP_COMPARE(t.id = val + 4, "id = (17 + 4)");
+  SQLPP_COMPARE(t.intN = val, "int_n = 17");
+  SQLPP_COMPARE(t.intN = val + 4, "int_n = (17 + 4)");
   SQLPP_COMPARE(t.intN = std::nullopt, "int_n = NULL");
 
   return 0;

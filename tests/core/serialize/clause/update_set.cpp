@@ -32,15 +32,15 @@ int main(int, char*[]) {
   const auto foo = test::TabFoo{};
 
   // Plain assignments.
-  SQLPP_COMPARE(update_set(foo.id = 7), " SET id = 7");
-  SQLPP_COMPARE(update_set(foo.id = 7, foo.textNnD = "cheesecake"),
-                " SET id = 7, text_nn_d = 'cheesecake'");
+  SQLPP_COMPARE(update_set(foo.intN = 7), " SET int_n = 7");
+  SQLPP_COMPARE(update_set(foo.intN = 7, foo.textNnD = "cheesecake"),
+                " SET int_n = 7, text_nn_d = 'cheesecake'");
 
   // Dynamic assignments.
-  SQLPP_COMPARE(update_set(sqlpp::dynamic(true, foo.id = 7),
+  SQLPP_COMPARE(update_set(sqlpp::dynamic(true, foo.intN = 7),
                            sqlpp::dynamic(false, foo.textNnD = "cheesecake")),
-                " SET id = 7");
-  SQLPP_COMPARE(update_set(sqlpp::dynamic(false, foo.id = 7),
+                " SET int_n = 7");
+  SQLPP_COMPARE(update_set(sqlpp::dynamic(false, foo.intN = 7),
                            sqlpp::dynamic(true, foo.textNnD = "cheesecake")),
                 " SET text_nn_d = 'cheesecake'");
 

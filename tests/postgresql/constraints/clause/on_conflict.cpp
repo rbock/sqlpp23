@@ -108,12 +108,12 @@ int main() {
         sqlpp::postgresql::insert_into(foo).default_values().on_conflict(
             foo.id);
     static_assert(
-        can_call_do_update_with<decltype(insert), decltype(foo.id = 7)>, "");
+        can_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>, "");
     static_assert(can_call_do_update_with<decltype(insert),
-                                          decltype(dynamic(maybe, foo.id = 7))>,
+                                          decltype(dynamic(maybe, foo.intN = 7))>,
                   "");
     static_assert(
-        cannot_call_do_update_with<decltype(insert), decltype(foo.id == 7)>,
+        cannot_call_do_update_with<decltype(insert), decltype(foo.intN == 7)>,
         "");
 
     using I = decltype(insert);
@@ -140,7 +140,7 @@ int main() {
         insert.on_conflict(foo.id).do_update(foo.intN = 5, foo.intN = 19),
         "at least one duplicate column detected in do_update()");
     SQLPP_CHECK_STATIC_ASSERT(
-        insert.on_conflict(foo.id).do_update(foo.id = 7, bar.id = 5),
+        insert.on_conflict(foo.id).do_update(foo.intN = 7, bar.intN = 5),
         "do_update() contains assignments for columns from more than one "
         "table");
   }
@@ -151,7 +151,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(foo.id)
-                      .do_update(foo.id = 7);
+                      .do_update(foo.intN = 7);
 
     static_assert(can_call_where_with<decltype(insert), decltype(foo.id == 7)>,
                   "");
@@ -159,8 +159,8 @@ int main() {
                                       decltype(dynamic(maybe, foo.id == 7))>,
                   "");
     static_assert(
-        cannot_call_where_with<decltype(insert), decltype(foo.id = 7)>, "");
-    static_assert(cannot_call_where_with<decltype(insert), decltype(foo.id = 7),
+        cannot_call_where_with<decltype(insert), decltype(foo.intN = 7)>, "");
+    static_assert(cannot_call_where_with<decltype(insert), decltype(foo.intN = 7),
                                          decltype(true)>,
                   "");
   }
@@ -170,7 +170,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(foo.id)
-                      .do_update(foo.id = 7);
+                      .do_update(foo.intN = 7);
     SQLPP_CHECK_STATIC_ASSERT(insert.where(max(foo.id) > 3),
                               "where() must not contain aggregate functions");
   }
@@ -182,7 +182,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(bar.id)
-                      .do_update(foo.id = 7);
+                      .do_update(foo.intN = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -199,7 +199,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(foo.id)
-                      .do_update(bar.id = 7);
+                      .do_update(bar.intN = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -216,7 +216,7 @@ int main() {
     auto insert = sqlpp::postgresql::insert_into(foo)
                       .default_values()
                       .on_conflict(foo.id)
-                      .do_update(foo.id = 7)
+                      .do_update(foo.intN = 7)
                       .where(bar.id > 8);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
@@ -237,7 +237,7 @@ int main() {
   {
     auto nonsense =
         from(dynamic(maybe, foo))
-        << on_conflict(foo.id).do_update(foo.id = 7).where(foo.id > 8);
+        << on_conflict(foo.id).do_update(foo.intN = 7).where(foo.id > 8);
     using I = decltype(nonsense);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,

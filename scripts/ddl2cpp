@@ -549,12 +549,11 @@ def beginHeader(pathToHeader, namespace, nsList):
     print("", file=header)
     print("#include <sqlpp23/core/basic/table.h>", file=header)
     print("#include <sqlpp23/core/basic/table_columns.h>", file=header)
-    print("#include <sqlpp23/core/type_traits.h>", file=header)
     print("#include <sqlpp23/core/name/create_name_tag.h>", file=header)
+    print("#include <sqlpp23/core/type_traits.h>", file=header)
     print("", file=header)
     for ns in nsList:
-        print("namespace " + ns, file=header)
-        print("{", file=header)
+        print("namespace " + ns + " {", file=header)
     return header
 
 
@@ -672,14 +671,12 @@ def createHeader():
         tableRequiredInsertColumns = ""
         if withTableCreationHelper:
           print("  template<typename Db>", file=header)
-          print("  void create" + tableClass + "(Db& db)", file=header)
-          print("  {", file=header)
+          print("  void create" + tableClass + "(Db& db) {", file=header)
           print("    db(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
           print("    db(R\"+++(" + parsedContent[table.locn_start:table.locn_end] + ")+++\");", file=header)
           print("  }", file=header)
           print("", file=header)
-        print("  struct " + tableSpec + " : public ::sqlpp::name_tag_base", file=header)
-        print("  {", file=header)
+        print("  struct " + tableSpec + " : public ::sqlpp::name_tag_base {", file=header)
         for column in create.columns:
             if column.isConstraint:
                 continue
@@ -704,16 +701,18 @@ def createHeader():
                 )
                 print("You can disable this warning using -no-timestamp-warning")
                 noTimestampWarning = True
-            print("    struct " + columnClass + " : public ::sqlpp::name_tag_base", file=header)
-            print("    {", file=header)
+            print("    struct " + columnClass + " : public ::sqlpp::name_tag_base {", file=header)
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
                 + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
                 , file=header)
+            columnIsConst = column.hasAutoValue or \
+                            (autoId and sqlColumnName == "id")
+            constPrefix = "const " if columnIsConst else ""
             columnCanBeNull = not column.notNull and not column.isPrimaryKey
             if columnCanBeNull:
-                print("      using data_type = std::optional<::sqlpp::" + columnType + ">;", file=header)
+                print("      using data_type = " + constPrefix + "std::optional<::sqlpp::" + columnType + ">;", file=header)
             else:
-                print("      using data_type = ::sqlpp::" + columnType + ";", file=header)
+                print("      using data_type = " + constPrefix + "::sqlpp::" + columnType + ";", file=header)
             columnHasDefault = column.hasDefaultValue or \
                                columnCanBeNull or \
                                column.hasAutoValue or \

@@ -67,7 +67,7 @@ int main() {
                 "Not a text argument");
   static_assert(not can_call_concat_with<decltype(7)>::value,
                 "Not a text argument");
-  static_assert(not can_call_concat_with<decltype(bar.id = 7),
+  static_assert(not can_call_concat_with<decltype(bar.intN = 7),
                                          decltype(bar.boolNn)>::value,
                 "Not a text argument");
   static_assert(not can_call_concat_with<decltype(all_of(bar)),

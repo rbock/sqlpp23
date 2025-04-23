@@ -91,12 +91,12 @@ int main() {
 
   // insert_set(<arguments including non-assignments>) is inconsistent and
   // cannot be constructed.
-  static_assert(can_call_insert_set_with<decltype(bar.id = 7)>,
+  static_assert(can_call_insert_set_with<decltype(bar.intN = 7)>,
                 "assignment is OK");
-  static_assert(cannot_call_insert_set_with<decltype(bar.id == 7)>,
+  static_assert(cannot_call_insert_set_with<decltype(bar.intN == 7)>,
                 "not an assignment: comparison");
   static_assert(
-      cannot_call_insert_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>,
+      cannot_call_insert_set_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
       "not an assignment: boolNn");
 
   // insert_into(table).set(<arguments including non-assignments>) is
@@ -112,24 +112,24 @@ int main() {
   // insert_into(table).set(<assignments from more than one table>) is
   // inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(
-      insert_into(bar).set(foo.id = sqlpp::default_value, bar.boolNn = true),
+      insert_into(bar).set(foo.intN = sqlpp::default_value, bar.boolNn = true),
       "set() arguments must be assignment for exactly one table");
   SQLPP_CHECK_STATIC_ASSERT(
-      insert_into(bar).set(dynamic(true, foo.id = sqlpp::default_value),
+      insert_into(bar).set(dynamic(true, foo.intN = sqlpp::default_value),
                            bar.boolNn = true),
       "set() arguments must be assignment for exactly one table");
 
   // insert_into(table).set(<not all required columns>) is inconsistent but can
   // be constructed (check can only run later)
   {
-    auto i = insert_into(bar).set(bar.id = sqlpp::default_value);
+    auto i = insert_into(bar).set(bar.intN = sqlpp::default_value);
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_assignments_t>::value,
                   "");
   }
   {
-    auto i = insert_into(bar).set(dynamic(true, bar.id = sqlpp::default_value));
+    auto i = insert_into(bar).set(dynamic(true, bar.intN = sqlpp::default_value));
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_assignments_t>::value,
@@ -157,42 +157,42 @@ int main() {
 
   // insert_into(table).columns(<arguments including non-columns>) is
   // inconsistent and cannot be constructed.
-  static_assert(can_call_insert_columns_with<decltype(bar.id)>,
+  static_assert(can_call_insert_columns_with<decltype(bar.intN)>,
                 "OK, argument is a column");
-  static_assert(cannot_call_insert_columns_with<decltype(bar.id = 7)>,
+  static_assert(cannot_call_insert_columns_with<decltype(bar.intN = 7)>,
                 "OK, argument is not a column");
 
   // insert_into(table).columns(<arguments including non-columns>) is
   // inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(
-      insert_into(bar).columns(bar.boolNn, bar.id, bar.boolNn),
+      insert_into(bar).columns(bar.boolNn, bar.intN, bar.boolNn),
       "at least one duplicate column detected in columns()");
   SQLPP_CHECK_STATIC_ASSERT(
-      insert_into(bar).columns(bar.boolNn, bar.id, dynamic(true, bar.boolNn)),
+      insert_into(bar).columns(bar.boolNn, bar.intN, dynamic(true, bar.boolNn)),
       "at least one duplicate column detected in columns()");
 
   // insert_into(table).columns(<columns from more than one table>) is
   // inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(foo.id, bar.boolNn),
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(foo.intN, bar.boolNn),
                             "columns() contains columns from several tables");
   SQLPP_CHECK_STATIC_ASSERT(
-      insert_into(bar).columns(dynamic(true, foo.id), bar.boolNn),
+      insert_into(bar).columns(dynamic(true, foo.intN), bar.boolNn),
       "columns() contains columns from several tables");
   SQLPP_CHECK_STATIC_ASSERT(
-      insert_into(bar).columns(foo.id, dynamic(true, bar.boolNn)),
+      insert_into(bar).columns(foo.intN, dynamic(true, bar.boolNn)),
       "columns() contains columns from several tables");
 
   // insert_into(table).columns(<not all required columns>) is inconsistent but
   // can be constructed (check can only run later)
   {
-    auto i = insert_into(bar).columns(bar.id);
+    auto i = insert_into(bar).columns(bar.intN);
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_columns_t>::value,
                   "");
   }
   {
-    auto i = insert_into(bar).columns(dynamic(true, bar.id));
+    auto i = insert_into(bar).columns(dynamic(true, bar.intN));
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_columns_t>::value,
@@ -213,56 +213,56 @@ int main() {
   // insert_into(tab).columns(...).add_value(...)
   // -------------------------
   {
-    auto i = insert_into(bar).columns(bar.id, bar.boolNn);
-    i.add_values(bar.id = sqlpp::default_value, bar.boolNn = true);  // OK
-    i.add_values(bar.id = 7, bar.boolNn = true);                     // OK
+    auto i = insert_into(bar).columns(bar.intN, bar.boolNn);
+    i.add_values(bar.intN = sqlpp::default_value, bar.boolNn = true);  // OK
+    i.add_values(bar.intN = 7, bar.boolNn = true);                     // OK
 
     SQLPP_CHECK_STATIC_ASSERT(
         i.add_values(bar.boolNn = true),
         "add_values() arguments have to match columns() arguments");
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(bar.id = sqlpp::default_value),
+        i.add_values(bar.intN = sqlpp::default_value),
         "add_values() arguments have to match columns() arguments");
 
-    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = sqlpp::default_value,
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.intN = sqlpp::default_value,
                                            bar.boolNn = not bar.boolNn),
                               "add_values() arguments must not be expressions");
 
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(bar.id = parameter(bar.id), bar.boolNn = bar.boolNn),
+        i.add_values(bar.intN = parameter(bar.intN), bar.boolNn = bar.boolNn),
         "add_values() arguments must not contain parameters");
 
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(bar.id = bar.id, bar.boolNn = bar.boolNn),
+        i.add_values(bar.intN = bar.intN, bar.boolNn = bar.boolNn),
         "add_values() arguments must not have names");
   }
 
   {
-    auto i = insert_into(bar).columns(dynamic(true, bar.id), bar.boolNn);
-    i.add_values(dynamic(true, bar.id = sqlpp::default_value),
+    auto i = insert_into(bar).columns(dynamic(true, bar.intN), bar.boolNn);
+    i.add_values(dynamic(true, bar.intN = sqlpp::default_value),
                  bar.boolNn = true);  // OK
 
     SQLPP_CHECK_STATIC_ASSERT(
         i.add_values(bar.boolNn = true),
         "add_values() arguments have to match columns() arguments");
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(bar.id = sqlpp::default_value),
+        i.add_values(bar.intN = sqlpp::default_value),
         "add_values() arguments have to match columns() arguments");
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(bar.id = sqlpp::default_value, bar.boolNn = true),
+        i.add_values(bar.intN = sqlpp::default_value, bar.boolNn = true),
         "add_values() arguments have to match columns() arguments");
 
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(dynamic(true, bar.id = bar.id + 1), bar.boolNn = true),
+        i.add_values(dynamic(true, bar.intN = bar.intN + 1), bar.boolNn = true),
         "add_values() arguments must not be expressions");
 
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(dynamic(true, bar.id = sqlpp::default_value),
+        i.add_values(dynamic(true, bar.intN = sqlpp::default_value),
                      bar.boolNn = parameter(bar.boolNn)),
         "add_values() arguments must not contain parameters");
 
     SQLPP_CHECK_STATIC_ASSERT(
-        i.add_values(dynamic(true, bar.id = bar.id), bar.boolNn = true),
+        i.add_values(dynamic(true, bar.intN = bar.intN), bar.boolNn = true),
         "add_values() arguments must not have names");
   }
 }

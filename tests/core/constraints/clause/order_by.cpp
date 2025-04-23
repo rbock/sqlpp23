@@ -72,7 +72,7 @@ int main() {
   static_assert(cannot_call_order_by_with<decltype(7)>,
                 "not sort order: integer");
   static_assert(
-      cannot_call_order_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>,
+      cannot_call_order_by_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
       "not sort order: assignment");
   static_assert(
       cannot_call_order_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,

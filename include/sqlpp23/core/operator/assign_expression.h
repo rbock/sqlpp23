@@ -96,14 +96,16 @@ struct op_assign {
 };
 
 template <typename _Table, typename ColumnSpec, typename R>
-  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, R>)
+  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, R> and
+           not is_const<column_t<_Table, ColumnSpec>>::value)
 constexpr auto assign(column_t<_Table, ColumnSpec> column, R value)
     -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, R> {
   return {std::move(column), std::move(value)};
 }
 
 template <typename _Table, typename ColumnSpec>
-  requires(has_default<column_t<_Table, ColumnSpec>>::value)
+  requires(has_default<column_t<_Table, ColumnSpec>>::value and
+           not is_const<column_t<_Table, ColumnSpec>>::value)
 constexpr auto assign(column_t<_Table, ColumnSpec> column,
                       default_value_t value)
     -> assign_expression<column_t<_Table, ColumnSpec>,

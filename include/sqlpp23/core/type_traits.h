@@ -469,4 +469,6 @@ struct no_of_result_columns {
   static constexpr size_t value = 0;
 };
 
+template <typename Column>
+struct is_const : public std::false_type {};
 }  // namespace sqlpp

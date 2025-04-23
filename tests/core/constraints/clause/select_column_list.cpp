@@ -93,7 +93,7 @@ int main() {
       "OK, argument a column");
   static_assert(cannot_call_select_columns_with<decltype(bar.id == 7)>,
                 "not a value: comparison");
-  static_assert(cannot_call_select_columns_with<decltype(bar.id = 7),
+  static_assert(cannot_call_select_columns_with<decltype(bar.intN = 7),
                                                 decltype(bar.boolNn)>,
                 "not value: assignment");
 

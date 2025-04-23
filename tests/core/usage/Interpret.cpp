@@ -49,7 +49,7 @@ int Interpret(int, char*[]) {
   to_sql_string(ctx, t.id);
   to_sql_string(ctx, -t.id);
   to_sql_string(ctx, -(t.id + 7));
-  to_sql_string(ctx, t.id = 0);
+  to_sql_string(ctx, t.intN = 0);
   to_sql_string(ctx, t.id == 0);
   to_sql_string(ctx, t.id != 0);
   to_sql_string(ctx, t.id == 7);

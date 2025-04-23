@@ -32,8 +32,8 @@ int main(int, char*[]) {
   const auto foo = test::TabFoo{};
 
   // Without values.
-  SQLPP_COMPARE(insert_columns(foo.id), " (id)");
-  SQLPP_COMPARE(insert_columns(foo.id, foo.textNnD), " (id, text_nn_d)");
+  SQLPP_COMPARE(insert_columns(foo.intN), " (int_n)");
+  SQLPP_COMPARE(insert_columns(foo.intN, foo.textNnD), " (int_n, text_nn_d)");
 
   // Single column.
   {
@@ -42,10 +42,10 @@ int main(int, char*[]) {
     SQLPP_COMPARE(i, " (text_nn_d) VALUES ('cheese')");
   }
   {
-    auto i = insert_columns(foo.id);
-    i.add_values(foo.id = 17);
-    i.add_values(foo.id = sqlpp::default_value);
-    SQLPP_COMPARE(i, " (id) VALUES (17), (DEFAULT)");
+    auto i = insert_columns(foo.intN);
+    i.add_values(foo.intN = 17);
+    i.add_values(foo.intN = sqlpp::default_value);
+    SQLPP_COMPARE(i, " (int_n) VALUES (17), (DEFAULT)");
   }
 
   {
@@ -58,15 +58,15 @@ int main(int, char*[]) {
 
   // Multiple columns.
   {
-    auto i = insert_columns(foo.id, foo.boolN, foo.textNnD);
-    i.add_values(foo.id = sqlpp::default_value,
+    auto i = insert_columns(foo.intN, foo.boolN, foo.textNnD);
+    i.add_values(foo.intN = sqlpp::default_value,
                  foo.boolN = sqlpp::default_value, foo.textNnD = "cheese");
     SQLPP_COMPARE(
-        i, " (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese')");
+        i, " (int_n, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese')");
 
-    i.add_values(foo.id = 17, foo.boolN = std::nullopt, foo.textNnD = "cake");
+    i.add_values(foo.intN = 17, foo.boolN = std::nullopt, foo.textNnD = "cake");
     SQLPP_COMPARE(i,
-                  " (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, "
+                  " (int_n, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, "
                   "'cheese'), (17, NULL, 'cake')");
   }
 
@@ -75,14 +75,14 @@ int main(int, char*[]) {
   // in a bad query. This cannot be prevented at compile time and will therefore
   // fail to execute on the database backend.
   {
-    auto i = insert_columns(dynamic(true, foo.id), dynamic(false, foo.boolN));
-    i.add_values(dynamic(true, foo.id = sqlpp::default_value),
+    auto i = insert_columns(dynamic(true, foo.intN), dynamic(false, foo.boolN));
+    i.add_values(dynamic(true, foo.intN = sqlpp::default_value),
                  dynamic(true, foo.boolN = sqlpp::default_value));
-    SQLPP_COMPARE(i, " (id) VALUES (DEFAULT, DEFAULT)");
+    SQLPP_COMPARE(i, " (int_n) VALUES (DEFAULT, DEFAULT)");
 
-    i.add_values(dynamic(false, foo.id = sqlpp::default_value),
+    i.add_values(dynamic(false, foo.intN = sqlpp::default_value),
                  dynamic(false, foo.boolN = sqlpp::default_value));
-    SQLPP_COMPARE(i, " (id) VALUES (DEFAULT, DEFAULT), ()");
+    SQLPP_COMPARE(i, " (int_n) VALUES (DEFAULT, DEFAULT), ()");
   }
 
   return 0;

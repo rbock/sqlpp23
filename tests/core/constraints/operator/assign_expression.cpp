@@ -49,9 +49,9 @@ int main() {
   const auto bar = test::TabBar{};
 
   // OK
-  bar.id = 7;
-  bar.id = sqlpp::default_value;
-  static_assert(can_call_assign_with<decltype(bar.id), decltype(7)>::value, "");
+  bar.intN = 7;
+  bar.intN = sqlpp::default_value;
+  static_assert(can_call_assign_with<decltype(bar.intN), decltype(7)>::value, "");
 
   // Cannot assign wrong value type or other stuff like tables.
   static_assert(
@@ -79,18 +79,6 @@ int main() {
                 "");
 
   // Non-nullable with default cannot be assigned null, but default
-  static_assert(can_call_assign_with<decltype(bar.id), decltype(7)>::value, "");
-  static_assert(
-      not can_call_assign_with<decltype(bar.id),
-                               decltype(std::make_optional(7))>::value,
-      "");
-  static_assert(
-      not can_call_assign_with<decltype(bar.id), decltype(std::nullopt)>::value,
-      "");
-  static_assert(can_call_assign_with<decltype(bar.id),
-                                     decltype(sqlpp::default_value)>::value,
-                "");
-
   static_assert(
       can_call_assign_with<decltype(foo.textNnD), decltype("cake")>::value, "");
   static_assert(
@@ -101,6 +89,20 @@ int main() {
                                          decltype(std::nullopt)>::value,
                 "");
   static_assert(can_call_assign_with<decltype(foo.textNnD),
+                                     decltype(sqlpp::default_value)>::value,
+                "");
+
+  // Const column cannot be assigned anything
+  static_assert(
+      not can_call_assign_with<decltype(foo.id), decltype(7)>::value, "");
+  static_assert(
+      not can_call_assign_with<decltype(foo.id),
+                               decltype(std::make_optional(7))>::value,
+      "");
+  static_assert(not can_call_assign_with<decltype(foo.id),
+                                         decltype(std::nullopt)>::value,
+                "");
+  static_assert(not can_call_assign_with<decltype(foo.id),
                                      decltype(sqlpp::default_value)>::value,
                 "");
 }

@@ -32,14 +32,14 @@ int main(int, char*[]) {
   const auto foo = test::TabFoo{};
 
   // Update all.
-  SQLPP_COMPARE(update(foo).set(foo.id = 7), "UPDATE tab_foo SET id = 7");
+  SQLPP_COMPARE(update(foo).set(foo.intN = 7), "UPDATE tab_foo SET int_n = 7");
 
   // Update some.
   SQLPP_COMPARE(update(foo)
-                    .set(sqlpp::dynamic(true, foo.id = 7),
+                    .set(sqlpp::dynamic(true, foo.intN = 7),
                          sqlpp::dynamic(false, foo.textNnD = "cheesecake"))
                     .where(foo.id > 17),
-                "UPDATE tab_foo SET id = 7 WHERE tab_foo.id > 17");
+                "UPDATE tab_foo SET int_n = 7 WHERE tab_foo.id > 17");
 
   return 0;
 }

@@ -36,6 +36,7 @@
 #include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/wrong.h>
+#include <type_traits>
 
 namespace sqlpp {
 // _Table can be a table_t or a cte_ref_t or a select_ref_t
@@ -54,20 +55,17 @@ struct column_t : public enable_as, public enable_comparison {
   static auto table() -> _table { return _table{}; }
 
   template <typename T>
+    requires(are_correct_assignment_args<column_t, T> and
+             not is_const<column_t>::value)
   auto operator=(T value) const -> assign_expression<column_t, op_assign, T> {
     return assign(*this, std::move(value));
   }
 
-  template <typename T>
-  auto operator+=(T value) const
-      -> decltype(plus_assign(*this, std::declval<T>())) {
-    return plus_assign(*this, std::move(value));
-  }
-
-  template <typename T>
-  auto operator-=(T value) const
-      -> decltype(minus_assign(*this, std::declval<T>())) {
-    return minus_assign(*this, std::move(value));
+  template<typename T = void>
+  requires(has_default<column_t>::value and
+           not is_const<column_t>::value)
+  auto operator=(default_value_t value) const -> assign_expression<column_t, op_assign, default_value_t> {
+    return assign(*this, std::move(value));
   }
 };
 
@@ -97,8 +95,12 @@ struct required_static_tables_of<column_t<_Table, ColumnSpec>>
 
 template <typename _Table, typename ColumnSpec>
 struct data_type_of<column_t<_Table, ColumnSpec>> {
-  using type = typename ColumnSpec::data_type;
+  using type = std::remove_const_t<typename ColumnSpec::data_type>;
 };
+
+template <typename _Table, typename ColumnSpec>
+struct is_const<column_t<_Table, ColumnSpec>>
+    : public std::is_const<typename ColumnSpec::data_type> {};
 
 template <typename Context, typename _Table, typename ColumnSpec>
 auto to_sql_string(Context& context, const column_t<_Table, ColumnSpec>&)

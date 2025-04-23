@@ -75,7 +75,7 @@ int main() {
   static_assert(cannot_call_update_set_with<decltype(bar.id == 7)>,
                 "not an assignment: comparison");
   static_assert(
-      cannot_call_update_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>,
+      cannot_call_update_set_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
       "not an assignment: boolNn");
 
   // Try duplicate columns

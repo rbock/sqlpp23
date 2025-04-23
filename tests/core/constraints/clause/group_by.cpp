@@ -67,7 +67,7 @@ int main() {
   static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>);
 
   static_assert(
-      cannot_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>,
+      cannot_call_group_by_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
       "not value: assignment");
   static_assert(
       cannot_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,

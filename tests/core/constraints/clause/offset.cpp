@@ -65,7 +65,7 @@ int main() {
   static_assert(can_call_offset_with<decltype(dynamic(maybe, bar.id))>, "");
 
   // Try assignment or comparison
-  static_assert(cannot_call_offset_with<decltype(bar.id = 7)>, "");
+  static_assert(cannot_call_offset_with<decltype(bar.intN = 7)>, "");
   static_assert(cannot_call_offset_with<decltype(bar.id == 7)>, "");
 
   // Try non-integral expression

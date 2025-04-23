@@ -51,26 +51,26 @@ int main() {
   SQLPP_COMPARE(on_conflict().do_nothing(), " ON CONFLICT DO NOTHING");
 
   // Testing DO UPDATE
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7),
-                " ON CONFLICT (id) DO UPDATE SET id = 7");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7, foo.textNnD = "cake"),
-                " ON CONFLICT (id) DO UPDATE SET id = 7, text_nn_d = 'cake'");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(true, foo.id = 7),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7),
+                " ON CONFLICT (id) DO UPDATE SET int_n = 7");
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7, foo.textNnD = "cake"),
+                " ON CONFLICT (id) DO UPDATE SET int_n = 7, text_nn_d = 'cake'");
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(true, foo.intN = 7),
                                               foo.textNnD = "cake"),
-                " ON CONFLICT (id) DO UPDATE SET id = 7, text_nn_d = 'cake'");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(false, foo.id = 7),
+                " ON CONFLICT (id) DO UPDATE SET int_n = 7, text_nn_d = 'cake'");
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(false, foo.intN = 7),
                                               foo.textNnD = "cake"),
                 " ON CONFLICT (id) DO UPDATE SET text_nn_d = 'cake'");
 
   // Testing WHERE
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7),
-                " ON CONFLICT (id) DO UPDATE SET id = 7");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.id = 7).where(foo.id == 17),
-                " ON CONFLICT (id) DO UPDATE SET id = 7 WHERE tab_foo.id = 17");
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7),
+                " ON CONFLICT (id) DO UPDATE SET int_n = 7");
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7).where(foo.id == 17),
+                " ON CONFLICT (id) DO UPDATE SET int_n = 7 WHERE tab_foo.id = 17");
   SQLPP_COMPARE(on_conflict(foo.id)
-                    .do_update(foo.id = 7)
+                    .do_update(foo.intN = 7)
                     .where(foo.id == 17 and foo.textNnD > "cheese"),
-                " ON CONFLICT (id) DO UPDATE SET id = 7 WHERE (tab_foo.id = "
+                " ON CONFLICT (id) DO UPDATE SET int_n = 7 WHERE (tab_foo.id = "
                 "17) AND (tab_foo.text_nn_d > 'cheese')");
 
   return 0;
