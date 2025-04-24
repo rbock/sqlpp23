@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ciso646>
 #include <stdexcept>
 #include <string>
 

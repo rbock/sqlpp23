@@ -38,7 +38,6 @@
 #include <sqlpp23/mysql/char_result_row.h>
 #include <sqlpp23/mysql/detail/result_handle.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
-#include <ciso646>
 #include <cstdlib>
 #include <iostream>
 #include <memory>

@@ -28,7 +28,6 @@
  */
 
 #include <chrono>
-#include <ciso646>
 #include <cmath>
 #include <memory>
 #include <string>
