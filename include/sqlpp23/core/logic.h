@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ciso646>  // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
 
 namespace sqlpp::logic {
