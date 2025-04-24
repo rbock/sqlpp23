@@ -55,16 +55,8 @@ struct column_t : public enable_as, public enable_comparison {
   static auto table() -> _table { return _table{}; }
 
   template <typename T>
-    requires(are_correct_assignment_args<column_t, T> and
-             not is_const<column_t>::value)
+    requires(are_correct_assignment_args<column_t, T>)
   auto operator=(T value) const -> assign_expression<column_t, op_assign, T> {
-    return assign(*this, std::move(value));
-  }
-
-  template<typename T = void>
-  requires(has_default<column_t>::value and
-           not is_const<column_t>::value)
-  auto operator=(default_value_t value) const -> assign_expression<column_t, op_assign, default_value_t> {
     return assign(*this, std::move(value));
   }
 };

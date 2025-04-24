@@ -62,8 +62,12 @@ auto get_rhs(dynamic_t<assign_expression<L, Operator, R>> e) -> dynamic_t<R> {
 
 template <typename L, typename R>
 constexpr bool are_correct_assignment_args =
-    values_are_comparable<L, R>::value and
+    not is_const<L>::value and values_are_comparable<L, R>::value and
     (can_be_null<L>::value or not can_be_null<R>::value);
+
+template <typename L>
+constexpr bool are_correct_assignment_args<L, default_value_t> =
+    not is_const<L>::value and has_default<L>::value;
 
 template <typename L, typename Operator, typename R>
 struct is_assignment<assign_expression<L, Operator, R>>
@@ -96,21 +100,9 @@ struct op_assign {
 };
 
 template <typename _Table, typename ColumnSpec, typename R>
-  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, R> and
-           not is_const<column_t<_Table, ColumnSpec>>::value)
+  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, R>)
 constexpr auto assign(column_t<_Table, ColumnSpec> column, R value)
     -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, R> {
-  return {std::move(column), std::move(value)};
-}
-
-template <typename _Table, typename ColumnSpec>
-  requires(has_default<column_t<_Table, ColumnSpec>>::value and
-           not is_const<column_t<_Table, ColumnSpec>>::value)
-constexpr auto assign(column_t<_Table, ColumnSpec> column,
-                      default_value_t value)
-    -> assign_expression<column_t<_Table, ColumnSpec>,
-                         op_assign,
-                         default_value_t> {
   return {std::move(column), std::move(value)};
 }
 
