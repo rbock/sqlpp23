@@ -36,6 +36,7 @@
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/sqlite3/database/serializer_context.h>
 
 namespace sqlpp {
 namespace sqlite3 {
@@ -89,20 +90,8 @@ inline auto insert_or_replace() -> blank_insert_or_replace_t {
   return {blank_insert_or_replace_t()};
 }
 
-template <typename _Table>
-constexpr auto insert_or_replace_into(_Table table)
-    -> decltype(blank_insert_or_replace_t().into(table)) {
-  return {blank_insert_or_replace_t().into(table)};
-}
-
 inline auto insert_or_ignore() -> blank_insert_or_ignore_t {
   return {blank_insert_or_ignore_t()};
-}
-
-template <typename _Table>
-constexpr auto insert_or_ignore_into(_Table table)
-    -> decltype(blank_insert_or_ignore_t().into(table)) {
-  return {blank_insert_or_ignore_t().into(table)};
 }
 
 inline auto to_sql_string(

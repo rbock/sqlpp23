@@ -189,22 +189,22 @@ int Sample(int, char*[]) {
 
   {
     // insert_or with static assignments
-    auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(
+    auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
         tab.textNnD = "test", tab.boolN = true));
     std::cerr << i << std::endl;
 
-    i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.textNnD = "test",
+    i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(tab.textNnD = "test",
                                                           tab.boolN = true));
     std::cerr << i << std::endl;
   }
 
   {
     // insert_or with a dynamic assignment
-    auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(
+    auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
         tab.textNnD = "test", dynamic(true, tab.boolN = true)));
     std::cerr << i << std::endl;
 
-    i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(
+    i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(
         tab.textNnD = "test", dynamic(true, tab.boolN = true)));
     std::cerr << i << std::endl;
   }

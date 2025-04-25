@@ -25,37 +25,13 @@ will be serialized in different fashions depending on the connector you are usin
 
 See the links below for details:
 
+## Connectors provided by sqlpp23
+
 [MySQL & MariaDB](/docs/connectors/mysql.md)
 
-## MySQL and MariaDB
+[Postgresql](/docs/connectors/postgresql.md)
 
-## Postgresql
-
-```c++
-// Create a connection configuration.
-auto config = std::make_shared<sqlpp::postgresql::connection_config>();
-config->user = "some_user";
-config->database = "some_database";
-config->debug = true; // Will log a lot of debug output.
-
-// Create a connection
-sqlpp::postgresql::connection db;
-db.connect_using(config); // This can throw an exception.
-```
-
-## Sqlite3 and SQLCipher
-
-```c++
-// Create a connection configuration.
-auto config = std::make_shared<sqlpp::sqlite3::connection_config>();
-config->path_to_database = ":memory:";
-config->flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-config->debug = true; // Will log a lot of debug output.
-
-// Create a connection
-sqlpp::sqlite3::connection db;
-db.connect_using(config); // This can throw an exception.
-```
+[Sqlite3 and SQLCipher](/docs/connectors/postgresql.md)
 
 ## Other connectors
 

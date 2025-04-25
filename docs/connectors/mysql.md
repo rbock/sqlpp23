@@ -16,7 +16,7 @@ config->database = "some_database";
 config->debug = true; // Will log a lot of debug output.
 
 // Create a connection
-sqlpp::mysql::::connection db;
+sqlpp::mysql::connection db;
 db.connect_using(config); // This can throw an exception.
 ```
 
