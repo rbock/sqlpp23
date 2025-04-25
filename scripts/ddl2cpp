@@ -280,12 +280,12 @@ def initDllParser():
         + pp.Suppress(pp.Optional(ddlWidth))
         + pp.Suppress(pp.Optional(ddlTimezone))
         + pp.ZeroOrMore(
-            ddlUnsigned("isUnsigned")
-            | ddlNotNull("notNull")
+            ddlUnsigned
+            | ddlNotNull
             | pp.CaselessKeyword("null")
             | ddlAutoValue("hasAutoValue")
-            | ddlDefaultValue("hasDefaultValue")
-            | ddlPrimaryKey("isPrimaryKey")
+            | ddlDefaultValue
+            | ddlPrimaryKey
             | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
             | pp.Suppress(ddlExpression)
         )
