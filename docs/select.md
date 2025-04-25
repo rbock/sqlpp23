@@ -1,4 +1,4 @@
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)
 
 # Select
 
@@ -12,11 +12,11 @@ CREATE TABLE foo (
 );
 ```
 
-(This is SQL for brevity, not C++, see [here](tables.md) for details on how to
+(This is SQL for brevity, not C++, see [here]((/docs/ables.md) for details on how to
 define types representing the tables and columns you want to work with)
 
 Lets also assume we have an object `db` representing a connection to your
-[database](connection.md).
+[database](/docs/connection.md).
 
 ## A Basic example
 
@@ -136,7 +136,7 @@ select(all_of(foo)).from(foo).where(condition);
 ### Aggregates
 
 `select` will not let you mix aggregates (see [`group_by`](#group-by) and
-[aggregate functions](aggregate_functions.md)) and non-aggregates, e.g.
+[aggregate functions](/docs/aggregate_functions.md)) and non-aggregates, e.g.
 
 ````c++
 // This will fail to compile as  it mixes aggregate and non-aggregate values.
@@ -147,7 +147,7 @@ db(select(
 
 ### Select with dynamic columns
 
-Columns can be selected conditionally using [`dynamic`](dynamic.md):
+Columns can be selected conditionally using [`dynamic`](/docs/dynamic.md):
 
 ```C++
 select(
@@ -195,7 +195,7 @@ select(foo.id, foo.name).flags(sqlpp::all);
 The latter is shorter than the former, but the former is closer to SQL syntax
 and probably easier to read. Both forms will result in the same SQL.
 
-Flags can be added conditionally using [`dynamic`](dynamic.md):
+Flags can be added conditionally using [`dynamic`](/docs/dynamic.md):
 
 ### From
 
@@ -207,9 +207,9 @@ The `from` method expects one argument. This can be a
 - join
 - CTE
 
-See [tables](tables.md) for more details.
+See [tables](/docs/tables.md) for more details.
 
-`from` can also be called with a [`dynamic`](dynamic.md) argument. In case the
+`from` can also be called with a [`dynamic`](/docs/dynamic.md) argument. In case the
 dynamic condition is false, no `FROM` will be included in the serialized
 statement.
 
@@ -231,7 +231,7 @@ expression argument, for instance:
 select(all_of(foo)).from(foo).where(foo.id != 17 and foo.name.like("%cake"));
 ```
 
-`where` can be called with a [`dynamic`](dynamic.md) argument. In case the
+`where` can be called with a [`dynamic`](/docs/dynamic.md) argument. In case the
 dynamic condition is false, no `WHERE` will be included in the serialized
 statement.
 
@@ -249,9 +249,9 @@ select(all_of(foo)).from(foo).group_by(foo.name, foo.dep);
 ```
 
 It can be used to control data ranges for
-[`aggregate functions`](aggregate_functions.md).
+[`aggregate functions`](/docs/aggregate_functions.md).
 
-`group_by` arguments can be [`dynamic`](dynamic.md). `dynamic` arguments will
+`group_by` arguments can be [`dynamic`](/docs/dynamic.md). `dynamic` arguments will
 not be serialized if their conditions are false. If all arguments are dynamic
 and all conditions are false, the `GROUP BY` clause will not be serialized at
 all.
@@ -264,7 +264,7 @@ values `select` or `having`.
 The having condition can be set via the `having` method, just like the `where`
 method.
 
-`having` can also be called with a [`dynamic`](dynamic.md) argument. In case the
+`having` can also be called with a [`dynamic`](/docs/dynamic.md) argument. In case the
 dynamic condition is false, no `HAVING` will be included in the serialized
 statement.
 
@@ -277,7 +277,7 @@ expression adorned with `.asc()` or `.desc()`, e.g.
 select(all_of(foo)).from(foo).order_by(foo.name.asc());
 ```
 
-`order_by` arguments can be [`dynamic`](dynamic.md). `dynamic` arguments will
+`order_by` arguments can be [`dynamic`](/docs/dynamic.md). `dynamic` arguments will
 not be serialized if their conditions are false. If all arguments are dynamic
 and all conditions are false, the `ORDER BY` clause will not be serialized at
 all.
@@ -290,7 +290,7 @@ The methods `limit` and `offset` take a `size_t` argument, for instance:
 select(all_of(foo)).from(foo).unconditionally().limit(10u).offset(20u);
 ```
 
-`limit` and `offset` can also be called with [`dynamic`](dynamic.md) arguments.
+`limit` and `offset` can also be called with [`dynamic`](/docs/dynamic.md) arguments.
 In case the dynamic condition is false, the `LIMIT` or `OFFSET` clause will not
 be included in the serialized statement.
 
@@ -356,4 +356,4 @@ while(!result.empty())
 }
 ```
 
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)

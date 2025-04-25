@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)
 
 # Insert
 
@@ -19,7 +19,7 @@ Note that the library will force you to provide assignments for every column tha
 - is not auto-incremented, and
 - cannot be NULL.
 
-`set` arguments for columns with a default value can be [`dynamic`](dynamic.md). Note that if *all* arguments are dynamic with
+`set` arguments for columns with a default value can be [`dynamic`](/docs/dynamic.md). Note that if *all* arguments are dynamic with
 `false` conditions, the statement becomes invalid.
 
 ## Default values
@@ -69,4 +69,4 @@ time point.
 
 Similar for other data types.
 
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)

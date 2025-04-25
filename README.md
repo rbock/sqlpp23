@@ -23,7 +23,7 @@ For example, the connector could use the `operator||` or the `concat` method for
 
 Connectors for MariaDB, MySQL, PostgreSQL, sqlite3, sqlcipher are included in this repository.
 
-Documentation is found in [docs](docs/README.md).
+Documentation is found in [docs](/docs/README.md).
 
 If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be interested in [differences](docs/differences-to-sqlpp11.md).
 
@@ -39,22 +39,22 @@ CREATE TABLE foo (
 );
 ```
 
-[insert](docs/insert.md)
+[insert](/docs/insert.md)
 ```C++
 db(insert_into(foo).set(foo.id = 17, foo.name = "bar", foo.hasFun = true));
 ```
 
-[update](docs/update.md)
+[update](/docs/update.md)
 ```C++
 db(update(foo).set(foo.name = std::nullopt).where(foo.name != "nobody"));
 ```
 
-[delete](docs/delete.md)
+[delete](/docs/delete.md)
 ```C++
 db(delete_from(foo).where(not foo.hasFun));
 ```
 
-[select](docs/select.md)
+[select](/docs/select.md)
 ```C++
 // selecting zero or more results, iterating over the results
 for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
@@ -67,7 +67,7 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
 }
 ```
 
-[database specfic](connectors.md)
+[database specfic](/docs/connectors.md)
 ```C++
   for (const auto &row : db(sql::insert_into(foo)
                                 .set(foo.id = 7, foo.name = std::nullopt, foo.hasFun = false)

@@ -1,4 +1,4 @@
-[**\< Index**](/docs/README.md)
+[**\< Connectors**](/docs/connectors.md)
 
 # MySQL / MariaDB connector
 
@@ -52,5 +52,5 @@ db(select(foo.id, bar.name)
     .from(foo.full_outer_join(bar).on(foo.id == bar.id)));
 ```
 
-[**\< Index**](/docs/README.md)
+[**\< Connectors**](/docs/connectors.md)
 

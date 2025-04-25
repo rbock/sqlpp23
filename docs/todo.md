@@ -1,15 +1,19 @@
-# Add tests that use query results as ranges
+[**< Index**](/docs/README.md)
+
+# TODOs
+
+## Add tests that use query results as ranges
 Add tests that use result_t in range operations. Also check if result_t::iterator satisfies the std::input_iterator concept.
 
-# Allow use as module
-## And/or: Suppress export of symbols
+## Allow use as module
+### And/or: Suppress export of symbols
 
 Some compilers tend to export all the generated symbols, which is a bit annoying
 in case of template-heavy libraries like sqlpp23 (leads to larger files and
 longer compile/link/startup times, I believe). There are ways to suppress this
 in most compilers, afaik.
 
-# Need to document: aggregates
+## Need to document: aggregates
 They must not be mixed in a select.
 
 `group_by` accepts columns only (there is an escape hatch: `group_by_column`)
@@ -33,23 +37,23 @@ Note that in a sub select that is used as a value, we don't detect if a table is
 ## coalesce
 https://github.com/rbock/sqlpp11/issues/453
 
-# dynamic do_update?
+## dynamic do_update?
 https://github.com/rbock/sqlpp11/issues/493
 
-# implement cast?
+## implement cast?
 Implement cast, to support something like cast_as<sqlpp::day_point>(mt.startTime),
 see https://github.com/rbock/sqlpp11/issues/606
 
-# [PostgreSQL] on_conflict with more than one column
+## [PostgreSQL] on_conflict with more than one column
 See https://github.com/rbock/sqlpp11/issues/586
 
-# EXTRACT function for date/time
+## EXTRACT function for date/time
 See https://github.com/rbock/sqlpp11/issues/611
 
-# Upgrade case statement to allow for multiple when clauses.
+## Upgrade case statement to allow for multiple when clauses.
 See https://github.com/rbock/sqlpp11/issues/600
 
-# Support for pragma tables
+## Support for pragma tables
 See https://github.com/rbock/sqlpp11/issues/553
 
 ## Async support
@@ -57,3 +61,4 @@ See https://github.com/rbock/sqlpp11/issues/553
 Obtain results in an asynchronous fashion, see #35, for instance.
 
 
+[**< Index**](/docs/README.md)

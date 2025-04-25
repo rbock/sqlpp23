@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)
 
 # Thread Safety
 
@@ -17,7 +17,7 @@ lock-ups and SQL errors.
 
 The recommendation therefore is to **not share** connections between threads and
 to read about thread safety of the underlying database for more information. You
-may also look into [connection pools](connection_pool.md) as a way to make SQL
+may also look into [connection pools](/docs/connection_pool.md) as a way to make SQL
 queries simultaneously in multiple threads.
 
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)

@@ -1,4 +1,4 @@
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)
 
 # From static to dynamic statements
 
@@ -23,7 +23,7 @@ In this example, selected columns are fixed (`foo.id`, `foo.name`,
 `foo.hasFun`), they belong to exactly one table (`foo`), and the condition
 definetely compares the id with a number (`17`).
 
-# Using variables
+## Using variables
 
 Values like `17` can be replaced by variables to provide a bit of flexibility:
 
@@ -38,7 +38,7 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
 }
 ```
 
-# Using prepared statements with parameters
+## Using prepared statements with parameters
 
 Prepared statements with parameters provide similar flexibility as statements
 with variables but at a later stage (after preparing the statement in the
@@ -103,4 +103,4 @@ runtime:
   the conditions match. For instance, you could join on one condition and add a
   column with another. This might end up in incorrect statements.
 
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)

@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)
 
 # Delete
 
@@ -12,7 +12,7 @@ db(delete_from(tab).where(tab.alpha == 35));
 
 The `where` clause specifies which rows should be affected.
 
-`where` can be called with a [`dynamic`](dynamic.md) argument. In case the
+`where` can be called with a [`dynamic`](/docs/dynamic.md) argument. In case the
 dynamic condition is false, no `WHERE` will be included in the serialized
 statement.
 
@@ -37,4 +37,4 @@ db(delete_from(foo).using_(bar).where(
     ));
 ```
 
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)

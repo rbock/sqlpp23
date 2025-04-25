@@ -1,3 +1,5 @@
+[**\< Index**](/docs/README.md)
+
 # Code Generation
 
 sqlpp23 requires C++ representations for the database tables you want interact
@@ -33,3 +35,5 @@ More details can be learned from `scripts/ddl2cpp --help`.
 ## Include generated headers
 
 No surprise here.
+
+[**\< Index**](/docs/README.md)

@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)
 
 # Sub-Select
 
@@ -43,4 +43,4 @@ for (const auto& row : db(select(sub_select.id).from(sub_select))) {
 }
 ```
 
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)

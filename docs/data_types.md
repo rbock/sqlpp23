@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)
 
 # Data types
 
@@ -98,4 +98,4 @@ C++ data types `std::chrono::duration<Rep, Period>` is considered `sqlpp::time_o
 
 For assignments and comparisons expressions of type `sqlpp::time_of_day` will work.
 
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)

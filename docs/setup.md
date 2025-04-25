@@ -1,3 +1,5 @@
+[**< Index**](/docs/README.md)
+
 # Setup
 
 In order to do anything really useful with the library, you will also need a
@@ -73,3 +75,5 @@ Don’t check if the dependencies are installed and don’t build any tests:
 cmake -B build -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON -DDEPENDENCY_CHECK=OFF -DBUILD_TESTING=OFF
 cmake --build build --target install
 ```
+
+[**< Index**](/docs/README.md)

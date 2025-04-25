@@ -1,4 +1,4 @@
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)
 
 # Tables
 
@@ -58,7 +58,7 @@ const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a))
                                     .where(x_base.a < 10));
 ```
 
-CTEs are made available to a statement using the [`with`](with.md) clause.
+CTEs are made available to a statement using the [`with`](/docs/with.md) clause.
 
 ## Joins
 
@@ -108,4 +108,4 @@ for (const auto& row : db(select(l.id, r.id.as(r_id))
 Aliased tables might also be used to increase the readability of generated SQL
 code, for instance if you have very long table names.
 
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)

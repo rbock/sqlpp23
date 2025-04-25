@@ -1,3 +1,5 @@
+[**\< Index**](/docs/README.md)
+
 # Introduction
 
 SQLPP11 has support for connection pools which are centralized caches of database connections. When you need a database connection, you can fetch one from the connection pool, use the connection to make SQL
@@ -109,3 +111,5 @@ This usage pattern works well provided that you don't use transactions. If you u
 Another usage pattern that works around the multi-threading problems is keeping a connection handle in a global thread_local object. This global object is not a real connection, but a wrapper which lazily fetches a connection from the
 thread pool the first time when it is used to execute a database query. The wrapper will expose all the relevant methods and will forward them to the real connection. This way each thread can use the global wrapper as a database
 connection and the thread_local storage class specifier will make sure that each thread accesses its own database connection. You can see examples/connection_pool as an example of this usage pattern.
+
+[**\< Index**](/docs/README.md)

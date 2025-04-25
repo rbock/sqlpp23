@@ -1,4 +1,4 @@
-[**\< Differences**](../differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences-to-sqlpp11.md)
 
 # Before and after: Names
 
@@ -51,5 +51,5 @@ SQLPP_CREATE_QUOTED_NAME_TAG(something);
 </tr>
 </table>
 
-[**\< Differences**](../differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences-to-sqlpp11.md)
 

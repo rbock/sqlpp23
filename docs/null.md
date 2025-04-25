@@ -1,4 +1,4 @@
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)
 
 # `NULL`
 
@@ -48,4 +48,4 @@ The can be used like this:
    .where(foo.id.is_distinct_from(something));
 ```
 
-[**< Index**](README.md)
+[**< Index**](/docs/README.md)

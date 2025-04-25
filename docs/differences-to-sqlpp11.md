@@ -1,4 +1,4 @@
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)
 
 # Differences between sqlpp11 and sqlpp23
 
@@ -21,11 +21,11 @@ If seems a bit dry, follow the links to examples.
 | `BLOB` result fields | convertible to `std::vector<uint8_t>` | `std::span<uint8_t>` |
 | programmatic access | `for_each_field` | `result_row_t::as_tuple()` |
 | | | |
-| [**Names**](tony_tables/names.md) | | |
+| [**Names**](/docs/tony_tables/names.md) | | |
 | creating names | `SQLPP_ALIAS_PROVIDER` | `SQLPP_CREATE_NAME_TAG` |
 | creating quoted names | `SQLPP_QUOTED_ALIAS_PROVIDER` | `SQLPP_CREATE_QUOTED_NAME_TAG` |
 | | | |
-| [**Dynamic queries**](tony_tables/dynamic_queries.md) | | |
+| [**Dynamic queries**](/docs/tony_tables/dynamic_queries.md) | | |
 | clauses | separate calls to add dynamic parts with very few compile time checks | directly embedded in statement using `dynamic()` with many compile time checks |
 | `where` conditions | dynamic `and` supported without nesting | dynamic `and` and `or` supported at any nesting level |
 | result fields | dynamic result fields in `std::map<std::string, std::string>` | correctly typed and named data members of result rows |
@@ -36,12 +36,12 @@ If seems a bit dry, follow the links to examples.
 | `execute` | executes strings and non-select statements | *dropped* |
 | `query` | executes select statements | *dropped* |
 | | | |
-| [**Constraints**](tony_tables/constraints.md) | | |
+| [**Constraints**](/docs/tony_tables/constraints.md) | | |
 | read-only columns  | e.g. for auto-increment | *dropped* |
 | required `where`  | in `select`, `update`, `remove` | *dropped* |
 | `unconditionally()`  | to explicitly omit `where` or `on` condition in joins | *dropped* |
 | | | |
-| [**Clauses**](tony_tables/clauses.md) | | |
+| [**Clauses**](/docs/tony_tables/clauses.md) | | |
 | `DELETE FROM`  | `remove_from` | `delete_from` |
 | `LIMIT` & `OFFSET`  | require unsigned argument | any integer argument |
 | `TRUNCATE`  | N/A | `truncate` |
@@ -52,7 +52,7 @@ If seems a bit dry, follow the links to examples.
 | `COUNT(*)` | N/A | `count(sqlpp::star)` |
 | `SOME` | `some` | *dropped* (use `any`) |
 | | | |
-| [**Operators**](tony_tables/operators.md) | | |
+| [**Operators**](/docs/tony_tables/operators.md) | | |
 | `IN` | `in` requires `sqlpp::value_list` to pass `std::vector` | `something.in(my_vector)` |
 | `NOT IN` | `not_in` requires `sqlpp::value_list` to pass `std::vector` | `something.not_in(my_vector)` |
 | Unary `operator+()` | present | *dropped* |
@@ -73,5 +73,5 @@ If seems a bit dry, follow the links to examples.
 | sqlite2cpp.py | ddl2cpp variant for sqlite3 | *dropped* |
 | dynamic loading | ability to load connector library dynamically | *dropped* (was unmaintained) |
 
-[**\< Index**](README.md)
+[**\< Index**](/docs/README.md)
 
