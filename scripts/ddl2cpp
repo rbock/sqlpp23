@@ -250,7 +250,7 @@ def initDllParser():
         "BIGSERIAL",
         "GENERATED",
     ]
-    ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True)))
+    ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
 
     ddlPrimaryKey = pp.Group(
         pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")
@@ -283,7 +283,7 @@ def initDllParser():
             ddlUnsigned
             | ddlNotNull
             | pp.CaselessKeyword("null")
-            | ddlAutoValue("hasAutoValue")
+            | ddlAutoValue
             | ddlDefaultValue
             | ddlPrimaryKey
             | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
