@@ -180,7 +180,7 @@ def initDllParser():
     ddlSerial = (
         pp.Or(map(pp.CaselessKeyword, sorted(ddlSerialTypes, reverse=True)))
         .setParseAction(pp.replaceWith("integral"))
-        .setResultsName("hasAutoValue")
+        .setResultsName("hasSerialValue")
     )
 
     ddlFloatingPoint = pp.Or(
@@ -239,16 +239,11 @@ def initDllParser():
     ).setResultsName("notNull")
     ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
 
+    ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
+
     ddlAutoKeywords = [
         "AUTO_INCREMENT",
-        "AUTOINCREMENT",
-        "SMALLSERIAL",
-        "SERIAL",
-        "SERIAL2",
-        "SERIAL4",
-        "SERIAL8",
-        "BIGSERIAL",
-        "GENERATED",
+        "AUTOINCREMENT"
     ]
     ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
 
@@ -285,6 +280,7 @@ def initDllParser():
             | pp.CaselessKeyword("null")
             | ddlAutoValue
             | ddlDefaultValue
+            | ddlGeneratedValue
             | ddlPrimaryKey
             | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
             | pp.Suppress(ddlExpression)
@@ -333,7 +329,7 @@ def testSerial():
     for t in ddlSerialTypes:
         result = ddlType.parseString(t, parseAll=True)
         assert result[0] == "integral"
-        assert result.hasAutoValue
+        assert result.hasSerialValue
 
 
 def testFloatingPoint():
@@ -393,6 +389,9 @@ def testColumn():
     assert column.isUnsigned
     assert column.notNull
     assert not column.hasAutoValue
+    assert column.hasDefaultValue
+    assert not column.hasGeneratedValue
+    assert not column.hasSerialValue
     assert not column.isPrimaryKey
 
 
@@ -705,18 +704,18 @@ def createHeader():
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
                 + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
                 , file=header)
-            columnIsConst = column.hasAutoValue or \
-                            (autoId and sqlColumnName == "id")
+            columnIsConst = column.hasGeneratedValue
             constPrefix = "const " if columnIsConst else ""
-            columnCanBeNull = not column.notNull and not column.isPrimaryKey
+            columnCanBeNull = not column.notNull and not column.isPrimaryKey and not column.hasSerialValue
             if columnCanBeNull:
                 print("      using data_type = " + constPrefix + "std::optional<::sqlpp::" + columnType + ">;", file=header)
             else:
                 print("      using data_type = " + constPrefix + "::sqlpp::" + columnType + ";", file=header)
             columnHasDefault = column.hasDefaultValue or \
-                               columnCanBeNull or \
+                               column.hasSerialValue or \
                                column.hasAutoValue or \
-                               (autoId and sqlColumnName == "id")
+                               (autoId and sqlColumnName == "id") or \
+                               columnCanBeNull
             if columnHasDefault:
               print("      using has_default = std::true_type;", file=header)
             else:
