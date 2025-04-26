@@ -30,4 +30,4 @@
 
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlite3/database/connection_pool.h>
-#include <sqlpp23/sqlite3/insert_or.h>
+#include <sqlpp23/sqlite3/clause/insert_or.h>
