@@ -375,18 +375,62 @@ def testUnknown():
 
 
 def testColumn():
-    text = "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)"
-    result = ddlColumn.parseString(text, parseAll=True)
-    column = result[0]
-    assert column.name == "id"
-    assert column.type == "integral"
-    assert column.isUnsigned
-    assert column.notNull
-    assert not column.hasAutoValue
-    assert column.hasDefaultValue
-    assert not column.hasGeneratedValue
-    assert not column.hasSerialValue
-    assert not column.isPrimaryKey
+    testData = [
+        {
+            "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
+            "expected": {
+                "name": "id",
+                "type": "integral",
+                "isUnsigned": True,
+                "notNull": True,
+                "hasAutoValue": False,
+                "hasDefaultValue": True,
+                "hasGeneratedValue": False,
+                "hasSerialValue": False,
+                "isPrimaryKey": False
+            }
+        },
+        {
+            "text": "\"fld\" int AUTO_INCREMENT",
+            "expected": {
+                "name": "fld",
+                "type": "integral",
+                "isUnsigned": False,
+                "notNull": False,
+                "hasAutoValue": True,
+                "hasDefaultValue": False,
+                "hasGeneratedValue": False,
+                "hasSerialValue": False,
+                "isPrimaryKey": False
+            }
+        },
+        {
+            "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
+            "expected": {
+                "name": "fld2",
+                "type": "integral",
+                "isUnsigned": False,
+                "notNull": True,
+                "hasAutoValue": False,
+                "hasDefaultValue": False,
+                "hasGeneratedValue": True,
+                "hasSerialValue": False,
+                "isPrimaryKey": False
+            }
+        }
+    ]
+    for td in testData:
+        result = ddlColumn.parseString(td["text"], parseAll=True)[0]
+        expected = td["expected"]
+        assert result.name == expected["name"]
+        assert result.type == expected["type"]
+        assert bool(result.isUnsigned) == expected["isUnsigned"]
+        assert bool(result.notNull) == expected["notNull"]
+        assert bool(result.hasAutoValue) == expected["hasAutoValue"]
+        assert bool(result.hasDefaultValue) == expected["hasDefaultValue"]
+        assert bool(result.hasGeneratedValue) == expected["hasGeneratedValue"]
+        assert bool(result.hasSerialValue) == expected["hasSerialValue"]
+        assert bool(result.isPrimaryKey) == expected["isPrimaryKey"]
 
 
 def testConstraint():
