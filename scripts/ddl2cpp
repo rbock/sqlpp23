@@ -180,7 +180,7 @@ def initDllParser():
     ddlSerial = (
         pp.Or(map(pp.CaselessKeyword, sorted(ddlSerialTypes, reverse=True)))
         .setParseAction(pp.replaceWith("integral"))
-        .setResultsName("hasAutoValue")
+        .setResultsName("hasSerialValue")
     )
 
     ddlFloatingPoint = pp.Or(
@@ -239,18 +239,13 @@ def initDllParser():
     ).setResultsName("notNull")
     ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
 
+    ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
+
     ddlAutoKeywords = [
         "AUTO_INCREMENT",
-        "AUTOINCREMENT",
-        "SMALLSERIAL",
-        "SERIAL",
-        "SERIAL2",
-        "SERIAL4",
-        "SERIAL8",
-        "BIGSERIAL",
-        "GENERATED",
+        "AUTOINCREMENT"
     ]
-    ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True)))
+    ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
 
     ddlPrimaryKey = pp.Group(
         pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")
@@ -280,12 +275,13 @@ def initDllParser():
         + pp.Suppress(pp.Optional(ddlWidth))
         + pp.Suppress(pp.Optional(ddlTimezone))
         + pp.ZeroOrMore(
-            ddlUnsigned("isUnsigned")
-            | ddlNotNull("notNull")
+            ddlUnsigned
+            | ddlNotNull
             | pp.CaselessKeyword("null")
-            | ddlAutoValue("hasAutoValue")
-            | ddlDefaultValue("hasDefaultValue")
-            | ddlPrimaryKey("isPrimaryKey")
+            | ddlAutoValue
+            | ddlDefaultValue
+            | ddlGeneratedValue
+            | ddlPrimaryKey
             | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
             | pp.Suppress(ddlExpression)
         )
@@ -333,7 +329,7 @@ def testSerial():
     for t in ddlSerialTypes:
         result = ddlType.parseString(t, parseAll=True)
         assert result[0] == "integral"
-        assert result.hasAutoValue
+        assert result.hasSerialValue
 
 
 def testFloatingPoint():
@@ -378,22 +374,63 @@ def testUnknown():
         assert result[0] == "UNKNOWN"
 
 
-def testAutoValue():
-    def test(s, expected):
-        results = ddlAutoValue.parseString(s, parseAll=True)
-        print(results)
-
-
 def testColumn():
-    text = "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)"
-    result = ddlColumn.parseString(text, parseAll=True)
-    column = result[0]
-    assert column.name == "id"
-    assert column.type == "integral"
-    assert column.isUnsigned
-    assert column.notNull
-    assert not column.hasAutoValue
-    assert not column.isPrimaryKey
+    testData = [
+        {
+            "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
+            "expected": {
+                "name": "id",
+                "type": "integral",
+                "isUnsigned": True,
+                "notNull": True,
+                "hasAutoValue": False,
+                "hasDefaultValue": True,
+                "hasGeneratedValue": False,
+                "hasSerialValue": False,
+                "isPrimaryKey": False
+            }
+        },
+        {
+            "text": "\"fld\" int AUTO_INCREMENT",
+            "expected": {
+                "name": "fld",
+                "type": "integral",
+                "isUnsigned": False,
+                "notNull": False,
+                "hasAutoValue": True,
+                "hasDefaultValue": False,
+                "hasGeneratedValue": False,
+                "hasSerialValue": False,
+                "isPrimaryKey": False
+            }
+        },
+        {
+            "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
+            "expected": {
+                "name": "fld2",
+                "type": "integral",
+                "isUnsigned": False,
+                "notNull": True,
+                "hasAutoValue": False,
+                "hasDefaultValue": False,
+                "hasGeneratedValue": True,
+                "hasSerialValue": False,
+                "isPrimaryKey": False
+            }
+        }
+    ]
+    for td in testData:
+        result = ddlColumn.parseString(td["text"], parseAll=True)[0]
+        expected = td["expected"]
+        assert result.name == expected["name"]
+        assert result.type == expected["type"]
+        assert bool(result.isUnsigned) == expected["isUnsigned"]
+        assert bool(result.notNull) == expected["notNull"]
+        assert bool(result.hasAutoValue) == expected["hasAutoValue"]
+        assert bool(result.hasDefaultValue) == expected["hasDefaultValue"]
+        assert bool(result.hasGeneratedValue) == expected["hasGeneratedValue"]
+        assert bool(result.hasSerialValue) == expected["hasSerialValue"]
+        assert bool(result.isPrimaryKey) == expected["isPrimaryKey"]
 
 
 def testConstraint():
@@ -705,18 +742,18 @@ def createHeader():
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
                 + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
                 , file=header)
-            columnIsConst = column.hasAutoValue or \
-                            (autoId and sqlColumnName == "id")
+            columnIsConst = column.hasGeneratedValue
             constPrefix = "const " if columnIsConst else ""
-            columnCanBeNull = not column.notNull and not column.isPrimaryKey
+            columnCanBeNull = not column.notNull and not column.isPrimaryKey and not column.hasSerialValue
             if columnCanBeNull:
                 print("      using data_type = " + constPrefix + "std::optional<::sqlpp::" + columnType + ">;", file=header)
             else:
                 print("      using data_type = " + constPrefix + "::sqlpp::" + columnType + ";", file=header)
             columnHasDefault = column.hasDefaultValue or \
-                               columnCanBeNull or \
+                               column.hasSerialValue or \
                                column.hasAutoValue or \
-                               (autoId and sqlColumnName == "id")
+                               (autoId and sqlColumnName == "id") or \
+                               columnCanBeNull
             if columnHasDefault:
               print("      using has_default = std::true_type;", file=header)
             else:
