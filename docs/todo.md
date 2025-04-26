@@ -24,15 +24,9 @@ Note that in a sub select that is used as a value, we don't detect if a table is
 ## coalesce
 https://github.com/rbock/sqlpp11/issues/453
 
-## dynamic do_update?
-https://github.com/rbock/sqlpp11/issues/493
-
 ## implement cast?
 Implement cast, to support something like cast_as<sqlpp::day_point>(mt.startTime),
 see https://github.com/rbock/sqlpp11/issues/606
-
-## [PostgreSQL] on_conflict with more than one column
-See https://github.com/rbock/sqlpp11/issues/586
 
 ## EXTRACT function for date/time
 See https://github.com/rbock/sqlpp11/issues/611

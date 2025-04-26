@@ -49,6 +49,16 @@ int InsertOnConflict(int, char*[]) {
   // Test on conflict (with conflict target)
   db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_nothing());
 
+  // Test on conflict (with mulitple conflict targets)
+  db(sql::insert_into(foo)
+         .default_values()
+         .on_conflict(foo.id, dynamic(true, foo.intNnU))
+         .do_nothing());
+  db(sql::insert_into(foo)
+         .default_values()
+         .on_conflict(foo.id, dynamic(false, foo.intNnU))
+         .do_nothing());
+
   // Conflict target
   db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_update(
       foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true));
@@ -58,7 +68,7 @@ int InsertOnConflict(int, char*[]) {
                                 .default_values()
                                 .on_conflict(foo.id)
                                 .do_update(foo.intN = 5,
-          foo.textNnD = "test bla", foo.boolN = true)
+          dynamic(true, foo.textNnD = "test bla"), foo.boolN = true)
                                 .where(foo.intN == 2)
                                 .returning(foo.textNnD))) {
     std::cout << row.textNnD << std::endl;

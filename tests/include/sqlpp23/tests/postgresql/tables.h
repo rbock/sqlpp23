@@ -20,9 +20,10 @@ namespace test {
   text_nn_d varchar(255) NOT NULL DEFAULT '',
   int_n bigint,
   double_n double precision,
--- u_int_n bigint UNSIGNED,  -- there are no unsigned integers in postgresql
+  int_nn_u bigint UNIQUE,
   bool_n bool,
-  blob_n bytea
+  blob_n bytea,
+  UNIQUE(id, int_nn_u) -- to test multi-argument on_confict
 ))+++");
   }
 
@@ -47,6 +48,11 @@ namespace test {
       using data_type = std::optional<::sqlpp::floating_point>;
       using has_default = std::true_type;
     };
+    struct IntNnU : public ::sqlpp::name_tag_base {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(int_nn_u, intNnU);
+      using data_type = std::optional<::sqlpp::integral>;
+      using has_default = std::true_type;
+    };
     struct BoolN : public ::sqlpp::name_tag_base {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(bool_n, boolN);
       using data_type = std::optional<::sqlpp::boolean>;
@@ -64,6 +70,7 @@ namespace test {
                TextNnD,
                IntN,
                DoubleN,
+               IntNnU,
                BoolN,
                BlobN>;
     using _required_insert_columns = sqlpp::detail::type_set<>;

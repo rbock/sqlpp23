@@ -46,12 +46,33 @@ Similar to `select` columns, `returning` columns can be [`dynamic`](/docs/dynami
 
 ## `on_conflict` ... `do_nothing`
 
-TODO\
-See [tests](/tests/postgresql/usage/InsertOnConflict.cpp)
+The connector supports `ON CONFLICT ... DO NOTHING` with zero or more conflict targets, e.g.
+
+```c++
+// No conflict targets
+sql::insert_into(foo).default_values().on_conflict().do_nothing());
+
+// One or maybe two conflict targets
+db(sql::insert_into(foo)
+       .default_values()
+       .on_conflict(foo.id, dynamic(false, foo.textNnD))
+       .do_nothing());
+```
 
 ## `on_conflict` ... `do_update` ... [`where` ...]
 
-TODO\
-See [tests](/tests/postgresql/usage/InsertOnConflict.cpp)
+The connector supports `ON CONFLICT ... DO UPDATE ... WHERE` with zero or more conflict targets, one or more update assignments and optional `where` clause, e.g.
+
+```c++
+for (const auto& row : db(sql::insert_into(foo)
+                              .default_values()
+                              .on_conflict(foo.id)
+                              .do_update(foo.intN = 5,
+          dynamic(maybe, foo.textNnD = "test bla"), foo.boolN = true)
+                              .where(foo.intN == 2)
+                              .returning(foo.textNnD))) {
+  // use row.textNnD;
+}
+```
 
 [**\< Connectors**](/docs/connectors.md)

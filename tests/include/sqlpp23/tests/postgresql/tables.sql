@@ -6,9 +6,10 @@ CREATE TABLE tab_foo
   text_nn_d varchar(255) NOT NULL DEFAULT '',
   int_n bigint,
   double_n double precision,
--- u_int_n bigint UNSIGNED,  -- there are no unsigned integers in postgresql
+  int_nn_u bigint UNIQUE,
   bool_n bool,
-  blob_n bytea
+  blob_n bytea,
+  UNIQUE(id, int_nn_u) -- to test multi-argument on_confict
 );
 
 DROP TABLE IF EXISTS tab_bar;
