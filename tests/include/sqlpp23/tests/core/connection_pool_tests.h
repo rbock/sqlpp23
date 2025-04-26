@@ -34,7 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unordered_set>
 
 #include <sqlpp23/sqlpp23.h>
-#include "tab_department.h"
+#include <sqlpp23/core/database/connection_pool.h>
+#include <sqlpp23/tests/core/tab_department.h>
 
 namespace sqlpp::test {
 namespace {

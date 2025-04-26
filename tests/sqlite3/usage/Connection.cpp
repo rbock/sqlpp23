@@ -24,10 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../include/ConnectionTests.h"
-
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/connection_tests.h>
 
 int Connection(int, char*[]) {
   namespace sql = sqlpp::sqlite3;

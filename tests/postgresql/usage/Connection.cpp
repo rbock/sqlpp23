@@ -25,7 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../include/ConnectionTests.h"
+#include <sqlpp23/tests/core/connection_tests.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 #include <sqlpp23/postgresql/database/connection.h>
