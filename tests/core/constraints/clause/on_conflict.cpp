@@ -26,24 +26,21 @@
 
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
-#include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/core/clause/on_conflict.h>
+#include <sqlpp23/tests/core/tables.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 
 // Test on_conflict
 template <typename... Expressions>
-concept can_call_on_conflict_with_standalone =
-    requires(Expressions... expressions) {
-      sqlpp::postgresql::on_conflict(expressions...);
-    };
+concept can_call_on_conflict_with_standalone = requires(
+    Expressions... expressions) { sqlpp::on_conflict(expressions...); };
 template <typename... Expressions>
 concept can_call_on_conflict_with_in_statement =
     requires(Expressions... expressions) {
-      sqlpp::statement_t<sqlpp::postgresql::no_on_conflict_t>{}.on_conflict(
-          expressions...);
+      sqlpp::statement_t<sqlpp::no_on_conflict_t>{}.on_conflict(expressions...);
     };
 
 template <typename... Expressions>
@@ -83,7 +80,7 @@ int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  using sqlpp::postgresql::on_conflict;
+  using sqlpp::on_conflict;
 
   // OK
   on_conflict();
@@ -104,43 +101,41 @@ int main() {
 
   // do_update requires assignments as arguments
   {
-    auto insert =
-        sqlpp::postgresql::insert_into(foo).default_values().on_conflict(
-            foo.id);
+    auto insert = sqlpp::insert_into(foo).default_values()
+                  << on_conflict(foo.id);
     static_assert(
         can_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>, "");
-    static_assert(can_call_do_update_with<decltype(insert),
-                                          decltype(dynamic(maybe, foo.intN = 7))>,
-                  "");
+    static_assert(
+        can_call_do_update_with<decltype(insert),
+                                decltype(dynamic(maybe, foo.intN = 7))>,
+        "");
     static_assert(
         cannot_call_do_update_with<decltype(insert), decltype(foo.intN == 7)>,
         "");
 
     using I = decltype(insert);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<I>,
-                     sqlpp::postgresql::assert_on_conflict_action_t>::value,
-        "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<I>,
-                     sqlpp::postgresql::assert_on_conflict_action_t>::value,
-        "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
+                               sqlpp::assert_on_conflict_action_t>::value,
+                  "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<I>,
+                               sqlpp::assert_on_conflict_action_t>::value,
+                  "");
   }
 
   // do_update in-function checks
   {
-    const auto insert = sqlpp::postgresql::insert_into(foo).default_values();
+    const auto insert = sqlpp::insert_into(foo).default_values();
     SQLPP_CHECK_STATIC_ASSERT(
-        insert.on_conflict().do_update(foo.intN = 5),
+        insert << on_conflict().do_update(foo.intN = 5),
         "conflict_target specification is required with do_update()");
     SQLPP_CHECK_STATIC_ASSERT(
-        insert.on_conflict(foo.id).do_update(),
+        insert << on_conflict(foo.id).do_update(),
         "at least one assignment expression required in do_update()");
     SQLPP_CHECK_STATIC_ASSERT(
-        insert.on_conflict(foo.id).do_update(foo.intN = 5, foo.intN = 19),
+        insert << on_conflict(foo.id).do_update(foo.intN = 5, foo.intN = 19),
         "at least one duplicate column detected in do_update()");
     SQLPP_CHECK_STATIC_ASSERT(
-        insert.on_conflict(foo.id).do_update(foo.intN = 7, bar.intN = 5),
+        insert << on_conflict(foo.id).do_update(foo.intN = 7, bar.intN = 5),
         "do_update() contains assignments for columns from more than one "
         "table");
   }
@@ -148,10 +143,8 @@ int main() {
   // do_update can be qualified with `where` being called with a single boolean
   // expression
   {
-    auto insert = sqlpp::postgresql::insert_into(foo)
-                      .default_values()
-                      .on_conflict(foo.id)
-                      .do_update(foo.intN = 7);
+    auto insert = sqlpp::insert_into(foo).default_values()
+                  << on_conflict(foo.id).do_update(foo.intN = 7);
 
     static_assert(can_call_where_with<decltype(insert), decltype(foo.id == 7)>,
                   "");
@@ -160,17 +153,16 @@ int main() {
                   "");
     static_assert(
         cannot_call_where_with<decltype(insert), decltype(foo.intN = 7)>, "");
-    static_assert(cannot_call_where_with<decltype(insert), decltype(foo.intN = 7),
-                                         decltype(true)>,
-                  "");
+    static_assert(
+        cannot_call_where_with<decltype(insert), decltype(foo.intN = 7),
+                               decltype(true)>,
+        "");
   }
 
   // do_update.where in-function checks
   {
-    auto insert = sqlpp::postgresql::insert_into(foo)
-                      .default_values()
-                      .on_conflict(foo.id)
-                      .do_update(foo.intN = 7);
+    auto insert = sqlpp::insert_into(foo).default_values()
+                  << on_conflict(foo.id).do_update(foo.intN = 7);
     SQLPP_CHECK_STATIC_ASSERT(insert.where(max(foo.id) > 3),
                               "where() must not contain aggregate functions");
   }
@@ -179,10 +171,8 @@ int main() {
   // bad table checks
   // -----------------------------------------
   {
-    auto insert = sqlpp::postgresql::insert_into(foo)
-                      .default_values()
-                      .on_conflict(bar.id)
-                      .do_update(foo.intN = 7);
+    auto insert = sqlpp::insert_into(foo).default_values()
+                  << on_conflict(bar.id).do_update(foo.intN = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -190,16 +180,13 @@ int main() {
     static_assert(
         std::is_same<
             sqlpp::statement_prepare_check_t<I>,
-            sqlpp::postgresql::
-                assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
+            sqlpp::assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
         "");
   }
 
   {
-    auto insert = sqlpp::postgresql::insert_into(foo)
-                      .default_values()
-                      .on_conflict(foo.id)
-                      .do_update(bar.intN = 7);
+    auto insert = sqlpp::insert_into(foo).default_values()
+                  << on_conflict(foo.id).do_update(bar.intN = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -207,17 +194,14 @@ int main() {
     static_assert(
         std::is_same<
             sqlpp::statement_prepare_check_t<I>,
-            sqlpp::postgresql::
-                assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
+            sqlpp::assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
         "");
   }
 
   {
-    auto insert = sqlpp::postgresql::insert_into(foo)
-                      .default_values()
-                      .on_conflict(foo.id)
-                      .do_update(foo.intN = 7)
-                      .where(bar.id > 8);
+    auto insert =
+        sqlpp::insert_into(foo).default_values()
+        << on_conflict(foo.id).do_update(foo.intN = 7).where(bar.id > 8);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -225,8 +209,7 @@ int main() {
     static_assert(
         std::is_same<
             sqlpp::statement_prepare_check_t<I>,
-            sqlpp::postgresql::
-                assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
+            sqlpp::assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
         "");
   }
 
@@ -245,8 +228,7 @@ int main() {
     static_assert(
         std::is_same<
             sqlpp::statement_prepare_check_t<I>,
-            sqlpp::postgresql::
-                assert_no_unknown_static_tables_in_on_conflict_do_update_t>::
+            sqlpp::assert_no_unknown_static_tables_in_on_conflict_do_update_t>::
             value,
         "");
   }

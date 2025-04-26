@@ -32,11 +32,9 @@
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/reader.h>
+#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
-namespace postgresql {
 SQLPP_WRAPPED_STATIC_ASSERT(
     assert_no_unknown_tables_in_on_conflict_do_update_t,
     "at least one expression in on_conflict().do_update().where() requires a "
@@ -63,14 +61,13 @@ struct on_conflict_do_update_where_t {
 
  private:
   friend ::sqlpp::reader_t;
-  friend ::sqlpp::postgresql::reader_t;
   OnConflictUpdate _on_conflict_update;
   Expression _expression;
 };
 
-template <typename OnConflictUpdate, typename Expression>
+template <typename Context, typename OnConflictUpdate, typename Expression>
 auto to_sql_string(
-    postgresql::context_t& context,
+    Context& context,
     const on_conflict_do_update_where_t<OnConflictUpdate, Expression>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
@@ -78,45 +75,39 @@ auto to_sql_string(
   return ret_val + to_sql_string(context, read.expression(t));
 }
 
-}  // namespace postgresql
-
 template <typename OnConflictUpdate, typename Expression>
 struct nodes_of<
-    postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
+    on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   using type = detail::type_vector<OnConflictUpdate, Expression>;
 };
 
 template <typename OnConflictUpdate, typename Expression>
 struct is_clause<
-    postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
+    on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
     : public std::true_type {};
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
 struct consistency_check<
     Statement,
-    postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
+    on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   using type = consistent_t;
 };
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
 struct prepare_check<
     Statement,
-    postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
+    on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   using type = static_combined_check_t<
       static_check_t<
           Statement::template _no_unknown_tables<
-              postgresql::on_conflict_do_update_where_t<OnConflictUpdate,
-                                                        Expression>>,
-          postgresql::assert_no_unknown_tables_in_on_conflict_do_update_t>,
+              on_conflict_do_update_where_t<OnConflictUpdate, Expression>>,
+          assert_no_unknown_tables_in_on_conflict_do_update_t>,
       static_check_t<
           Statement::template _no_unknown_static_tables<
-              postgresql::on_conflict_do_update_where_t<OnConflictUpdate,
-                                                        Expression>>,
-          postgresql::
-              assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
+              on_conflict_do_update_where_t<OnConflictUpdate, Expression>>,
+          assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
 };
 
-namespace postgresql {
 // ON CONFLICT ... DO UPDATE ...
 template <typename OnConflict, typename... Assignments>
 struct on_conflict_do_update_t {
@@ -144,13 +135,13 @@ struct on_conflict_do_update_t {
 
  private:
   friend ::sqlpp::reader_t;
-  friend ::sqlpp::postgresql::reader_t;
+  friend ::sqlpp::reader_t;
   OnConflict _on_conflict;
   std::tuple<Assignments...> _assignments;
 };
 
-template <typename OnConflict, typename... Assignments>
-auto to_sql_string(postgresql::context_t& context,
+template <typename Context, typename OnConflict, typename... Assignments>
+auto to_sql_string(Context& context,
                    const on_conflict_do_update_t<OnConflict, Assignments...>& t)
     -> std::string {
   return to_sql_string(context, read.on_conflict(t)) + " DO UPDATE SET " +
@@ -158,39 +149,36 @@ auto to_sql_string(postgresql::context_t& context,
                              tuple_operand_no_dynamic{", "});
 }
 
-}  // namespace postgresql
-
 template <typename OnConflict, typename... Assignments>
 struct is_clause<
-    postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>
+    on_conflict_do_update_t<OnConflict, Assignments...>>
     : public std::true_type {};
 
 template <typename OnConflict, typename... Assignments>
 struct nodes_of<
-    postgresql::on_conflict_do_update_t<OnConflict, Assignments...>> {
+    on_conflict_do_update_t<OnConflict, Assignments...>> {
   using type = detail::type_vector<OnConflict, Assignments...>;
 };
 
 template <typename Statement, typename OnConflict, typename... Assignments>
 struct consistency_check<
     Statement,
-    postgresql::on_conflict_do_update_t<OnConflict, Assignments...>> {
+    on_conflict_do_update_t<OnConflict, Assignments...>> {
   using type = consistent_t;
 };
 
 template <typename Statement, typename OnConflict, typename... Assignments>
 struct prepare_check<
     Statement,
-    postgresql::on_conflict_do_update_t<OnConflict, Assignments...>> {
+    on_conflict_do_update_t<OnConflict, Assignments...>> {
   using type = static_combined_check_t<
       static_check_t<
           Statement::template _no_unknown_tables<
-              postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>,
-          postgresql::assert_no_unknown_tables_in_on_conflict_do_update_t>,
+              on_conflict_do_update_t<OnConflict, Assignments...>>,
+          assert_no_unknown_tables_in_on_conflict_do_update_t>,
       static_check_t<
           Statement::template _no_unknown_static_tables<
-              postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>,
-          postgresql::
+              on_conflict_do_update_t<OnConflict, Assignments...>>,
               assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
 };
 

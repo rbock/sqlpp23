@@ -29,7 +29,7 @@
 
 #include <sqlpp23/core/clause/insert.h>
 #include <sqlpp23/core/clause/returning.h>
-#include <sqlpp23/postgresql/clause/on_conflict.h>
+#include <sqlpp23/core/clause/on_conflict.h>
 
 namespace sqlpp::postgresql {
 using blank_insert_t = statement_t<insert_t,

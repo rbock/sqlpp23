@@ -69,6 +69,14 @@ struct reader_t {
   const auto& table(const T& t) const {
     return t._table;
   }
+  template <typename T>
+  const auto& on_conflict(const T& t) const {
+    return t._on_conflict;
+  }
+  template <typename T>
+  const auto& on_conflict_update(const T& t) const {
+    return t._on_conflict_update;
+  }
 };
 
 inline constexpr auto read = reader_t{};

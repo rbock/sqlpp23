@@ -41,10 +41,4 @@ See https://github.com/rbock/sqlpp11/issues/553
 
 Obtain results in an asynchronous fashion, see #35, for instance.
 
-## Add `on_conflict` to sqlite3
-
-See https://www.sqlite.org/lang_conflict.html: \
-UPSERT syntax was added to SQLite with version 3.24.0 (2018-06-04).
-
-
 [**< Index**](/docs/README.md)

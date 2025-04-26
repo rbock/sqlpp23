@@ -105,7 +105,7 @@ int main() {
   }
 
   SQLPP_COMPARE(
-      sqlpp::postgresql::on_conflict(foo.id).do_update(
+      sqlpp::on_conflict(foo.id).do_update(
           foo.intN = parameter(foo.intN), foo.textNnD = parameter(foo.textNnD)),
       " ON CONFLICT (id) DO UPDATE SET int_n = $1, text_nn_d = $2");
 

@@ -29,11 +29,9 @@
 
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/reader.h>
+#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
-namespace postgresql {
 template <typename OnConflict>
 struct on_conflict_do_nothing_t {
   on_conflict_do_nothing_t(OnConflict on_conflict, bool /* disambiguate*/)
@@ -46,31 +44,29 @@ struct on_conflict_do_nothing_t {
   ~on_conflict_do_nothing_t() = default;
 
  private:
-  friend ::sqlpp::postgresql::reader_t;
+  friend ::sqlpp::reader_t;
   OnConflict _on_conflict;
 };
 
-template <typename OnConflict>
-auto to_sql_string(context_t& context,
+template <typename Context, typename OnConflict>
+auto to_sql_string(Context& context,
                    const on_conflict_do_nothing_t<OnConflict>& t)
     -> std::string {
   return to_sql_string(context, read.on_conflict(t)) + " DO NOTHING";
 }
 
-}  // namespace postgresql
-
 template <typename ConflictTarget>
-struct is_clause<postgresql::on_conflict_do_nothing_t<ConflictTarget>>
+struct is_clause<on_conflict_do_nothing_t<ConflictTarget>>
     : public std::true_type {};
 
 template <typename ConflictTarget>
-struct nodes_of<postgresql::on_conflict_do_nothing_t<ConflictTarget>> {
+struct nodes_of<on_conflict_do_nothing_t<ConflictTarget>> {
   using type = detail::type_vector<ConflictTarget>;
 };
 
 template <typename Statement, typename ConflictTarget>
 struct consistency_check<Statement,
-                         postgresql::on_conflict_do_nothing_t<ConflictTarget>> {
+                         on_conflict_do_nothing_t<ConflictTarget>> {
   using type = consistent_t;
 };
 

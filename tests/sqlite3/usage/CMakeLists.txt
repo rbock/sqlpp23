@@ -35,22 +35,23 @@ add_subdirectory(aggregate_function)
 add_subdirectory(statement)
 
 set(test_files
-    DateTime.cpp
-    Sample.cpp
-    Select.cpp
-    Union.cpp
-    With.cpp
     Attach.cpp
-    DynamicSelect.cpp
     AutoIncrement.cpp
-    Returning.cpp
-    Transaction.cpp
-    FloatingPoint.cpp
-    Integral.cpp
     Blob.cpp
     Connection.cpp
     ConnectionPool.cpp
+    DateTime.cpp
+    DynamicSelect.cpp
     Execute.cpp
+    FloatingPoint.cpp
+    InsertOnConflict.cpp
+    Integral.cpp
+    Returning.cpp
+    Sample.cpp
+    Select.cpp
+    Transaction.cpp
+    Union.cpp
+    With.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})

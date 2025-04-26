@@ -59,6 +59,9 @@ db(sql::insert_into(foo)
        .do_nothing());
 ```
 
+> [!NOTE]
+> sqlpp23 does not understand constraints. It has no way of verifying whether the conflict targets are valid.
+
 ## `on_conflict` ... `do_update` ... [`where` ...]
 
 The connector supports `ON CONFLICT ... DO UPDATE ... WHERE` with zero or more conflict targets, one or more update assignments and optional `where` clause, e.g.

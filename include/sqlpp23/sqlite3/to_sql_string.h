@@ -35,6 +35,7 @@
 #include <sqlpp23/core/basic/join.h>
 #include <sqlpp23/core/basic/parameter.h>
 #include <sqlpp23/core/chrono.h>
+#include <sqlpp23/core/clause/on_conflict.h>
 #include <sqlpp23/core/clause/returning.h>
 #include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/clause/with.h>
@@ -76,6 +77,12 @@ template <typename... Columns>
 auto to_sql_string(context_t&, const returning_t<Columns...>&) -> std::string {
   SQLPP_STATIC_ASSERT(wrong_t<Columns...>::value,
                       "Sqlite3: No support for RETURNING before version 3.35.0");
+  return {};
+}
+template <typename... Columns>
+auto to_sql_string(context_t&, const on_conflict_t<Columns...>&) -> std::string {
+  SQLPP_STATIC_ASSERT(wrong_t<Columns...>::value,
+                      "Sqlite3: No full support for ON CONFLICT before version 3.35.0");
   return {};
 }
 #endif

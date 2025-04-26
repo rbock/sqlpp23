@@ -24,14 +24,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/core/clause/on_conflict.h>
 
-#include <sqlpp23/tests/postgresql/serialize_helpers.h>
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main() {
-  using sqlpp::postgresql::on_conflict;
+  using sqlpp::on_conflict;
 
   auto foo = test::TabFoo{};
 

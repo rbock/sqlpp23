@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,28 +24,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/core/clause/on_conflict.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
+// We need to include this here to change the sqlite3 version number for this
+// test (if necessary)
+#ifdef SQLPP_USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
+#if SQLITE_VERSION_NUMBER >= 3035000
+#undef SQLITE_VERSION_NUMBER
+#define SQLITE_VERSION_NUMBER 3034999
+#endif
+
+#include <sqlpp23/tests/core/constraints_helpers.h>
+
+#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
+int main() {
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
 
-int main(int, char*[]) {
   const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
 
-  SQLPP_COMPARE(parameter(foo.doubleN), "?");
-  SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > ?");
-
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something), "?");
-
-  SQLPP_COMPARE(
-      sqlpp::on_conflict(foo.id).do_update(
-          foo.intN = parameter(foo.intN), foo.textNnD = parameter(foo.textNnD)),
-      " ON CONFLICT (id) DO UPDATE SET int_n = ?, text_nn_d = ?");
-
-  return 0;
+  // sqlite3 does not fully support on_conflict before 3.35.0
+  // See https://www.sqlite.org/changes.html
+  SQLPP_CHECK_STATIC_ASSERT(
+      to_sql_string(ctx, on_conflict(foo.id).do_update(foo.intN = 7)),
+      "Sqlite3: No full support for ON CONFLICT before version 3.35.0");
 }
