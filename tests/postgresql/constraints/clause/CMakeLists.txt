@@ -30,5 +30,4 @@ function(create_test name)
 endfunction()
 
 create_test(on_conflict)
-create_test(returning_column_list)
 

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,63 +27,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/insert_value_list.h>
-#include <sqlpp23/core/clause/into.h>
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/prepared_insert.h>
-#include <sqlpp23/core/default_value.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/clause/insert.h>
+#include <sqlpp23/core/clause/returning.h>
 
-namespace sqlpp {
-struct insert_t {};
-
-template <typename Context>
-auto to_sql_string(Context&, const insert_t&) -> std::string {
-  return "INSERT";
-}
-
-template <>
-struct is_clause<insert_t> : public std::true_type {};
-
-struct insert_result_methods_t {
- private:
-  friend class statement_handler_t;
-
-  // Execute
-  template <typename Statement, typename Db>
-  auto _run(this Statement&& self, Db& db) {
-    return statement_handler_t{}.insert(std::forward<Statement>(self), db);
-  }
-
-  // Prepare
-  template <typename Statement, typename Db>
-  auto _prepare(this Statement&& self, Db& db)
-      -> prepared_insert_t<Db, std::decay_t<Statement>> {
-    return {{},
-            statement_handler_t{}.prepare_insert(
-                std::forward<Statement>(self), db)};
-  }
-};
-
-template <>
-struct result_methods_of<insert_t> {
-  using type = insert_result_methods_t;
-};
-
-template <typename Statement>
-struct consistency_check<Statement, insert_t> {
-  using type = consistent_t;
-};
-
-template <>
-struct is_result_clause<insert_t> : public std::true_type {};
-
-using blank_insert_t = statement_t<insert_t, no_into_t, no_insert_value_list_t>;
+namespace sqlpp::sqlite3 {
+using blank_insert_t = statement_t<insert_t,
+                                   no_into_t,
+                                   no_insert_value_list_t,
+                                   no_returning_t>;
 
 inline auto insert() -> blank_insert_t {
-  return {};
+  return {blank_insert_t()};
 }
 
 template <typename _Table>

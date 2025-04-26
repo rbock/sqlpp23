@@ -60,10 +60,6 @@ See https://github.com/rbock/sqlpp11/issues/553
 
 Obtain results in an asynchronous fashion, see #35, for instance.
 
-## Add `returning` to sqlite3
-From https://www.sqlite.org/lang_returning.html: \
-The RETURNING syntax has been supported by SQLite since version 3.35.0 (2021-03-12).
-
 ## Add `on_conflict` to sqlite3
 
 See https://www.sqlite.org/lang_conflict.html: \

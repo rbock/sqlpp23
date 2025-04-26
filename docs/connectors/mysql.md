@@ -33,10 +33,13 @@ sqlpp::mysql::update(tab)
 
 ## `delete_from`
 
-The connector supports `order_by` and `limit` in `delete_from` statements, e.g.
+The connector supports `using`, `order_by` and `limit` in `delete_from` statements, e.g.
 
 ```c++
 sqlpp::mysql::delete_from(tab)
+    .using_(bar)
+    .where(foo.bar_id == bar.id and
+           bar.username == "johndoe")
     .order_by(tab.intN.desc())
     .limit(1);
 ```

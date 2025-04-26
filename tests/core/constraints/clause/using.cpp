@@ -26,6 +26,7 @@
 
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
+#include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 
@@ -98,7 +99,7 @@ int main() {
 
   // using_ must not repeat a table from from
   {
-    auto s = delete_from(foo).using_(foo);
+    auto s = delete_from(foo) << using_(foo);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,

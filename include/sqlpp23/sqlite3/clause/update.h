@@ -1,8 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
- * Copyright (c) 2023, Vesselin Atanasov
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,9 +27,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlite3/clause/delete_from.h>
-#include <sqlpp23/sqlite3/clause/insert.h>
-#include <sqlpp23/sqlite3/clause/insert_or.h>
-#include <sqlpp23/sqlite3/clause/update.h>
-#include <sqlpp23/sqlite3/database/connection.h>
-#include <sqlpp23/sqlite3/database/connection_pool.h>
+#include <sqlpp23/core/clause/update.h>
+#include <sqlpp23/core/clause/returning.h>
+
+namespace sqlpp::sqlite3 {
+using blank_update_t = statement_t<update_t,
+                                   no_single_table_t,
+                                   no_update_set_list_t,
+                                   no_where_t,
+                                   no_returning_t>;
+
+template <typename _Table>
+constexpr auto update(_Table table)
+    -> decltype(blank_update_t().single_table(table)) {
+  return {blank_update_t().single_table(table)};
+}
+
+}  // namespace sqlpp

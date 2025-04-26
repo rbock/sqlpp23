@@ -30,6 +30,20 @@ auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
     tab.textNnD = "test", dynamic(true, tab.boolN = true)));
 ```
 
+## `returning`
+
+`insert_into`, `update`, and `delete_from` support the `returning` clause to return one or more columns from affected rows, for instance:
+
+```c++
+for (const auto& row :
+     db(sqlpp::sqlite3::update(foo)
+            .set(foo.intN = 0, foo.doubleN = std::nullopt)
+            .returning(foo.textNnD, dynamic(maybe, foo.intN)))) {
+  // use row.textNnD
+  // use row.intN
+}
+```
+
 ## `any`
 
 This is not supported and will fail to compile.

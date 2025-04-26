@@ -24,37 +24,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/using.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
+// We need to include this here to change the sqlite3 version number for this
+// test (if necessary)
+#ifdef SQLPP_USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
+#if SQLITE_VERSION_NUMBER >= 3035000
+#undef SQLITE_VERSION_NUMBER
+#define SQLITE_VERSION_NUMBER 3034999
+#endif
+
+#include <sqlpp23/tests/core/constraints_helpers.h>
+
+#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 int main() {
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
+
   const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
-  const auto aFoo = foo.as(sqlpp::alias::a);
 
-  const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
-  const auto xa = x.as(sqlpp::alias::a);
-
-  // Single table
-  SQLPP_COMPARE(using_(foo), " USING tab_foo");
-  SQLPP_COMPARE(using_(aFoo), " USING tab_foo AS a");
-  SQLPP_COMPARE(using_(dynamic(true, foo)), " USING tab_foo");
-  SQLPP_COMPARE(using_(dynamic(false, foo)), "");
-
-  // Static joins
-  SQLPP_COMPARE(using_(foo.cross_join(bar)),
-                " USING tab_foo CROSS JOIN tab_bar");
-  SQLPP_COMPARE(using_(dynamic(true, foo.cross_join(bar))),
-                " USING tab_foo CROSS JOIN tab_bar");
-  SQLPP_COMPARE(using_(dynamic(false, foo.cross_join(bar))), "");
-
-  // CTE
-  SQLPP_COMPARE(using_(x), " USING x");
-  SQLPP_COMPARE(using_(xa), " USING x AS a");
-  SQLPP_COMPARE(using_(dynamic(true, x)), " USING x");
-  SQLPP_COMPARE(using_(dynamic(false, x)), "");
-
-  return 0;
+  // sqlite3 does not support returning before 3.35.0
+  // See https://www.sqlite.org/changes.html
+  SQLPP_CHECK_STATIC_ASSERT(
+      to_sql_string(ctx, returning(foo.id)),
+      "Sqlite3: No support for RETURNING before version 3.35.0");
 }

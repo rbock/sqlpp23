@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp23/core/clause/single_table.h>
-#include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/clause/where.h>
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/database/connection.h>

@@ -16,6 +16,18 @@ sqlpp::postgresql::connection db;
 db.connect_using(config); // This can throw an exception.
 ```
 
+## `delete_from`
+
+The connector supports `using` and `returning` in `delete_from` statements, e.g.
+
+```c++
+sqlpp::postgresql::delete_from(tab)
+    .using_(bar)
+    .where(foo.bar_id == bar.id and
+           bar.username == "johndoe")
+    .returning(foo.id, dynamic(maybe, tab.blobN));
+```
+
 ## `returning`
 
 `insert_into`, `update`, and `delete_from` support the `returning` clause to return one or more columns from affected rows, for instance:

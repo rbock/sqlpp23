@@ -16,19 +16,8 @@ The `where` clause specifies which rows should be affected.
 dynamic condition is false, no `WHERE` will be included in the serialized
 statement.
 
-## `using`
-
-Provides access to additional tables in the `where` condition.
-
-```C++
-db(delete_from(foo).using_(bar).where(
-    foo.bar_id == bar.id
-    and bar.username == "johndoe"
-    ));
-```
-
 > [!NOTE]
-> This not supported by the MySQL/MariaDb connector.
+> Each of the [connectors](/docs/connectors.md) is offering a specialized version of `delete`.
 
 ## Truncate
 

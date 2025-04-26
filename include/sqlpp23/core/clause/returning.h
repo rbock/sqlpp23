@@ -41,6 +41,10 @@
 #include <tuple>
 
 namespace sqlpp {
+// RETURNING is used in DELETE, INSERT, and UPDATE statements in
+// * PostgreSQL
+// * sqlite3
+
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_returning_columns_t,
                             "at least one returning column requires a table "
                             "which is otherwise not known in the statement");
@@ -66,8 +70,8 @@ struct returning_t {
 template <typename Context, typename... Columns>
 auto to_sql_string(Context& context, const returning_t<Columns...>& t)
     -> std::string {
-  return " RETURNING " +
-         tuple_to_sql_string(context, read.columns(t), tuple_operand{", "});
+  return " RETURNING " + tuple_to_sql_string(context, read.columns(t),
+                                             tuple_operand_select_column{", "});
 }
 
 template <typename... Columns>

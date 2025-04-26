@@ -26,26 +26,27 @@
 
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/core/clause/returning.h>
+#include <sqlpp23/tests/core/tables.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 
-// Returns true if `returning_columns(declval<Expressions>()...)` is a valid
+// Returns true if `returning(declval<Expressions>()...)` is a valid
 // function call.
 template <typename TypeVector, typename = void>
-struct can_call_returning_columns_with_impl : public std::false_type {};
+struct can_call_returning_with_impl : public std::false_type {};
 
 template <typename... Expressions>
-struct can_call_returning_columns_with_impl<
+struct can_call_returning_with_impl<
     sqlpp::detail::type_vector<Expressions...>,
-    std::void_t<decltype(sqlpp::postgresql::returning_columns(
+    std::void_t<decltype(sqlpp::returning(
         std::declval<Expressions>()...))>> : public std::true_type {};
 
 template <typename... Expressions>
-struct can_call_returning_columns_with
-    : public can_call_returning_columns_with_impl<
+struct can_call_returning_with
+    : public can_call_returning_with_impl<
           sqlpp::detail::type_vector<Expressions...>> {};
 
 }  // namespace
@@ -55,53 +56,53 @@ int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  using sqlpp::postgresql::returning_columns;
+  using sqlpp::returning;
 
   // OK
-  returning_columns(foo.id);
-  returning_columns(foo.id, foo.textNnD);
-  returning_columns(all_of(foo));
-  returning_columns(foo.id, bar.id);
-  returning_columns(all_of(foo), bar.id.as(something));
+  returning(foo.id);
+  returning(foo.id, foo.textNnD);
+  returning(all_of(foo));
+  returning(foo.id, bar.id);
+  returning(all_of(foo), bar.id.as(something));
 
   // -------------------------
-  // returning_columns() can be constructed, but is inconsistent since no
+  // returning() can be constructed, but is inconsistent since no
   // columns are selected.
   // -------------------------
   {
-    static_assert(can_call_returning_columns_with<>::value, "");
-    SQLPP_CHECK_STATIC_ASSERT(sqlpp::postgresql::returning_columns(),
+    static_assert(can_call_returning_with<>::value, "");
+    SQLPP_CHECK_STATIC_ASSERT(sqlpp::returning(),
                               "at least one return column required");
   }
 
   // -------------------------
-  // returning_columns(<unnamed>) can be constructed, but is inconsistent
+  // returning(<unnamed>) can be constructed, but is inconsistent
   // columns require a name.
   // -------------------------
   {
-    static_assert(can_call_returning_columns_with<decltype(7)>::value, "");
-    SQLPP_CHECK_STATIC_ASSERT(sqlpp::postgresql::returning_columns(7),
+    static_assert(can_call_returning_with<decltype(7)>::value, "");
+    SQLPP_CHECK_STATIC_ASSERT(sqlpp::returning(7),
                               "each return column must have a name");
 
-    static_assert(can_call_returning_columns_with<decltype(sqlpp::dynamic(
+    static_assert(can_call_returning_with<decltype(sqlpp::dynamic(
                       maybe, 7))>::value,
                   "");
-    SQLPP_CHECK_STATIC_ASSERT(sqlpp::postgresql::returning_columns(7),
+    SQLPP_CHECK_STATIC_ASSERT(sqlpp::returning(7),
                               "each return column must have a name");
 
-    static_assert(can_call_returning_columns_with<decltype(all_of(bar)),
+    static_assert(can_call_returning_with<decltype(all_of(bar)),
                                                   decltype(7)>::value,
                   "");
     SQLPP_CHECK_STATIC_ASSERT(
-        (sqlpp::postgresql::returning_columns(all_of(bar), 7)),
+        (sqlpp::returning(all_of(bar), 7)),
         "each return column must have a name");
   }
 
   // -------------------------
-  // returning_columns is not required
+  // returning is not required
   // -------------------------
   {
-    using I = sqlpp::statement_t<sqlpp::postgresql::no_returning_column_list_t>;
+    using I = sqlpp::statement_t<sqlpp::no_returning_t>;
 
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -115,14 +116,14 @@ int main() {
   // insert(...).returning(<aggregate functions>)
   // -------------------------
   {
-    auto i = sqlpp::postgresql::insert_into(foo).default_values().returning(
+    auto i = sqlpp::insert_into(foo).default_values() << returning(
         max(foo.id).as(something));
     using I = decltype(i);
 
     static_assert(
         std::is_same<
             sqlpp::statement_consistency_check_t<I>,
-            sqlpp::postgresql::
+            sqlpp::
                 assert_returning_columns_contain_no_aggregates_t>::value,
         "");
   }
@@ -132,7 +133,7 @@ int main() {
   // -------------------------
   {
     auto i =
-        sqlpp::postgresql::insert_into(foo).default_values().returning(bar.id);
+        sqlpp::insert_into(foo).default_values() << returning(bar.id);
     using I = decltype(i);
 
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
@@ -141,7 +142,7 @@ int main() {
     static_assert(
         std::is_same<
             sqlpp::statement_prepare_check_t<I>,
-            sqlpp::postgresql::
+            sqlpp::
                 assert_no_unknown_tables_in_returning_columns_t>::value,
         "");
   }

@@ -43,6 +43,7 @@ set(test_files
     Attach.cpp
     DynamicSelect.cpp
     AutoIncrement.cpp
+    Returning.cpp
     Transaction.cpp
     FloatingPoint.cpp
     Integral.cpp

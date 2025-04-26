@@ -28,8 +28,6 @@
  */
 
 #include <sqlpp23/core/clause/single_table.h>
-#include <sqlpp23/core/clause/returning.h>
-#include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/clause/where.h>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/prepared_delete.h>
@@ -82,9 +80,7 @@ struct result_methods_of<delete_t> {
 
 using blank_delete_t = statement_t<delete_t,
                                    no_single_table_t,
-                                   no_using_t,
-                                   no_where_t,
-                                   no_returning_t>;
+                                   no_where_t>;
 
 inline auto delete_from() -> blank_delete_t {
   return {};

@@ -35,6 +35,7 @@
 #include <sqlpp23/core/basic/join.h>
 #include <sqlpp23/core/basic/parameter.h>
 #include <sqlpp23/core/chrono.h>
+#include <sqlpp23/core/clause/returning.h>
 #include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/clause/with.h>
 #include <sqlpp23/core/database/exception.h>
@@ -47,6 +48,7 @@
 namespace sqlpp::sqlite3 {
 // Disable some stuff that won't work with sqlite3
 // See https://www.sqlite.org/changes.html
+
 #if SQLITE_VERSION_NUMBER < 3039000
 template <typename Lhs, typename Rhs, typename Condition>
 auto to_sql_string(context_t&,
@@ -65,6 +67,15 @@ auto to_sql_string(context_t&,
   SQLPP_STATIC_ASSERT(
       (wrong_t<Lhs, Rhs>::value),
       "Sqlite3: No support for right outer join before version 3.39.0");
+  return {};
+}
+#endif
+
+#if SQLITE_VERSION_NUMBER < 3035000
+template <typename... Columns>
+auto to_sql_string(context_t&, const returning_t<Columns...>&) -> std::string {
+  SQLPP_STATIC_ASSERT(wrong_t<Columns...>::value,
+                      "Sqlite3: No support for RETURNING before version 3.35.0");
   return {};
 }
 #endif
