@@ -752,6 +752,7 @@ def createHeader():
             columnHasDefault = column.hasDefaultValue or \
                                column.hasSerialValue or \
                                column.hasAutoValue or \
+                               column.hasGeneratedValue or \
                                (autoId and sqlColumnName == "id") or \
                                columnCanBeNull
             if columnHasDefault:
