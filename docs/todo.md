@@ -13,16 +13,6 @@ in case of template-heavy libraries like sqlpp23 (leads to larger files and
 longer compile/link/startup times, I believe). There are ways to suppress this
 in most compilers, afaik.
 
-## Need to document: aggregates
-They must not be mixed in a select.
-
-`group_by` accepts columns only (there is an escape hatch: `group_by_column`)
-`select` requires either
-- all selected columns are aggregate expressions (either an aggregate function or a group by column), or
-- no selected column is an aggregate expression
-
-If group_by is specified in the select, then all columns have to be aggregate expressions.
-
 ## Need to document: select_as
 select_ref_t is not fully type safe (but should offer reasonable protection).
 The reason for this is to reduce the sheer size of the serialized type, e.g. in error messages.

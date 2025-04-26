@@ -145,6 +145,13 @@ db(select(
      max(foo.id)) // aggregate
     .from(foo));
 
+If `group_by` is specified in the select, then all columns have to be aggregate expressions.
+
+Otherwise, either
+
+- all selected columns are aggregate expressions (either an aggregate function or a group by column), or
+- no selected column is an aggregate expression
+
 ### Select with dynamic columns
 
 Columns can be selected conditionally using [`dynamic`](/docs/dynamic.md):
