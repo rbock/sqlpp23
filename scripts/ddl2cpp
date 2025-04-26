@@ -374,12 +374,6 @@ def testUnknown():
         assert result[0] == "UNKNOWN"
 
 
-def testAutoValue():
-    def test(s, expected):
-        results = ddlAutoValue.parseString(s, parseAll=True)
-        print(results)
-
-
 def testColumn():
     text = "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)"
     result = ddlColumn.parseString(text, parseAll=True)
