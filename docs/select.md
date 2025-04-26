@@ -65,6 +65,30 @@ for (const auto& row : ...)
 the wonderful thing about the `row` object is that it has appropriately named
 and typed members representing the columns you selected.
 
+## A std::ranges::views example
+
+You process results using ranges::views, too, e.g.
+
+```c++
+namespace {
+struct my_data {
+  int64_t id;
+  std::string textNnD;
+};
+auto row_to_data = [](const auto& row) -> my_data {
+  return {row.id, std::string{row.textNnD}};
+};
+}  // namespace
+
+// ...
+
+void test_views() {
+  auto result = db(select(foo.id, foo.textNnD).from(foo));
+  const auto vec = result | std::ranges::views::transform(row_to_data) |
+                   std::ranges::to<std::vector>();
+}
+```
+
 ## Clauses
 
 ### Select

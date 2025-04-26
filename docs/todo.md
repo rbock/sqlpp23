@@ -2,9 +2,6 @@
 
 # TODOs
 
-## Add tests that use query results as ranges
-Add tests that use result_t in range operations. Also check if result_t::iterator satisfies the std::input_iterator concept.
-
 ## Allow use as module
 ### And/or: Suppress export of symbols
 

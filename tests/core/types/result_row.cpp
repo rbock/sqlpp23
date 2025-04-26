@@ -65,6 +65,11 @@ void test_result_row(Value v) {
   static_assert(
       std::is_same<sqlpp::statement_run_check_t<S>, sqlpp::consistent_t>::value,
       "");
+
+  // result_t::iterator is an input iterator
+  using Begin = decltype(db(select(v_not_null)).begin());
+  static_assert(std::input_iterator<Begin>);
+
   for (const auto& row :
        db(select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null))) {
     static_assert(std::is_same<decltype(row.r_not_null), ResultType>::value,

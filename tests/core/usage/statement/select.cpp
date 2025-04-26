@@ -27,12 +27,23 @@
 #include <cassert>
 #include <iostream>
 #include <tuple>
+#include <ranges>
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
 
 SQLPP_CREATE_NAME_TAG(cheese);
+
+namespace {
+struct my_data {
+  int64_t id;
+  std::string textNnD;
+};
+auto row_to_data = [](const auto& row) -> my_data {
+  return {row.id, std::string{row.textNnD}};
+};
+}  // namespace
 
 int main(int, char*[]) {
   try {
@@ -61,6 +72,13 @@ int main(int, char*[]) {
       std::ignore = row.id;
       std::ignore = row.textNnD;
       std::ignore = row.intN;
+    }
+
+    // use std::views to transform result
+    {
+      auto result = db(select(foo.id, foo.textNnD).from(foo));
+      const auto vec = result | std::ranges::views::transform(row_to_data) |
+                       std::ranges::to<std::vector>();
     }
 
   } catch (const std::exception& e) {
