@@ -66,7 +66,8 @@ The RETURNING syntax has been supported by SQLite since version 3.35.0 (2021-03-
 
 ## Add `on_conflict` to sqlite3
 
-See https://www.sqlite.org/lang_conflict.html
+See https://www.sqlite.org/lang_conflict.html: \
+UPSERT syntax was added to SQLite with version 3.24.0 (2018-06-04).
 
 
 [**< Index**](/docs/README.md)

@@ -40,8 +40,10 @@
 
 namespace sqlpp {
 namespace sqlite3 {
-struct insert_or_replace_name_t {};
-struct insert_or_ignore_name_t {};
+
+// See https://www.sqlite.org/lang_conflict.html
+struct insert_or_replace_t {};
+struct insert_or_ignore_t {};
 
 template <typename InsertOrAlternative>
 struct insert_or_t {};
@@ -82,28 +84,24 @@ using blank_insert_or_t = statement_t<insert_or_t<InsertOrAlternative>,
                                       no_into_t,
                                       no_insert_value_list_t>;
 
-using blank_insert_or_replace_t = blank_insert_or_t<insert_or_replace_name_t>;
-
-using blank_insert_or_ignore_t = blank_insert_or_t<insert_or_ignore_name_t>;
-
-inline auto insert_or_replace() -> blank_insert_or_replace_t {
-  return {blank_insert_or_replace_t()};
+inline auto insert_or_replace() -> blank_insert_or_t<insert_or_replace_t> {
+  return {};
 }
 
-inline auto insert_or_ignore() -> blank_insert_or_ignore_t {
-  return {blank_insert_or_ignore_t()};
+inline auto insert_or_ignore() -> blank_insert_or_t<insert_or_ignore_t> {
+  return {};
 }
 
 inline auto to_sql_string(
     sqlite3::context_t&,
-    const sqlite3::insert_or_t<sqlite3::insert_or_replace_name_t>&)
+    const sqlite3::insert_or_t<sqlite3::insert_or_replace_t>&)
     -> std::string {
   return "INSERT OR REPLACE ";
 }
 
 inline auto to_sql_string(
     sqlite3::context_t&,
-    const sqlite3::insert_or_t<sqlite3::insert_or_ignore_name_t>&)
+    const sqlite3::insert_or_t<sqlite3::insert_or_ignore_t>&)
     -> std::string {
   return "INSERT OR IGNORE ";
 }

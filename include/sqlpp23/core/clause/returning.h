@@ -30,19 +30,17 @@
 #include <sqlpp23/core/basic/table.h>
 #include <sqlpp23/core/clause/select_as.h>
 #include <sqlpp23/core/clause/select_column_traits.h>
-#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/detail/flat_tuple.h>
 #include <sqlpp23/core/detail/type_set.h>
 #include <sqlpp23/core/field_spec.h>
 #include <sqlpp23/core/noop.h>
 #include <sqlpp23/core/query/result_row.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
 #include <tuple>
 
 namespace sqlpp {
-namespace postgresql {
 SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_returning_columns_t,
                             "at least one returning column requires a table "
                             "which is otherwise not known in the statement");
@@ -52,23 +50,21 @@ SQLPP_WRAPPED_STATIC_ASSERT(
     "returning columns must not contain aggregate functions");
 
 template <typename... Columns>
-struct returning_column_list_t {
-  returning_column_list_t(std::tuple<Columns...> columns)
-      : _columns(std::move(columns)) {}
-  returning_column_list_t(const returning_column_list_t&) = default;
-  returning_column_list_t(returning_column_list_t&&) = default;
-  returning_column_list_t& operator=(const returning_column_list_t&) = default;
-  returning_column_list_t& operator=(returning_column_list_t&&) = default;
-  ~returning_column_list_t() = default;
+struct returning_t {
+  returning_t(std::tuple<Columns...> columns) : _columns(std::move(columns)) {}
+  returning_t(const returning_t&) = default;
+  returning_t(returning_t&&) = default;
+  returning_t& operator=(const returning_t&) = default;
+  returning_t& operator=(returning_t&&) = default;
+  ~returning_t() = default;
 
  private:
   friend ::sqlpp::reader_t;
   std::tuple<Columns...> _columns;
 };
 
-template <typename... Columns>
-auto to_sql_string(context_t& context,
-                   const returning_column_list_t<Columns...>& t)
+template <typename Context, typename... Columns>
+auto to_sql_string(Context& context, const returning_t<Columns...>& t)
     -> std::string {
   return " RETURNING " +
          tuple_to_sql_string(context, read.columns(t), tuple_operand{", "});
@@ -94,7 +90,8 @@ struct returning_column_list_result_methods_t {
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& self, Db& db) -> result_t<
-      decltype(sqlpp::statement_handler_t{}.select(std::declval<std::decay_t<Statement>>(), db)),
+      decltype(sqlpp::statement_handler_t{}
+                   .select(std::declval<std::decay_t<Statement>>(), db)),
       result_row_t<make_field_spec_t<std::decay_t<Statement>, Columns>...>> {
     return {statement_handler_t{}.select(std::forward<Statement>(self), db)};
   }
@@ -104,85 +101,73 @@ struct returning_column_list_result_methods_t {
   auto _prepare(this Statement&& self, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
     return {make_parameter_list_t<std::decay_t<Statement>>{},
-            statement_handler_t{}.prepare_select(std::forward<Statement>(self), db)};
+            statement_handler_t{}.prepare_select(std::forward<Statement>(self),
+                                                 db)};
   }
 };
-}  // namespace postgresql
 
 template <typename... Columns>
-struct no_of_result_columns<postgresql::returning_column_list_t<Columns...>> {
+struct no_of_result_columns<returning_t<Columns...>> {
   static constexpr size_t value = sizeof...(Columns);
 };
 
 template <typename... Columns>
-struct has_result_row<postgresql::returning_column_list_t<Columns...>>
-    : public std::true_type {};
+struct has_result_row<returning_t<Columns...>> : public std::true_type {};
 
 template <typename Statement, typename... Columns>
-struct result_row_of<Statement,
-                     postgresql::returning_column_list_t<Columns...>> {
+struct result_row_of<Statement, returning_t<Columns...>> {
   using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
 };
 
 template <typename... Columns>
-struct result_methods_of<postgresql::returning_column_list_t<Columns...>> {
-  using type = postgresql::returning_column_list_result_methods_t<Columns...>;
+struct result_methods_of<returning_t<Columns...>> {
+  using type = returning_column_list_result_methods_t<Columns...>;
 };
 
 template <typename... Columns>
-struct nodes_of<postgresql::returning_column_list_t<Columns...>> {
+struct nodes_of<returning_t<Columns...>> {
   using type = detail::type_vector<Columns...>;
 };
 
 template <typename... Columns>
-struct is_clause<postgresql::returning_column_list_t<Columns...>>
-    : public std::true_type {};
+struct is_clause<returning_t<Columns...>> : public std::true_type {};
 
 template <typename Statement, typename... Columns>
-struct consistency_check<Statement,
-                         postgresql::returning_column_list_t<Columns...>> {
+struct consistency_check<Statement, returning_t<Columns...>> {
   using type = static_check_t<
-      not contains_aggregate_function<
-          postgresql::returning_column_list_t<Columns...>>::value,
-      postgresql::assert_returning_columns_contain_no_aggregates_t>;
+      not contains_aggregate_function<returning_t<Columns...>>::value,
+      assert_returning_columns_contain_no_aggregates_t>;
 };
 
 template <typename Statement, typename... Columns>
-struct prepare_check<Statement,
-                     postgresql::returning_column_list_t<Columns...>> {
+struct prepare_check<Statement, returning_t<Columns...>> {
   using type = static_check_t<
-      Statement::template _no_unknown_tables<
-          postgresql::returning_column_list_t<Columns...>>,
-      postgresql::assert_no_unknown_tables_in_returning_columns_t>;
+      Statement::template _no_unknown_tables<returning_t<Columns...>>,
+      assert_no_unknown_tables_in_returning_columns_t>;
 };
 
 template <typename Column>
-struct data_type_of<postgresql::returning_column_list_t<Column>>
-    : public data_type_of<Column> {};
+struct data_type_of<returning_t<Column>> : public data_type_of<Column> {};
 
 template <typename Column>
-struct name_tag_of<postgresql::returning_column_list_t<Column>>
-    : public name_tag_of<Column> {};
+struct name_tag_of<returning_t<Column>> : public name_tag_of<Column> {};
 
 template <typename... Column>
-struct is_result_clause<postgresql::returning_column_list_t<Column...>>
-    : public std::true_type {};
-
-namespace postgresql {
+struct is_result_clause<returning_t<Column...>> : public std::true_type {};
 
 template <typename ColumnTuple>
 struct make_returning_column_list;
 
 template <typename... Columns>
 struct make_returning_column_list<std::tuple<Columns...>> {
-  using type = returning_column_list_t<Columns...>;
+  using type = returning_t<Columns...>;
 };
 
 template <typename... Columns>
-using make_returning_column_list_t = typename make_returning_column_list<
+using make_returning_t = typename make_returning_column_list<
     sqlpp::detail::flat_tuple_t<Columns...>>::type;
 
-struct no_returning_column_list_t {
+struct no_returning_t {
   template <typename Statement, typename... Columns>
     requires(select_columns_have_values<Columns...>::value)
   auto returning(this Statement&& self, Columns... columns) {
@@ -191,34 +176,28 @@ struct no_returning_column_list_t {
     SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value,
                         "each return column must have a name");
 
-    return new_statement<no_returning_column_list_t>(
+    return new_statement<no_returning_t>(
         std::forward<Statement>(self),
-        make_returning_column_list_t<Columns...>{
+        make_returning_t<Columns...>{
             std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
   }
 };
 
-inline auto to_sql_string(postgresql::context_t&,
-                          const postgresql::no_returning_column_list_t&)
-    -> std::string {
+template <typename Context>
+auto to_sql_string(Context&, const no_returning_t&) -> std::string {
   return "";
 }
 
-}  // namespace postgresql
-
 template <typename Statement>
-struct consistency_check<Statement, postgresql::no_returning_column_list_t> {
+struct consistency_check<Statement, no_returning_t> {
   using type = consistent_t;
 };
 
-namespace postgresql {
 template <typename... Columns>
-auto returning_columns(Columns... columns)
-    -> decltype(statement_t<no_returning_column_list_t>{}.returning(
+auto returning(Columns... columns)
+    -> decltype(statement_t<no_returning_t>{}.returning(
         std::move(columns)...)) {
-  return statement_t<no_returning_column_list_t>{}.returning(
-      std::move(columns)...);
+  return statement_t<no_returning_t>{}.returning(std::move(columns)...);
 }
-}  // namespace postgresql
 
 }  // namespace sqlpp

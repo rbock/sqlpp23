@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/core/clause/returning.h>
 #include <sqlpp23/core/clause/single_table.h>
 #include <sqlpp23/core/clause/update_set_list.h>
 #include <sqlpp23/core/clause/where.h>
@@ -80,8 +81,11 @@ struct consistency_check<Statement, update_t> {
 template <>
 struct is_result_clause<update_t> : public std::true_type {};
 
-using blank_update_t =
-    statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t>;
+using blank_update_t = statement_t<update_t,
+                                   no_single_table_t,
+                                   no_update_set_list_t,
+                                   no_where_t,
+                                   no_returning_t>;
 
 template <typename _Table>
 constexpr auto update(_Table table)

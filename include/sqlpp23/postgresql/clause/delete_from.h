@@ -28,14 +28,15 @@
  */
 
 #include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/postgresql/clause/returning_column_list.h>
+#include <sqlpp23/core/clause/using.h>
+#include <sqlpp23/core/clause/returning.h>
 
 namespace sqlpp::postgresql {
 using blank_delete_t = statement_t<delete_t,
                                    no_single_table_t,
                                    no_using_t,
                                    no_where_t,
-                                   no_returning_column_list_t>;
+                                   no_returning_t>;
 
 inline auto delete_from() -> blank_delete_t {
   return {};

@@ -29,6 +29,7 @@
 
 #include <sqlpp23/core/clause/insert_value_list.h>
 #include <sqlpp23/core/clause/into.h>
+#include <sqlpp23/core/clause/returning.h>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/prepared_insert.h>
 #include <sqlpp23/core/default_value.h>
@@ -80,7 +81,7 @@ struct consistency_check<Statement, insert_t> {
 template <>
 struct is_result_clause<insert_t> : public std::true_type {};
 
-using blank_insert_t = statement_t<insert_t, no_into_t, no_insert_value_list_t>;
+using blank_insert_t = statement_t<insert_t, no_into_t, no_insert_value_list_t, no_returning_t>;
 
 inline auto insert() -> blank_insert_t {
   return {};
