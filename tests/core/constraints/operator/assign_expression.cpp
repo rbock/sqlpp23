@@ -93,16 +93,17 @@ int main() {
                 "");
 
   // Const column cannot be assigned anything
+  const auto const_col = foo.intCN;
   static_assert(
-      not can_call_assign_with<decltype(foo.id), decltype(7)>::value, "");
+      not can_call_assign_with<decltype(const_col), decltype(7)>::value, "");
   static_assert(
-      not can_call_assign_with<decltype(foo.id),
+      not can_call_assign_with<decltype(const_col),
                                decltype(std::make_optional(7))>::value,
       "");
-  static_assert(not can_call_assign_with<decltype(foo.id),
+  static_assert(not can_call_assign_with<decltype(const_col),
                                          decltype(std::nullopt)>::value,
                 "");
-  static_assert(not can_call_assign_with<decltype(foo.id),
+  static_assert(not can_call_assign_with<decltype(const_col),
                                      decltype(sqlpp::default_value)>::value,
                 "");
 }

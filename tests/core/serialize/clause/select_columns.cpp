@@ -51,20 +51,20 @@ int main(int, char*[]) {
   // All columns of a table
   SQLPP_COMPARE(
       select(all_of(foo)),
-      "SELECT tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.double_n, "
-      "tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
+      "SELECT tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.int_c_n, "
+      "tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
 
   // All columns of a table plus one more
-  SQLPP_COMPARE(
-      select(all_of(foo), bar.id),
-      "SELECT tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.double_n, "
-      "tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n, tab_bar.id");
+  SQLPP_COMPARE(select(all_of(foo), bar.id),
+                "SELECT tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, "
+                "tab_foo.int_c_n, tab_foo.double_n, tab_foo.u_int_n, "
+                "tab_foo.blob_n, tab_foo.bool_n, tab_bar.id");
 
   // One more, plus all columns of a table
-  SQLPP_COMPARE(
-      select(bar.id, all_of(foo)),
-      "SELECT tab_bar.id, tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, "
-      "tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
+  SQLPP_COMPARE(select(bar.id, all_of(foo)),
+                "SELECT tab_bar.id, tab_foo.id, tab_foo.text_nn_d, "
+                "tab_foo.int_n, tab_foo.int_c_n, tab_foo.double_n, "
+                "tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
 
   using T = decltype(count(bar.id).as(id_count));
   static_assert(sqlpp::has_data_type_v<

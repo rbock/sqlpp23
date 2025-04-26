@@ -13,7 +13,7 @@ namespace test {
   struct TabFoo_ : public ::sqlpp::name_tag_base {
     struct Id : public ::sqlpp::name_tag_base {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-      using data_type = const ::sqlpp::integral;
+      using data_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct TextNnD : public ::sqlpp::name_tag_base {
@@ -24,6 +24,11 @@ namespace test {
     struct IntN : public ::sqlpp::name_tag_base {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(int_n, intN);
       using data_type = std::optional<::sqlpp::integral>;
+      using has_default = std::true_type;
+    };
+    struct IntCN : public ::sqlpp::name_tag_base {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(int_c_n, intCN);
+      using data_type = const std::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
     struct DoubleN : public ::sqlpp::name_tag_base {
@@ -52,6 +57,7 @@ namespace test {
                Id,
                TextNnD,
                IntN,
+               IntCN,
                DoubleN,
                UIntN,
                BlobN,
@@ -63,7 +69,7 @@ namespace test {
   struct TabBar_ : public ::sqlpp::name_tag_base {
     struct Id : public ::sqlpp::name_tag_base {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-      using data_type = const ::sqlpp::integral;
+      using data_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct TextN : public ::sqlpp::name_tag_base {
@@ -96,7 +102,7 @@ namespace test {
   struct TabDateTime_ : public ::sqlpp::name_tag_base {
     struct Id : public ::sqlpp::name_tag_base {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-      using data_type = const ::sqlpp::integral;
+      using data_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct DayPointN : public ::sqlpp::name_tag_base {

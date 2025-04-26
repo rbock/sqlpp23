@@ -31,6 +31,7 @@ CREATE TABLE tab_foo
 	id bigint AUTO_INCREMENT PRIMARY KEY,
 	text_nn_d varchar(255) NOT NULL DEFAULT "",
 	int_n bigint,
+        int_c_n bigint GENERATED ALWAYS AS (int_n * 2) STORED,
 	double_n double,
 	u_int_n bigint UNSIGNED,
 	blob_n BLOB,
