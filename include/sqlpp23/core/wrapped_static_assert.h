@@ -27,10 +27,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/core/wrong.h>
 #include <sqlpp23/core/consistent.h>
 #include <sqlpp23/core/static_assert.h>
+#include <type_traits>
 
 namespace sqlpp {
+class [[nodiscard("call .verify()")]] wrapped_static_assert {
+ public:
+  template <typename Self>
+    requires(not std::is_same<Self, wrapped_static_assert>::value)
+  [[nodiscard("Call .verify()")]] consteval auto operator&&(
+      this const Self&,
+      const consistent_t&) {
+    return Self{};
+  }
+  template <typename Self, typename Other>
+    requires(not std::is_same<Self, wrapped_static_assert>::value and
+             std::is_base_of<wrapped_static_assert, Other>::value)
+  [[nodiscard("Call .verify()")]] consteval auto operator&&(this const Self&,
+                                                            const Other&) {
+    return Self{};
+  }
+};
+
 #define SQLPP_WRAPPED_STATIC_ASSERT(name, message)        \
   struct name : std::false_type {                         \
     template <typename... T>                              \

@@ -94,6 +94,7 @@ int Select(int, char*[]) {
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
+
   for (const auto& row :
        db(select(all_of(t), f.textNnD)
               .from(t.join(f).on(t.id > f.doubleN and not t.boolNn)))) {

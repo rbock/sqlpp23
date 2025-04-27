@@ -177,23 +177,43 @@ auto to_sql_string(
 //       .on(bar.id == cheese.id))`
 //   `bar` is dynamically joined only. It must not be used statically when
 //   joining cheese `statically`.
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_join_provides_tables_for_on_t,
-    "on() condition of a join must only use tables provided in that join");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_join_provides_static_tables_for_on_t,
-                            "on() condition of a static join must not use "
-                            "tables provided only dynamically in that join");
+class assert_join_provides_tables_for_on_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static constexpr void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "on() condition of a join must only use tables provided in that join");
+  }
+};
+
+class assert_join_provides_static_tables_for_on_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static constexpr void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "on() condition of a static join must not use "
+                        "tables provided only dynamically in that join");
+  }
+};
+
 template <typename Lhs, typename Rhs, typename Expr>
-using deep_check_join_on_condition = static_combined_check_t<
-    static_check_t<
-        provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::
-            contains_all(required_tables_of_t<Expr>{}),
-        assert_join_provides_tables_for_on_t>,
-    static_check_t<is_dynamic<Rhs>::value or
-                       provided_static_tables_of_t<
+[[nodiscard]] consteval auto check_join_on_condition()
+{
+  if constexpr (not provided_tables_of_t<
+                    join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::
+                    contains_all(required_tables_of_t<Expr>{})) {
+    return assert_join_provides_tables_for_on_t{};
+  } else if constexpr (is_static<Rhs>::value and
+                       not provided_static_tables_of_t<
                            join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::
-                           contains_all(required_static_tables_of_t<Expr>{}),
-                   assert_join_provides_static_tables_for_on_t>>;
+                           contains_all(required_static_tables_of_t<Expr>{})) {
+    return assert_join_provides_static_tables_for_on_t{};
+  } else {
+    return consistent_t{};
+  }
+}
 
 template <typename Lhs, typename JoinType, typename Rhs>
 struct pre_join_t {
@@ -207,7 +227,7 @@ struct pre_join_t {
   template <typename Expr>
     requires(sqlpp::is_boolean<Expr>::value)
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
-    deep_check_join_on_condition<Lhs, Rhs, Expr>::verify();
+    check_join_on_condition<Lhs, Rhs, Expr>().verify();
     return {_lhs, _rhs, std::move(expr)};
   }
 

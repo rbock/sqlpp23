@@ -41,4 +41,7 @@ struct wrong {
 }  // namespace detail
 template <typename... T>
 using wrong_t = typename detail::wrong<T...>::type;
+
+template <typename... T>
+constexpr bool wrong = false;
 }  // namespace sqlpp

@@ -88,6 +88,9 @@ struct is_dynamic : public std::false_type {};
 template <typename T>
 struct is_dynamic<dynamic_t<T>> : public std::true_type {};
 
+template <typename T>
+struct is_static : public std::bool_constant<not is_dynamic<T>::value> {};
+
 template <typename L, typename R>
 struct values_are_comparable
     : public std::integral_constant<

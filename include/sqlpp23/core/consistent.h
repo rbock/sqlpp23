@@ -30,8 +30,21 @@
 #include <type_traits>
 
 namespace sqlpp {
-struct consistent_t : std::true_type {
-  template <typename... T>
-  static constexpr void verify(T&&...) {}
-};
+  class wrapped_static_assert;
+
+  class [[nodiscard("Call .verify()")]] consistent_t : public std::true_type {
+   public:
+    template <typename... T>
+    static constexpr void verify(T&&...) {}
+
+    [[nodiscard("Call .verify()")]] consteval auto operator&&(
+        const consistent_t&) {
+      return consistent_t{};
+    }
+    template <typename Other>
+      requires(std::is_base_of<wrapped_static_assert, Other>::value)
+    [[nodiscard("Call .verify()")]] consteval auto operator&&(const Other&) {
+      return Other{};
+    }
+  };
 }  // namespace sqlpp
