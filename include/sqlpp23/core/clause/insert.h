@@ -75,6 +75,9 @@ struct result_methods_of<insert_t> {
 template <typename Statement>
 struct consistency_check<Statement, insert_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <>

@@ -180,7 +180,7 @@ auto to_sql_string(
 class assert_join_provides_tables_for_on_t : public wrapped_static_assert {
  public:
   template <typename... T>
-  void verify(T&&...) {
+  static void verify(T&&...) {
     SQLPP_STATIC_ASSERT(
         wrong<T...>,
         "on() condition of a join must only use tables provided in that join");
@@ -191,7 +191,7 @@ class assert_join_provides_static_tables_for_on_t
     : public wrapped_static_assert {
  public:
   template <typename... T>
-  void verify(T&&...) {
+  static void verify(T&&...) {
     SQLPP_STATIC_ASSERT(wrong<T...>,
                         "on() condition of a static join must not use "
                         "tables provided only dynamically in that join");

@@ -35,22 +35,57 @@
 
 namespace sqlpp {
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_on_conflict_action_t,
-    "either do_nothing() or do_update(...) is required with on_conflict");
+class assert_on_conflict_action_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "either do_nothing() or do_update(...) is required with on_conflict");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_on_conflict_target_for_do_update_t,
-    "conflict_target specification is required with do_update()");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_on_conflict_do_update_set_no_duplicates_t,
-    "at least one duplicate column detected in do_update()");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_on_conflict_do_update_set_single_table_t,
-    "do_update() contains assignments for columns from more than one table");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_on_conflict_do_update_set_count_args_t,
-    "at least one assignment expression required in do_update()");
+class assert_on_conflict_target_for_do_update_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "conflict_target specification is required with do_update()");
+  }
+};
+
+class assert_on_conflict_do_update_set_no_duplicates_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>, "at least one duplicate column detected in do_update()");
+  }
+};
+
+class assert_on_conflict_do_update_set_single_table_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "do_update() contains assignments for columns from "
+                        "more than one table");
+  }
+};
+
+class assert_on_conflict_do_update_set_count_args_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "at least one assignment expression required in do_update()");
+  }
+};
 
 template <size_t NoOfConflictTargets, typename... Assignments>
 using check_on_conflict_do_update_set_t = static_combined_check_t<
@@ -121,6 +156,9 @@ struct nodes_of<on_conflict_t<Columns...>> {
 template <typename Statement, typename... Columns>
 struct consistency_check<Statement, on_conflict_t<Columns...>> {
   using type = assert_on_conflict_action_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 struct no_on_conflict_t {
@@ -140,6 +178,9 @@ auto to_sql_string(Context&, const no_on_conflict_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_on_conflict_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Expression>

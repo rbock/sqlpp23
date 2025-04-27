@@ -33,11 +33,11 @@
 #include <type_traits>
 
 namespace sqlpp {
-class [[nodiscard("call .verify()")]] wrapped_static_assert {
+class [[nodiscard("call .verify()")]] wrapped_static_assert : public std::false_type{
  public:
   template <typename Self>
     requires(not std::is_same<Self, wrapped_static_assert>::value)
-  [[nodiscard("Call .verify()")]] consteval auto operator&&(
+  [[nodiscard("Call .verify()")]] constexpr auto operator&&(
       this const Self&,
       const consistent_t&) {
     return Self{};
@@ -45,25 +45,11 @@ class [[nodiscard("call .verify()")]] wrapped_static_assert {
   template <typename Self, typename Other>
     requires(not std::is_same<Self, wrapped_static_assert>::value and
              std::is_base_of<wrapped_static_assert, Other>::value)
-  [[nodiscard("Call .verify()")]] consteval auto operator&&(this const Self&,
+  [[nodiscard("Call .verify()")]] constexpr auto operator&&(this const Self&,
                                                             const Other&) {
     return Self{};
   }
 };
-
-#define SQLPP_WRAPPED_STATIC_ASSERT(name, message)        \
-  struct name : std::false_type {                         \
-    template <typename... T>                              \
-    constexpr explicit name(T&&...) {                     \
-      SQLPP_STATIC_ASSERT(wrong_t<T...>::value, message); \
-    }                                                     \
-    template <typename... T>                              \
-    static constexpr void verify(T&&...) {                \
-      SQLPP_STATIC_ASSERT(wrong_t<T...>::value, message); \
-    }                                                     \
-    auto begin() const -> void;                           \
-    auto end() const -> void;                             \
-  }
 
 namespace detail {
 template <bool Consistent, typename Assert>

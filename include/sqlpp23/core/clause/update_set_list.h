@@ -58,9 +58,16 @@ auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
                                        tuple_operand_no_dynamic{", "});
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_update_assignments_t,
-                            "at least one update assignment requires a table "
-                            "which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_update_assignments_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one update assignment requires a table "
+                        "which is otherwise not known in the statement");
+  }
+};
 
 template <typename... Assignments>
 struct is_clause<update_set_list_t<Assignments...>> : public std::true_type {};
@@ -68,6 +75,9 @@ struct is_clause<update_set_list_t<Assignments...>> : public std::true_type {};
 template <typename Statement, typename... Assignments>
 struct consistency_check<Statement, update_set_list_t<Assignments...>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename... Assignments>
@@ -76,6 +86,9 @@ struct prepare_check<Statement, update_set_list_t<Assignments...>> {
       Statement::template _no_unknown_tables<update_set_list_t<Assignments...>>,
       consistent_t,
       assert_no_unknown_tables_in_update_assignments_t>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Assignments>
@@ -109,12 +122,21 @@ auto to_sql_string(Context&, const no_update_set_list_t&) -> std::string {
   return "";
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_update_assignments_t,
-                            "update assignments required, i.e. set(...)");
+class assert_update_assignments_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "update assignments required, i.e. set(...)");
+  }
+};
 
 template <typename Statement>
 struct consistency_check<Statement, no_update_set_list_t> {
   using type = assert_update_assignments_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <DynamicAssignment... T>

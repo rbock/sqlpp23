@@ -57,6 +57,9 @@ struct is_clause<select_t> : public std::true_type {};
 template <typename Statement>
 struct consistency_check<Statement, select_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 using blank_select_t = statement_t<select_t,

@@ -45,6 +45,9 @@ struct is_clause<for_update_t> : public std::true_type {};
 template <typename Statement>
 struct consistency_check<Statement, for_update_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 struct no_for_update_t {
@@ -63,6 +66,9 @@ auto to_sql_string(Context&, const no_for_update_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_for_update_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 inline auto for_update() {

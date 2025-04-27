@@ -93,33 +93,62 @@ struct is_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
   using type = static_combined_check_t<statement_consistency_check_t<Lhs>,
-                                       statement_consistency_check_t<Lhs>>;
+                                       statement_consistency_check_t<Rhs>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct prepare_check<Statement, union_t<Flag, Lhs, Rhs>> {
   using type = static_combined_check_t<statement_prepare_check_t<Lhs>,
-                                       statement_prepare_check_t<Lhs>>;
+                                       statement_prepare_check_t<Rhs>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct run_check<Statement, union_t<Flag, Lhs, Rhs>> {
   using type = static_combined_check_t<statement_run_check_t<Lhs>,
-                                       statement_run_check_t<Lhs>>;
+                                       statement_run_check_t<Rhs>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_union_lhs_is_select_t,
-    "left hand side argument of a union has to be a select statement or union");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_union_rhs_is_select_t,
-                            "right hand side argument of a union has to be a "
-                            "select statement or union");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_union_result_rows_match_t,
-                            "both arguments in a union have to have the same "
-                            "result columns (type and name)");
+class assert_union_lhs_is_select_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "left hand side argument of a union has to be a select "
+                        "statement or union");
+  }
+};
+
+class assert_union_rhs_is_select_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "right hand side argument of a union has to be a "
+                        "select statement or union");
+  }
+};
+
+class assert_union_result_rows_match_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "both arguments in a union have to have the same "
+                        "result columns (type and name)");
+  }
+};
 
 template <typename Lhs, typename Rhs>
 using check_union_args_t = static_combined_check_t<
@@ -168,6 +197,9 @@ auto to_sql_string(Context&, const no_union_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_union_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Lhs, typename Rhs>

@@ -66,6 +66,9 @@ struct is_clause<select_flag_list_t<Flags...>> : public std::true_type {};
 template <typename Statement, typename... Flags>
 struct consistency_check<Statement, select_flag_list_t<Flags...>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 struct no_select_flag_list_t {
@@ -93,6 +96,9 @@ auto to_sql_string(Context&, const no_select_flag_list_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_select_flag_list_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Flags>

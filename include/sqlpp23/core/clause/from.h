@@ -63,6 +63,9 @@ struct is_clause<from_t<_Table>> : public std::true_type {};
 template <typename Statement, typename _Table>
 struct consistency_check<Statement, from_t<_Table>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename _Table>
@@ -99,6 +102,9 @@ auto to_sql_string(Context&, const no_from_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_from_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <DynamicTable T>

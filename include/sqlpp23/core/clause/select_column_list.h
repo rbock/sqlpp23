@@ -48,14 +48,28 @@
 #include <sqlpp23/core/tuple_to_sql_string.h>
 
 namespace sqlpp {
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_selected_columns_t,
-                            "at least one selected column requires a table "
-                            "which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_selected_columns_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one selected column requires a table "
+                        "which is otherwise not known in the statement");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_unknown_static_tables_in_selected_columns_t,
-    "at least one selected column statically requires a table which is "
-    "otherwise not known dynamically in the statement");
+class assert_no_unknown_static_tables_in_selected_columns_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "at least one selected column statically requires a table which is "
+        "otherwise not known dynamically in the statement");
+  }
+};
 
 // SELECTED COLUMNS
 template <typename... Columns>
@@ -130,8 +144,8 @@ struct select_result_methods_t {
   auto _prepare(this Statement&& self, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
     return {{},
-            statement_handler_t{}.prepare_select(
-                std::forward<Statement>(self), db)};
+            statement_handler_t{}.prepare_select(std::forward<Statement>(self),
+                                                 db)};
   }
 };
 
@@ -159,6 +173,9 @@ struct consistency_check<Statement, select_column_list_t<Columns...>> {
           Statement,
           detail::remove_as_from_select_column_t<Columns>,
           assert_no_unknown_static_tables_in_selected_columns_t>...>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename... Columns>
@@ -170,6 +187,9 @@ struct prepare_check<Statement, select_column_list_t<Columns...>> {
       static_check_t<Statement::template _no_unknown_static_tables<
                          select_column_list_t<Columns...>>,
                      assert_no_unknown_static_tables_in_selected_columns_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Column>
@@ -185,8 +205,13 @@ struct nodes_of<select_column_list_t<Columns...>> {
   using type = detail::type_vector<Columns...>;
 };
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_columns_selected_t,
-                            "selecting columns required");
+class assert_columns_selected_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>, "selecting columns required");
+  }
+};
 
 template <typename ColumnTuple>
 struct make_select_column_list;
@@ -219,6 +244,9 @@ auto to_sql_string(Context&, const no_select_column_list_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_select_column_list_t> {
   using type = assert_columns_selected_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <DynamicSelectColumn... T>

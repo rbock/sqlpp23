@@ -68,6 +68,9 @@ template <typename Statement, typename ConflictTarget>
 struct consistency_check<Statement,
                          on_conflict_do_nothing_t<ConflictTarget>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 }  // namespace sqlpp

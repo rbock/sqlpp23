@@ -69,6 +69,9 @@ template <typename Statement, typename... Ctes>
 struct consistency_check<Statement, with_t<Ctes...>> {
   // FIXME: Need real checks here
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 // Note: No nodes are exposed directly. Nothing should be leaked from CTEs by
@@ -174,6 +177,9 @@ auto to_sql_string(Context&, const no_with_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_with_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <DynamicCte... Ctes>

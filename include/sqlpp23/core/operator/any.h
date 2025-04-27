@@ -71,8 +71,8 @@ auto to_sql_string(Context& context, const any_t<Select>& t) -> std::string {
 
 template <typename... Clauses>
   requires(has_data_type<statement_t<Clauses...>>::value)
-auto any(statement_t<Clauses...> t) -> any_t<statement_t<Clauses...>> {
-  statement_consistency_check_t<statement_t<Clauses...>>::verify();
-  return {std::move(t)};
+auto any(statement_t<Clauses...> s) -> any_t<statement_t<Clauses...>> {
+  check_basic_consistency(s).verify();
+  return {std::move(s)};
 }
 }  // namespace sqlpp

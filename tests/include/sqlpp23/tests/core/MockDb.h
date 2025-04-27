@@ -33,6 +33,7 @@
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <iostream>
+#include "sqlpp23/core/query/statement.h"
 #include "sqlpp23/core/type_traits.h"
 
 // an object to store internal Mock flags and values to validate in tests
@@ -69,7 +70,7 @@ struct MockDb : public sqlpp::connection {
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
   auto operator()(const T& t) {
-    sqlpp::statement_run_check_t<T>::verify();
+    sqlpp::check_run_consistency(t).verify();
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
@@ -127,7 +128,7 @@ struct MockDb : public sqlpp::connection {
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
-    sqlpp::statement_prepare_check_t<T>::verify();
+    sqlpp::check_prepare_consistency(t).verify();
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 

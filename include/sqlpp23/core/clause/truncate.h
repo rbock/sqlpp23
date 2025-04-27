@@ -48,6 +48,9 @@ struct is_clause<truncate_t> : public std::true_type {};
 template <typename Statement>
 struct consistency_check<Statement, truncate_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 using blank_truncate_t = statement_t<truncate_t, no_single_table_t>;

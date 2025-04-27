@@ -30,20 +30,35 @@
 #include <sqlpp23/core/clause/where.h>
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/detail/type_set.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_unknown_tables_in_on_conflict_do_update_t,
-    "at least one expression in on_conflict().do_update().where() requires a "
-    "table which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_on_conflict_do_update_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one expression in "
+                        "on_conflict().do_update().where() requires a "
+                        "table which is otherwise not known in the statement");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_unknown_static_tables_in_on_conflict_do_update_t,
-    "at least one expression in on_conflict().do_update().where() statically "
-    "requires a table which is only known dynamically in the statement");
+class assert_no_unknown_static_tables_in_on_conflict_do_update_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "at least one expression in on_conflict().do_update().where() "
+        "statically "
+        "requires a table which is only known dynamically in the statement");
+  }
+};
 
 // ON CONFLICT ... DO UPDATE ... WHERE ...
 template <typename OnConflictUpdate, typename Expression>
@@ -91,6 +106,9 @@ struct consistency_check<
     Statement,
     on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
@@ -106,6 +124,9 @@ struct prepare_check<
           Statement::template _no_unknown_static_tables<
               on_conflict_do_update_where_t<OnConflictUpdate, Expression>>,
           assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 // ON CONFLICT ... DO UPDATE ...
@@ -165,6 +186,9 @@ struct consistency_check<
     Statement,
     on_conflict_do_update_t<OnConflict, Assignments...>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename OnConflict, typename... Assignments>

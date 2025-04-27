@@ -67,6 +67,9 @@ struct insert_or_result_methods_t {
 template <typename Statement, typename InsertOrAlternative>
 struct consistency_check<Statement, sqlite3::insert_or_t<InsertOrAlternative>> {
   using type = ::sqlpp::consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename InsertOrAlternative>

@@ -183,15 +183,34 @@ struct required_static_ctes_of<
     : public required_ctes_of<
           cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> {};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_cte_union_arg_has_result_row_t,
-    "argument of a union has to be a select statement or a union");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_cte_union_requires_no_tables_t,
-    "right hand side of cte union is is missing tables");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_cte_union_arg_same_result_row_t,
-                            "both select statements in a union have to have "
-                            "the same result columns (type and name)");
+class assert_cte_union_arg_has_result_row_t: public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "argument of a union has to be a select statement or a union");
+  }
+};
+
+class assert_cte_union_requires_no_tables_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "right hand side of cte union is is missing tables");
+  }
+};
+
+class assert_cte_union_arg_same_result_row_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "both select statements in a union have to have "
+                        "the same result columns (type and name)");
+  }
+};
 
 template <typename Cte, typename Rhs>
 using check_cte_union_args_t = static_combined_check_t<
@@ -298,7 +317,7 @@ struct cte_ref_t {
     requires(is_statement<Statement>::value and
              has_result_row<Statement>::value)
   auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement> {
-    statement_consistency_check_t<Statement>::verify();
+    check_basic_consistency(statement).verify();
     SQLPP_STATIC_ASSERT(required_tables_of_t<Statement>::empty(),
                         "common table expression must not use unknown tables");
     SQLPP_STATIC_ASSERT(not required_ctes_of_t<Statement>::template contains<

@@ -64,6 +64,9 @@ struct is_clause<single_table_t<_Table>> : public std::true_type {};
 template <typename Statement, typename _Table>
 struct consistency_check<Statement, single_table_t<_Table>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename _Table>
@@ -89,11 +92,20 @@ auto to_sql_string(Context&, const no_single_table_t&) -> std::string {
   return "";
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_single_table_provided_t,
-                            "this statement requires a table");
+class assert_single_table_provided_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>, "this statement requires a table");
+  }
+};
+
 template <typename Statement>
 struct consistency_check<Statement, no_single_table_t> {
   using type = assert_single_table_provided_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <StaticRawTable T>

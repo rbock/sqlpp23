@@ -45,13 +45,26 @@ namespace sqlpp {
 // * PostgreSQL
 // * sqlite3
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_returning_columns_t,
-                            "at least one returning column requires a table "
-                            "which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_returning_columns_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one returning column requires a table "
+                        "which is otherwise not known in the statement");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_returning_columns_contain_no_aggregates_t,
-    "returning columns must not contain aggregate functions");
+class assert_returning_columns_contain_no_aggregates_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>, "returning columns must not contain aggregate functions");
+  }
+};
 
 template <typename... Columns>
 struct returning_t {
@@ -81,7 +94,7 @@ struct returning_column_list_result_methods_t {
       -> select_as_t<std::decay_t<Statement>,
                      name_tag_of_t<NameTagProvider>,
                      make_field_spec_t<std::decay_t<Statement>, Columns>...> {
-    statement_consistency_check_t<std::decay_t<Statement>>::verify();
+    check_basic_consistency(self).verify();
     using table =
         select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
                     make_field_spec_t<std::decay_t<Statement>, Columns>...>;
@@ -141,6 +154,9 @@ struct consistency_check<Statement, returning_t<Columns...>> {
   using type = static_check_t<
       not contains_aggregate_function<returning_t<Columns...>>::value,
       assert_returning_columns_contain_no_aggregates_t>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename... Columns>
@@ -148,6 +164,9 @@ struct prepare_check<Statement, returning_t<Columns...>> {
   using type = static_check_t<
       Statement::template _no_unknown_tables<returning_t<Columns...>>,
       assert_no_unknown_tables_in_returning_columns_t>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Column>
@@ -195,6 +214,9 @@ auto to_sql_string(Context&, const no_returning_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_returning_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Columns>

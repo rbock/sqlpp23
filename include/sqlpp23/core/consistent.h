@@ -37,13 +37,13 @@ namespace sqlpp {
     template <typename... T>
     static constexpr void verify(T&&...) {}
 
-    [[nodiscard("Call .verify()")]] consteval auto operator&&(
+    [[nodiscard("Call .verify()")]] constexpr auto operator&&(
         const consistent_t&) {
       return consistent_t{};
     }
     template <typename Other>
       requires(std::is_base_of<wrapped_static_assert, Other>::value)
-    [[nodiscard("Call .verify()")]] consteval auto operator&&(const Other&) {
+    [[nodiscard("Call .verify()")]] constexpr auto operator&&(const Other&) {
       return Other{};
     }
   };

@@ -58,22 +58,47 @@ auto to_sql_string(Context& context, const having_t<Expression>& t)
   return dynamic_clause_to_sql_string(context, "HAVING", read.expression(t));
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_having_t,
-                            "at least one having-expression requires a table "
-                            "which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_having_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one having-expression requires a table "
+                        "which is otherwise not known in the statement");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_unknown_static_tables_in_having_t,
-    "at least one having-expression statically requires a table which is only "
-    "known dynamically in the statement");
+class assert_no_unknown_static_tables_in_having_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one having-expression statically requires a "
+                        "table which is only "
+                        "known dynamically in the statement");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_having_all_aggregates_t,
-    "having expression not built out of aggregate expressions");
+class assert_having_all_aggregates_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "having expression not built out of aggregate expressions");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_having_all_static_aggregates_t,
-                            "at least one static having expression is provided "
-                            "dynamically only in group_by");
+class assert_having_all_static_aggregates_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one static having expression is provided "
+                        "dynamically only in group_by");
+  }
+};
 
 template <typename Expression>
 struct is_clause<having_t<Expression>> : public std::true_type {};
@@ -98,6 +123,9 @@ struct consistency_check<Statement, having_t<Expression>> {
           Statement,
           Expression,
           assert_no_unknown_static_tables_in_having_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename Expression>
@@ -109,6 +137,9 @@ struct prepare_check<Statement, having_t<Expression>> {
       static_check_t<
           Statement::template _no_unknown_static_tables<having_t<Expression>>,
           assert_no_unknown_static_tables_in_having_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 // NO HAVING YET
@@ -128,6 +159,9 @@ auto to_sql_string(Context&, const no_having_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_having_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename T>

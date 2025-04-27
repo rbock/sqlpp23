@@ -39,14 +39,27 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_order_by_t,
-                            "at least one order-by expression requires a table "
-                            "which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_order_by_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one order-by expression requires a table "
+                        "which is otherwise not known in the statement");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_unknown_static_tables_in_order_by_t,
-    "at least one order-by expression statically requires a table which is "
-    "only known dynamically in the statement");
+class assert_no_unknown_static_tables_in_order_by_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "at least one order-by expression statically requires a table which is "
+        "only known dynamically in the statement");
+  }
+};
 
 template <typename... Expressions>
 struct order_by_t {
@@ -73,18 +86,37 @@ auto to_sql_string(Context& context, const order_by_t<Expressions...>& t)
 template <typename... Expressions>
 struct is_clause<order_by_t<Expressions...>> : public std::true_type {};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_correct_order_by_aggregates_t,
-    "order_by (without group by) must not contain any aggregates");
+class assert_correct_order_by_aggregates_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "order_by (without group by) must not contain any aggregates");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_correct_order_by_aggregates_with_group_by_t,
-    "order_by (with group by) must contain aggregates only");
+class assert_correct_order_by_aggregates_with_group_by_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>, "order_by (with group by) must contain aggregates only");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_correct_static_order_by_aggregates_with_group_by_t,
-    "order_by statically contains aggregates that are only dynamically defined "
-    "in group_by");
+class assert_correct_static_order_by_aggregates_with_group_by_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "order_by statically contains aggregates that are only "
+                        "dynamically defined "
+                        "in group_by");
+  }
+};
 
 namespace detail {
 template <typename ProvidedAggregates,
@@ -142,6 +174,9 @@ struct consistency_check<Statement, order_by_t<Expressions...>> {
           Statement,
           Expressions,
           assert_no_unknown_static_tables_in_order_by_t>...>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename... Expressions>
@@ -153,6 +188,9 @@ struct prepare_check<Statement, order_by_t<Expressions...>> {
       static_check_t<Statement::template _no_unknown_static_tables<
                          order_by_t<Expressions...>>,
                      assert_no_unknown_static_tables_in_order_by_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Expressions>
@@ -186,6 +224,9 @@ auto to_sql_string(Context&, const no_order_by_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_order_by_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <DynamicSortOrder... Expressions>

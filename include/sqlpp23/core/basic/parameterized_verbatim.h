@@ -61,6 +61,9 @@ struct is_clause<parameterized_verbatim_t<DataType, Expr>>
 template <typename Statement, typename DataType, typename Expr>
 struct consistency_check<Statement, parameterized_verbatim_t<DataType, Expr>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename DataType, typename Expr>

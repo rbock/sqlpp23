@@ -122,16 +122,33 @@ struct insert_default_values_t {
 template <>
 struct is_clause<insert_default_values_t> : public std::true_type {};
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_all_columns_have_default_value_t,
-                            "at least one column does not have a default value "
-                            "(explicit default, NULL, or auto-increment)");
+class assert_all_columns_have_default_value_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one column does not have a default value "
+                        "(explicit default, NULL, or auto-increment)");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_all_required_columns_t,
-    "at least one required column is missing in columns()");
+class assert_all_required_columns_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one required column is missing in columns()");
+  }
+};
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_all_required_assignments_t,
-                            "at least one required column is missing in set()");
+class assert_all_required_assignments_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one required column is missing in set()");
+  }
+};
 
 template <typename Statement>
 struct consistency_check<Statement, insert_default_values_t> {
@@ -139,6 +156,9 @@ struct consistency_check<Statement, insert_default_values_t> {
       std::conditional_t<required_insert_columns_of_t<Statement>::empty(),
                          consistent_t,
                          assert_all_columns_have_default_value_t>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Assignments>
@@ -172,9 +192,16 @@ auto to_sql_string(Context& context, const insert_set_t<Assignments...>& t)
   return result;
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_insert_assignments_t,
-                            "at least one insert assignment requires a table "
-                            "which is otherwise not known in the statement");
+class assert_no_unknown_tables_in_insert_assignments_t
+    : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one insert assignment requires a table "
+                        "which is otherwise not known in the statement");
+  }
+};
 
 template <typename... Assignments>
 struct is_clause<insert_set_t<Assignments...>> : public std::true_type {};
@@ -189,6 +216,9 @@ struct consistency_check<Statement, insert_set_t<Assignments...>> {
           detail::have_all_required_assignments<Statement,
                                                 Assignments...>::value,
           assert_all_required_assignments_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Assignments>
@@ -275,9 +305,15 @@ auto to_sql_string(Context& context, const column_list_t<Columns...>& t)
   return result;
 }
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
-                            "at least one column requires a table which is "
-                            "otherwise not known in the statement");
+class assert_no_unknown_tables_in_column_list_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "at least one column requires a table which is "
+                        "otherwise not known in the statement");
+  }
+};
 
 template <typename... Columns>
 struct is_clause<column_list_t<Columns...>> : public std::true_type {};
@@ -291,6 +327,9 @@ struct consistency_check<Statement, column_list_t<Columns...>> {
       static_check_t<
           detail::have_all_required_columns<Statement, Columns...>::value,
           assert_all_required_columns_t>>;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Columns>
@@ -298,16 +337,22 @@ struct nodes_of<column_list_t<Columns...>> {
   using type = detail::type_vector<Columns...>;
 };
 
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_insert_values_t,
-    "insert values required, e.g. set(...) or default_values()");
+class assert_insert_values_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "insert values required, e.g. set(...) or default_values()");
+  }
+};
 
 // NO INSERT COLUMNS/VALUES YET
 struct no_insert_value_list_t {
   template <typename Statement>
   auto default_values(this Statement&& self) {
-    return new_statement<no_insert_value_list_t>(
-        std::forward<Statement>(self), insert_default_values_t{});
+    return new_statement<no_insert_value_list_t>(std::forward<Statement>(self),
+                                                 insert_default_values_t{});
   }
 
   template <typename Statement, DynamicColumn... Columns>
@@ -357,6 +402,9 @@ auto to_sql_string(Context&, const no_insert_value_list_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_insert_value_list_t> {
   using type = assert_insert_values_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename... Assignments>

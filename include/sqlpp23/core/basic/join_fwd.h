@@ -64,7 +64,7 @@ struct pre_join_t;
 class assert_join_lhs_no_dependencies_t : public wrapped_static_assert {
  public:
   template <typename... T>
-  void verify(T&&...) {
+  static void verify(T&&...) {
     SQLPP_STATIC_ASSERT(
         wrong<T...>,
         "table dependencies detected in left side of join");
@@ -74,7 +74,7 @@ class assert_join_lhs_no_dependencies_t : public wrapped_static_assert {
 class assert_join_rhs_no_dependencies_t : public wrapped_static_assert {
  public:
   template <typename... T>
-  void verify(T&&...) {
+  static void verify(T&&...) {
     SQLPP_STATIC_ASSERT(
         wrong<T...>,
         "table dependencies detected in right side of join");
@@ -84,7 +84,7 @@ class assert_join_rhs_no_dependencies_t : public wrapped_static_assert {
 class assert_join_no_name_duplicates_t : public wrapped_static_assert {
  public:
   template <typename... T>
-  void verify(T&&...) {
+  static void verify(T&&...) {
     SQLPP_STATIC_ASSERT(
         wrong<T...>,
         "duplicate table names detected in join");

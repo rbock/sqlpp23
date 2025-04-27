@@ -73,6 +73,9 @@ struct nodes_of<using_t<_Table>> {
 template <typename Statement, typename _Table>
 struct consistency_check<Statement, using_t<_Table>> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename _Table>
@@ -101,6 +104,9 @@ auto to_sql_string(Context&, const no_using_t&) -> std::string {
 template <typename Statement>
 struct consistency_check<Statement, no_using_t> {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <DynamicTable T>

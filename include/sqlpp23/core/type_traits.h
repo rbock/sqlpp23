@@ -289,12 +289,25 @@ using member_t =
 template <typename Clauses>
 using derived_statement_t = typename Clauses::_statement_t;
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_run_statement_or_prepared_t,
-                            "connection cannot run something that is neither "
-                            "statement nor prepared statement");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_prepare_statement_t,
-    "connection cannot prepare something that is not a statement");
+class assert_run_statement_or_prepared_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "connection cannot run something that is neither "
+                        "statement nor prepared statement");
+  }
+};
+
+class assert_prepare_statement_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "connection cannot prepare something that is not a statement");
+  }
+};
 
 template <typename T>
 struct is_statement : public std::false_type {};
@@ -392,6 +405,9 @@ using consistency_check_t = typename consistency_check<Statement, Clause>::type;
 template <typename Statement, typename Clause>
 struct prepare_check {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename Clause>
@@ -405,6 +421,9 @@ using prepare_check_t = typename prepare_check<Statement, Clause>::type;
 template <typename Statement, typename Clause>
 struct run_check {
   using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
 };
 
 template <typename Statement, typename Clause>

@@ -44,25 +44,66 @@
 #include <type_traits>
 
 namespace sqlpp {
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_ctes_t,
-                            "one clause requires common table expressions "
-                            "which are otherwise not known in the statement");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_unknown_static_ctes_t,
-    "one clause statically requires common table expressions which are only "
-    "known dynamically in the statement");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_t,
-                            "one clause requires tables which are otherwise "
-                            "not known in the statement");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_static_tables_t,
-                            "one clause statically requires tables which are "
-                            "only known dynamically in the statement");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_duplicate_table_providers_t,
-    "at least one table is provided by two clauses, e.g. FROM and USING");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_no_parameters_t,
-    "cannot run statements with parameters directly, use prepare instead");
+class assert_no_unknown_ctes_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "one clause requires common table expressions "
+                        "which are otherwise not known in the statement");
+  }
+};
+
+class assert_no_unknown_static_ctes_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "one clause statically requires common table "
+                        "expressions which are only "
+                        "known dynamically in the statement");
+  }
+};
+
+class assert_no_unknown_tables_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "one clause requires tables which are otherwise "
+                        "not known in the statement");
+  }
+};
+
+class assert_no_unknown_static_tables_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(wrong<T...>,
+                        "one clause statically requires tables which are "
+                        "only known dynamically in the statement");
+  }
+};
+
+class assert_no_duplicate_table_providers_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "at least one table is provided by two clauses, e.g. FROM and USING");
+  }
+};
+
+class assert_no_parameters_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "cannot run statements with parameters directly, use prepare instead");
+  }
+};
 
 template <typename... Clauses>
 using result_methods_t =
@@ -151,6 +192,9 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   statement_t& operator=(statement_t&& r) = default;
   ~statement_t() = default;
 };
+
+
+
 
 template <typename... Clauses>
 struct can_be_used_as_table<statement_t<Clauses...>> {
@@ -256,6 +300,40 @@ template <typename... Clauses>
 struct statement_consistency_check<statement_t<Clauses...>> {
   using type = static_combined_check_t<
       consistency_check_t<statement_t<Clauses...>, Clauses>...>;
+};
+
+template <typename... Clauses>
+[[nodiscard]] auto check_table_consistency(const statement_t<Clauses...>&) {
+  using S = statement_t<Clauses...>;
+  return typename S::_table_check{} and typename S::_cte_check{};
+}
+
+template <typename... Clauses>
+[[nodiscard]] auto check_parameter_consistency(const statement_t<Clauses...>&) {
+  using S = statement_t<Clauses...>;
+  return typename S::_parameter_check{};
+}
+
+template <typename... Clauses>
+[[nodiscard]] constexpr auto check_basic_consistency(const statement_t<Clauses...>&) {
+  return (consistent_t{} && ... &&
+          consistency_check<statement_t<Clauses...>, Clauses>{}());
+};
+
+template <typename... Clauses>
+[[nodiscard]] constexpr auto check_prepare_consistency(const statement_t<Clauses...>& t) {
+  return (check_basic_consistency(t) && ... &&
+          prepare_check<statement_t<Clauses...>, Clauses>{}())
+    && (typename statement_t<Clauses...>::_table_check{})
+    && (typename statement_t<Clauses...>::_cte_check{});
+};
+
+template <typename... Clauses>
+[[nodiscard]] constexpr auto check_run_consistency(const statement_t<Clauses...>& t) {
+  return (check_prepare_consistency(t) && ... &&
+          run_check<statement_t<Clauses...>, Clauses>{}())
+    && (typename statement_t<Clauses...>::_table_check{})
+    && (typename statement_t<Clauses...>::_parameter_check{});
 };
 
 template <typename... Clauses>

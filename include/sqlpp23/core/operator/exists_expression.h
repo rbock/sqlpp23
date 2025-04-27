@@ -69,7 +69,7 @@ template <typename... Clauses>
            has_result_row<statement_t<Clauses...>>::value)
 constexpr auto exists(statement_t<Clauses...> s)
     -> exists_expression<statement_t<Clauses...>> {
-  statement_consistency_check_t<statement_t<Clauses...>>::verify();
+  check_basic_consistency(s).verify();
   return exists_expression<statement_t<Clauses...>>{std::move(s)};
 }
 
