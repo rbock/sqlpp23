@@ -1,6 +1,6 @@
 [**\< Index**](/docs/README.md)
 
-# Introduction
+# Connection Pools
 
 SQLPP11 has support for connection pools which are centralized caches of database connections. When you need a database connection, you can fetch one from the connection pool, use the connection to make SQL
 queries and when you no longer need the connection object, destroy it, usually by letting it go out of scope. When a connection object is destroyed, the actual connection to the database server is not closed,
@@ -11,9 +11,9 @@ will be created, wrapped in a connection object and handed to you.
 
 Each connector has its own connection pool class. Currently we have
 
-* sqlpp::mysql::connection_pool
-* sqlpp::postgresql::connection_pool
-* sqlpp::sqlite3::connection_pool
+* `sqlpp::mysql::connection_pool`
+* `sqlpp::postgresql::connection_pool`
+* `sqlpp::sqlite3::connection_pool`
 
 The connection pool constructors accept two parameters
 
@@ -22,7 +22,7 @@ The connection pool constructors accept two parameters
 
 In this example we create a PostgreSQL connection pool:
 
-```
+```c++
 auto config = std::make_shared<sqlpp::postgresql::connection_config>();
 config->dbname = "my_database";
 config->user = "my_user";
@@ -30,9 +30,10 @@ config->password = "my_password";
 config->debug = true;
 auto pool = sqlpp::postgresql::connection_pool{config, 5};
 ```
+
 You can also create a pool object without a configuration and initialize it later.
 
-```
+```c++
 auto pool = sqlpp::postgresql::connection_pool{}
 ....
 ....
@@ -44,11 +45,12 @@ config->password = "my_password";
 config->debug = true;
 pool.initialize(config, 5);
 ```
+
 ## Getting connections from the connection pool
 
 Once the connection pool object is established we can use the _get()_ method to fetch connections
 
-```
+```c++
 auto db = pool.get();
 for (row : db(select(....))) {
   ....
@@ -60,11 +62,12 @@ for (row : db(select(....))) {
 We don't really need to do anything to return the connection to the pool. Once the connection object's destructor is called the connection is not really destroyed but instead is returned automatically to the connection
 pool's cache. This means that we can use the connection pool in the following way
 
-```
+```c++
 for (row : pool.get()(select(....))) {
   ....
 }
 ```
+
 In the above example we fetch a connection from the pool, use it to make an SQL query and then return the connection to the pool.
 
 ## Ensuring that connections handed out by the connection pool are valid
@@ -81,7 +84,7 @@ this check sends `SELECT 1` to the server.
 
 For example:
 
-```
+```c++
 auto db = pool.get(sqlpp::connection_check::ping);
 for (row : db(select(....))) {
   ....
@@ -96,7 +99,7 @@ Connection pools can be used to work around [thread-safety issues](Threads.md) b
 
 One possible usage pattern is getting a new connection handle for each request. For example:
 
-```
+```c++
 for (row : pool.get()(select(....))) {
   ....
 }

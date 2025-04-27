@@ -31,7 +31,7 @@ See the links below for details:
 
 [Postgresql](/docs/connectors/postgresql.md)
 
-[Sqlite3 and SQLCipher](/docs/connectors/postgresql.md)
+[Sqlite3 and SQLCipher](/docs/connectors/sqlite3.md)
 
 ## Other connectors
 
