@@ -180,7 +180,7 @@ auto to_sql_string(
 class assert_join_provides_tables_for_on_t : public wrapped_static_assert {
  public:
   template <typename... T>
-  static constexpr void verify(T&&...) {
+  void verify(T&&...) {
     SQLPP_STATIC_ASSERT(
         wrong<T...>,
         "on() condition of a join must only use tables provided in that join");
@@ -191,7 +191,7 @@ class assert_join_provides_static_tables_for_on_t
     : public wrapped_static_assert {
  public:
   template <typename... T>
-  static constexpr void verify(T&&...) {
+  void verify(T&&...) {
     SQLPP_STATIC_ASSERT(wrong<T...>,
                         "on() condition of a static join must not use "
                         "tables provided only dynamically in that join");
@@ -199,8 +199,7 @@ class assert_join_provides_static_tables_for_on_t
 };
 
 template <typename Lhs, typename Rhs, typename Expr>
-[[nodiscard]] consteval auto check_join_on_condition()
-{
+[[nodiscard]] consteval auto check_join_on_condition() {
   if constexpr (not provided_tables_of_t<
                     join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::
                     contains_all(required_tables_of_t<Expr>{})) {
@@ -245,35 +244,35 @@ struct is_pre_join<pre_join_t<Lhs, JoinType, Rhs>> : public std::true_type {};
 template <StaticTable Lhs, DynamicTable Rhs>
 auto join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>> {
-  deep_check_join_args<Lhs, Rhs>::verify();
+  check_join_args<Lhs, Rhs>().verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs))};
 }
 
 template <StaticTable Lhs, DynamicTable Rhs>
 auto inner_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>> {
-  deep_check_join_args<Lhs, Rhs>::verify();
+  check_join_args<Lhs, Rhs>().verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs))};
 }
 
 template <StaticTable Lhs, DynamicTable Rhs>
 auto left_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, left_outer_join_t, table_ref_t<Rhs>> {
-  deep_check_join_args<Lhs, Rhs>::verify();
+  check_join_args<Lhs, Rhs>().verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs))};
 }
 
 template <StaticTable Lhs, DynamicTable Rhs>
 auto right_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, right_outer_join_t, table_ref_t<Rhs>> {
-  deep_check_join_args<Lhs, Rhs>::verify();
+  check_join_args<Lhs, Rhs>().verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs))};
 }
 
 template <StaticTable Lhs, DynamicTable Rhs>
 auto full_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, full_outer_join_t, table_ref_t<Rhs>> {
-  deep_check_join_args<Lhs, Rhs>::verify();
+  check_join_args<Lhs, Rhs>().verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs))};
 }
 
@@ -282,7 +281,7 @@ auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>,
                                             cross_join_t,
                                             table_ref_t<Rhs>,
                                             unconditional_t> {
-  deep_check_join_args<Lhs, Rhs>::verify();
+  check_join_args<Lhs, Rhs>().verify();
   return {make_table_ref(std::move(lhs)), make_table_ref(std::move(rhs)), {}};
 }
 

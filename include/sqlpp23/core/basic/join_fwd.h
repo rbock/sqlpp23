@@ -61,26 +61,52 @@ struct join_t;
 template <typename Lhs, typename JoinType, typename Rhs>
 struct pre_join_t;
 
-SQLPP_WRAPPED_STATIC_ASSERT(assert_join_lhs_no_dependencies_t,
-                            "table dependencies detected in left side of join");
-SQLPP_WRAPPED_STATIC_ASSERT(
-    assert_join_rhs_no_dependencies_t,
-    "table dependencies detected in right side of join");
-SQLPP_WRAPPED_STATIC_ASSERT(assert_join_no_name_duplicates_t,
-                            "duplicate table names detected in join");
+class assert_join_lhs_no_dependencies_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "table dependencies detected in left side of join");
+  }
+};
+
+class assert_join_rhs_no_dependencies_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "table dependencies detected in right side of join");
+  }
+};
+
+class assert_join_no_name_duplicates_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  void verify(T&&...) {
+    SQLPP_STATIC_ASSERT(
+        wrong<T...>,
+        "duplicate table names detected in join");
+  }
+};
 
 template <typename Lhs, typename Rhs>
-using deep_check_join_args = static_combined_check_t<
-    static_check_t<required_tables_of_t<Lhs>::empty(),
-                   assert_join_lhs_no_dependencies_t>,
-    static_check_t<required_tables_of_t<Rhs>::empty(),
-                   assert_join_rhs_no_dependencies_t>,
-    static_check_t<sqlpp::detail::transform_set_t<provided_tables_of_t<Lhs>,
-                                                  make_char_sequence>::
-                       contains_none(sqlpp::detail::transform_set_t<
-                                     provided_tables_of_t<Rhs>,
-                                     make_char_sequence>{}),
-                   assert_join_no_name_duplicates_t>>;
+[[nodiscard]] consteval auto check_join_args() {
+  if constexpr (not required_tables_of_t<Lhs>::empty()) {
+    return assert_join_lhs_no_dependencies_t{};
+  } else if constexpr (not required_tables_of_t<Rhs>::empty()) {
+    return assert_join_rhs_no_dependencies_t{};
+  } else if constexpr (sqlpp::detail::transform_set_t<provided_tables_of_t<Lhs>,
+                                                      make_char_sequence>::
+                           contains_any(sqlpp::detail::transform_set_t<
+                                        provided_tables_of_t<Rhs>,
+                                        make_char_sequence>{})) {
+    return assert_join_no_name_duplicates_t{};
+  } else {
+    return consistent_t{};
+  }
+}
 
 template <StaticTable Lhs, DynamicTable Rhs>
 auto join(Lhs lhs, Rhs rhs)
