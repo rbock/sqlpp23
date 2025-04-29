@@ -32,6 +32,7 @@
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/unconditional.h>
+#include "sqlpp23/core/detail/type_set.h"
 
 namespace sqlpp {
 // Join types.
@@ -91,44 +92,54 @@ class assert_join_no_name_duplicates_t : public wrapped_static_assert {
   }
 };
 
-template <typename Lhs, typename Rhs>
-[[nodiscard]] consteval auto check_join_args() {
-  if constexpr (not required_tables_of_t<Lhs>::empty()) {
-    return assert_join_lhs_no_dependencies_t{};
-  } else if constexpr (not required_tables_of_t<Rhs>::empty()) {
-    return assert_join_rhs_no_dependencies_t{};
-  } else if constexpr (sqlpp::detail::transform_set_t<provided_tables_of_t<Lhs>,
-                                                      make_char_sequence>::
-                           contains_any(sqlpp::detail::transform_set_t<
-                                        provided_tables_of_t<Rhs>,
-                                        make_char_sequence>{})) {
-    return assert_join_no_name_duplicates_t{};
-  } else {
-    return consistent_t{};
-  }
-}
+template <typename LhsTypeSet, typename RhsTypeSet>
+class are_names_disjoint : public std::false_type {};
+
+template <typename... LhsElements, typename... RhsElements>
+class are_names_disjoint<detail::type_set<LhsElements...>,
+                         detail::type_set<RhsElements...>> {
+  using LhsNames =
+      sqlpp::detail::make_type_set_t<make_char_sequence_t<LhsElements>...>;
+  using RhsNames =
+      sqlpp::detail::make_type_set_t<make_char_sequence_t<RhsElements>...>;
+
+ public:
+  static constexpr bool value = LhsNames::contains_none(RhsNames{});
+};
+
+template<StaticTable Lhs, DynamicTable Rhs>
+static inline constexpr bool can_be_joined_v = required_tables_of_t<Lhs>::empty() and
+             required_tables_of_t<Rhs>::empty() and
+             are_names_disjoint<provided_tables_of_t<Lhs>,
+                                provided_tables_of_t<Rhs>>::value;
 
 template <StaticTable Lhs, DynamicTable Rhs>
+  requires(can_be_joined_v<Lhs, Rhs>)
 auto join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
+  requires(can_be_joined_v<Lhs, Rhs>)
 auto inner_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
+  requires(can_be_joined_v<Lhs, Rhs>)
 auto left_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, left_outer_join_t, table_ref_t<Rhs>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
+  requires(can_be_joined_v<Lhs, Rhs>)
 auto right_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, right_outer_join_t, table_ref_t<Rhs>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
+  requires(can_be_joined_v<Lhs, Rhs>)
 auto full_outer_join(Lhs lhs, Rhs rhs)
     -> pre_join_t<table_ref_t<Lhs>, full_outer_join_t, table_ref_t<Rhs>>;
 
 template <StaticTable Lhs, DynamicTable Rhs>
+  requires(can_be_joined_v<Lhs, Rhs>)
 auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>,
                                             cross_join_t,
                                             table_ref_t<Rhs>,

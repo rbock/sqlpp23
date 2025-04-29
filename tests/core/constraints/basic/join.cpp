@@ -82,14 +82,6 @@ MAKE_CAN_CALL_JOIN_WITH(cross_join);
   static_assert(                                                               \
       not can_call_cross_join_with<decltype(LHS), decltype(RHS)>::value, "");
 
-#define CHECK_JOIN_STATIC_ASSERTS(LHS, RHS, MESSAGE)              \
-  SQLPP_CHECK_STATIC_ASSERT(join(LHS, RHS), MESSAGE);             \
-  SQLPP_CHECK_STATIC_ASSERT(inner_join(LHS, RHS), MESSAGE);       \
-  SQLPP_CHECK_STATIC_ASSERT(left_outer_join(LHS, RHS), MESSAGE);  \
-  SQLPP_CHECK_STATIC_ASSERT(right_outer_join(LHS, RHS), MESSAGE); \
-  SQLPP_CHECK_STATIC_ASSERT(full_outer_join(LHS, RHS), MESSAGE);  \
-  SQLPP_CHECK_STATIC_ASSERT(cross_join(LHS, RHS), MESSAGE);
-
 struct weird_table : public sqlpp::enable_join {};
 
 }  // namespace
@@ -117,17 +109,17 @@ int main() {
   // Cannot join with a non-table
   CANNOT_CALL_ANY_JOIN_WITH(bar, foo.id);
 
-  // JOIN can be called with two identical tables, but will fail in static
-  // assert.
-  CHECK_JOIN_STATIC_ASSERTS(foo, foo, "duplicate table names detected in join");
+  // Cannot join two identical tables.
+  CANNOT_CALL_ANY_JOIN_WITH(foo, foo);
+
+  // Cannot join two tables with identical names.
+  CANNOT_CALL_ANY_JOIN_WITH(foo, bar.as(foo));
 
   // JOIN must not be called with tables that depend on other tables.
   // Not sure this can happen in the wild, which is why we are using the
   // `weird_table` to simulate the situation.
-  CHECK_JOIN_STATIC_ASSERTS(weird_table{}, foo,
-                            "table dependencies detected in left side of join");
-  CHECK_JOIN_STATIC_ASSERTS(
-      foo, weird_table{}, "table dependencies detected in right side of join");
+  CANNOT_CALL_ANY_JOIN_WITH(weird_table{}, foo);
+  CANNOT_CALL_ANY_JOIN_WITH(foo, weird_table{});
 
   // JOIN ... ON can be called with any boolean expression, but will fail with
   // static assert if it uses the wrong tables. Here, bFoo is not provided by
