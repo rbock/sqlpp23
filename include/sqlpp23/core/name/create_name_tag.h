@@ -36,11 +36,8 @@
   template <typename T>                                            \
   struct _member_t {                                               \
     T CPP_NAME = {};                                               \
-    T& operator()() {                                              \
-      return CPP_NAME;                                             \
-    }                                                              \
-    const T& operator()() const {                                  \
-      return CPP_NAME;                                             \
+    auto& operator()(this auto&& self) {                           \
+      return self.CPP_NAME;                                        \
     }                                                              \
   }
 
@@ -61,11 +58,8 @@
   template <typename T>                                \
   struct _member_t {                                   \
     T CPP_NAME = {};                                   \
-    T& operator()() {                                  \
-      return CPP_NAME;                                 \
-    }                                                  \
-    const T& operator()() const {                      \
-      return CPP_NAME;                                 \
+    auto& operator()(this auto&& self) {               \
+      return self.CPP_NAME;                            \
     }                                                  \
   }
 
