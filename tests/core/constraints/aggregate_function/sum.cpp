@@ -50,17 +50,12 @@ int main() {
   static_assert(cannot_call_sum_with<decltype(foo.id.as(something))>);
   static_assert(cannot_call_sum_with<decltype(foo)>);
 
-  SQLPP_CHECK_STATIC_ASSERT(sum(count(foo.id)),
-                            "sum() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(sum(min(foo.id)),
-                            "sum() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(sum(max(foo.id)),
-                            "sum() must not be used on an aggregate function");
+  // sum() must not be used on an aggregate function
+  static_assert(cannot_call_sum_with<decltype(count(foo.id))>);
+  static_assert(cannot_call_sum_with<decltype(min(foo.id))>);
+  static_assert(cannot_call_sum_with<decltype(max(foo.id))>);
 
-  SQLPP_CHECK_STATIC_ASSERT(sum(sqlpp::distinct, count(foo.id)),
-                            "sum() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(sum(sqlpp::distinct, min(foo.id)),
-                            "sum() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(sum(sqlpp::distinct, max(foo.id)),
-                            "sum() must not be used on an aggregate function");
+  static_assert(cannot_call_sum_with<decltype(sqlpp::distinct, count(foo.id))>);
+  static_assert(cannot_call_sum_with<decltype(sqlpp::distinct, min(foo.id))>);
+  static_assert(cannot_call_sum_with<decltype(sqlpp::distinct, max(foo.id))>);
 }

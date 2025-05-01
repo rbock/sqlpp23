@@ -80,18 +80,16 @@ auto to_sql_string(Context& context, const sum_t<Flag, Expr>& t)
 }
 
 template <typename T>
-  requires(is_numeric<T>::value or is_boolean<T>::value)
+  requires((is_numeric<T>::value or is_boolean<T>::value) and
+           not contains_aggregate_function<T>::value)
 auto sum(T t) -> sum_t<no_flag_t, T> {
-  SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
-                      "sum() must not be used on an aggregate function");
   return {std::move(t)};
 }
 
 template <typename T>
-  requires(is_numeric<T>::value or is_boolean<T>::value)
+  requires((is_numeric<T>::value or is_boolean<T>::value) and
+           not contains_aggregate_function<T>::value)
 auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, T> {
-  SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
-                      "sum() must not be used on an aggregate function");
   return {std::move(t)};
 }
 }  // namespace sqlpp

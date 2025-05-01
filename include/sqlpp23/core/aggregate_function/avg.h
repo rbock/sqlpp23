@@ -77,18 +77,16 @@ auto to_sql_string(Context& context, const avg_t<Flag, Expr>& t)
 }
 
 template <typename T>
-  requires(is_numeric<T>::value or is_boolean<T>::value)
+  requires((is_numeric<T>::value or is_boolean<T>::value) and
+           not contains_aggregate_function<T>::value)
 auto avg(T t) -> avg_t<no_flag_t, T> {
-  SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
-                      "avg() must not be used on an aggregate function");
   return {std::move(t)};
 }
 
 template <typename T>
-  requires(is_numeric<T>::value or is_boolean<T>::value)
+  requires((is_numeric<T>::value or is_boolean<T>::value) and
+           not contains_aggregate_function<T>::value)
 auto avg(const distinct_t& /*unused*/, T t) -> avg_t<distinct_t, T> {
-  SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
-                      "avg() must not be used on an aggregate function");
   return {std::move(t)};
 }
 }  // namespace sqlpp

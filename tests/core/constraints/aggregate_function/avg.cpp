@@ -50,17 +50,12 @@ int main() {
   static_assert(cannot_call_avg_with<decltype(foo.id.as(something))>);
   static_assert(cannot_call_avg_with<decltype(foo)>);
 
-  SQLPP_CHECK_STATIC_ASSERT(avg(count(foo.id)),
-                            "avg() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(avg(min(foo.id)),
-                            "avg() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(avg(max(foo.id)),
-                            "avg() must not be used on an aggregate function");
+  // avg() must not be used on an aggregate function
+  static_assert(cannot_call_avg_with<decltype(count(foo.id))>);
+  static_assert(cannot_call_avg_with<decltype(min(foo.id))>);
+  static_assert(cannot_call_avg_with<decltype(max(foo.id))>);
 
-  SQLPP_CHECK_STATIC_ASSERT(avg(sqlpp::distinct, count(foo.id)),
-                            "avg() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(avg(sqlpp::distinct, min(foo.id)),
-                            "avg() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(avg(sqlpp::distinct, max(foo.id)),
-                            "avg() must not be used on an aggregate function");
+  static_assert(cannot_call_avg_with<decltype(sqlpp::distinct, count(foo.id))>);
+  static_assert(cannot_call_avg_with<decltype(sqlpp::distinct, min(foo.id))>);
+  static_assert(cannot_call_avg_with<decltype(sqlpp::distinct, max(foo.id))>);
 }

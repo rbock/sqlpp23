@@ -50,17 +50,12 @@ int main() {
   static_assert(cannot_call_min_with<decltype(foo.id.as(something))>);
   static_assert(cannot_call_min_with<decltype(foo)>);
 
-  SQLPP_CHECK_STATIC_ASSERT(min(count(foo.id)),
-                            "min() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(min(min(foo.id)),
-                            "min() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(min(min(foo.id)),
-                            "min() must not be used on an aggregate function");
+  // min() must not be used on an aggregate function
+  static_assert(cannot_call_min_with<decltype(count(foo.id))>);
+  static_assert(cannot_call_min_with<decltype(min(foo.id))>);
+  static_assert(cannot_call_min_with<decltype(min(foo.id))>);
 
-  SQLPP_CHECK_STATIC_ASSERT(min(sqlpp::distinct, count(foo.id)),
-                            "min() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(min(sqlpp::distinct, min(foo.id)),
-                            "min() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(min(sqlpp::distinct, min(foo.id)),
-                            "min() must not be used on an aggregate function");
+  static_assert(cannot_call_min_with<decltype(sqlpp::distinct, count(foo.id))>);
+  static_assert(cannot_call_min_with<decltype(sqlpp::distinct, min(foo.id))>);
+  static_assert(cannot_call_min_with<decltype(sqlpp::distinct, min(foo.id))>);
 }

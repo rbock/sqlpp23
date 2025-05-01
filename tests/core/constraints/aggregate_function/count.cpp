@@ -52,21 +52,13 @@ int main() {
   static_assert(cannot_call_count_with<decltype(foo.id.as(something))>);
   static_assert(cannot_call_count_with<decltype(foo)>);
 
-  SQLPP_CHECK_STATIC_ASSERT(
-      count(count(foo.id)),
-      "count() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(
-      count(min(foo.id)), "count() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(
-      count(max(foo.id)), "count() must not be used on an aggregate function");
+  // count() must not be used on an aggregate function.
+  static_assert(cannot_call_count_with<decltype(count(foo.id))>);
+  static_assert(cannot_call_count_with<decltype(min(foo.id))>);
+  static_assert(cannot_call_count_with<decltype(max(foo.id))>);
 
-  SQLPP_CHECK_STATIC_ASSERT(
-      count(sqlpp::distinct, count(foo.id)),
-      "count() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(
-      count(sqlpp::distinct, min(foo.id)),
-      "count() must not be used on an aggregate function");
-  SQLPP_CHECK_STATIC_ASSERT(
-      count(sqlpp::distinct, max(foo.id)),
-      "count() must not be used on an aggregate function");
+  static_assert(
+      cannot_call_count_with<decltype(sqlpp::distinct, count(foo.id))>);
+  static_assert(cannot_call_count_with<decltype(sqlpp::distinct, min(foo.id))>);
+  static_assert(cannot_call_count_with<decltype(sqlpp::distinct, max(foo.id))>);
 }

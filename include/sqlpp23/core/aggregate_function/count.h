@@ -80,10 +80,8 @@ auto to_sql_string(Context& context, const count_t<Flag, Expr>& t)
 }
 
 template <typename T>
-requires(has_data_type_v<T>)
+  requires(has_data_type_v<T> and not contains_aggregate_function<T>::value)
 auto count(T t) -> count_t<no_flag_t, T> {
-  SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
-                      "count() must not be used on an aggregate function");
   return {std::move(t)};
 }
 
@@ -92,10 +90,8 @@ inline auto count(star_t s) -> count_t<no_flag_t, star_t> {
 }
 
 template <typename T>
-requires(has_data_type_v<T>)
+  requires(has_data_type_v<T> and not contains_aggregate_function<T>::value)
 auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, T> {
-  SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value,
-                      "count() must not be used on an aggregate function");
   return {std::move(t)};
 }
 
