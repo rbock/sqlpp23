@@ -74,14 +74,6 @@ struct is_clause<update_set_list_t<Assignments...>> : public std::true_type {};
 
 template <typename Statement, typename... Assignments>
 struct consistency_check<Statement, update_set_list_t<Assignments...>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
-};
-
-template <typename Statement, typename... Assignments>
-struct prepare_check<Statement, update_set_list_t<Assignments...>> {
   using type = std::conditional_t<
       Statement::template _no_unknown_tables<update_set_list_t<Assignments...>>,
       consistent_t,
@@ -96,21 +88,22 @@ struct nodes_of<update_set_list_t<Assignments...>> {
   using type = detail::type_vector<Assignments...>;
 };
 
+template <DynamicAssignment... Assignments>
+static inline constexpr bool are_valid_update_assignments =
+    (sizeof...(Assignments) > 0 and
+     // unique assignment columns
+     not detail::has_duplicates<
+         lhs_t<remove_dynamic_t<Assignments>>...>::value and
+     // assignment columns from exactly one table
+     detail::make_joined_set_t<
+         required_tables_of_t<lhs_t<Assignments>>...>::size() == 1);
+
 struct no_update_set_list_t {
   template <typename Statement, DynamicAssignment... Assignments>
+    requires(are_valid_update_assignments<Assignments...>)
   auto set(this Statement&& self, Assignments... assignments)
 
   {
-    SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0,
-                        "at least one assignment expression required in set()");
-    SQLPP_STATIC_ASSERT(not detail::has_duplicates<
-                            lhs_t<remove_dynamic_t<Assignments>>...>::value,
-                        "at least one duplicate column detected in set()");
-    SQLPP_STATIC_ASSERT(
-        detail::make_joined_set_t<
-            required_tables_of_t<lhs_t<Assignments>>...>::size() == 1,
-        "set() contains assignments for columns from more than one table");
-
     return new_statement<no_update_set_list_t>(
         std::forward<Statement>(self),
         update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
@@ -139,9 +132,10 @@ struct consistency_check<Statement, no_update_set_list_t> {
   }
 };
 
-template <DynamicAssignment... T>
-auto update_set(T... t) {
-  return statement_t<no_update_set_list_t>().set(std::move(t)...);
+template <DynamicAssignment... Assignments>
+    requires(are_valid_update_assignments<Assignments...>)
+auto update_set(Assignments... assignments) {
+  return statement_t<no_update_set_list_t>().set(std::move(assignments)...);
 }
 
 }  // namespace sqlpp

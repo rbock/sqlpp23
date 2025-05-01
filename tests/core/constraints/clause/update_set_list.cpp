@@ -63,10 +63,8 @@ int main() {
   update_set(bar.boolNn = true, dynamic(maybe, bar.textN = ""));
   update_set(dynamic(maybe, bar.boolNn = true), dynamic(maybe, bar.textN = ""));
 
-  // Try to update nothing
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::update_set(),
-      "at least one assignment expression required in set()");
+  // Cannot update nothing
+  static_assert(cannot_call_update_set_with<>);
 
   // update_set requires assignments as arguments and cannot be called with
   // anything else.
@@ -79,35 +77,33 @@ int main() {
       "not an assignment: boolNn");
 
   // Try duplicate columns
-  SQLPP_CHECK_STATIC_ASSERT(update_set(bar.boolNn = true, bar.boolNn = false),
-                            "at least one duplicate column detected in set()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(bar.boolNn = true, bar.textN = "", bar.boolNn = false),
-      "at least one duplicate column detected in set()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(dynamic(maybe, bar.boolNn = true), bar.boolNn = false),
-      "at least one duplicate column detected in set()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(bar.boolNn = true, dynamic(maybe, bar.boolNn = false)),
-      "at least one duplicate column detected in set()");
-  SQLPP_CHECK_STATIC_ASSERT(update_set(dynamic(maybe, bar.boolNn = true),
-                                       dynamic(maybe, bar.boolNn = false)),
-                            "at least one duplicate column detected in set()");
+  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
+                                            decltype(bar.boolNn = false)>);
+  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
+                                            decltype(bar.textN = ""),
+                                            decltype(bar.boolNn = false)>);
+  static_assert(
+      cannot_call_update_set_with<decltype(dynamic(maybe, bar.boolNn = true)),
+                                  decltype(bar.boolNn = false)>);
+  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
+                                            decltype(dynamic(
+                                                maybe, bar.boolNn = false))>);
+  static_assert(cannot_call_update_set_with<
+                decltype(dynamic(maybe, bar.boolNn = true)),
+                decltype(dynamic(maybe, bar.boolNn = false))>);
 
   // Try to update multiple tables at once
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(bar.boolNn = true, foo.doubleN = 7),
-      "set() contains assignments for columns from more than one table");
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(dynamic(maybe, bar.boolNn = true), foo.doubleN = 7),
-      "set() contains assignments for columns from more than one table");
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(bar.boolNn = true, dynamic(maybe, foo.doubleN = 7)),
-      "set() contains assignments for columns from more than one table");
-  SQLPP_CHECK_STATIC_ASSERT(
-      update_set(dynamic(maybe, bar.boolNn = true),
-                 dynamic(maybe, foo.doubleN = 7)),
-      "set() contains assignments for columns from more than one table");
+  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
+                                            decltype(foo.doubleN = 7)>);
+  static_assert(
+      cannot_call_update_set_with<decltype(dynamic(maybe, bar.boolNn = true)),
+                                  decltype(foo.doubleN = 7)>);
+  static_assert(
+      cannot_call_update_set_with<decltype(bar.boolNn = true),
+                                  decltype(dynamic(maybe, foo.doubleN = 7))>);
+  static_assert(
+      cannot_call_update_set_with<decltype(dynamic(maybe, bar.boolNn = true)),
+                                  decltype(dynamic(maybe, foo.doubleN = 7))>);
 
   {
     auto u = update(bar);
@@ -115,5 +111,15 @@ int main() {
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
                                sqlpp::assert_update_assignments_t>::value,
                   "");
+  }
+
+  {
+    auto u = update(bar).set(foo.intN = 7);
+    using U = decltype(u);
+    static_assert(
+        std::is_same<
+            sqlpp::statement_consistency_check_t<U>,
+            sqlpp::assert_no_unknown_tables_in_update_assignments_t>::value,
+        "");
   }
 }
