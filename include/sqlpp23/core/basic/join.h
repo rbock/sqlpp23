@@ -198,24 +198,15 @@ class assert_join_provides_static_tables_for_on_t
   }
 };
 
-template <typename Lhs, typename Rhs, typename Expr>
-[[nodiscard]] constexpr auto check_join_on_condition() {
-  if constexpr (not provided_tables_of_t<
-                    join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::
-                    contains_all(required_tables_of_t<Expr>{})) {
-    return assert_join_provides_tables_for_on_t{};
-  } else if constexpr (is_static<Rhs>::value and
-                       not provided_static_tables_of_t<
-                           join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::
-                           contains_all(required_static_tables_of_t<Expr>{})) {
-    return assert_join_provides_static_tables_for_on_t{};
-  } else {
-    return consistent_t{};
-  }
-}
-
 template <typename Lhs, typename JoinType, typename Rhs>
-struct pre_join_t {
+class pre_join_t {
+  template<typename E>
+  using _join_t = join_t<Lhs, JoinType, Rhs, E>;
+  template<typename E>
+  using _provided_tables_t = provided_tables_of_t<_join_t<E>>;
+
+  public:
+
   pre_join_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   pre_join_t(const pre_join_t&) = default;
   pre_join_t(pre_join_t&&) = default;
@@ -223,8 +214,13 @@ struct pre_join_t {
   pre_join_t& operator=(pre_join_t&&) = default;
   ~pre_join_t() = default;
 
-  template <typename Expr>
-    requires(sqlpp::is_boolean<Expr>::value)
+  template <StaticBoolean Expr>
+#warning: Need to find a nicer way of expressing this
+    requires(provided_tables_of_t<_join_t<Expr>>::contains_all(
+                 required_tables_of_t<Expr>{}) and
+             (is_dynamic<Rhs>::value or
+              provided_static_tables_of_t<_join_t<Expr>>::contains_all(
+                  required_static_tables_of_t<Expr>{})))
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
     check_join_on_condition<Lhs, Rhs, Expr>().verify();
     return {_lhs, _rhs, std::move(expr)};

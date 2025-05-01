@@ -60,7 +60,7 @@ template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct join_t;
 
 template <typename Lhs, typename JoinType, typename Rhs>
-struct pre_join_t;
+class pre_join_t;
 
 class assert_join_lhs_no_dependencies_t : public wrapped_static_assert {
  public:
