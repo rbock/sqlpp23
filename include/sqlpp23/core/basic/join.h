@@ -153,58 +153,8 @@ auto to_sql_string(
   return to_sql_string(context, t._lhs);
 }
 
-// This verifies that all tables required by ON are provided by the JOIN.
-// Good examples:
-//
-// * `foo.join(dynamic(true, bar))
-//       .on(foo.id == bar.id)`
-//    The ON condition statically requires `bar`. That is OK since the condition
-//    is evaluated only in case bar is actually joined.
-// * `foo.cross_join(dynamic(true, bar))
-//       .join(cheese)
-//       .on(foo.id == cheese.id and dynamic(true, bar.id == cheese.id))`
-//    The ON condition for joining foo and (maybe) bar dynamically requires
-//    `bar`.
-//
-// Bad examples:
-//
-// * `foo.join(dynamic(true, bar))
-//       .on(foo.id == cheese.id)`
-//    `cheese` must not be used in the ON condition as it is not part of the
-//    join at all.
-// * `foo.cross_join(dynamic(true, bar))
-//       .join(cheese)
-//       .on(bar.id == cheese.id))`
-//   `bar` is dynamically joined only. It must not be used statically when
-//   joining cheese `statically`.
-class assert_join_provides_tables_for_on_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
-        wrong<T...>,
-        "on() condition of a join must only use tables provided in that join");
-  }
-};
-
-class assert_join_provides_static_tables_for_on_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "on() condition of a static join must not use "
-                        "tables provided only dynamically in that join");
-  }
-};
-
 template <typename Lhs, typename JoinType, typename Rhs>
 class pre_join_t {
-  template<typename E>
-  using _join_t = join_t<Lhs, JoinType, Rhs, E>;
-  template<typename E>
-  using _provided_tables_t = provided_tables_of_t<_join_t<E>>;
-
   public:
 
   pre_join_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
@@ -214,15 +164,37 @@ class pre_join_t {
   pre_join_t& operator=(pre_join_t&&) = default;
   ~pre_join_t() = default;
 
+  // on() verifies that all tables required by ON are provided by the JOIN.
+  // Good examples:
+  //
+  // * `foo.join(dynamic(true, bar))
+  //       .on(foo.id == bar.id)`
+  //    The ON condition statically requires `bar`. That is OK since the
+  //    condition is evaluated only in case bar is actually joined.
+  // * `foo.cross_join(dynamic(true, bar))
+  //       .join(cheese)
+  //       .on(foo.id == cheese.id and dynamic(true, bar.id == cheese.id))`
+  //    The ON condition for joining foo and (maybe) bar dynamically requires
+  //    `bar`.
+  //
+  // Bad examples:
+  //
+  // * `foo.join(dynamic(true, bar))
+  //       .on(foo.id == cheese.id)`
+  //    `cheese` must not be used in the ON condition as it is not part of the
+  //    join at all.
+  // * `foo.cross_join(dynamic(true, bar))
+  //       .join(cheese)
+  //       .on(bar.id == cheese.id))`
+  //   `bar` is dynamically joined only. It must not be used statically when
+  //   joining cheese `statically`.
   template <StaticBoolean Expr>
-#warning: Need to find a nicer way of expressing this
-    requires(provided_tables_of_t<_join_t<Expr>>::contains_all(
+    requires(provided_tables_of_t<pre_join_t>::contains_all(
                  required_tables_of_t<Expr>{}) and
              (is_dynamic<Rhs>::value or
-              provided_static_tables_of_t<_join_t<Expr>>::contains_all(
+              provided_static_tables_of_t<pre_join_t>::contains_all(
                   required_static_tables_of_t<Expr>{})))
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
-    check_join_on_condition<Lhs, Rhs, Expr>().verify();
     return {_lhs, _rhs, std::move(expr)};
   }
 
@@ -230,6 +202,14 @@ class pre_join_t {
   Lhs _lhs;
   Rhs _rhs;
 };
+
+template <typename Lhs, typename JoinType, typename Rhs>
+struct provided_tables_of<pre_join_t<Lhs, JoinType, Rhs>>
+    : public provided_tables_of<join_t<Lhs, JoinType, Rhs, bool>> {};
+
+template <typename Lhs, typename JoinType, typename Rhs>
+struct provided_static_tables_of<pre_join_t<Lhs, JoinType, Rhs>>
+    : public provided_static_tables_of<join_t<Lhs, JoinType, Rhs, bool>> {};
 
 template <typename Lhs, typename JoinType, typename Rhs>
 struct is_pre_join<pre_join_t<Lhs, JoinType, Rhs>> : public std::true_type {};

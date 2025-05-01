@@ -31,7 +31,7 @@
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 
-// Returns true if `JOIN(declval<Lhs>(), JOIN(declval<Rhs>)` is a valid function
+// Returns true if `JOIN(declval<Lhs>(), declval<Rhs>)` is a valid function
 // call.
 #define MAKE_CAN_CALL_JOIN_WITH(JOIN)                          \
   template <typename Lhs, typename Rhs, typename = void>       \
@@ -50,6 +50,27 @@ MAKE_CAN_CALL_JOIN_WITH(left_outer_join);
 MAKE_CAN_CALL_JOIN_WITH(right_outer_join);
 MAKE_CAN_CALL_JOIN_WITH(full_outer_join);
 MAKE_CAN_CALL_JOIN_WITH(cross_join);
+
+// Returns true if `JOIN(declval<Lhs>(), declval<Rhs>).on(Expr)` is a valid
+// function call.
+#define MAKE_CAN_CALL_JOIN_ON_WITH(JOIN)                                \
+  template <typename Lhs, typename Rhs, typename Expr, typename = void> \
+  struct can_call_##JOIN##_on_with : public std::false_type {};         \
+                                                                        \
+  template <typename Lhs, typename Rhs, typename Expr>                  \
+  struct can_call_##JOIN##_on_with<                                     \
+      Lhs, Rhs, Expr,                                                   \
+      std::void_t<decltype(sqlpp::JOIN(std::declval<Lhs>(),             \
+                                       std::declval<Rhs>())             \
+                               .on(std::declval<Expr>()))>>             \
+      : public std::true_type {};
+
+MAKE_CAN_CALL_JOIN_ON_WITH(join);
+MAKE_CAN_CALL_JOIN_ON_WITH(inner_join);
+MAKE_CAN_CALL_JOIN_ON_WITH(left_outer_join);
+MAKE_CAN_CALL_JOIN_ON_WITH(right_outer_join);
+MAKE_CAN_CALL_JOIN_ON_WITH(full_outer_join);
+MAKE_CAN_CALL_JOIN_ON_WITH(cross_join);
 
 #define CAN_CALL_ALL_JOINS_WITH(LHS, RHS)                                      \
   static_assert(can_call_join_with<decltype(LHS), decltype(RHS)>::value, "");  \
@@ -79,8 +100,47 @@ MAKE_CAN_CALL_JOIN_WITH(cross_join);
   static_assert(                                                               \
       not can_call_full_outer_join_with<decltype(LHS), decltype(RHS)>::value,  \
       "");                                                                     \
-  static_assert(                                                               \
+  static_assert(                                                             \
       not can_call_cross_join_with<decltype(LHS), decltype(RHS)>::value, "");
+
+#define CAN_CALL_ALL_JOINS_ON_WITH(LHS, RHS, EXPR)                             \
+  static_assert(can_call_join_on_with<decltype(LHS), decltype(RHS),            \
+                                      decltype(EXPR)>::value,                  \
+                "");                                                           \
+  static_assert(can_call_inner_join_on_with<decltype(LHS), decltype(RHS),      \
+                                            decltype(EXPR)>::value,            \
+                "");                                                           \
+  static_assert(can_call_left_outer_join_on_with<decltype(LHS), decltype(RHS), \
+                                                 decltype(EXPR)>::value,       \
+                "");                                                           \
+  static_assert(                                                               \
+      can_call_right_outer_join_on_with<decltype(LHS), decltype(RHS),          \
+                                        decltype(EXPR)>::value,                \
+      "");                                                                     \
+  static_assert(can_call_full_outer_join_on_with<decltype(LHS), decltype(RHS), \
+                                                 decltype(EXPR)>::value,       \
+                "");
+
+#define CANNOT_CALL_ALL_JOINS_ON_WITH(LHS, RHS, EXPR)                         \
+  CAN_CALL_ALL_JOINS_WITH(LHS, RHS);                                          \
+  static_assert(not can_call_join_on_with<decltype(LHS), decltype(RHS),  \
+                                               decltype(EXPR)>::value,        \
+                     "");                                                     \
+  static_assert(not can_call_inner_join_on_with<decltype(LHS), decltype(RHS), \
+                                                decltype(EXPR)>::value,       \
+                "");                                                          \
+  static_assert(                                                              \
+      not can_call_left_outer_join_on_with<decltype(LHS), decltype(RHS),      \
+                                           decltype(EXPR)>::value,            \
+      "");                                                                    \
+  static_assert(                                                              \
+      not can_call_right_outer_join_on_with<decltype(LHS), decltype(RHS),     \
+                                            decltype(EXPR)>::value,           \
+      "");                                                                    \
+  static_assert(                                                              \
+      not can_call_full_outer_join_on_with<decltype(LHS), decltype(RHS),      \
+                                           decltype(EXPR)>::value,            \
+      "");
 
 struct weird_table : public sqlpp::enable_join {};
 
@@ -124,19 +184,11 @@ int main() {
   // JOIN ... ON can be called with any boolean expression, but will fail with
   // static assert if it uses the wrong tables. Here, bFoo is not provided by
   // the join.
-  SQLPP_CHECK_STATIC_ASSERT(
-      foo.join(bar).on(bFoo.id == bar.id),
-      "on() condition of a join must only use tables provided in that join");
-  SQLPP_CHECK_STATIC_ASSERT(
-      foo.join(bar).on(foo.id == bar.id).join(aFoo).on(bFoo.id == aFoo.id),
-      "on() condition of a join must only use tables provided in that join");
-
-  // Here, bar is not provided /dynamically/ by the first join, but required
+  CANNOT_CALL_ALL_JOINS_ON_WITH(foo, bar, bFoo.id == bar.id);
+  CANNOT_CALL_ALL_JOINS_ON_WITH(foo, bar, bFoo.id == aFoo.id);
+  //
+  // Here, bar is provided /dynamically/ by the first join, but required
   // /statically/ by the second join.
-  SQLPP_CHECK_STATIC_ASSERT(foo.join(dynamic(maybe, bar))
-                                .on(foo.id == bar.id)
-                                .join(aFoo)
-                                .on(bar.id == aFoo.id),
-                            "on() condition of a static join must not use "
-                            "tables provided only dynamically in that join");
+  CANNOT_CALL_ALL_JOINS_ON_WITH(foo.join(dynamic(maybe, bar))
+                                  .on(foo.id == bar.id), aFoo, bar.id == aFoo.id);
 }
