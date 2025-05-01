@@ -28,10 +28,25 @@
 
 #include <sqlpp23/tests/core/tables.h>
 
-int main() {
-  const auto foo = test::TabFoo{};
+namespace {
+template <typename... Expressions>
+concept can_call_dynamic_with =
+    requires(Expressions... expressions) { sqlpp::dynamic(expressions...); };
 
-  SQLPP_CHECK_STATIC_ASSERT(
-      dynamic(true, parameter(foo.id)),
-      "dynamic expressions must not contain query parameters");
+template <typename... Expressions>
+concept cannot_call_dynamic_with =
+    not(can_call_dynamic_with<Expressions...>);
+}  // namespace
+
+int main() {
+  auto foo = test::TabFoo{};
+
+  static_assert(can_call_dynamic_with<bool, decltype(foo)>);
+  static_assert(can_call_dynamic_with<bool, decltype(foo.id)>);
+
+  // dynamic expressions must not contain query parameters
+  static_assert(cannot_call_dynamic_with<bool, decltype(parameter(foo.id))>);
+
+  static_assert(can_call_dynamic_with<std::optional<decltype(foo)>>);
+  static_assert(can_call_dynamic_with<std::optional<decltype(foo.id)>>);
 }

@@ -95,20 +95,22 @@ struct nodes_of<dynamic_t<Expr>> {
 
 // Constructing from optional
 template <typename Expr>
-  requires(has_data_type<Expr>::value or is_select_flag<Expr>::value or
-           is_as_expression<Expr>::value or is_assignment<Expr>::value or
-           is_table<Expr>::value or is_sort_order<Expr>::value or
-           is_statement<Expr>::value)
+  requires((has_data_type<Expr>::value or is_select_flag<Expr>::value or
+            is_as_expression<Expr>::value or is_assignment<Expr>::value or
+            is_table<Expr>::value or is_sort_order<Expr>::value or
+            is_statement<Expr>::value) and
+           parameters_of_t<Expr>::empty())
 auto dynamic(std::optional<Expr> t) -> dynamic_t<Expr> {
   return {std::move(t)};
 }
 
 // Constructing from condition and value
 template <typename Expr>
-  requires(has_data_type<Expr>::value or is_select_flag<Expr>::value or
-           is_as_expression<Expr>::value or is_assignment<Expr>::value or
-           is_table<Expr>::value or is_sort_order<Expr>::value or
-           is_statement<Expr>::value)
+  requires((has_data_type<Expr>::value or is_select_flag<Expr>::value or
+            is_as_expression<Expr>::value or is_assignment<Expr>::value or
+            is_table<Expr>::value or is_sort_order<Expr>::value or
+            is_statement<Expr>::value) and
+           parameters_of_t<Expr>::empty())
 auto dynamic(bool condition, Expr t) -> dynamic_t<Expr> {
   if (condition) {
     return {std::move(t)};
