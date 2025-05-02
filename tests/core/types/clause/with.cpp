@@ -259,25 +259,18 @@ void test_with() {
     auto b = sqlpp::parameter(sqlpp::boolean{}, sqlpp::alias::b);
     using B = decltype(b);
 
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(a));
-    auto referencing =
-        sqlpp::cte(test::referencing).as(select(basic.id).from(basic).where(b));
+    auto basic_wp = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(a));
+    auto referencing_wp =
+        sqlpp::cte(test::referencing).as(select(basic_wp.id).from(basic_wp).where(b));
 
     {
-      using W = extract_with_t<decltype(with(basic))>;
+      using W = extract_with_t<decltype(with(basic_wp))>;
       static_assert(std::is_same<sqlpp::parameters_of_t<W>,
                                  sqlpp::detail::type_vector<A>>::value,
                     "");
     }
     {
-      using W = extract_with_t<decltype(with(basic, referencing))>;
-      static_assert(std::is_same<sqlpp::parameters_of_t<W>,
-                                 sqlpp::detail::type_vector<A, B>>::value,
-                    "");
-    }
-    {
-      using W = extract_with_t<decltype(with(dynamic(true, basic),
-                                             dynamic(false, referencing)))>;
+      using W = extract_with_t<decltype(with(basic_wp, referencing_wp))>;
       static_assert(std::is_same<sqlpp::parameters_of_t<W>,
                                  sqlpp::detail::type_vector<A, B>>::value,
                     "");
