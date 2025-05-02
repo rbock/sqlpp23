@@ -27,7 +27,8 @@
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
 #include <sqlpp23/tests/core/tables.h>
-#include <string_view>
+#include <type_traits>
+#include <sqlpp23/core/consistent.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
@@ -110,21 +111,9 @@ int main() {
   {
     const auto bad_custom_lhs = sqlpp::statement_t<sqlpp::no_union_t>{};
     const auto bad_custom_rhs = sqlpp::statement_t<>{};
-    CHECK_UNION_STATIC_ASSERTS(bad_custom_lhs, rhs,
-                               "left hand side argument of a union has to be a "
-                               "select statement or union");
-    CHECK_UNION_STATIC_ASSERTS(lhs, bad_custom_rhs,
-                               "right hand side argument of a union has to be "
-                               "a select statement or union");
+    CANNOT_CALL_ANY_UNION_WITH(bad_custom_lhs, rhs);
+    CANNOT_CALL_ANY_UNION_WITH(lhs, bad_custom_rhs);
   }
-
-  // UNION requires preparable statements
-  constexpr auto missing_from = std::string_view{
-      "at least one selected column requires a table which is otherwise not "
-      "known in the statement"};
-  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, incomplete_rhs, missing_from);
-  CHECK_UNION_STATIC_ASSERTS(lhs, incomplete_rhs, missing_from);
-  CHECK_UNION_STATIC_ASSERTS(incomplete_lhs, rhs, missing_from);
 
   // UNION requires statements with same result row
   {
@@ -138,19 +127,46 @@ int main() {
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
                          sqlpp::data_type_of_t<decltype(foo.intN)>>::value,
         "");
-    CHECK_UNION_STATIC_ASSERTS(s_foo_int, s_foo_int_n,
-                               "both arguments in a union have to have the "
-                               "same result columns (type and name)");
+    CANNOT_CALL_ANY_UNION_WITH(s_foo_int, s_foo_int_n);
     // Different name
-    CHECK_UNION_STATIC_ASSERTS(s_value_id, s_value_oid,
-                               "both arguments in a union have to have the "
-                               "same result columns (type and name)");
-    CHECK_UNION_STATIC_ASSERTS(s_foo_int, dynamic(maybe, s_foo_int_n),
-                               "both arguments in a union have to have the "
-                               "same result columns (type and name)");
+    CANNOT_CALL_ANY_UNION_WITH(s_value_id, s_value_oid);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo_int, dynamic(maybe, s_foo_int_n));
     // Different name
-    CHECK_UNION_STATIC_ASSERTS(s_value_id, dynamic(maybe, s_value_oid),
-                               "both arguments in a union have to have the "
-                               "same result columns (type and name)");
+    CANNOT_CALL_ANY_UNION_WITH(s_value_id, dynamic(maybe, s_value_oid));
   }
+
+  // UNION requires preparable statements
+  {
+    auto u = union_all(lhs, incomplete_rhs);
+    using U = decltype(u);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
+                               sqlpp::consistent_t>::value);
+    static_assert(
+        std::is_same<
+            sqlpp::statement_prepare_check_t<U>,
+            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+  }
+  {
+    auto u = union_all(incomplete_lhs, rhs);
+    using U = decltype(u);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
+                               sqlpp::consistent_t>::value);
+    static_assert(
+        std::is_same<
+            sqlpp::statement_prepare_check_t<U>,
+            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+  }
+
+  // union can be used as sub query referring to tables of the enclosing query
+  {
+    auto u = select(value(union_all(select(foo.id), select(bar.id))).as(something));
+    using U = decltype(u);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
+                               sqlpp::consistent_t>::value);
+    static_assert(
+        std::is_same<
+            sqlpp::statement_prepare_check_t<U>,
+            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+  }
+
 }

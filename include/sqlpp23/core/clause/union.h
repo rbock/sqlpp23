@@ -34,6 +34,7 @@
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
+#include "sqlpp23/core/query/dynamic_fwd.h"
 
 namespace sqlpp {
 // There is no order by or limit or offset in union, use it as a pseudo table to
@@ -90,6 +91,14 @@ struct result_methods_of<union_t<Flag, Lhs, Rhs>> {
 template <typename Flag, typename Lhs, typename Rhs>
 struct is_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
 
+template <typename Flag, typename Lhs, typename Rhs>
+struct data_type_of<union_t<Flag, Lhs, Rhs>> : data_type_of<Lhs> {};
+
+template <typename Flag, typename Lhs, typename Rhs>
+struct nodes_of<union_t<Flag, Lhs, Rhs>> {
+  using type = detail::type_vector<Lhs, Rhs>;
+};
+
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
   using type = static_combined_check_t<statement_consistency_check_t<Lhs>,
@@ -120,52 +129,18 @@ struct run_check<Statement, union_t<Flag, Lhs, Rhs>> {
 template <typename Flag, typename Lhs, typename Rhs>
 struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
 
-class assert_union_lhs_is_select_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "left hand side argument of a union has to be a select "
-                        "statement or union");
-  }
-};
-
-class assert_union_rhs_is_select_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "right hand side argument of a union has to be a "
-                        "select statement or union");
-  }
-};
-
-class assert_union_result_rows_match_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "both arguments in a union have to have the same "
-                        "result columns (type and name)");
-  }
-};
-
 template <typename Lhs, typename Rhs>
-using check_union_args_t = static_combined_check_t<
-    static_check_t<has_result_row<Lhs>::value, assert_union_lhs_is_select_t>,
-    static_check_t<has_result_row<Rhs>::value, assert_union_rhs_is_select_t>,
-    statement_prepare_check_t<Lhs>,
-    statement_prepare_check_t<Rhs>,
-    static_check_t<is_result_compatible<get_result_row_t<Lhs>,
-                                        get_result_row_t<Rhs>>::value,
-                   assert_union_result_rows_match_t>>;
+static inline constexpr bool are_valid_union_args = 
+    (is_statement<Lhs>::value and is_statement<Rhs>::value and
+     has_result_row<Lhs>::value and has_result_row<Rhs>::value and
+     is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);
 
 struct no_union_t {
   template <typename Statement, typename Rhs>
-    requires(is_statement<remove_dynamic_t<Rhs>>::value)
+    requires(
+        are_valid_union_args<std::decay_t<Statement>, remove_dynamic_t<Rhs>>)
   auto union_distinct(this Statement&& self, Rhs rhs) {
     using S = std::decay_t<Statement>;
-    check_union_args_t<S, remove_dynamic_t<Rhs>>::verify();
 
     return statement_t<union_t<union_distinct_t, S, Rhs>, no_union_t>{
         statement_constructor_arg<union_t<union_distinct_t, S, Rhs>,
@@ -176,10 +151,10 @@ struct no_union_t {
   }
 
   template <typename Statement, typename Rhs>
-    requires(is_statement<remove_dynamic_t<Rhs>>::value)
+    requires(
+        are_valid_union_args<std::decay_t<Statement>, remove_dynamic_t<Rhs>>)
   auto union_all(this Statement&& self, Rhs rhs) {
     using S = std::decay_t<Statement>;
-    check_union_args_t<S, remove_dynamic_t<Rhs>>::verify();
 
     return statement_t<union_t<union_all_t, S, Rhs>, no_union_t>{
         statement_constructor_arg<union_t<union_all_t, S, Rhs>, no_union_t>{
@@ -203,15 +178,13 @@ struct consistency_check<Statement, no_union_t> {
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_statement<Lhs>::value and
-           is_statement<remove_dynamic_t<Rhs>>::value)
+  requires(are_valid_union_args<Lhs, remove_dynamic_t<Rhs>>)
 auto union_all(Lhs lhs, Rhs rhs) {
   return lhs.union_all(std::move(rhs));
 }
 
 template <typename Lhs, typename Rhs>
-  requires(is_statement<Lhs>::value and
-           is_statement<remove_dynamic_t<Rhs>>::value)
+  requires(are_valid_union_args<Lhs, remove_dynamic_t<Rhs>>)
 auto union_distinct(Lhs lhs, Rhs rhs) {
   return lhs.union_distinct(std::move(rhs));
 }

@@ -82,8 +82,7 @@ int main() {
   // -------------------------
 
   // select_columns(<non arguments>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(),
-                            "at least one selected column required");
+  static_assert(cannot_call_select_columns_with<>);
 
   // select_columns(<arguments with no value>) cannot be called.
   static_assert(can_call_select_columns_with<decltype(bar.boolNn)>,

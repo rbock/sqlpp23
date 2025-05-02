@@ -225,10 +225,8 @@ using make_select_column_list_t =
 
 struct no_select_column_list_t {
   template <typename Statement, DynamicSelectColumn... _Columns>
+    requires(sizeof...(_Columns) > 0)
   auto columns(this Statement&& self, _Columns... args) {
-    SQLPP_STATIC_ASSERT(sizeof...(_Columns),
-                        "at least one selected column required");
-
     return new_statement<no_select_column_list_t>(
         std::forward<Statement>(self),
         make_select_column_list_t<_Columns...>{
@@ -249,9 +247,10 @@ struct consistency_check<Statement, no_select_column_list_t> {
   }
 };
 
-template <DynamicSelectColumn... T>
-auto select_columns(T... t) {
-  return statement_t<no_select_column_list_t>().columns(std::move(t)...);
+template <DynamicSelectColumn... _Columns>
+  requires(sizeof...(_Columns) > 0)
+auto select_columns(_Columns... columns) {
+  return statement_t<no_select_column_list_t>().columns(std::move(columns)...);
 }
 
 }  // namespace sqlpp
