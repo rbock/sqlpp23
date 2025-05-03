@@ -74,14 +74,10 @@ struct consistency_check<Statement, select_flag_list_t<Flags...>> {
 struct no_select_flag_list_t {
   template <typename Statement, typename... Flags>
     requires(
-        logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)
+        sizeof...(Flags) > 0 and
+        logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value and
+        not detail::has_duplicates<remove_dynamic_t<Flags>...>::value)
   auto flags(this Statement&& self, Flags... flags) {
-    SQLPP_STATIC_ASSERT(sizeof...(Flags),
-                        "at least one flag required in select_flags()");
-    SQLPP_STATIC_ASSERT(
-        not detail::has_duplicates<remove_dynamic_t<Flags>...>::value,
-        "at least one duplicate argument detected in select_flags()");
-
     return new_statement<no_select_flag_list_t>(
         std::forward<Statement>(self),
         select_flag_list_t<Flags...>{flags...});
@@ -102,7 +98,10 @@ struct consistency_check<Statement, no_select_flag_list_t> {
 };
 
 template <typename... Flags>
-  requires(logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value)
+  requires(
+      sizeof...(Flags) > 0 and
+      logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value and
+      not detail::has_duplicates<remove_dynamic_t<Flags>...>::value)
 auto select_flags(Flags... flags) {
   return statement_t<no_select_flag_list_t>().flags(std::move(flags)...);
 }

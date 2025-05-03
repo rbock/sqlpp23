@@ -150,19 +150,11 @@ struct have_correct_static_cte_dependencies {
 
 struct no_with_t {
   template <typename Statement, DynamicCte... Ctes>
+    requires(have_correct_cte_dependencies<Ctes...>::value and
+             have_correct_static_cte_dependencies<Ctes...>::value and
+             detail::are_unique<
+                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value)
   auto with(this Statement&& self, Ctes... ctes) {
-    SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,
-                        "at least one CTE depends on another CTE that is not "
-                        "defined left of it");
-    SQLPP_STATIC_ASSERT(have_correct_static_cte_dependencies<Ctes...>::value,
-                        "at least one CTE statically depends on another CTE "
-                        "that is not defined statically left of "
-                        "it (only dynamically)");
-    SQLPP_STATIC_ASSERT(
-        detail::are_unique<
-            make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value,
-        "CTEs in with need to have unique names");
-
     return new_statement<no_with_t>(
         std::forward<Statement>(self),
         with_t<Ctes...>{std::make_tuple(std::move(ctes)...)});
@@ -183,6 +175,10 @@ struct consistency_check<Statement, no_with_t> {
 };
 
 template <DynamicCte... Ctes>
+    requires(have_correct_cte_dependencies<Ctes...>::value and
+             have_correct_static_cte_dependencies<Ctes...>::value and
+             detail::are_unique<
+                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value)
 auto with(Ctes... ctes) {
   return statement_t<no_with_t>{}.with(std::move(ctes)...);
 }

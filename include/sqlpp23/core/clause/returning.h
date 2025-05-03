@@ -192,13 +192,10 @@ using make_returning_t = typename make_returning_column_list<
 
 struct no_returning_t {
   template <typename Statement, typename... Columns>
-    requires(select_columns_have_values<Columns...>::value)
+    requires(sizeof...(Columns) > 0 and
+             select_columns_have_values<Columns...>::value and
+             select_columns_have_names<Columns...>::value)
   auto returning(this Statement&& self, Columns... columns) {
-    SQLPP_STATIC_ASSERT(sizeof...(Columns),
-                        "at least one return column required");
-    SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value,
-                        "each return column must have a name");
-
     return new_statement<no_returning_t>(
         std::forward<Statement>(self),
         make_returning_t<Columns...>{
@@ -220,6 +217,9 @@ struct consistency_check<Statement, no_returning_t> {
 };
 
 template <typename... Columns>
+    requires(sizeof...(Columns) > 0 and
+             select_columns_have_values<Columns...>::value and
+             select_columns_have_names<Columns...>::value)
 auto returning(Columns... columns)
     -> decltype(statement_t<no_returning_t>{}.returning(
         std::move(columns)...)) {

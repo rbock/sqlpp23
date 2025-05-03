@@ -81,9 +81,7 @@ template <typename _Table>
 struct provided_tables_of<into_t<_Table>> : public provided_tables_of<_Table> {
 };
 
-class 
-assert_into_t
-: public wrapped_static_assert {
+class assert_into_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
@@ -93,7 +91,6 @@ assert_into_t
    );
   }
 };
-
 
 // NO INTO YET
 struct no_into_t {

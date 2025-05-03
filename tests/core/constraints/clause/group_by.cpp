@@ -57,8 +57,7 @@ int main() {
   const auto bar = test::TabBar{};
 
   // group_by(<non arguments>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(),
-                            "at least one column required in group_by()");
+  static_assert(cannot_call_group_by_with<>);
 
   // group_by(<arguments with no value>) cannot be called.
   static_assert(can_call_group_by_with<decltype(bar.boolNn)>);
@@ -75,9 +74,7 @@ int main() {
 
   // group_by(<containing aggregate functions>) is inconsistent and cannot be
   // constructed.
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::group_by(max(foo.id)),
-      "arguments for group_by() must not contain aggregate functions");
+  static_assert(cannot_call_group_by_with<decltype(max(foo.id))>);
 
   // group_by is not required
   {

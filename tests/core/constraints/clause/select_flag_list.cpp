@@ -50,43 +50,30 @@ concept cannot_call_select_flags_with =
 }  // namespace
 
 int main() {
-  const auto maybe = true;
-
   // OK
   select_flags(sqlpp::all);
   select_flags(sqlpp::distinct);
 
   // Try to select no flags
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_flags(),
-                            "at least one flag required in select_flags()");
+  static_assert(cannot_call_select_flags_with<>);
 
   // select_flags requires select flags as arguments
   static_assert(can_call_select_flags_with<decltype(sqlpp::all)>, "");
+  static_assert(can_call_select_flags_with<sqlpp::all_t>, "");
   static_assert(cannot_call_select_flags_with<decltype(sqlpp::union_all_t{})>,
                 "");
   static_assert(cannot_call_select_flags_with<decltype("all")>, "");
-  static_assert(cannot_call_select_flags_with<decltype(sqlpp::distinct,
-                                                       sqlpp::union_all_t{})>,
+  static_assert(cannot_call_select_flags_with<decltype(sqlpp::distinct),
+                                              decltype(sqlpp::union_all_t{})>,
                 "");
-  static_assert(cannot_call_select_flags_with<decltype(sqlpp::distinct, "all")>,
+  static_assert(cannot_call_select_flags_with<decltype(sqlpp::distinct), decltype("all")>,
                 "");
 
   // Try duplicate flags
-  SQLPP_CHECK_STATIC_ASSERT(
-      select_flags(sqlpp::all, sqlpp::all),
-      "at least one duplicate argument detected in select_flags()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      select_flags(sqlpp::all, sqlpp::distinct, sqlpp::all),
-      "at least one duplicate argument detected in select_flags()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      select_flags(dynamic(maybe, sqlpp::all), sqlpp::all),
-      "at least one duplicate argument detected in select_flags()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      select_flags(sqlpp::all, dynamic(maybe, sqlpp::all)),
-      "at least one duplicate argument detected in select_flags()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      select_flags(dynamic(maybe, sqlpp::all), dynamic(maybe, sqlpp::all)),
-      "at least one duplicate argument detected in select_flags()");
+  static_assert(cannot_call_select_flags_with<sqlpp::distinct_t, sqlpp::distinct_t>);
+  static_assert(cannot_call_select_flags_with<sqlpp::all_t, sqlpp::all_t>);
+  static_assert(cannot_call_select_flags_with<sqlpp::dynamic_t<sqlpp::all_t>,
+                                              sqlpp::distinct_t, sqlpp::all_t>);
 
   // Select flags are not strictly required.
   {

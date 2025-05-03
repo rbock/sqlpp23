@@ -33,22 +33,24 @@
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 
-// Returns true if `returning(declval<Expressions>()...)` is a valid
-// function call.
-template <typename TypeVector, typename = void>
-struct can_call_returning_with_impl : public std::false_type {};
+template <typename... Expressions>
+concept can_call_returning_with_standalone =
+    requires(Expressions... expressions) { sqlpp::returning(expressions...); };
+template <typename... Expressions>
+concept can_call_returning_with_in_statement =
+    requires(Expressions... expressions) {
+      sqlpp::statement_t<sqlpp::no_returning_t>{}.returning(expressions...);
+    };
 
 template <typename... Expressions>
-struct can_call_returning_with_impl<
-    sqlpp::detail::type_vector<Expressions...>,
-    std::void_t<decltype(sqlpp::returning(
-        std::declval<Expressions>()...))>> : public std::true_type {};
+concept can_call_returning_with =
+    can_call_returning_with_standalone<Expressions...> and
+    can_call_returning_with_in_statement<Expressions...>;
 
 template <typename... Expressions>
-struct can_call_returning_with
-    : public can_call_returning_with_impl<
-          sqlpp::detail::type_vector<Expressions...>> {};
-
+concept cannot_call_returning_with =
+    not(can_call_returning_with_standalone<Expressions...> or
+        can_call_returning_with_in_statement<Expressions...>);
 }  // namespace
 
 int main() {
@@ -70,9 +72,7 @@ int main() {
   // columns are selected.
   // -------------------------
   {
-    static_assert(can_call_returning_with<>::value, "");
-    SQLPP_CHECK_STATIC_ASSERT(sqlpp::returning(),
-                              "at least one return column required");
+    static_assert(cannot_call_returning_with<>, "");
   }
 
   // -------------------------
@@ -80,22 +80,11 @@ int main() {
   // columns require a name.
   // -------------------------
   {
-    static_assert(can_call_returning_with<decltype(7)>::value, "");
-    SQLPP_CHECK_STATIC_ASSERT(sqlpp::returning(7),
-                              "each return column must have a name");
-
-    static_assert(can_call_returning_with<decltype(sqlpp::dynamic(
-                      maybe, 7))>::value,
-                  "");
-    SQLPP_CHECK_STATIC_ASSERT(sqlpp::returning(7),
-                              "each return column must have a name");
-
-    static_assert(can_call_returning_with<decltype(all_of(bar)),
-                                                  decltype(7)>::value,
-                  "");
-    SQLPP_CHECK_STATIC_ASSERT(
-        (sqlpp::returning(all_of(bar), 7)),
-        "each return column must have a name");
+    static_assert(cannot_call_returning_with<decltype(7)>);
+    static_assert(
+        cannot_call_returning_with<decltype(sqlpp::dynamic(maybe, 7))>);
+    static_assert(
+        cannot_call_returning_with<decltype(all_of(bar)), decltype(7)>);
   }
 
   // -------------------------

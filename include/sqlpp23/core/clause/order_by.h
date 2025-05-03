@@ -201,15 +201,10 @@ struct nodes_of<order_by_t<Expressions...>> {
 // NO ORDER BY YET
 struct no_order_by_t {
   template <typename Statement, DynamicSortOrder... Expressions>
+    requires(
+        sizeof...(Expressions) > 0 and
+        not detail::has_duplicates<remove_dynamic_t<Expressions>...>::value)
   auto order_by(this Statement&& self, Expressions... expressions) {
-    SQLPP_STATIC_ASSERT(sizeof...(Expressions),
-                        "at least one sort-order expression (e.g. "
-                        "column.asc()) required in order_by()");
-
-    SQLPP_STATIC_ASSERT(
-        not detail::has_duplicates<remove_dynamic_t<Expressions>...>::value,
-        "at least one duplicate argument detected in order_by()");
-
     return new_statement<no_order_by_t>(
         std::forward<Statement>(self),
         order_by_t<Expressions...>{std::move(expressions)...});
@@ -230,6 +225,9 @@ struct consistency_check<Statement, no_order_by_t> {
 };
 
 template <DynamicSortOrder... Expressions>
+    requires(
+        sizeof...(Expressions) > 0 and
+        not detail::has_duplicates<remove_dynamic_t<Expressions>...>::value)
 auto order_by(Expressions... expressions) {
   return statement_t<no_order_by_t>().order_by(std::move(expressions)...);
 }

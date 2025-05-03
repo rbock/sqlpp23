@@ -226,6 +226,11 @@ struct nodes_of<insert_set_t<Assignments...>> {
   using type = detail::type_vector<Assignments...>;
 };
 
+template <typename Tuple, typename... Assignments>
+concept CorrectAddValuesAssignments = requires(Assignments... assignments) {
+  Tuple{make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...};
+};
+
 template <typename... Columns>
 struct column_list_t {
   column_list_t(std::tuple<make_simple_column_t<Columns>...> columns)
@@ -237,45 +242,17 @@ struct column_list_t {
   ~column_list_t() = default;
 
   template <DynamicAssignment... Assignments>
+    requires(
+        std::is_same<std::tuple<Columns...>,
+                     std::tuple<lhs_t<Assignments>...>>::value and
+        CorrectAddValuesAssignments<std::tuple<make_insert_value_t<Columns>...>,
+                                    Assignments...>)
   auto add_values(Assignments... assignments) -> void {
-    using _arg_value_tuple =
-        std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
-    constexpr bool _args_correct =
-        std::is_same<_arg_value_tuple, _value_tuple_t>::value;
-    SQLPP_STATIC_ASSERT(
-        _args_correct,
-        "add_values() arguments have to match columns() arguments");
-
-    constexpr bool _no_expressions = logic::all<
-        nodes_of_t<remove_dynamic_t<rhs_t<Assignments>>>::empty()...>::value;
-    SQLPP_STATIC_ASSERT(_no_expressions,
-                        "add_values() arguments must not be expressions");
-
-    constexpr bool _no_parameters =
-        logic::all<parameters_of_t<rhs_t<Assignments>>::empty()...>::value;
-    SQLPP_STATIC_ASSERT(_no_parameters,
-                        "add_values() arguments must not contain parameters");
-
-    constexpr bool _no_names = logic::none<
-        has_name_tag<remove_dynamic_t<rhs_t<Assignments>>>::value...>::value;
-    SQLPP_STATIC_ASSERT(_no_names,
-                        "add_values() arguments must not have names");
-
-    // Static dispatch to allow testing of the static asserts above.
-    add_values_impl(logic::all<_args_correct, _no_expressions, _no_parameters,
-                               _no_parameters, _no_names>{},
-                    std::move(assignments)...);
-  }
-
- private:
-  auto add_values_impl(std::false_type, ...) -> void {}
-
-  template <typename... Assignments>
-  auto add_values_impl(std::true_type, Assignments... assignments) -> void {
     _expressions.emplace_back(
         make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
   }
 
+ private:
   friend reader_t;
   std::tuple<make_simple_column_t<Columns>...> _columns;
   using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
@@ -356,37 +333,24 @@ struct no_insert_value_list_t {
   }
 
   template <typename Statement, DynamicColumn... Columns>
-    requires(logic::none<is_const<Columns>::value...>::value)
+    requires(
+        sizeof...(Columns) > 0 and
+        logic::none<is_const<Columns>::value...>::value and
+        detail::are_unique<remove_dynamic_t<Columns>...>::value and
+        detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value)
   auto columns(this Statement&& self, Columns... cols) {
-    SQLPP_STATIC_ASSERT(sizeof...(Columns),
-                        "at least one column required in columns()");
-    SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
-                        "at least one duplicate column detected in columns()");
-    SQLPP_STATIC_ASSERT(
-        detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
-        "columns() contains columns from several tables");
-
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(self),
         column_list_t<Columns...>{std::make_tuple(std::move(cols)...)});
   }
 
   template <typename Statement, DynamicAssignment... Assignments>
+    requires(
+        sizeof...(Assignments) > 0 and
+        detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
+        detail::are_same<
+            typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value)
   auto set(this Statement&& self, Assignments... assignments) {
-    SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0,
-                        "at least one assignment expression required in set()");
-
-    static constexpr bool has_duplicate_columns =
-        detail::has_duplicates<lhs_t<remove_dynamic_t<Assignments>>...>::value;
-    SQLPP_STATIC_ASSERT(not has_duplicate_columns,
-                        "at least one duplicate column detected in set()");
-
-    static constexpr bool uses_exactly_one_table = detail::are_same<
-        typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value;
-    SQLPP_STATIC_ASSERT(
-        uses_exactly_one_table,
-        "set() arguments must be assignment for exactly one table");
-
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(self),
         insert_set_t<Assignments...>{
@@ -413,12 +377,21 @@ auto insert_default_values() {
 }
 
 template <DynamicAssignment... Assignments>
+    requires(
+        sizeof...(Assignments) > 0 and
+        detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
+        detail::are_same<
+            typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value)
 auto insert_set(Assignments... assignments) {
   return statement_t<no_insert_value_list_t>().set(assignments...);
 }
 
 template <DynamicColumn... Columns>
-  requires(logic::none<is_const<Columns>::value...>::value)
+  requires(
+      sizeof...(Columns) > 0 and
+      logic::none<is_const<Columns>::value...>::value and
+      detail::are_unique<remove_dynamic_t<Columns>...>::value and
+      detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value)
 auto insert_columns(Columns... cols) {
   return statement_t<no_insert_value_list_t>().columns(cols...);
 }

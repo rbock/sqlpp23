@@ -183,45 +183,17 @@ struct required_static_ctes_of<
     : public required_ctes_of<
           cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> {};
 
-class assert_cte_union_arg_has_result_row_t: public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
-        wrong<T...>,
-        "argument of a union has to be a select statement or a union");
-  }
-};
+template <typename Lhs, typename Rhs>
+static inline constexpr bool are_valid_cte_union_args =
+    (is_statement<Lhs>::value and is_statement<Rhs>::value and
+     required_tables_of_t<Lhs>::empty() and
+     required_tables_of_t<Rhs>::empty() and
+     has_result_row<Lhs>::value and has_result_row<Rhs>::value and
+     is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);
 
-class assert_cte_union_requires_no_tables_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "right hand side of cte union is is missing tables");
-  }
-};
-
-class assert_cte_union_arg_same_result_row_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "both select statements in a union have to have "
-                        "the same result columns (type and name)");
-  }
-};
-
-template <typename Cte, typename Rhs>
-using check_cte_union_args_t = static_combined_check_t<
-    static_check_t<has_result_row<Rhs>::value,
-                   assert_cte_union_arg_has_result_row_t>,
-    static_check_t<required_tables_of_t<Rhs>::empty(),
-                   assert_cte_union_requires_no_tables_t>,
-    statement_consistency_check_t<Rhs>,
-    static_check_t<
-        std::is_same<typename Cte::_result_row_t, get_result_row_t<Rhs>>::value,
-        assert_cte_union_arg_same_result_row_t>>;
+template <typename Lhs, typename Rhs>
+static inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
+    are_valid_cte_union_args<Lhs, Rhs>;
 
 template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
 struct cte_t
@@ -246,21 +218,19 @@ struct cte_t
   }
 
   template <typename Rhs>
-    requires(is_statement<remove_dynamic_t<Rhs>>::value)
+    requires(are_valid_cte_union_args<Statement, Rhs>)
   auto union_distinct(Rhs rhs) const
       -> cte_t<NameTagProvider,
                cte_union_t<distinct_t, Statement, Rhs>,
                FieldSpecs...> {
-    check_cte_union_args_t<cte_t, remove_dynamic_t<Rhs>>::verify();
     return cte_union_t<distinct_t, Statement, Rhs>{_statement, rhs};
   }
 
   template <typename Rhs>
-    requires(is_statement<remove_dynamic_t<Rhs>>::value)
+    requires(are_valid_cte_union_args<Statement, Rhs>)
   auto union_all(Rhs rhs) const -> cte_t<NameTagProvider,
                                          cte_union_t<all_t, Statement, Rhs>,
                                          FieldSpecs...> {
-    check_cte_union_args_t<cte_t, remove_dynamic_t<Rhs>>::verify();
     return cte_union_t<all_t, Statement, Rhs>{_statement, rhs};
   }
 
@@ -315,16 +285,12 @@ template <typename NameTagProvider>
 struct cte_ref_t {
   template <typename Statement>
     requires(is_statement<Statement>::value and
-             has_result_row<Statement>::value)
+             has_result_row<Statement>::value and
+             required_tables_of_t<Statement>::empty() and
+             not required_ctes_of_t<Statement>::template contains<
+                 cte_ref_t<NameTagProvider>>())
   auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement> {
     check_basic_consistency(statement).verify();
-    SQLPP_STATIC_ASSERT(required_tables_of_t<Statement>::empty(),
-                        "common table expression must not use unknown tables");
-    SQLPP_STATIC_ASSERT(not required_ctes_of_t<Statement>::template contains<
-                            cte_ref_t<NameTagProvider>>(),
-                        "common table expression must not self-reference in "
-                        "the first part, use union_all/union_distinct "
-                        "for recursion");
 
     return {statement};
   }

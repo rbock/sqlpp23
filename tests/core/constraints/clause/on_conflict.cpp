@@ -163,8 +163,7 @@ int main() {
   {
     auto insert = sqlpp::insert_into(foo).default_values()
                   << on_conflict(foo.id).do_update(foo.intN = 7);
-    SQLPP_CHECK_STATIC_ASSERT(insert.where(max(foo.id) > 3),
-                              "where() must not contain aggregate functions");
+    static_assert(cannot_call_where_with<decltype(insert), decltype(max(foo.id) > 3)>);
   }
 
   // -----------------------------------------

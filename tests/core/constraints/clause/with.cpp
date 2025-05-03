@@ -86,16 +86,9 @@ int main() {
     std::ignore = with(a);                     // OK
     std::ignore = with(a, b);                  // OK
     std::ignore = with(a, dynamic(maybe, b));  // OK
-    SQLPP_CHECK_STATIC_ASSERT(with(b),
-                              "at least one CTE depends on another "
-                              "CTE that is not defined left of it");
-    SQLPP_CHECK_STATIC_ASSERT(with(b, a),
-                              "at least one CTE depends on another "
-                              "CTE that is not defined left of it");
-    SQLPP_CHECK_STATIC_ASSERT(
-        with(dynamic(maybe, a), b),
-        "at least one CTE statically depends on another CTE that is not "
-        "defined statically left of it (only dynamically)");
+    static_assert(cannot_call_with_with<decltype(b)>);
+    static_assert(cannot_call_with_with<decltype(b), decltype(a)>);
+    static_assert(cannot_call_with_with<decltype(dynamic(maybe, a)), decltype(b)>);
   }
 
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
@@ -106,8 +99,7 @@ int main() {
 
     std::ignore = with(a1);  // OK
     std::ignore = with(a2);  // OK
-    SQLPP_CHECK_STATIC_ASSERT(with(a1, a2),
-                              "CTEs in with need to have unique names");
+    static_assert(cannot_call_with_with<decltype(a1), decltype(a2)>);
   }
 
   // `with` isn't required

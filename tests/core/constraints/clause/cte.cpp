@@ -56,10 +56,6 @@ MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
   static_assert(                                                               \
       not can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
 
-#define CHECK_CTE_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE) \
-  SQLPP_CHECK_STATIC_ASSERT(LHS.union_all(RHS), MESSAGE); \
-  SQLPP_CHECK_STATIC_ASSERT(LHS.union_distinct(RHS), MESSAGE);
-
 }  // namespace
 
 int main() {
@@ -68,12 +64,13 @@ int main() {
   const auto foo = test::TabFoo{};
 
   const auto ref = sqlpp::cte(something);
+  using Ref = decltype(ref);
   const auto incomplete_s1 = select(all_of(bar));
   const auto s1 = incomplete_s1.from(bar);
   const auto incomplete_s2 = select(all_of(bar.as(something)));
   const auto s2 = incomplete_s2.from(bar.as(something));
 
-  const auto cte = sqlpp::cte(something).as(s1);
+  const auto cte = ref.as(s1);
 
   // OK
   static_assert(can_call_cte_as_with<decltype(ref), decltype(s1)>, "");
@@ -92,22 +89,15 @@ int main() {
       not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>,
       "");
 
-  // Missing from
-  constexpr auto missing_from =
-      std::string_view{"common table expression must not use unknown tables"};
-  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s1), missing_from);
-  SQLPP_CHECK_STATIC_ASSERT(ref.as(incomplete_s2), missing_from);
-
-  // Missing tables
-  SQLPP_CHECK_STATIC_ASSERT(
-      ref.as(select(foo.id).from(bar)),
-      "common table expression must not use unknown tables");
+  // common table expression must not use unknown tables
+  static_assert(not can_call_cte_as_with<Ref, decltype(select(all_of(bar)))>);
+  static_assert(not can_call_cte_as_with<Ref, decltype(select(
+                                                  all_of(bar.as(something))))>);
+  static_assert(
+      not can_call_cte_as_with<Ref, decltype(select(foo.id).from(bar))>);
 
   // Bad self-reference
-  SQLPP_CHECK_STATIC_ASSERT(
-      ref.as(select(cte.id).from(cte)),
-      "common table expression must not self-reference in the first part, use "
-      "union_all/union_distinct for recursion");
+  static_assert(not can_call_cte_as_with<Ref, decltype(select(cte.id).from(cte))>);
 
   // OK
   CAN_CALL_ALL_CTE_UNIONS_WITH(cte, s1);
@@ -122,16 +112,13 @@ int main() {
   // CTE UNION requires statements with result row
   {
     const auto bad_rhs = sqlpp::statement_t<>{};
-    CHECK_CTE_UNION_STATIC_ASSERTS(
-        cte, bad_rhs,
-        "argument of a union has to be a select statement or a union");
+    CANNOT_CALL_ANY_UNION_WITH(cte, bad_rhs);
   }
 
   // CTE UNION requires no missing tables
   {
     auto bad_rhs = select(all_of(foo));
-    CHECK_CTE_UNION_STATIC_ASSERTS(
-        cte, bad_rhs, "right hand side of cte union is is missing tables");
+    CANNOT_CALL_ANY_UNION_WITH(cte, bad_rhs);
   }
 
   // CTE UNION requires statements with same result row
@@ -143,28 +130,18 @@ int main() {
         select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo));
     auto s_value_oid =
         select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);
-    // Different value type
+
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
                          sqlpp::data_type_of_t<decltype(foo.intN)>>::value,
         "");
-    CHECK_CTE_UNION_STATIC_ASSERTS(
-        c_foo_int, s_foo_int_n,
-        "both select statements in a union have to have the same result "
-        "columns (type and name)");
+
+    // Different data types
+    CANNOT_CALL_ANY_UNION_WITH(c_foo_int, s_foo_int_n);
+    CANNOT_CALL_ANY_UNION_WITH(c_foo_int, dynamic(maybe, s_foo_int_n));
+
     // Different name
-    CHECK_CTE_UNION_STATIC_ASSERTS(
-        c_value_id, s_value_oid,
-        "both select statements in a union have to have the same result "
-        "columns (type and name)");
-    CHECK_CTE_UNION_STATIC_ASSERTS(
-        c_foo_int, dynamic(maybe, s_foo_int_n),
-        "both select statements in a union have to have the same result "
-        "columns (type and name)");
-    // Different name
-    CHECK_CTE_UNION_STATIC_ASSERTS(
-        c_value_id, dynamic(maybe, s_value_oid),
-        "both select statements in a union have to have the same result "
-        "columns (type and name)");
+    CANNOT_CALL_ANY_UNION_WITH(c_value_id, s_value_oid);
+    CANNOT_CALL_ANY_UNION_WITH(c_value_id, dynamic(maybe, s_value_oid));
   }
 }

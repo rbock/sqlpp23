@@ -40,13 +40,14 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
+  template<typename L, typename R>
+  concept is_dynamic_compatible = requires(L l, R r) {
+    L(r);
+    L(std::move(r));
+  };
 template <typename Expr>
 struct dynamic_t {
-  dynamic_t(std::optional<Expr> expr) : _expr(std::move(expr)) {
-    SQLPP_STATIC_ASSERT(
-        parameters_of_t<Expr>::empty(),
-        "dynamic expressions must not contain query parameters");
-  }
+  dynamic_t(std::optional<Expr> expr) : _expr(std::move(expr)) {}
 
   dynamic_t(const dynamic_t&) = default;
   dynamic_t(dynamic_t&&) = default;
@@ -55,14 +56,18 @@ struct dynamic_t {
   ~dynamic_t() = default;
 
   template <typename OtherExpr>
+    requires(is_dynamic_compatible<Expr, OtherExpr>)
   dynamic_t(const dynamic_t<OtherExpr>& d) : _expr(d._expr) {}
   template <typename OtherExpr>
+    requires(is_dynamic_compatible<Expr, OtherExpr>)
   dynamic_t(dynamic_t<OtherExpr>&& d) : _expr(std::move(d._expr)) {}
   template <typename OtherExpr>
+    requires(is_dynamic_compatible<Expr, OtherExpr>)
   dynamic_t& operator=(const dynamic_t<OtherExpr>& d) {
     _expr = Expr{d._expr};
   }
   template <typename OtherExpr>
+    requires(is_dynamic_compatible<Expr, OtherExpr>)
   dynamic_t& operator=(dynamic_t<OtherExpr>&& d) {
     _expr = Expr{std::move(d._expr)};
   }

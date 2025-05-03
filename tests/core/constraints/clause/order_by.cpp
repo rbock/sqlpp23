@@ -55,9 +55,7 @@ int main() {
   const auto bar = test::TabBar{};
 
   // order_by(<non arguments>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(),
-                            "at least one sort-order expression (e.g. "
-                            "column.asc()) required in order_by()");
+  static_assert(cannot_call_order_by_with<>);
 
   // order_by(<non-sort-order arguments>) cannot be called.
   static_assert(can_call_order_by_with<decltype(bar.boolNn.asc())>,
@@ -80,15 +78,10 @@ int main() {
 
   // order_by(<duplicate sort order expressions>) is inconsistent and cannot be
   // constructed.
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::order_by(bar.id.asc(), bar.id.asc()),
-      "at least one duplicate argument detected in order_by()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::order_by(dynamic(maybe, bar.id.asc()), bar.id.asc()),
-      "at least one duplicate argument detected in order_by()");
-  SQLPP_CHECK_STATIC_ASSERT(
-      sqlpp::order_by(bar.id.asc(), dynamic(maybe, bar.id.asc())),
-      "at least one duplicate argument detected in order_by()");
+  static_assert(
+        cannot_call_order_by_with<decltype(bar.id.asc()), decltype(bar.id.asc())>);
+  static_assert(
+        cannot_call_order_by_with<decltype(dynamic(false, bar.id.asc())), decltype(bar.id.asc())>);
 
   // order_by is not required
   {

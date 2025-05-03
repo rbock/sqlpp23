@@ -144,14 +144,10 @@ struct nodes_of<group_by_t<Expressions...>> {
 // NO GROUP BY YET
 struct no_group_by_t {
   template <typename Statement, DynamicValue... Expressions>
+    requires(sizeof...(Expressions) > 0 and
+             logic::none<contains_aggregate_function<
+                 remove_dynamic_t<Expressions>>::value...>::value)
   auto group_by(this Statement&& self, Expressions... expressions) {
-    SQLPP_STATIC_ASSERT(sizeof...(Expressions),
-                        "at least one column required in group_by()");
-    SQLPP_STATIC_ASSERT(
-        logic::none<contains_aggregate_function<
-            remove_dynamic_t<Expressions>>::value...>::value,
-        "arguments for group_by() must not contain aggregate functions");
-
     return new_statement<no_group_by_t>(
         std::forward<Statement>(self),
         group_by_t<Expressions...>{std::make_tuple(std::move(expressions)...)});
@@ -172,6 +168,9 @@ struct consistency_check<Statement, no_group_by_t> {
 };
 
 template <DynamicValue... Expressions>
+    requires(sizeof...(Expressions) > 0 and
+             logic::none<contains_aggregate_function<
+                 remove_dynamic_t<Expressions>>::value...>::value)
 auto group_by(Expressions... expressions) {
   return statement_t<no_group_by_t>{}.group_by(std::move(expressions)...);
 }

@@ -143,10 +143,8 @@ struct on_conflict_do_update_t {
   ~on_conflict_do_update_t() = default;
 
   template <typename Statement, DynamicBoolean Expression>
+    requires(not contains_aggregate_function<Expression>::value)
   auto where(this Statement&& self, Expression expression) {
-    SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
-                        "where() must not contain aggregate functions");
-
     auto new_clause =
         on_conflict_do_update_where_t<on_conflict_do_update_t, Expression>{
             self, std::move(expression)};
