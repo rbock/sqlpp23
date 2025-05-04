@@ -29,7 +29,8 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(any)
+create_test(as_expression)
 create_test(assign_expression)
 create_test(case)
-create_test(as_expression)
 
