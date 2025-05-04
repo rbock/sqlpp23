@@ -94,7 +94,7 @@ struct returning_column_list_result_methods_t {
       -> select_as_t<std::decay_t<Statement>,
                      name_tag_of_t<NameTagProvider>,
                      make_field_spec_t<std::decay_t<Statement>, Columns>...> {
-    check_basic_consistency(self).verify();
+    check_prepare_consistency(self).verify();
     using table =
         select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
                     make_field_spec_t<std::decay_t<Statement>, Columns>...>;

@@ -44,4 +44,5 @@ endfunction()
 
 # Compiling these is required to fail (testing some static_assert)
 test_required_compile_failure(bad_select_as "at least one selected column requires a table")
+test_required_compile_failure(bad_returning_as "at least one returning column requires a table")
 
