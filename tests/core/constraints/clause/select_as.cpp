@@ -24,8 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/constraints_helpers.h>
-
+#include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 
 namespace {
@@ -35,7 +34,6 @@ SQLPP_CREATE_NAME_TAG(tab);
 
 int main() {
   const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
 
   // Confirming the required columns of TabBar.
   static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::TabBar>,
@@ -60,43 +58,4 @@ int main() {
     static_assert(sqlpp::is_table<T>::value, "");
   }
 
-  // -------------------------
-  // Fail: Basic inconsistencies
-  // -------------------------
-
-  {
-    // Missing from
-    auto t = sqlpp::select(bar.id);
-    SQLPP_CHECK_STATIC_ASSERT(t.as(tab),
-                              "at least one selected column requires a table "
-                              "which is otherwise not known in the statement");
-  }
-
-  // -------------------------
-  // Fail: Missing tables or CTEs
-  // -------------------------
-
-  {
-    // Missing table
-    auto t = sqlpp::select(bar.id).from(bar).where(foo.id > 7);
-    SQLPP_CHECK_STATIC_ASSERT(
-        t.as(tab),
-        "at least one expression in where() requires a table which "
-        "is otherwise not known in the statement");
-
-    // Note that t could be used as a sub query, though.
-    static_assert(sqlpp::statement_consistency_check_t<decltype(t)>::value, "");
-  }
-
-  {
-    // Missing cte
-    auto c = cte(something).as(select(foo.id).from(foo));
-    auto t = sqlpp::select(c.id).from(c).where(c.id > 7);
-    SQLPP_CHECK_STATIC_ASSERT(t.as(tab),
-                              "one clause requires common table expressions "
-                              "which are otherwise not known in the statement");
-
-    // Note that t could be used as a sub query, though.
-    static_assert(sqlpp::statement_consistency_check_t<decltype(t)>::value, "");
-  }
 }

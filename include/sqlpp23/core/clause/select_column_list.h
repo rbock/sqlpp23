@@ -119,8 +119,8 @@ struct select_result_methods_t {
                      name_tag_of_t<NameTagProvider>,
                      make_field_spec_t<std::decay_t<Statement>, Columns>...> {
     // This ensures that the sub select is free of table/CTE dependencies and
-    // consistent (e.g. not missing where condition).
-    statement_prepare_check_t<std::decay_t<Statement>>::verify();
+    // consistent.
+    check_prepare_consistency(self).verify();
 
     using table =
         select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,

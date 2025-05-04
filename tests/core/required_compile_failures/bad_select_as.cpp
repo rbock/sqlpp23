@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,24 +24,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define SQLPP_TEST_STATIC_ASSERT
-
 #include <sqlpp23/sqlpp23.h>
-#include <iostream>
+#include <sqlpp23/tests/core/tables.h>
 
-#define SQLPP_CHECK_STATIC_ASSERT(expression, message)         \
-  {                                                            \
-    try {                                                      \
-      expression;                                              \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'         \
-                << "Expected exception!\n";                    \
-      return -1;                                               \
-    } catch (const sqlpp::unit_test_exception& e) {            \
-      if (e.what() != std::string_view(message)) {             \
-        std::cerr << __FILE__ << " " << __LINE__ << '\n'       \
-                  << "Expected: -->|" << message << "|<--\n"   \
-                  << "Received: -->|" << e.what() << "|<--\n"; \
-        return -1;                                             \
-      }                                                        \
-    }                                                          \
-  }
+int main() {
+  const auto bar = test::TabBar{};
+
+  // Missing from
+  auto incomplete_select = sqlpp::select(bar.id);
+  static_assert(std::is_same<decltype(check_basic_consistency(incomplete_select)), sqlpp::consistent_t>::value);
+  static_assert(std::is_same<decltype(check_prepare_consistency(incomplete_select)), sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+
+#ifdef SQLPP_CHECK_STATIC_ASSERT
+  std::ignore = sqlpp::select(bar.id).as(sqlpp::alias::a);
+#endif
+}

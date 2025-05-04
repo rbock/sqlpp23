@@ -37,9 +37,8 @@
 #define SQLITE_VERSION_NUMBER 3038999
 #endif
 
-#include <sqlpp23/tests/core/constraints_helpers.h>
-
 #include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 

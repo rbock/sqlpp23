@@ -24,10 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/constraints_helpers.h>
-
+#include <sqlpp23/core/clause/select_flags.h>
+#include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
-#include "sqlpp23/core/clause/select_flags.h"
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);

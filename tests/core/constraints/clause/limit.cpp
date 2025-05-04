@@ -24,8 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/constraints_helpers.h>
-
+#include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 
 namespace {
