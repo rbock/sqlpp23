@@ -39,7 +39,7 @@ class assert_on_conflict_action_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "either do_nothing() or do_update(...) is required with on_conflict");
   }

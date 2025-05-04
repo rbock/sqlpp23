@@ -31,7 +31,6 @@
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -63,7 +62,7 @@ class assert_no_unknown_tables_in_update_assignments_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one update assignment requires a table "
                         "which is otherwise not known in the statement");
   }
@@ -119,7 +118,7 @@ class assert_update_assignments_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "update assignments required, i.e. set(...)");
   }
 };

@@ -37,7 +37,6 @@
 #include <sqlpp23/core/query/dynamic.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/wrapped_static_assert.h>
@@ -126,7 +125,7 @@ class assert_all_columns_have_default_value_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one column does not have a default value "
                         "(explicit default, NULL, or auto-increment)");
   }
@@ -136,7 +135,7 @@ class assert_all_required_columns_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one required column is missing in columns()");
   }
 };
@@ -145,7 +144,7 @@ class assert_all_required_assignments_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one required column is missing in set()");
   }
 };
@@ -197,7 +196,7 @@ class assert_no_unknown_tables_in_insert_assignments_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one insert assignment requires a table "
                         "which is otherwise not known in the statement");
   }
@@ -286,7 +285,7 @@ class assert_no_unknown_tables_in_column_list_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one column requires a table which is "
                         "otherwise not known in the statement");
   }
@@ -318,7 +317,7 @@ class assert_insert_values_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "insert values required, e.g. set(...) or default_values()");
   }

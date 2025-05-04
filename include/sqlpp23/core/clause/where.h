@@ -61,7 +61,7 @@ class assert_no_unknown_tables_in_where_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one expression in where() requires a table "
                         "which is otherwise "
                         "not known in the statement");
@@ -73,7 +73,7 @@ class assert_no_unknown_static_tables_in_where_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one expression in where() statically "
                         "requires a table which is "
                         "only known dynamically in the statement");

@@ -35,7 +35,6 @@
 #include <sqlpp23/core/operator/sort_order_expression.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
 #include <sqlpp23/core/query/statement_fwd.h>
-#include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 

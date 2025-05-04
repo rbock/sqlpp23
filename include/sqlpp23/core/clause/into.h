@@ -33,7 +33,6 @@
 #include <sqlpp23/core/no_data.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -85,7 +84,7 @@ class assert_into_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
 "into() required"
    );

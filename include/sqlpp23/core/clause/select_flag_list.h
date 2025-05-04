@@ -32,7 +32,6 @@
 #include <sqlpp23/core/no_data.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/static_assert.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <tuple>

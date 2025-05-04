@@ -50,7 +50,7 @@ class assert_no_unknown_tables_in_returning_columns_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one returning column requires a table "
                         "which is otherwise not known in the statement");
   }
@@ -61,7 +61,7 @@ class assert_returning_columns_contain_no_aggregates_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>, "returning columns must not contain aggregate functions");
   }
 };

@@ -32,7 +32,7 @@
 namespace sqlpp {
   class wrapped_static_assert;
 
-  class [[nodiscard("Call .verify()")]] consistent_t {
+  class [[nodiscard]] consistent_t {
    public:
     // Not inheriting from std::true_type to avoid implicit conversion to bool.
     static constexpr bool value = true;
@@ -40,13 +40,12 @@ namespace sqlpp {
     template <typename... T>
     static constexpr void verify(T&&...) {}
 
-    [[nodiscard("Call .verify()")]] constexpr auto operator&&(
-        const consistent_t&) {
+    [[nodiscard]] constexpr auto operator&&(const consistent_t&) {
       return consistent_t{};
     }
     template <typename Other>
       requires(std::is_base_of<wrapped_static_assert, Other>::value)
-    [[nodiscard("Call .verify()")]] constexpr auto operator&&(const Other&) {
+    [[nodiscard]] constexpr auto operator&&(const Other&) {
       return Other{};
     }
   };

@@ -53,7 +53,7 @@ class assert_no_unknown_tables_in_selected_columns_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one selected column requires a table "
                         "which is otherwise not known in the statement");
   }
@@ -64,7 +64,7 @@ class assert_no_unknown_static_tables_in_selected_columns_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "at least one selected column statically requires a table which is "
         "otherwise not known dynamically in the statement");
@@ -209,7 +209,7 @@ class assert_columns_selected_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>, "selecting columns required");
+    static_assert(wrong<T...>, "selecting columns required");
   }
 };
 

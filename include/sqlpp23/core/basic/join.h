@@ -105,7 +105,7 @@ template <typename Context,
 auto to_sql_string(Context& context,
                    const join_t<Lhs, JoinType, Rhs, Condition>& t)
     -> std::string {
-  static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
+  static_assert(not std::is_same<JoinType, cross_join_t>::value);
 
   // Note: Temporary required to enforce parameter ordering.
   auto ret_val = to_sql_string(context, t._lhs) + JoinType::_name;
@@ -121,7 +121,7 @@ template <typename Context,
 auto to_sql_string(Context& context,
                    const join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition>& t)
     -> std::string {
-  static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
+  static_assert(not std::is_same<JoinType, cross_join_t>::value);
   if (t._rhs.has_value()) {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._lhs) + JoinType::_name;

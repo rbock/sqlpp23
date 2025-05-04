@@ -35,7 +35,7 @@ class assert_select_columns_with_group_by_are_aggregates_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "with group_by, selected columns must be aggregate expressions");
   }
@@ -46,7 +46,7 @@ class assert_select_columns_with_group_by_match_static_aggregates_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "with group_by, static parts of selected columns must match static "
         "group_by columns");
@@ -57,7 +57,7 @@ class assert_select_columns_all_aggregates_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "without group_by, selected columns must not be a "
                         "mix of aggregate and non-aggregate expressions");
   }

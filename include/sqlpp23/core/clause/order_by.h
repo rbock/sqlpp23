@@ -43,7 +43,7 @@ class assert_no_unknown_tables_in_order_by_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "at least one order-by expression requires a table "
                         "which is otherwise not known in the statement");
   }
@@ -54,7 +54,7 @@ class assert_no_unknown_static_tables_in_order_by_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "at least one order-by expression statically requires a table which is "
         "only known dynamically in the statement");
@@ -90,7 +90,7 @@ class assert_correct_order_by_aggregates_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "order_by (without group by) must not contain any aggregates");
   }
@@ -101,7 +101,7 @@ class assert_correct_order_by_aggregates_with_group_by_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>, "order_by (with group by) must contain aggregates only");
   }
 };
@@ -111,7 +111,7 @@ class assert_correct_static_order_by_aggregates_with_group_by_t
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "order_by statically contains aggregates that are only "
                         "dynamically defined "
                         "in group_by");

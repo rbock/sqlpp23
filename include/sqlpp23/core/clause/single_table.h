@@ -96,7 +96,7 @@ class assert_single_table_provided_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>, "this statement requires a table");
+    static_assert(wrong<T...>, "this statement requires a table");
   }
 };
 

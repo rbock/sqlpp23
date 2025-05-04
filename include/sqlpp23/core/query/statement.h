@@ -49,7 +49,7 @@ class assert_no_unknown_ctes_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "one clause requires common table expressions "
                         "which are otherwise not known in the statement");
   }
@@ -59,7 +59,7 @@ class assert_no_unknown_static_ctes_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "one clause statically requires common table "
                         "expressions which are only "
                         "known dynamically in the statement");
@@ -70,7 +70,7 @@ class assert_no_unknown_tables_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "one clause requires tables which are otherwise "
                         "not known in the statement");
   }
@@ -80,7 +80,7 @@ class assert_no_unknown_static_tables_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "one clause statically requires tables which are "
                         "only known dynamically in the statement");
   }
@@ -90,7 +90,7 @@ class assert_no_duplicate_table_providers_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "at least one table is provided by two clauses, e.g. FROM and USING");
   }
@@ -100,7 +100,7 @@ class assert_no_parameters_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "cannot run statements with parameters directly, use prepare instead");
   }
@@ -392,7 +392,7 @@ constexpr auto operator<<(statement_t<LClauses...> l,
                           statement_t<RClauses...> r)
     -> core_statement_t<LClauses..., RClauses...> {
   using _core_statement = core_statement_t<LClauses..., RClauses...>;
-  SQLPP_STATIC_ASSERT(statement_has_unique_clauses<_core_statement>::value,
+  static_assert(statement_has_unique_clauses<_core_statement>::value,
                       "statements must contain unique clauses only");
   return _core_statement(statement_constructor_arg(std::move(l), std::move(r)));
 }
@@ -400,11 +400,11 @@ constexpr auto operator<<(statement_t<LClauses...> l,
 template <typename... LClauses, typename Clause>
 constexpr auto operator<<(statement_t<LClauses...> l, Clause r)
     -> core_statement_t<LClauses..., Clause> {
-  SQLPP_STATIC_ASSERT(
+  static_assert(
       is_clause<Clause>::value,
       "statement_t::operator<< requires statements or clauses as parameters");
   using _core_statement = core_statement_t<LClauses..., Clause>;
-  SQLPP_STATIC_ASSERT(statement_has_unique_clauses<_core_statement>::value,
+  static_assert(statement_has_unique_clauses<_core_statement>::value,
                       "statements must contain unique clauses only");
   return _core_statement(statement_constructor_arg(std::move(l), std::move(r)));
 }

@@ -293,7 +293,7 @@ class assert_run_statement_or_prepared_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
+    static_assert(wrong<T...>,
                         "connection cannot run something that is neither "
                         "statement nor prepared statement");
   }
@@ -303,7 +303,7 @@ class assert_prepare_statement_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
+    static_assert(
         wrong<T...>,
         "connection cannot prepare something that is not a statement");
   }
