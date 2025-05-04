@@ -94,9 +94,16 @@ int main() {
   // on_conflict(<non-column>) cannot be constructed.
   // -------------------------
   {
-    static_assert(cannot_call_on_conflict_with<decltype(all_of(foo))>, "");
+    static_assert(cannot_call_on_conflict_with<decltype(all_of(foo))>);
     static_assert(cannot_call_on_conflict_with<decltype(bar.id.as(something))>,
                   "");
+  }
+
+  // do_update requires a conflict target
+  {
+    auto insert = sqlpp::insert_into(foo).default_values() << on_conflict();
+    static_assert(
+        cannot_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>);
   }
 
   // do_update requires assignments as arguments
@@ -104,7 +111,7 @@ int main() {
     auto insert = sqlpp::insert_into(foo).default_values()
                   << on_conflict(foo.id);
     static_assert(
-        can_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>, "");
+        can_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>);
     static_assert(
         can_call_do_update_with<decltype(insert),
                                 decltype(dynamic(maybe, foo.intN = 7))>,
@@ -122,22 +129,22 @@ int main() {
                   "");
   }
 
-  // do_update in-function checks
+  // More do_update requirements
   {
-    const auto insert = sqlpp::insert_into(foo).default_values();
-    SQLPP_CHECK_STATIC_ASSERT(
-        insert << on_conflict().do_update(foo.intN = 5),
-        "conflict_target specification is required with do_update()");
-    SQLPP_CHECK_STATIC_ASSERT(
-        insert << on_conflict(foo.id).do_update(),
-        "at least one assignment expression required in do_update()");
-    SQLPP_CHECK_STATIC_ASSERT(
-        insert << on_conflict(foo.id).do_update(foo.intN = 5, foo.intN = 19),
-        "at least one duplicate column detected in do_update()");
-    SQLPP_CHECK_STATIC_ASSERT(
-        insert << on_conflict(foo.id).do_update(foo.intN = 7, bar.intN = 5),
-        "do_update() contains assignments for columns from more than one "
-        "table");
+    const auto insert = sqlpp::insert_into(foo).default_values()
+                        << on_conflict(foo.id);
+    // Need at least one assignment
+    static_assert(cannot_call_do_update_with<decltype(insert)>);
+
+    // Assignment columns need to be unique
+    static_assert(
+        cannot_call_do_update_with<decltype(insert), decltype(foo.intN = 5),
+                                   decltype(foo.intN = 19)>);
+
+    // Assignment columns need to be unique
+    static_assert(
+        cannot_call_do_update_with<decltype(insert), decltype(foo.intN = 5),
+                                   decltype(bar.boolNn = false)>);
   }
 
   // do_update can be qualified with `where` being called with a single boolean

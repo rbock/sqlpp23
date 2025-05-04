@@ -76,10 +76,6 @@ concept cannot_call_union_distinct_with =
   static_assert(cannot_call_union_distinct_with<decltype(LHS), decltype(RHS)>, \
                 "");
 
-#define CHECK_UNION_STATIC_ASSERTS(LHS, RHS, MESSAGE)      \
-  SQLPP_CHECK_STATIC_ASSERT(union_all(LHS, RHS), MESSAGE); \
-  SQLPP_CHECK_STATIC_ASSERT(union_distinct(LHS, RHS), MESSAGE);
-
 }  // namespace
 
 int main() {

@@ -45,61 +45,6 @@ class assert_on_conflict_action_t : public wrapped_static_assert {
   }
 };
 
-class assert_on_conflict_target_for_do_update_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
-        wrong<T...>,
-        "conflict_target specification is required with do_update()");
-  }
-};
-
-class assert_on_conflict_do_update_set_no_duplicates_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
-        wrong<T...>, "at least one duplicate column detected in do_update()");
-  }
-};
-
-class assert_on_conflict_do_update_set_single_table_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(wrong<T...>,
-                        "do_update() contains assignments for columns from "
-                        "more than one table");
-  }
-};
-
-class assert_on_conflict_do_update_set_count_args_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    SQLPP_STATIC_ASSERT(
-        wrong<T...>,
-        "at least one assignment expression required in do_update()");
-  }
-};
-
-template <size_t NoOfConflictTargets, typename... Assignments>
-using check_on_conflict_do_update_set_t = static_combined_check_t<
-    static_check_t<NoOfConflictTargets != 0,
-                   assert_on_conflict_target_for_do_update_t>,
-    static_check_t<sizeof...(Assignments) != 0,
-                   assert_on_conflict_do_update_set_count_args_t>,
-    static_check_t<not sqlpp::detail::has_duplicates<
-                       typename lhs<Assignments>::type...>::value,
-                   assert_on_conflict_do_update_set_no_duplicates_t>,
-    static_check_t<sqlpp::detail::make_joined_set_t<required_tables_of_t<
-                       typename lhs<Assignments>::type>...>::size() == 1,
-                   assert_on_conflict_do_update_set_single_table_t>>;
-
 template <typename... Columns>
 struct on_conflict_t {
   on_conflict_t(std::tuple<Columns...> columns)
@@ -119,13 +64,15 @@ struct on_conflict_t {
   }
 
   // DO UPDATE
-  template <typename Statement, typename... Assignments>
-    requires(logic::all<sqlpp::is_assignment<
-                 remove_dynamic_t<Assignments>>::value...>::value)
+  template <typename Statement, DynamicAssignment... Assignments>
+    requires(
+        sizeof...(Columns) > 0 and sizeof...(Assignments) > 0 and
+        not sqlpp::detail::has_duplicates<
+            typename lhs<Assignments>::type...>::value and
+        sqlpp::detail::make_joined_set_t<
+            required_tables_of_t<typename lhs<Assignments>::type>...>::size() ==
+            1)
   auto do_update(this Statement&& self, Assignments... assignments) {
-    check_on_conflict_do_update_set_t<
-        sizeof...(Columns), remove_dynamic_t<Assignments>...>::verify();
-
     auto new_clause = on_conflict_do_update_t<on_conflict_t, Assignments...>{
         self, std::make_tuple(std::move(assignments)...)};
     return new_statement<on_conflict_t>(std::forward<Statement>(self),
