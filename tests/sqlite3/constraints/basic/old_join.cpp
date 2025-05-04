@@ -24,15 +24,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/constraints_helpers.h>
-#include <sqlpp23/tests/mysql/make_test_connection.h>
+// We need to include this here to change the sqlite3 version number for this
+// test (if necessary)
+#include "sqlpp23/core/type_traits.h"
+#ifdef SQLPP_USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
+#if SQLITE_VERSION_NUMBER >= 3039000
+#undef SQLITE_VERSION_NUMBER
+#define SQLITE_VERSION_NUMBER 3038999
+#endif
 
-#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/tests/core/constraints_helpers.h>
+
+#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 int main() {
-  auto db = sqlpp::mysql::make_test_connection();
-  auto ctx = sqlpp::mysql::context_t{&db};
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
   using CTX = decltype(ctx);
 
   const auto foo = test::TabFoo{};
@@ -41,7 +54,8 @@ int main() {
   // OK
   std::ignore = to_sql_string(ctx, foo.join(bar).on(true));
 
-  // MySQL does not support full outer join.
+  // sqlite3 does not support full outer join before 3.39.0
+  // See https://www.sqlite.org/changes.html
   {
     auto j = foo.full_outer_join(bar).on(foo.id == bar.id);
     auto f = from(j);
@@ -50,15 +64,36 @@ int main() {
 
     static_assert(
         std::is_same<decltype(check_compatibility<CTX>(j)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
     static_assert(
         std::is_same<decltype(check_compatibility<CTX>(f)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
     static_assert(
         std::is_same<decltype(check_compatibility<CTX>(s)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
     static_assert(
         std::is_same<decltype(check_compatibility<CTX>(w)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
+  }
+
+  // sqlite3 does not support right outer join before 3.39.0
+  {
+    auto j = foo.right_outer_join(bar).on(foo.id == bar.id);
+    auto f = from(j);
+    auto s = select(foo.id, bar.intN) << f;
+    auto w = with(cte(sqlpp::alias::a).as(s));
+
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(j)),
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(f)),
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(s)),
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(w)),
+                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
   }
 }

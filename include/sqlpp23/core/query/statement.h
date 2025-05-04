@@ -42,6 +42,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/wrapped_static_assert.h>
 #include <type_traits>
+#include "sqlpp23/core/detail/type_vector.h"
 
 namespace sqlpp {
 class assert_no_unknown_ctes_t : public wrapped_static_assert {
@@ -245,13 +246,17 @@ struct data_type_of<statement_t<Clauses...>> {
       no_value_t>;
 };
 
+// statements explicitly do not expose any nodes as most recursive traits
+// should not traverse into sub queries, e.g.
+//   - contains_aggregates
+//   - known_aggregate_columns_of
 template <typename... Clauses>
-struct nodes_of<statement_t<Clauses...>> {
-  // statements explicitly do not expose any nodes as most recursive traits
-  // should not traverse into sub queries, e.g.
-  //   - contains_aggregates
-  //   - known_aggregate_columns_of
-  using type = typename detail::type_vector<>;
+struct nodes_of<statement_t<Clauses...>> : public no_nodes {
+};
+
+template <typename Context, typename... Clauses>
+struct compatibility_check<Context, statement_t<Clauses...>> {
+  using type = compatibility_check_t<Context, detail::type_vector<Clauses...>>;
 };
 
 template <typename... Clauses>
@@ -317,13 +322,13 @@ template <typename... Clauses>
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_basic_consistency(const statement_t<Clauses...>&) {
   return (consistent_t{} && ... &&
-          consistency_check<statement_t<Clauses...>, Clauses>{}());
+          consistency_check_t<statement_t<Clauses...>, Clauses>{});
 };
 
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_prepare_consistency(const statement_t<Clauses...>& t) {
   return (check_basic_consistency(t) && ... &&
-          prepare_check<statement_t<Clauses...>, Clauses>{}())
+          prepare_check_t<statement_t<Clauses...>, Clauses>{})
     && (typename statement_t<Clauses...>::_table_check{})
     && (typename statement_t<Clauses...>::_cte_check{});
 };
@@ -331,7 +336,7 @@ template <typename... Clauses>
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_run_consistency(const statement_t<Clauses...>& t) {
   return (check_prepare_consistency(t) && ... &&
-          run_check<statement_t<Clauses...>, Clauses>{}())
+          run_check_t<statement_t<Clauses...>, Clauses>{})
     && (typename statement_t<Clauses...>::_table_check{})
     && (typename statement_t<Clauses...>::_parameter_check{});
 };
@@ -407,6 +412,7 @@ constexpr auto operator<<(statement_t<LClauses...> l, Clause r)
 template <typename Context, typename... Clauses>
 auto to_sql_string(Context& context, const statement_t<Clauses...>& t)
     -> std::string {
+  check_compatibility<Context>(t).verify();
   auto result = std::string{};
   ((result += to_sql_string(context, static_cast<const Clauses&>(t))), ...);
 

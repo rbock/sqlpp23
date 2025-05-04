@@ -31,17 +31,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include "sqlpp23/core/operator/comparison_expression.h"
 
-namespace sqlpp {
-template <typename Lhs, typename Rhs, typename Condition>
-auto to_sql_string(mysql::context_t&,
-                   const join_t<Lhs, full_outer_join_t, Rhs, Condition>&)
-    -> std::string {
-  SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value),
-                      "MySQL: No support for full outer join");
-  return {};
-}
-
-namespace mysql {
+namespace sqlpp::mysql {
 template <typename L, typename R>
 auto to_sql_string(mysql::context_t& context,
                    const comparison_expression<L, sqlpp::op_is_distinct_from, R>& t)
@@ -70,5 +60,4 @@ inline auto quoted_name_to_sql_string(mysql::context_t&,
     -> std::string {
   return '`' + std::string(name) + '`';
 }
-}  // namespace mysql
 }  // namespace sqlpp

@@ -34,7 +34,7 @@ SQLPP_CREATE_NAME_TAG(now);
 
 int DateTime(int, char*[]) {
   MockDb db = {};
-  MockDb::_context_t printer = {};
+  MockDb::context_t printer = {};
   const auto t = test::TabDateTime{};
 
   for (const auto& row :

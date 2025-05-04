@@ -24,27 +24,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// We need to include this here to change the sqlite3 version number for this
-// test (if necessary)
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
-#if SQLITE_VERSION_NUMBER >= 3039000
-#undef SQLITE_VERSION_NUMBER
-#define SQLITE_VERSION_NUMBER 3038999
-#endif
-
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include "sqlpp23/core/consistent.h"
 
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();
   auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
 
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
@@ -52,14 +42,23 @@ int main() {
   // OK
   std::ignore = to_sql_string(ctx, foo.join(bar).on(true));
 
+#if SQLITE_VERSION_NUMBER >= 3039000
   // sqlite3 does not support full outer join before 3.39.0
   // See https://www.sqlite.org/changes.html
-  SQLPP_CHECK_STATIC_ASSERT(
-      to_sql_string(ctx, foo.full_outer_join(bar).on(true)),
-      "Sqlite3: No support for full outer join before version 3.39.0");
+  {
+    auto j = foo.full_outer_join(bar).on(foo.id == bar.id);
+
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(j)),
+                     sqlpp::consistent_t>::value);
+  }
 
   // sqlite3 does not support right outer join before 3.39.0
-  SQLPP_CHECK_STATIC_ASSERT(
-      to_sql_string(ctx, foo.right_outer_join(bar).on(true)),
-      "Sqlite3: No support for right outer join before version 3.39.0");
+  {
+    auto j = foo.right_outer_join(bar).on(foo.id == bar.id);
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(j)),
+                     sqlpp::consistent_t>::value);
+  }
+#endif
 }

@@ -43,6 +43,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/sqlite3/bind_result.h>
+#include <sqlpp23/sqlite3/constraints.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
 #include <sqlpp23/sqlite3/database/serializer_context.h>
 #include <sqlpp23/sqlite3/detail/connection_handle.h>
@@ -321,7 +322,8 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
   auto operator()(const T& t) {
-    sqlpp::statement_run_check_t<T>::verify();
+    sqlpp::check_run_consistency(t).verify();
+    sqlpp::check_compatibility<context_t>(t).verify();
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
@@ -338,7 +340,8 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
-    sqlpp::statement_prepare_check_t<T>::verify();
+    sqlpp::check_prepare_consistency(t).verify();
+    sqlpp::check_compatibility<context_t>(t).verify();
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 

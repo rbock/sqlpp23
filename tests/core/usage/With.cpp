@@ -31,7 +31,7 @@
 
 int With(int, char*[]) {
   MockDb db;
-  MockDb::_context_t printer = {};
+  MockDb::context_t printer = {};
 
   const auto t = test::TabBar{};
 

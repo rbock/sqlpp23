@@ -32,8 +32,11 @@
 namespace sqlpp {
   class wrapped_static_assert;
 
-  class [[nodiscard("Call .verify()")]] consistent_t : public std::true_type {
+  class [[nodiscard("Call .verify()")]] consistent_t {
    public:
+    // Not inheriting from std::true_type to avoid implicit conversion to bool.
+    static constexpr bool value = true;
+
     template <typename... T>
     static constexpr void verify(T&&...) {}
 

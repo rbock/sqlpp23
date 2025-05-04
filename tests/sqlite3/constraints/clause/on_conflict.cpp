@@ -24,33 +24,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// We need to include this here to change the sqlite3 version number for this
-// test (if necessary)
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
-#if SQLITE_VERSION_NUMBER >= 3035000
-#undef SQLITE_VERSION_NUMBER
-#define SQLITE_VERSION_NUMBER 3034999
-#endif
-
 #include <sqlpp23/tests/core/constraints_helpers.h>
 
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include "sqlpp23/core/consistent.h"
+#include "sqlpp23/sqlite3/database/connection.h"
 
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();
   auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
 
   const auto foo = test::TabFoo{};
 
+#if SQLITE_VERSION_NUMBER >= 3035000
   // sqlite3 does not fully support on_conflict before 3.35.0
   // See https://www.sqlite.org/changes.html
-  SQLPP_CHECK_STATIC_ASSERT(
-      to_sql_string(ctx, on_conflict(foo.id).do_update(foo.intN = 7)),
-      "Sqlite3: No full support for ON CONFLICT before version 3.35.0");
+  {
+    auto c = on_conflict(foo.id).do_update(foo.intN = 7);
+
+      static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(c)),
+                     sqlpp::consistent_t>::value);
+  }
+#endif
 }

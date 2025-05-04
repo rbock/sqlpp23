@@ -493,4 +493,23 @@ struct no_of_result_columns {
 
 template <typename Column>
 struct is_const : public std::false_type {};
+
+template <typename Context, typename T>
+struct compatibility_check
+    : public compatibility_check<Context, nodes_of_t<T>> {};
+
+template <typename Context, typename T>
+using compatibility_check_t = typename compatibility_check<Context, T>::type;
+
+template <typename Context, typename... Nodes>
+struct compatibility_check<Context, detail::type_vector<Nodes...>> {
+  using type = decltype((consistent_t{} and ... and
+                         compatibility_check_t<Context, Nodes>{}));
+};
+
+template <typename Context, typename T>
+auto check_compatibility(const T&) {
+  return compatibility_check_t<Context, T>{};
+}
+
 }  // namespace sqlpp

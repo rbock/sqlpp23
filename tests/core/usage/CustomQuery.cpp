@@ -36,14 +36,14 @@ struct on_duplicate_key_update {
 
   template <typename Db, typename Assignment>
   on_duplicate_key_update(Db&, Assignment assignment) {
-    typename Db::_context_t context;
+    typename Db::context_t context;
     _serialized =
         " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
   }
 
   template <typename Db, typename Assignment>
   auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update& {
-    typename Db::_context_t context;
+    typename Db::context_t context;
     _serialized += ", " + to_sql_string(context, assignment);
     return *this;
   }
@@ -56,7 +56,7 @@ struct on_duplicate_key_update {
 
 int CustomQuery(int, char*[]) {
   MockDb db = {};
-  MockDb::_context_t printer = {};
+  MockDb::context_t printer = {};
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};

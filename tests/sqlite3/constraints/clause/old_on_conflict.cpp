@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,42 +24,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+// We need to include this here to change the sqlite3 version number for this
+// test (if necessary)
+#ifdef SQLPP_USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
+#if SQLITE_VERSION_NUMBER >= 3035000
+#undef SQLITE_VERSION_NUMBER
+#define SQLITE_VERSION_NUMBER 3034999
+#endif
+
+#include <sqlpp23/tests/core/constraints_helpers.h>
+
+#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
-#include <iostream>
-#include "is_regular.h"
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
-int delete_from(int, char*[]) {
-  MockDb db = {};
-  MockDb::context_t printer = {};
+int main() {
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
 
-  const auto maybe = true;
-  const auto t = test::TabBar{};
-  const auto f = test::TabFoo{};
+  const auto foo = test::TabFoo{};
 
+  // sqlite3 does not fully support on_conflict before 3.35.0
+  // See https://www.sqlite.org/changes.html
   {
-    using T = decltype(delete_from(t));
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    auto c = on_conflict(foo.id).do_update(foo.intN = 7);
+
+      static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(c)),
+                     sqlpp::sqlite3::assert_no_on_conflict_t>::value);
   }
-
-  {
-    using T = decltype(delete_from(t).where(t.textN != "transparent"));
-    auto x = delete_from(t).where(t.textN != "transparent");
-    [[maybe_unused]] T y(x);
-    [[maybe_unused]] T z(std::move(x));
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
-  }
-
-  to_sql_string(printer, delete_from(t));
-  to_sql_string(printer, delete_from(t).where(t.textN != "transparent"));
-  std::cerr << to_sql_string(printer, delete_from(t)) << std::endl;
-
-  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f))));
-  db(delete_from(t).where(
-      dynamic(maybe, t.textN.in(select(f.textNnD).from(f)))));
-
-  db(truncate(t));
-
-  return 0;
 }

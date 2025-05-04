@@ -47,67 +47,6 @@
 #include <cmath>
 
 namespace sqlpp::sqlite3 {
-// Disable some stuff that won't work with sqlite3
-// See https://www.sqlite.org/changes.html
-
-#if SQLITE_VERSION_NUMBER < 3039000
-template <typename Lhs, typename Rhs, typename Condition>
-auto to_sql_string(context_t&,
-                   const join_t<Lhs, full_outer_join_t, Rhs, Condition>&)
-    -> std::string {
-  SQLPP_STATIC_ASSERT(
-      (wrong_t<Lhs, Rhs>::value),
-      "Sqlite3: No support for full outer join before version 3.39.0");
-  return {};
-}
-
-template <typename Lhs, typename Rhs, typename Condition>
-auto to_sql_string(context_t&,
-                   const join_t<Lhs, right_outer_join_t, Rhs, Condition>&)
-    -> std::string {
-  SQLPP_STATIC_ASSERT(
-      (wrong_t<Lhs, Rhs>::value),
-      "Sqlite3: No support for right outer join before version 3.39.0");
-  return {};
-}
-#endif
-
-#if SQLITE_VERSION_NUMBER < 3035000
-template <typename... Columns>
-auto to_sql_string(context_t&, const returning_t<Columns...>&) -> std::string {
-  SQLPP_STATIC_ASSERT(wrong_t<Columns...>::value,
-                      "Sqlite3: No support for RETURNING before version 3.35.0");
-  return {};
-}
-template <typename... Columns>
-auto to_sql_string(context_t&, const on_conflict_t<Columns...>&) -> std::string {
-  SQLPP_STATIC_ASSERT(wrong_t<Columns...>::value,
-                      "Sqlite3: No full support for ON CONFLICT before version 3.35.0");
-  return {};
-}
-#endif
-
-#if SQLITE_VERSION_NUMBER < 3008003
-template <typename... Ctes>
-auto to_sql_string(context_t&, const with_t<Ctes...>&) -> std::string {
-  SQLPP_STATIC_ASSERT(wrong_t<Ctes...>::value,
-                      "Sqlite3: No support for WITH before version 3.8.3");
-  return {};
-}
-#endif
-
-template <typename Select>
-auto to_sql_string(context_t&, const any_t<Select>&) -> std::string {
-  SQLPP_STATIC_ASSERT(wrong_t<Select>::value, "Sqlite3: No support for any()");
-  return {};
-}
-
-template <typename _Table>
-auto to_sql_string(context_t&, const using_t<_Table>&) -> std::string {
-  SQLPP_STATIC_ASSERT(wrong_t<_Table>::value, "Sqlite3: No support for USING");
-  return {};
-}
-
 inline auto to_sql_string(context_t&, const union_distinct_t&) -> std::string {
   return {};
 }

@@ -29,13 +29,30 @@
 
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/tests/core/tables.h>
+#include "sqlpp23/sqlite3/constraints.h"
 
 int main() {
-  const auto foo = test::TabFoo{};
   auto db = sqlpp::sqlite3::make_test_connection();
   auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
+
+  const auto foo = test::TabFoo{};
 
   // sqlite3 does not support ANY
-  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, any(select(foo.id).from(foo))),
-                            "Sqlite3: No support for any()");
+  {
+    auto a = any(select(foo.id).from(foo));
+    auto s = select(all_of(foo)).from(foo).where(foo.intN == a);
+    auto c = cte(sqlpp::alias::a).as(s);
+    auto w = with(c);
+
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(a)),
+                               sqlpp::sqlite3::assert_no_any_t>::value);
+    // Just checking if the constraint is passed through as it should
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(s)),
+                               sqlpp::sqlite3::assert_no_any_t>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(c)),
+                               sqlpp::sqlite3::assert_no_any_t>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(w)),
+                               sqlpp::sqlite3::assert_no_any_t>::value);
+  }
 }

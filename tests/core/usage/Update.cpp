@@ -32,7 +32,7 @@
 int Update(int, char*[]) {
   const auto maybe = true;
   MockDb db;
-  MockDb::_context_t printer = {};
+  MockDb::context_t printer = {};
 
   const auto t = test::TabBar{};
 

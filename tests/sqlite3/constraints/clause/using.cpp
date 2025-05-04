@@ -33,9 +33,14 @@
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();
   auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
 
   const auto foo = test::TabFoo{};
 
-  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, using_(foo)),
-                            "Sqlite3: No support for USING");
+  {
+    auto u = using_(foo);
+
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(u)),
+                               sqlpp::sqlite3::assert_no_using_t>::value);
+  }
 }

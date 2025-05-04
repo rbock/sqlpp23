@@ -43,7 +43,7 @@ struct InternalMockData {
 };
 
 struct MockDb : public sqlpp::connection {
-  struct _context_t {
+  struct context_t {
     auto escape(std::string_view t) -> std::string {
       auto result = std::string{};
       result.reserve(t.size() * 2);
@@ -71,6 +71,7 @@ struct MockDb : public sqlpp::connection {
     requires(sqlpp::is_statement_v<T>)
   auto operator()(const T& t) {
     sqlpp::check_run_consistency(t).verify();
+    sqlpp::check_compatibility<context_t>(t).verify();
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
@@ -84,7 +85,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Statement>
   size_t _execute(const Statement& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running execute call with\n" << query << std::endl;
     return 0;
@@ -92,7 +93,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Insert>
   size_t _insert(const Insert& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running insert call with\n" << query << std::endl;
     return 0;
@@ -100,7 +101,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Update>
   size_t _update(const Update& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running update call with\n" << query << std::endl;
     return 0;
@@ -108,7 +109,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Remove>
   size_t _delete_from(const Remove& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running remove call with\n" << query << std::endl;
     return 0;
@@ -116,7 +117,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Select>
   result_t _select(const Select& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running select call with\n" << query << std::endl;
     return {};
@@ -129,12 +130,13 @@ struct MockDb : public sqlpp::connection {
     requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
     sqlpp::check_prepare_consistency(t).verify();
+    sqlpp::check_compatibility<context_t>(t).verify();
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 
   template <typename Statement>
   _prepared_statement_t _prepare_execute(Statement& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare execute call with\n" << query << std::endl;
     return nullptr;
@@ -142,7 +144,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Insert>
   _prepared_statement_t _prepare_insert(Insert& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare insert call with\n" << query << std::endl;
     return nullptr;
@@ -150,7 +152,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Update>
   _prepared_statement_t _prepare_update(Update& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare update call with\n" << query << std::endl;
     return nullptr;
@@ -173,7 +175,7 @@ struct MockDb : public sqlpp::connection {
 
   template <typename Select>
   _prepared_statement_t _prepare_select(Select& x) {
-    _context_t context;
+    context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare select call with\n" << query << std::endl;
     return nullptr;

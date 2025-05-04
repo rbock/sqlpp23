@@ -31,10 +31,18 @@
 
 namespace sqlpp {
 
-template <typename T>
-struct nodes_of {
+struct no_nodes {
   using type = detail::type_vector<>;
 };
+
+// The nodes of an expression, e.g. left and right operand in a comparison, or
+// the assignments in an insert_set clause.
+//
+// If no nodes are to be exposed in something that looks like it actually has
+// nodes, the idiomatic way of saying so is to inherit from `no_nodes`.
+template <typename T>
+struct nodes_of : public no_nodes {};
+
 template <typename T>
 using nodes_of_t = typename nodes_of<T>::type;
 

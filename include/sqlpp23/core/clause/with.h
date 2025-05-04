@@ -35,6 +35,7 @@
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
+#include "sqlpp23/core/detail/type_vector.h"
 
 namespace sqlpp {
 struct no_with_t;
@@ -78,6 +79,9 @@ struct consistency_check<Statement, with_t<Ctes...>> {
 // accident.
 
 template <typename... Ctes>
+struct nodes_of<with_t<Ctes...>> : public no_nodes {};
+
+template <typename... Ctes>
 struct provided_ctes_of<with_t<Ctes...>> {
   using type = detail::make_joined_set_t<provided_ctes_of_t<Ctes>...>;
 };
@@ -91,6 +95,10 @@ template <typename... Ctes>
 struct parameters_of<with_t<Ctes...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
 };
+
+template <typename Context, typename... Ctes>
+struct compatibility_check<Context, with_t<Ctes...>>
+    : public compatibility_check<Context, detail::type_vector<Ctes...>> {};
 
 // CTEs can depend on CTEs defined before (in the same query).
 // `have_correct_cte_dependencies` checks that by walking the CTEs from left to

@@ -33,8 +33,11 @@
 #include <type_traits>
 
 namespace sqlpp {
-class [[nodiscard("call .verify()")]] wrapped_static_assert : public std::false_type{
+class [[nodiscard("call .verify()")]] wrapped_static_assert {
  public:
+  // Not inheriting from std::true_type to avoid implicit conversion to bool.
+  static constexpr bool value = false;
+
   template <typename Self>
     requires(not std::is_same<Self, wrapped_static_assert>::value)
   [[nodiscard("Call .verify()")]] constexpr auto operator&&(
@@ -42,6 +45,7 @@ class [[nodiscard("call .verify()")]] wrapped_static_assert : public std::false_
       const consistent_t&) {
     return Self{};
   }
+
   template <typename Self, typename Other>
     requires(not std::is_same<Self, wrapped_static_assert>::value and
              std::is_base_of<wrapped_static_assert, Other>::value)

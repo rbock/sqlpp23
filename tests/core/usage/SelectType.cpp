@@ -38,7 +38,7 @@ SQLPP_CREATE_NAME_TAG(right);
 
 int SelectType(int, char*[]) {
   MockDb db = {};
-  MockDb::_context_t printer = {};
+  MockDb::context_t printer = {};
 
   auto f = test::TabFoo{};
   auto t = test::TabBar{};

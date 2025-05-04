@@ -52,7 +52,7 @@ SQLPP_CREATE_NAME_TAG(N);
 
 int Select(int, char*[]) {
   MockDb db = {};
-  MockDb::_context_t printer = {};
+  MockDb::context_t printer = {};
 
   const auto maybe = true;
   const auto f = test::TabFoo{};

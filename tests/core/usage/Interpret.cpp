@@ -31,7 +31,7 @@
 
 int Interpret(int, char*[]) {
   MockDb db = {};
-  MockDb::_context_t ctx = {};
+  MockDb::context_t ctx = {};
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};

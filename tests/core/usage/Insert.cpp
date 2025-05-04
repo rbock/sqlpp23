@@ -33,7 +33,7 @@
 
 int Insert(int, char*[]) {
   MockDb db = {};
-  MockDb::_context_t ctx = {};
+  MockDb::context_t ctx = {};
   const auto maybe = true;
   const auto t = test::TabBar{};
   const auto tabDateTime = test::TabDateTime{};

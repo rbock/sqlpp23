@@ -40,6 +40,7 @@
 #include <sqlpp23/mysql/database/serializer_context.h>
 #include <sqlpp23/mysql/detail/connection_handle.h>
 #include <sqlpp23/mysql/prepared_statement.h>
+#include <sqlpp23/mysql/constraints.h>
 #include <sqlpp23/mysql/to_sql_string.h>
 #include <iostream>
 #include <string>
@@ -153,7 +154,6 @@ class connection_base : public sqlpp::connection {
   using _config_ptr_t = std::shared_ptr<const _config_t>;
   using _handle_t = detail::connection_handle;
   using _handle_ptr_t = std::unique_ptr<_handle_t>;
-  using _context_t = context_t;
 
   using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
 
@@ -344,6 +344,7 @@ class connection_base : public sqlpp::connection {
     requires(sqlpp::is_statement_v<T>)
   auto operator()(const T& t) {
     sqlpp::statement_run_check_t<T>::verify();
+    sqlpp::check_compatibility<context_t>(t).verify();
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
@@ -370,6 +371,7 @@ class connection_base : public sqlpp::connection {
     requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
     sqlpp::statement_prepare_check_t<T>::verify();
+    sqlpp::check_compatibility<context_t>(t).verify();
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 

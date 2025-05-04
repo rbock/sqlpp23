@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2025, Roland Bock
  * All rights reserved.
@@ -5,11 +7,12 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ *   Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -24,15 +27,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
 
-int main(int, char*[]) {
-  auto ctx = MockDb::context_t{};
+namespace sqlpp {
+namespace mysql {
+class assert_no_full_outer_join_t : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    static_assert(
+        wrong<T...>,
+        "MySQL: No support for full outer join");
+  }
+};
+}  // namespace mysql
 
-  SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
-  SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
+template <typename Lhs, typename Rhs, typename Condition>
+struct compatibility_check<mysql::context_t,
+                           join_t<Lhs, full_outer_join_t, Rhs, Condition>> {
+  using type = mysql::assert_no_full_outer_join_t;
+};
 
-  return 0;
-}
+}  // namespace sqlpp

@@ -296,7 +296,7 @@ int Function(int, char*[]) {
 
   // test flatten
   {
-    auto ctx = MockDb::_context_t{};
+    auto ctx = MockDb::context_t{};
     using TB = decltype(flatten(ctx, t.boolNn));
     using TI = decltype(flatten(ctx, t.id));
     using TF = decltype(flatten(ctx, f.doubleN));

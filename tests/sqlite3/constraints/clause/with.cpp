@@ -26,6 +26,7 @@
 
 // We need to include this here to change the sqlite3 version number for this
 // test (if necessary)
+#include "sqlpp23/core/consistent.h"
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -45,16 +46,21 @@
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 }
+
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();
   auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
 
   const auto foo = test::TabFoo{};
-  const auto c = cte(something).as(select(foo.id).from(foo));
 
-  // sqlite3 does not support full outer join before 3.8.3
-  // See https://www.sqlite.org/changes.html
-  SQLPP_CHECK_STATIC_ASSERT(
-      to_sql_string(ctx, with(c)),
-      "Sqlite3: No support for WITH before version 3.8.3");
+  {
+    const auto c = cte(something).as(select(foo.id).from(foo));
+    const auto w = with(c);
+
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(c)),
+                               sqlpp::consistent_t>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(w)),
+                               sqlpp::sqlite3::assert_no_with_t>::value);
+  }
 }

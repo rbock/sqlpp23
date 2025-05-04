@@ -37,14 +37,14 @@ struct on_duplicate_key_update {
 
   template <typename Db, typename Assignment>
   on_duplicate_key_update(Db& db, Assignment assignment) {
-    typename Db::_context_t context(&db);
+    typename sqlpp::mysql::context_t context(&db);
     _serialized =
         " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
   }
 
   template <typename Db, typename Assignment>
   auto operator()(Db& db, Assignment assignment) -> on_duplicate_key_update& {
-    typename Db::_context_t context(&db);
+    typename sqlpp::mysql::context_t context(&db);
     _serialized += ", " + to_sql_string(context, assignment);
     return *this;
   }
