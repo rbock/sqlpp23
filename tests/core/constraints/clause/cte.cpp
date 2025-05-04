@@ -98,6 +98,16 @@ int main() {
   // Bad self-reference
   static_assert(not can_call_cte_as_with<Ref, decltype(select(cte.id).from(cte))>);
 
+  // common table expression must not use inconsistent selects
+  {
+    const auto inconsistent_select =
+        select(all_of(bar)).from(bar).having(bar.id > 7);
+    static_assert(
+        std::is_same<decltype(check_basic_consistency(inconsistent_select)),
+                     sqlpp::assert_having_all_aggregates_t>::value);
+    static_assert(not can_call_cte_as_with<Ref, decltype(inconsistent_select)>);
+  }
+
   // OK
   CAN_CALL_ALL_CTE_UNIONS_WITH(cte, s1);
   CAN_CALL_ALL_CTE_UNIONS_WITH(cte, s2);

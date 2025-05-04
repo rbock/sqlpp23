@@ -288,9 +288,9 @@ struct cte_ref_t {
              has_result_row<Statement>::value and
              required_tables_of_t<Statement>::empty() and
              not required_ctes_of_t<Statement>::template contains<
-                 cte_ref_t<NameTagProvider>>())
+                 cte_ref_t<NameTagProvider>>() and
+             statement_consistency_check_t<Statement>::value)
   auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement> {
-    check_basic_consistency(statement).verify();
 
     return {statement};
   }
