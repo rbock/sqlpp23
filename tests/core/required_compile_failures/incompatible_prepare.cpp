@@ -25,21 +25,29 @@
  */
 
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/incompatible.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main() {
-  const auto bar = test::TabBar{};
+  using CTX = MockDb::context_t;
 
-  // Missing from
-  auto incomplete_select = sqlpp::select(bar.id);
+  // Incompatible expression
+  auto incompatible_select = sqlpp::select(sqlpp::test::incompatible(7).as(sqlpp::alias::a));
   static_assert(
-      std::is_same<decltype(check_basic_consistency(incomplete_select)),
+      std::is_same<decltype(check_basic_consistency(incompatible_select)),
                    sqlpp::consistent_t>::value);
-  static_assert(std::is_same<
-                decltype(check_prepare_consistency(incomplete_select)),
-                sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+  static_assert(
+      std::is_same<decltype(check_prepare_consistency(incompatible_select)),
+                   sqlpp::consistent_t>::value);
+  static_assert(std::is_same<decltype(check_run_consistency(incompatible_select)),
+                             sqlpp::consistent_t>::value);
+  static_assert(
+      std::is_same<decltype(check_compatibility<CTX>(incompatible_select)),
+                   sqlpp::test::assert_no_incompatible_t>::value);
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  std::ignore = incomplete_select.as(sqlpp::alias::a);
+  MockDb db = {};
+  std::ignore = db.prepare(incompatible_select);
 #endif
 }

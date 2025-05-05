@@ -25,12 +25,27 @@
  */
 
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/MockDb.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main() {
+  MockDb db = {};
+
   const auto bar = test::TabBar{};
 
-  // Missing from
+  // Missing run-consistency
+  auto parameter_select = sqlpp::select(parameter(bar.id).as(sqlpp::alias::a));
+  static_assert(
+      std::is_same<decltype(check_basic_consistency(parameter_select)),
+                   sqlpp::consistent_t>::value);
+  static_assert(
+      std::is_same<decltype(check_prepare_consistency(parameter_select)),
+                   sqlpp::consistent_t>::value);
+  static_assert(std::is_same<decltype(check_run_consistency(parameter_select)),
+                             sqlpp::assert_no_parameters_t>::value);
+  std::ignore = db.prepare(parameter_select);
+
+  // Missing prepare-consistency
   auto incomplete_select = sqlpp::select(bar.id);
   static_assert(
       std::is_same<decltype(check_basic_consistency(incomplete_select)),
@@ -40,6 +55,6 @@ int main() {
                 sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  std::ignore = incomplete_select.as(sqlpp::alias::a);
+  std::ignore = db.prepare(incomplete_select);
 #endif
 }

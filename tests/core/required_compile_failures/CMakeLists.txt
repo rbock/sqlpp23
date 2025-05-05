@@ -43,6 +43,14 @@ function(test_required_compile_failure name pattern)
 endfunction()
 
 # Compiling these is required to fail (testing some static_assert)
-test_required_compile_failure(bad_select_as "at least one selected column requires a table")
-test_required_compile_failure(bad_returning_as "at least one returning column requires a table")
 
+# Clauses
+test_required_compile_failure(bad_returning_as "at least one returning column requires a table")
+test_required_compile_failure(bad_select_as "at least one selected column requires a table")
+
+# Connection
+test_required_compile_failure(bad_execute "cannot execute statements with parameters directly")
+test_required_compile_failure(bad_prepare "at least one selected column requires a table")
+
+test_required_compile_failure(incompatible_execute "No support for using incompatible expression")
+test_required_compile_failure(incompatible_prepare "No support for using incompatible expression")
