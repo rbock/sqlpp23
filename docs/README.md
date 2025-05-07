@@ -32,6 +32,7 @@ The following pages will tell you how to use it:
   - [Code generation](/docs/ddl2cpp.md)
 - **Statements**
   - [Database connectors](connectors.md)
+  - [Debug logging](logging.md)
   - [Select](/docs/select.md), see also [`with`](/docs/with.md)
   - [Insert](/docs/insert.md)
   - [Update](/docs/update.md)

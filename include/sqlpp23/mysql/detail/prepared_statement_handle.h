@@ -27,9 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/sqlpp_mysql.h>
-
 #include <vector>
+
+#include <sqlpp23/mysql/database/connection_config.h>
+#include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql::detail {
 struct bind_result_buffer {
@@ -67,12 +68,12 @@ struct prepared_statement_handle_t {
       stmt_param_is_null;  // my_bool is bool after 8.0, and vector<bool> is bad
   std::vector<MYSQL_BIND> result_params;
   std::vector<bind_result_buffer> result_buffers;
-  bool debug;
+  const connection_config* config;
 
   prepared_statement_handle_t(MYSQL_STMT* stmt,
                               size_t no_of_parameters,
                               size_t no_of_columns,
-                              bool debug_)
+                              const connection_config* config_)
       : mysql_stmt(stmt),
         stmt_params(no_of_parameters,
                     MYSQL_BIND{}),  // ()-init for correct constructor
@@ -86,7 +87,7 @@ struct prepared_statement_handle_t {
         result_buffers(
             no_of_columns,
             bind_result_buffer{}),  // ()-init for correct constructor
-        debug{debug_} {}
+        config{config_} {}
 
   prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
   prepared_statement_handle_t(prepared_statement_handle_t&&) = default;
@@ -101,5 +102,7 @@ struct prepared_statement_handle_t {
   }
 
   bool operator!() const { return !mysql_stmt; }
+
+  const debug_logger& debug() { return config->debug; }
 };
 }  // namespace sqlpp::mysql::detail

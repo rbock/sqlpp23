@@ -27,16 +27,12 @@
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/connection_tests.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 int Connection(int, char*[]) {
   namespace sql = sqlpp::sqlite3;
   namespace test = sqlpp::test;
 
-  auto config = std::make_shared<sql::connection_config>();
-  config->path_to_database = ":memory:";
-  config->flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config->debug = true;
-
-  test::test_normal_connection<sql::connection>(config);
+  test::test_normal_connection<sql::connection>(sql::make_test_config());
   return 0;
 }

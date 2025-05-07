@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <memory>
 #include <set>
 #include <string>
@@ -49,10 +48,9 @@ struct DLL_LOCAL connection_handle {
 
   connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, postgres{nullptr, PQfinish} {
-
-    if (config->debug) {
-      std::cerr << "PostgreSQL debug: connecting to the database server."
-                << std::endl;
+    if constexpr (debug_enabled) {
+      config->debug.log(log_category::connection,
+                        "connecting to the database server.");
     }
 
     // Open connection
@@ -164,9 +162,9 @@ struct DLL_LOCAL connection_handle {
 
   ~connection_handle() {
     // Debug
-    if (config->debug) {
-      std::cerr << "PostgreSQL debug: closing database connection."
-                << std::endl;
+    if constexpr (debug_enabled) {
+      config->debug.log(log_category::connection,
+                        "closing database connection.");
     }
   }
 

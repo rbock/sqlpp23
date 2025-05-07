@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <span>
@@ -107,9 +106,10 @@ class bind_result_t {
   std::shared_ptr<detail::statement_handle_t> _handle;
 
   bool next_impl() {
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: accessing next row of handle at "
-                << _handle.get() << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "accessing next row of handle at {}",
+                           std::hash<void*>{}(_handle.get()));
     }
 
     // Fetch total amount
@@ -140,10 +140,12 @@ class bind_result_t {
   bind_result_t(const std::shared_ptr<detail::statement_handle_t>& handle)
       : _handle(handle) {
     _var_buffers.resize(_handle->result.field_count());
-    if (this->_handle && this->_handle->debug()) {
-      std::cerr << "PostgreSQL debug: constructing bind result, "
-                   "clause/using.handle at: "
-                << this->_handle.get() << std::endl;
+    if constexpr (debug_enabled) {
+      if (this->_handle) {
+        _handle->debug().log(log_category::result,
+                             "constructing bind result, using handle at {}",
+                             std::hash<void*>{}(_handle.get()));
+      }
     }
   }
 
@@ -178,9 +180,9 @@ class bind_result_t {
 
   void read_field(size_t _index, bool& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading boolean result at index: "
-                << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading boolean result at index {}", index);
     }
 
     value = _handle->result.get_bool_value(_handle->count, index);
@@ -188,9 +190,9 @@ class bind_result_t {
 
   void read_field(size_t _index, double& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading floating_point result at index: "
-                << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading floating_point result at index {}", index);
     }
 
     value = _handle->result.get_double_value(_handle->count, index);
@@ -198,9 +200,9 @@ class bind_result_t {
 
   void read_field(size_t _index, int64_t& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading integral result at index: "
-                << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading integral result at index: {}", index);
     }
 
     value = _handle->result.get_int64_value(_handle->count, index);
@@ -208,10 +210,11 @@ class bind_result_t {
 
   void read_field(size_t _index, uint64_t& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr
-          << "PostgreSQL debug: reading unsigned integral result at index: "
-          << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::result,
+          "PostgreSQL debug: reading unsigned integral result at index {}",
+          index);
     }
 
     value = _handle->result.get_uint64_value(_handle->count, index);
@@ -219,9 +222,9 @@ class bind_result_t {
 
   void read_field(size_t _index, std::string_view& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading text result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading text result at index {}", index);
     }
 
     value = std::string_view(
@@ -239,21 +242,21 @@ class bind_result_t {
   void read_field(size_t _index, ::sqlpp::chrono::day_point& value) {
     const auto index = static_cast<int>(_index);
 
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading date result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading date result at index {}", index);
     }
 
     const auto date_string =
         _handle->result.get_char_ptr_value(_handle->count, index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: date string: " << date_string
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result, "date string: {}",
+                           date_string);
     }
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
-      if (_handle->debug()) {
-        std::cerr << "PostgreSQL debug: got invalid date '" << date_string
-                  << "'" << std::endl;
+      if constexpr (debug_enabled) {
+        _handle->debug().log(log_category::result, "got invalid date '{}'",
+                             date_string);
       }
     }
   }
@@ -261,21 +264,21 @@ class bind_result_t {
   // always returns UTC time for timestamp with time zone
   void read_field(size_t _index, ::sqlpp::chrono::microsecond_point& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading date_time result at index: "
-                << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading date_time result at index {}", index);
     }
 
     const auto date_string =
         _handle->result.get_char_ptr_value(_handle->count, index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: got date_time string: " << date_string
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result, "got date_time string: {}",
+                           date_string);
     }
     if (::sqlpp::detail::parse_timestamp(value, date_string) == false) {
-      if (_handle->debug()) {
-        std::cerr << "PostgreSQL debug: got invalid date_time '" << date_string
-                  << "'" << std::endl;
+      if constexpr (debug_enabled) {
+        _handle->debug().log(log_category::result, "got invalid date_time '{}'",
+                             date_string);
       }
     }
   }
@@ -283,32 +286,32 @@ class bind_result_t {
   // always returns UTC time for time with time zone
   void read_field(size_t _index, ::std::chrono::microseconds& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading time result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading time result at index {}", index);
     }
 
     const auto time_string =
         _handle->result.get_char_ptr_value(_handle->count, index);
 
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: got time string: " << time_string
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result, "got time string: {}",
+                           time_string);
     }
 
     if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
-      if (_handle->debug()) {
-        std::cerr << "PostgreSQL debug: got invalid time '" << time_string
-                  << "'" << std::endl;
+      if constexpr (debug_enabled) {
+        _handle->debug().log(log_category::result, "got invalid time '{}'",
+                             time_string);
       }
     }
   }
 
   void read_field(size_t _index, std::span<const uint8_t>& value) {
     const auto index = static_cast<int>(_index);
-    if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: reading blob result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "reading blob result at index {}", index);
     }
 
     // Need to decode the hex data.

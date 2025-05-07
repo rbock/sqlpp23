@@ -9,12 +9,13 @@
 auto config = std::make_shared<sqlpp::sqlite3::connection_config>();
 config->path_to_database = ":memory:";
 config->flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-config->debug = true; // Will log a lot of debug output.
 
 // Create a connection
 sqlpp::sqlite3::connection db;
 db.connect_using(config); // This can throw an exception.
 ```
+
+See also the [logging documentation](/docs/logging.md).
 
 ## `insert_or_*`
 

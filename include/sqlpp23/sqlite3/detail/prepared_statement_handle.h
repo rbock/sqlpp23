@@ -33,6 +33,7 @@
 #include <sqlite3.h>
 #endif
 #include <sqlpp23/core/chrono.h>
+#include <sqlpp23/sqlite3/database/connection_config.h>
 #include <sqlpp23/sqlite3/export.h>
 
 #ifdef _MSC_VER
@@ -43,14 +44,15 @@
 namespace sqlpp::sqlite3::detail {
 struct prepared_statement_handle_t {
   sqlite3_stmt* sqlite_statement;
-  bool debug;
+  const connection_config* config;
 
-  prepared_statement_handle_t(sqlite3_stmt* statement, bool debug_)
-      : sqlite_statement{statement}, debug{debug_} {}
+  prepared_statement_handle_t(sqlite3_stmt* statement,
+                              const connection_config* config_)
+      : sqlite_statement{statement}, config{config_} {}
 
   prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
   prepared_statement_handle_t(prepared_statement_handle_t&& rhs)
-      : sqlite_statement{rhs.sqlite_statement}, debug{rhs.debug} {
+      : sqlite_statement{rhs.sqlite_statement}, config{rhs.config} {
     rhs.sqlite_statement = nullptr;
   }
   prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) =
@@ -60,7 +62,7 @@ struct prepared_statement_handle_t {
       sqlite_statement = rhs.sqlite_statement;
       rhs.sqlite_statement = nullptr;
     }
-    debug = rhs.debug;
+    config = rhs.config;
 
     return *this;
   }
@@ -72,6 +74,8 @@ struct prepared_statement_handle_t {
   }
 
   bool operator!() const { return !sqlite_statement; }
+
+  const debug_logger& debug() { return config->debug; }
 };
 }  // namespace sqlpp::sqlite3::detail
 

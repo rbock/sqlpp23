@@ -204,7 +204,7 @@ struct MockDb : public sqlpp::connection {
     return _mock_data._default_isolation_level;
   }
 
-  void rollback_transaction(bool) {}
+  void rollback_transaction() {}
 
   void commit_transaction() {}
 

@@ -29,6 +29,8 @@
 
 #include <string>
 
+#include <sqlpp23/core/debug_logger.h>
+
 namespace sqlpp::mysql {
 struct connection_config {
   std::string host{"localhost"};
@@ -39,17 +41,21 @@ struct connection_config {
   std::string unix_socket;
   unsigned long client_flag{0};
   std::string charset{"utf8"};
-  bool debug{false};
   unsigned int connect_timeout_seconds{
       0};  // 0 = do not override MySQL library default
   bool ssl{false};
-  std::string ssl_key, ssl_cert, ssl_ca, ssl_capath, ssl_cipher;
+  std::string ssl_key;
+  std::string ssl_cert;
+  std::string ssl_ca;
+  std::string ssl_capath;
+  std::string ssl_cipher;
   unsigned int read_timeout{0};
+  debug_logger debug;  // not compared
 
   bool operator==(const connection_config& other) const {
     return (other.host == host and other.user == user and
             other.password == password and other.database == database and
-            other.charset == charset and other.debug == debug and
+            other.charset == charset and
             other.connect_timeout_seconds == connect_timeout_seconds and
             other.ssl == ssl and other.ssl_key == ssl_key and
             other.ssl_cert == ssl_cert and other.ssl_ca == ssl_ca and

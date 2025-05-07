@@ -66,7 +66,7 @@ struct DLL_PUBLIC statement_handle_t {
     }
   }
 
-  bool debug() const { return connection.config->debug; }
+  const debug_logger& debug() { return connection.config->debug; }
 };
 
 struct prepared_statement_handle_t : public statement_handle_t {
@@ -133,12 +133,11 @@ struct prepared_statement_handle_t : public statement_handle_t {
     while (connection.prepared_statement_names.find(_name) !=
            connection.prepared_statement_names.end()) {
       std::generate_n(_name.begin(), 6, []() {
-        constexpr static auto charset =
+        constexpr static std::string_view charset =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
-        constexpr size_t max = (sizeof(charset) - 1);
         std::random_device rd;
-        return charset[rd() % max];
+        return charset[rd() % charset.size()];
       });
     }
     connection.prepared_statement_names.insert(_name);

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/database/connection.h>
+#include <sqlpp23/mysql/database/serializer_context.h>
 #include <sqlpp23/sqlpp23.h>
 
 namespace sqlpp {
@@ -36,9 +36,7 @@ class assert_no_full_outer_join_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "MySQL: No support for full outer join");
+    static_assert(wrong<T...>, "MySQL: No support for full outer join");
   }
 };
 }  // namespace mysql

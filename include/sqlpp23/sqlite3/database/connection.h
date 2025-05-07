@@ -62,10 +62,12 @@ namespace detail {
 inline detail::prepared_statement_handle_t prepare_statement(
     std::unique_ptr<connection_handle>& handle,
     const std::string_view& statement) {
-  if (handle->config->debug)
-    std::cerr << "Sqlite3 debug: Preparing: '" << statement << "'" << std::endl;
+  if constexpr (debug_enabled) {
+    handle->config->debug.log(log_category::statement,
+                              "Sqlite3 debug: Preparing: '{}'", statement);
+  }
 
-  detail::prepared_statement_handle_t result{nullptr, handle->config->debug};
+  detail::prepared_statement_handle_t result{nullptr, handle->config.get()};
 
   // ignore trailing spaces
   const auto end =
@@ -84,14 +86,15 @@ inline detail::prepared_statement_handle_t prepare_statement(
         "Sqlite3 error: Could not prepare statement: " +
         std::string(sqlite3_errmsg(handle->native_handle())) +
         " ,statement was >>" +
-        (rc == SQLITE_TOOBIG ? std::string(statement).substr(0, 128) + "..." : std::string(statement)) +
+        (rc == SQLITE_TOOBIG ? std::string(statement).substr(0, 128) + "..."
+                             : std::string(statement)) +
         "<<\n"};
   }
 
   if (uncompiledTail != statement.data() + length) {
     throw sqlpp::exception{
-        "Sqlite3 connector: Cannot execute multi-statements: >>" + std::string(statement) +
-        "<<\n"};
+        "Sqlite3 connector: Cannot execute multi-statements: >>" +
+        std::string(statement) + "<<\n"};
   }
 
   return result;
@@ -106,9 +109,12 @@ inline void execute_statement(std::unique_ptr<connection_handle>& handle,
     case SQLITE_DONE:
       return;
     default:
-      if (handle->config->debug)
-        std::cerr << "Sqlite3 debug: sqlite3_step return code: " << rc
-                  << std::endl;
+      if constexpr (debug_enabled) {
+        handle->config->debug.log(log_category::statement,
+                                  "Sqlite3 debug: sqlite3_step return code: {}",
+                                  rc);
+      }
+
       throw sqlpp::exception{
           "Sqlite3 error: Could not execute statement: " +
           std::string(sqlite3_errmsg(handle->native_handle()))};
@@ -194,7 +200,8 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
     return static_cast<size_t>(sqlite3_changes(native_handle()));
   }
 
-  size_t run_prepared_delete_from_impl(prepared_statement_t& prepared_statement) {
+  size_t run_prepared_delete_from_impl(
+      prepared_statement_t& prepared_statement) {
     execute_statement(_handle, *prepared_statement._handle.get());
 
     return static_cast<size_t>(sqlite3_changes(native_handle()));
@@ -333,9 +340,7 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
-  size_t operator()(std::string_view t) {
-    return execute_impl(t);
-  }
+  size_t operator()(std::string_view t) { return execute_impl(t); }
 
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
@@ -392,14 +397,15 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   //! rollback transaction with or without reporting the rollback (or throw if
   //! the transaction has been finished
   // already)
-  void rollback_transaction(bool report) {
+  void rollback_transaction() {
     if (!_transaction_active) {
       throw sqlpp::exception{
           "Sqlite3 error: Cannot rollback a finished or failed transaction"};
     }
-    if (report) {
-      std::cerr << "Sqlite3 warning: Rolling back unfinished transaction"
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->config->debug.log(
+          log_category::connection,
+          "Sqlite3 warning: Rolling back unfinished transaction");
     }
     auto prepared = prepare_statement(_handle, "ROLLBACK");
     execute_statement(_handle, prepared);
@@ -409,7 +415,10 @@ class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
   //! report a rollback failure (will be called by transactions in case of a
   //! rollback failure in the destructor)
   void report_rollback_failure(const std::string& message) noexcept {
-    std::cerr << "Sqlite3 message:" << message << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->config->debug.log(log_category::connection,
+                                 "rollback failure: ", message);
+    }
   }
 
   //! check if transaction is active
@@ -463,4 +472,3 @@ using pooled_connection = sqlpp::pooled_connection<connection_base>;
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-

@@ -28,6 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/query/statement_handler.h>
@@ -36,14 +38,12 @@
 #include <sqlpp23/mysql/char_result.h>
 #include <sqlpp23/mysql/clause/delete_from.h>
 #include <sqlpp23/mysql/clause/update.h>
+#include <sqlpp23/mysql/constraints.h>
 #include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/database/serializer_context.h>
 #include <sqlpp23/mysql/detail/connection_handle.h>
 #include <sqlpp23/mysql/prepared_statement.h>
-#include <sqlpp23/mysql/constraints.h>
 #include <sqlpp23/mysql/to_sql_string.h>
-#include <iostream>
-#include <string>
 #include "sqlpp23/core/query/statement.h"
 #include "sqlpp23/core/type_traits.h"
 
@@ -69,13 +69,16 @@ inline void execute_statement(std::unique_ptr<connection_handle>& handle,
                               std::string_view statement) {
   thread_init();
 
-  if (handle->config->debug)
-    std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;
+  if constexpr (debug_enabled) {
+    handle->config->debug.log(log_category::statement, "Executing: '{}'",
+                              statement);
+  }
 
   if (mysql_query(handle->native_handle(), statement.data())) {
     throw sqlpp::exception{"MySQL error: Could not execute MySQL-statement: " +
                            std::string{mysql_error(handle->native_handle())} +
-                           " (statement was >>" + std::string(statement) + "<<\n"};
+                           " (statement was >>" + std::string(statement) +
+                           "<<\n"};
   }
 }
 
@@ -83,8 +86,10 @@ inline void execute_prepared_statement(
     detail::prepared_statement_handle_t& prepared_statement) {
   thread_init();
 
-  if (prepared_statement.debug)
-    std::cerr << "MySQL debug: Executing prepared_statement" << std::endl;
+  if constexpr (debug_enabled) {
+    prepared_statement.debug().log(log_category::statement,
+                                   "Executing prepared_statement");
+  }
 
   if (mysql_stmt_bind_param(prepared_statement.mysql_stmt,
                             prepared_statement.stmt_params.data())) {
@@ -107,13 +112,15 @@ inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(
     size_t no_of_columns) {
   thread_init();
 
-  if (handle->config->debug)
-    std::cerr << "MySQL debug: Preparing: '" << statement << "'" << std::endl;
+  if constexpr (debug_enabled) {
+    handle->config->debug.log(log_category::statement, "Preparing: '{}'",
+                              statement);
+  }
 
   auto prepared_statement =
       std::make_shared<detail::prepared_statement_handle_t>(
           mysql_stmt_init(handle->native_handle()), no_of_parameters,
-          no_of_columns, handle->config->debug);
+          no_of_columns, handle->config.get());
   if (not prepared_statement) {
     throw sqlpp::exception{
         "MySQL error: Could not allocate prepared statement\n"};
@@ -174,7 +181,7 @@ class connection_base : public sqlpp::connection {
     execute_statement(_handle, statement);
     std::unique_ptr<detail::result_handle> result_handle(
         new detail::result_handle(mysql_store_result(_handle->native_handle()),
-                                  _handle->config->debug));
+                                  _handle->config.get()));
     if (!*result_handle) {
       throw sqlpp::exception{
           "MySQL error: Could not store result set: " +
@@ -224,7 +231,8 @@ class connection_base : public sqlpp::connection {
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
   }
 
-  uint64_t run_prepared_delete_from_impl(prepared_statement_t& prepared_statement) {
+  uint64_t run_prepared_delete_from_impl(
+      prepared_statement_t& prepared_statement) {
     execute_prepared_statement(*prepared_statement._handle);
     return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
   }
@@ -363,9 +371,7 @@ class connection_base : public sqlpp::connection {
   //!  * If you are passing a statement with results, like a SELECT, you will
   //!  need to fetch results before issuing
   //!    the next statement on the same connection.
-  size_t operator()(std::string_view t) {
-    return execute_impl(t);
-  }
+  size_t operator()(std::string_view t) { return execute_impl(t); }
 
   //! call prepare on the argument
   template <typename T>
@@ -398,14 +404,14 @@ class connection_base : public sqlpp::connection {
 
   //! rollback transaction (or throw if the transaction has been finished
   //! already)
-  void rollback_transaction(bool report) {
+  void rollback_transaction() {
     if (not _transaction_active) {
       throw sqlpp::exception{
           "MySQL: Cannot rollback a finished or failed transaction"};
     }
-    if (report) {
-      std::cerr << "MySQL warning: Rolling back unfinished transaction"
-                << std::endl;
+    if (debug_enabled) {
+      _handle->config->debug.log(log_category::connection,
+                                 "Rolling back unfinished transaction");
     }
     execute_statement(_handle, "ROLLBACK");
     _transaction_active = false;
@@ -414,7 +420,8 @@ class connection_base : public sqlpp::connection {
   //! report a rollback failure (will be called by transactions in case of a
   //! rollback failure in the destructor)
   void report_rollback_failure(const std::string& message) noexcept {
-    std::cerr << "MySQL message:" << message << std::endl;
+    _handle->config->debug.log(log_category::connection, "Rollback error: {}",
+                               message);
   }
 
   //! check if transaction is active
@@ -453,4 +460,3 @@ using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
 
 }  // namespace sqlpp::mysql
-

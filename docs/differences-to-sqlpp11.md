@@ -61,6 +61,9 @@ If seems a bit dry, follow the links to examples.
 | **Sub queries** | | |
 | `select(...).as(...)` | Could be table or value (depending on the context) | Always a table unless wrapped by `value()` |
 | | | |
+| [**Logging**](/docs/tony_tables/logging.md) | | |
+| config.debug | Could control logging to `std::cerr` via a bool value in the connection's config | Can control which message categories are logged and control how hey are logged (you can provide a `std::function`). And you can turn off debug logging completely at compile time by defining `SQLPP23_DISABLE_DEBUG`. |
+| | | |
 | **Magic** | | |
 | `IN` | `x.in(sqlpp::value_list(vector{}))` interpreted as `false` | *no magic*: `x IN ()` |
 | `NOT IN` | `x.not_in(sqlpp::value_list(vector{}))` interpreted as `true` | *no magic*: `x NOT IN ()` |

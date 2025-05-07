@@ -26,32 +26,37 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
+#include <sqlpp23/core/debug_logger.h>
 #include <sqlpp23/postgresql/postgresql.h>
 
 namespace sqlpp::postgresql {
 // Get configuration for test connection
-inline std::shared_ptr<sqlpp::postgresql::connection_config>
-make_test_config(bool debug = true) {
+inline std::shared_ptr<sqlpp::postgresql::connection_config> make_test_config(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
   auto config = std::make_shared<sqlpp::postgresql::connection_config>();
 
 #ifdef WIN32
   config->dbname = "test";
   config->user = "test";
-  config->debug = debug;
 #else
   config->user = getenv("USER");
   config->dbname = "sqlpp_postgresql";
-  config->debug = debug;
 #endif
+  config->debug = debug_logger(categories, [](const std::string& message) {
+    std::clog << message << '\n';
+  });
   return config;
 }
 
 // Starts a connection and sets the time zone to UTC
 inline ::sqlpp::postgresql::connection make_test_connection(
-    const std::string& tz = "UTC", bool debug = true) {
+    const std::string& tz = "UTC",
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
   namespace sql = sqlpp::postgresql;
 
-  auto config = make_test_config(debug);
+  auto config = make_test_config(categories);
 
   sql::connection db;
   try {

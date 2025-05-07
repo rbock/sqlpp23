@@ -33,7 +33,7 @@
 
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    static auto db = sqlpp::mysql::make_test_connection();         \
+    static auto db = sqlpp::mysql::make_test_connection({});       \
     sqlpp::mysql::context_t context{&db};                          \
                                                                    \
     using sqlpp::to_sql_string;                                    \

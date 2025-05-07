@@ -13,12 +13,13 @@ sqlpp::mysql::global_library_init();
 auto config = std::make_shared<sqlpp::mysql::connection_config>();
 config->user = "some_user";
 config->database = "some_database";
-config->debug = true; // Will log a lot of debug output.
 
 // Create a connection
 sqlpp::mysql::connection db;
 db.connect_using(config); // This can throw an exception.
 ```
+
+See also the [logging documentation](/docs/logging.md).
 
 ## `update`
 
