@@ -23,18 +23,18 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(create_test_for_setup name)
-    set(target sqlpp23_sqlite3_required_compile_failures_setup_${name})
+    set(target sqlpp23_postgresql_asserts_setup_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlite3 sqlpp23_testing sqlpp23_sqlite3_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-function(test_required_compile_failure name pattern)
+function(test_assert name pattern)
     create_test_for_setup(${name})
-    set(test sqlpp23_sqlite3_required_compile_failures_${name})
-    set(target sqlpp23_sqlite3_required_compile_failures_${name})
+    set(test sqlpp23_postgresql_asserts_${name})
+    set(target sqlpp23_postgresql_asserts_${name})
     add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlite3 sqlpp23_testing sqlpp23_sqlite3_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
     target_compile_definitions(${target} PRIVATE SQLPP_CHECK_STATIC_ASSERT)
     add_test(NAME ${test}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
@@ -45,8 +45,8 @@ endfunction()
 # Compiling these is required to fail (testing some static_assert)
 
 # Connection
-test_required_compile_failure(bad_execute "cannot execute statements with parameters directly")
-test_required_compile_failure(bad_prepare "at least one selected column requires a table")
+test_assert(bad_execute "cannot execute statements with parameters directly")
+test_assert(bad_prepare "at least one selected column requires a table")
 
-test_required_compile_failure(incompatible_execute "No support for using incompatible expression")
-test_required_compile_failure(incompatible_prepare "No support for using incompatible expression")
+test_assert(incompatible_execute "No support for using incompatible expression")
+test_assert(incompatible_prepare "No support for using incompatible expression")

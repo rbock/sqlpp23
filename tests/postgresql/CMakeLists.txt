@@ -25,8 +25,8 @@
 add_library(sqlpp23_postgresql_testing INTERFACE)
 target_include_directories(sqlpp23_postgresql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(asserts)
 add_subdirectory(constraints)
-add_subdirectory(required_compile_failures)
 add_subdirectory(serialize)
 add_subdirectory(types)
 add_subdirectory(usage)
