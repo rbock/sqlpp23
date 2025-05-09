@@ -30,21 +30,16 @@
 #include <string_view>
 
 namespace sqlpp {
-enum class log_level {
-  debug,
-  error,
-};
-
 enum class log_category {
-  query,       // The actual SQL queries sent to the backend (debug).
-  parameters,  // The parameters send with a prepared query (debug)
-  backend,     // As returned by the backend (both debug and error).
-  parse,       // Parse messages while reading results (both debug and error).
-  rows,        // The result rows returned by the backend (debug).
+  query,      // The actual SQL queries sent to the backend (debug).
+  parameter,  // The parameters send with a prepared query (debug)
+  backend,    // As returned by the backend (both debug and error).
+  parse,      // Parse messages while reading results (both debug and error).
+  rows,       // The result rows returned by the backend (debug).
 };
 
-class logger {
-  virtual void log(log_level, log_category, std::string_view message);
+class debug_logger {
+  virtual void log(log_category category, std::string_view message);
 };
 
 // TODO add default logger
