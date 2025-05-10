@@ -39,6 +39,7 @@ enum class log_category {
 };
 
 class debug_logger {
+  public:
   virtual void log(log_category category, std::string_view message);
 };
 

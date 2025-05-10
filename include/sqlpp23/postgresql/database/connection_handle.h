@@ -51,8 +51,7 @@ struct DLL_LOCAL connection_handle {
       : config{conf}, postgres{nullptr, PQfinish} {
 
     if (config->debug) {
-      std::cerr << "PostgreSQL debug: connecting to the database server."
-                << std::endl;
+      config->debug->log(log_category::backend, "connecting to the database server.");
     }
 
     // Open connection
@@ -165,8 +164,7 @@ struct DLL_LOCAL connection_handle {
   ~connection_handle() {
     // Debug
     if (config->debug) {
-      std::cerr << "PostgreSQL debug: closing database connection."
-                << std::endl;
+      config->debug->log(log_category::backend, "closing database connection.");
     }
   }
 

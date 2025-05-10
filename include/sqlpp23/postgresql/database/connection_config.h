@@ -27,8 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/visibility.h>
+#include <cstdint>
 #include <string>
+
+#include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/postgresql/visibility.h>
 
 namespace sqlpp::postgresql {
 struct DLL_PUBLIC connection_config {
@@ -65,7 +68,7 @@ struct DLL_PUBLIC connection_config {
   std::string krbsrvname;
   std::string service;
   // bool auto_reconnect {true};
-  bool debug{false};
+  debug_logger* debug = nullptr;
 
   bool operator==(const connection_config& other) {
     return (

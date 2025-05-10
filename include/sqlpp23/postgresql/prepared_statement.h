@@ -28,13 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/postgresql/database/exception.h>
-#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/to_sql_string.h>
 #include <memory>
 #include <string>
+
+#include <sqlpp23/core/chrono.h>
+#include <sqlpp23/postgresql/database/exception.h>
+#include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
+#include <sqlpp23/postgresql/to_sql_string.h>
 
 namespace sqlpp::postgresql {
 // Forward declaration
@@ -59,9 +60,10 @@ class prepared_statement_t {
       std::shared_ptr<detail::prepared_statement_handle_t>&& handle)
       : _handle{handle} {
     if (_handle && _handle->debug()) {
-      std::cerr << "PostgreSQL debug: constructing prepared_statement, "
-                   "clause/using.handle at: "
-                << _handle.get() << std::endl;
+      handle->debug()->log(
+          log_category::backend,
+          std::format("constructing prepared_statement, using handle at: {}",
+                      std::hash<void*>{}(_handle.get())));
     }
   }
 
@@ -77,9 +79,10 @@ class prepared_statement_t {
 
   void _bind_parameter(size_t index, const bool& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding boolean parameter "
-                << (value ? "true" : "false") << " at index: " << index
-                << std::endl;
+      _handle->debug()->log(
+          log_category::backend,
+          std::format("binding boolean parameter {} at index {}", value,
+                      index));
     }
 
     _handle->null_values[index] = false;
@@ -92,8 +95,9 @@ class prepared_statement_t {
 
   void _bind_parameter(size_t index, const double& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding floating_point parameter "
-                << value << " at index: " << index << std::endl;
+      _handle->debug()->log(
+          log_category::backend,
+          std::format("binding floating_point parameter {} at index {}", value, index));
     }
 
     _handle->null_values[index] = false;
@@ -103,8 +107,10 @@ class prepared_statement_t {
 
   void _bind_parameter(size_t index, const int64_t& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding integral parameter " << value
-                << " at index: " << index << std::endl;
+      _handle->debug()->log(
+          log_category::backend,
+          std::format("binding integral parameter {} at index {}", value,
+                      index));
     }
 
     // Assign values
@@ -114,8 +120,9 @@ class prepared_statement_t {
 
   void _bind_parameter(size_t index, const std::string& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding text parameter " << value
-                << " at index: " << index << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding text parameter {} at index {}", value, index));
     }
 
     // Assign values
@@ -125,8 +132,9 @@ class prepared_statement_t {
 
   void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding date parameter at index " << index
-                << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding date parameter {} at index {} ", value, index));
     }
     _handle->null_values[index] = false;
     const auto ymd = std::chrono::year_month_day{value};
@@ -135,15 +143,17 @@ class prepared_statement_t {
     _handle->param_values[index] = os.str();
 
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding date parameter string: "
-                << _handle->param_values[index] << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding date parameter string: {}", _handle->param_values[index]));
     }
   }
 
   void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding time parameter at index " << index
-                << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding time parameter {} at index {}" , value, index));
     }
     _handle->null_values[index] = false;
     const auto dp = std::chrono::floor<std::chrono::days>(value);
@@ -155,16 +165,18 @@ class prepared_statement_t {
     os << time << "+00";
     _handle->param_values[index] = os.str();
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding time parameter string: "
-                << _handle->param_values[index] << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding time parameter string: {}", _handle->param_values[index]));
     }
   }
 
   void _bind_parameter(size_t index,
                        const ::sqlpp::chrono::microsecond_point& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding date_time parameter at index "
-                << index << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding date_time parameter at index {}", index));
     }
     _handle->null_values[index] = false;
     const auto dp = std::chrono::floor<std::chrono::days>(value);
@@ -177,15 +189,17 @@ class prepared_statement_t {
     os << ymd << ' ' << time << "+00";
     _handle->param_values[index] = os.str();
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding date_time parameter string: "
-                << _handle->param_values[index] << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding date_time parameter string: {}", _handle->param_values[index]));
     }
   }
 
   void _bind_parameter(size_t index, const std::vector<unsigned char>& value) {
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding blob parameter at index " << index
-                << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding blob parameter at index {}" , index));
     }
     _handle->null_values[index] = false;
     constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
@@ -201,9 +215,10 @@ class prepared_statement_t {
     }
     _handle->param_values[index] = std::move(param);
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding blob parameter string (up to 100 "
-                   "chars): "
-                << _handle->param_values[index].substr(0, 100) << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding blob parameter string (up to 100 "
+                   "chars): {}", _handle->param_values[index].substr(0, 100)));
     }
   }
 
@@ -216,8 +231,9 @@ class prepared_statement_t {
     }
 
     if (_handle->debug()) {
-      std::cerr << "PostgreSQL debug: binding NULL parameter at index " << index
-                << std::endl;
+      _handle->debug()->log(
+                    log_category::backend,
+                              std::format("binding NULL parameter at index {}" , index));
     }
     _handle->null_values[index] = true;
   }

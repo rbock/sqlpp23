@@ -37,11 +37,11 @@ make_test_config(bool debug = true) {
 #ifdef WIN32
   config->dbname = "test";
   config->user = "test";
-  config->debug = debug;
+  config->debug = nullptr;
 #else
   config->user = getenv("USER");
   config->dbname = "sqlpp_postgresql";
-  config->debug = debug;
+  config->debug = nullptr;
 #endif
   return config;
 }
