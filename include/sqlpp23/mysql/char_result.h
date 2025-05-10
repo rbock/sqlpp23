@@ -56,7 +56,7 @@ class char_result_t {
           "MySQL: Constructing char_result without valid handle"};
 
     if (_handle->debug)
-      std::cerr << "MySQL debug: Constructing result, clause/using.handle at "
+      std::cerr << "MySQL debug: Constructing result, using handle at "
                 << _handle.get() << std::endl;
   }
 

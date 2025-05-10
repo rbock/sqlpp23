@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <memory>
 #include <set>
 #include <string>
@@ -51,7 +50,7 @@ struct DLL_LOCAL connection_handle {
       : config{conf}, postgres{nullptr, PQfinish} {
 
     if (config->debug) {
-      config->debug->log(log_category::backend, "connecting to the database server.");
+      config->debug->log(log_category::connection, "connecting to the database server.");
     }
 
     // Open connection
@@ -164,7 +163,7 @@ struct DLL_LOCAL connection_handle {
   ~connection_handle() {
     // Debug
     if (config->debug) {
-      config->debug->log(log_category::backend, "closing database connection.");
+      config->debug->log(log_category::connection, "closing database connection.");
     }
   }
 

@@ -27,20 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ostream>
 #include <string_view>
+#include <vector>
+
+#include <sqlpp23/core/debug_logger.h>
 
 namespace sqlpp {
-enum class log_category : int {
-  statement,   // Preparation and execution of statements.
-  parameter,   // The parameters sent with a prepared query.
-  result,      // Result fields and rows.
-  connection,  // Other interactions with the connection, e.g. opening, closing.
-};
+class to_stream_logger : public debug_logger {
+  std::ostream& _os;
+  size_t _categories = 0;
 
-class debug_logger {
-  public:
-  virtual void log(log_category category, std::string_view message) = 0;
-  virtual ~debug_logger() = default;
+ public:
+  to_stream_logger(std::ostream& os, const std::vector<log_category>& categories)
+      : _os(os) {
+    for (auto category : categories) {
+      _categories |=
+          (1 << static_cast<std::underlying_type_t<log_category>>(
+               category));
+    }
+  }
+
+  void log(log_category category, std::string_view message) override {
+    const auto category_bit =
+        (1 << static_cast<std::underlying_type_t<log_category>>(
+             category));
+    if (_categories & category_bit) {
+      _os << message << '\n';
+    }
+  }
 };
 
 }  // namespace sqlpp

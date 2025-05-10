@@ -56,7 +56,7 @@ class bind_result_t {
       : _handle{handle} {
     if (_handle and _handle->debug)
       std::cerr
-          << "MySQL debug: Constructing bind result, clause/using.handle at "
+          << "MySQL debug: Constructing bind result, using handle at "
           << _handle.get() << std::endl;
   }
   bind_result_t(const bind_result_t&) = delete;

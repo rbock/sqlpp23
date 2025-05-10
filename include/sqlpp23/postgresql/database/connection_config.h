@@ -28,6 +28,7 @@
  */
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #include <sqlpp23/core/debug_logger.h>
@@ -68,7 +69,7 @@ struct DLL_PUBLIC connection_config {
   std::string krbsrvname;
   std::string service;
   // bool auto_reconnect {true};
-  debug_logger* debug = nullptr;
+  std::unique_ptr<debug_logger> debug;
 
   bool operator==(const connection_config& other) {
     return (

@@ -58,7 +58,8 @@ inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
     const std::string& stmt,
     const size_t& param_count) {
   if (handle->config->debug) {
-    std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
+    handle->config->debug->log(log_category::statement,
+                               std::format("preparing: {}", stmt));
   }
 
   return std::make_unique<detail::prepared_statement_handle_t>(*handle, stmt,
@@ -69,8 +70,9 @@ inline void execute_prepared_statement(
     std::unique_ptr<connection_handle>& handle,
     std::shared_ptr<detail::prepared_statement_handle_t>& prepared) {
   if (handle->config->debug) {
-    std::cerr << "PostgreSQL debug: executing: " << prepared->name()
-              << std::endl;
+    handle->config->debug->log(
+        log_category::statement,
+        std::format("executing prepared statement: {}", prepared->name()));
   }
   prepared->execute();
 }
@@ -103,7 +105,8 @@ class connection_base : public sqlpp::connection {
       std::string_view stmt) {
     validate_connection_handle();
     if (_handle->config->debug) {
-      std::cerr << "PostgreSQL debug: executing: " << stmt << std::endl;
+      _handle->config->debug->log(log_category::statement,
+                                  std::format("executing: {}", stmt));
     }
 
     auto result = std::make_shared<detail::statement_handle_t>(*_handle);
@@ -403,9 +406,8 @@ class connection_base : public sqlpp::connection {
       throw sqlpp::exception{
           "PostgreSQL error: transaction failed or finished."};
     }
-    if (report) {
-      std::cerr << "PostgreSQL warning: rolling back unfinished transaction"
-                << std::endl;
+    if (_handle->config->debug) {
+      _handle->config->debug->log(log_category::connection, "rolling back unfinished transaction");
     }
     _execute_impl("ROLLBACK");
     _transaction_active = false;
@@ -413,7 +415,9 @@ class connection_base : public sqlpp::connection {
 
   //! report rollback failure
   void report_rollback_failure(const std::string& message) noexcept {
-    std::cerr << "PostgreSQL error: " << message << std::endl;
+    if (_handle->config->debug) {
+      _handle->config->debug->log(log_category::connection, std::format("transaction rollback failure: {}", message));
+    }
   }
 
   //! check if transaction is active

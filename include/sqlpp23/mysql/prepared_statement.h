@@ -250,7 +250,7 @@ class prepared_statement_t {
     }
 
     if (_handle->debug)
-      std::cerr << "MySQL debug: binding NULLL parameter "
+      std::cerr << "MySQL debug: binding NULL parameter "
                 << " at index: " << index << std::endl;
 
     _handle->stmt_param_is_null[index] = true;

@@ -58,7 +58,7 @@ class SQLPP11_SQLITE3_EXPORT bind_result_t {
       : _handle{handle} {
     if (_handle and _handle->debug)
       std::cerr
-          << "Sqlite3 debug: Constructing bind result, clause/using.handle at "
+          << "Sqlite3 debug: Constructing bind result, using handle at "
           << _handle.get() << std::endl;
   }
 

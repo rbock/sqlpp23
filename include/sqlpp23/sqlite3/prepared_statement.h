@@ -81,7 +81,7 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
       : _handle(std::move(handle)) {
     if (_handle and _handle->debug) {
       std::cerr << "Sqlite3 debug: Constructing prepared_statement, "
-                   "clause/using.handle at "
+                   "using handle at "
                 << _handle.get() << std::endl;
     }
   }
