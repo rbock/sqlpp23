@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cstdlib>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -38,9 +40,6 @@
 #include <sqlpp23/mysql/char_result_row.h>
 #include <sqlpp23/mysql/detail/result_handle.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
-#include <cstdlib>
-#include <iostream>
-#include <memory>
 
 namespace sqlpp::mysql {
 class char_result_t {
@@ -55,9 +54,11 @@ class char_result_t {
       throw sqlpp::exception{
           "MySQL: Constructing char_result without valid handle"};
 
-    if (_handle->debug)
-      std::cerr << "MySQL debug: Constructing result, using handle at "
-                << _handle.get() << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "Constructing result, using handle at {}",
+                           std::hash<void*>{}(_handle.get()));
+    }
   }
 
   char_result_t(const char_result_t&) = delete;
@@ -124,52 +125,62 @@ class char_result_t {
   }
 
   void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: parsing date result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "parsing date result at index: {}", index);
+    }
 
     const auto date_string = _char_result_row.data[index];
-    if (_handle->debug)
-      std::cerr << "MySQL debug: date string: " << date_string << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result, "date string: {}",
+                           date_string);
+    }
 
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
-      if (_handle->debug)
-        std::cerr << "MySQL debug: invalid date result: " << date_string
-                  << std::endl;
+      if constexpr (debug_enabled) {
+        _handle->debug().log(log_category::result, "invalid date result: {}",
+                             date_string);
+      }
     }
   }
 
   void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: parsing date result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "parsing date result at index: {}", index);
+    }
 
     const auto date_time_string = _char_result_row.data[index];
-    if (_handle->debug)
-      std::cerr << "MySQL debug: date_time string: " << date_time_string
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result, "date_time string: {}",
+                           date_time_string);
+    }
 
     if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
-      if (_handle->debug)
-        std::cerr << "MySQL debug: invalid date_time result: "
-                  << date_time_string << std::endl;
+      if constexpr (debug_enabled) {
+        _handle->debug().log(log_category::result,
+                             "invalid date_time result: {}", date_time_string);
+      }
     }
   }
 
   void read_field(size_t index, ::std::chrono::microseconds& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: parsing time of day result at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "parsing time of day result at index: {}", index);
+    }
 
     const auto time_string = _char_result_row.data[index];
-    if (_handle->debug)
-      std::cerr << "MySQL debug: time of day string: " << time_string
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result, "time of day string: {}",
+                           time_string);
+    }
 
     if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
-      if (_handle->debug)
-        std::cerr << "MySQL debug: invalid time result: " << time_string
-                  << std::endl;
+      if constexpr (debug_enabled) {
+        _handle->debug().log(log_category::result, "invalid time result: {}",
+                             time_string);
+      }
     }
   }
 
@@ -188,9 +199,11 @@ class char_result_t {
 
  private:
   bool next_impl() {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: Accessing next row of handle at "
-                << _handle.get() << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::result,
+                           "Accessing next row of handle at ",
+                           std::hash<void*>{}(_handle.get()));
+    }
 
     _char_result_row.data =
         const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));

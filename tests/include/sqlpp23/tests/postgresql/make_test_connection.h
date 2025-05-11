@@ -27,20 +27,14 @@
  */
 
 #include <iostream>
-#include <sqlpp23/postgresql/postgresql.h>
+
 #include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/postgresql/postgresql.h>
 
 namespace sqlpp::postgresql {
-static std::vector<sqlpp::log_category> all_categories = {
-    sqlpp::log_category::connection,
-    sqlpp::log_category::statement,
-    sqlpp::log_category::parameter,
-    sqlpp::log_category::result,
-};
-
 // Get configuration for test connection
-inline std::shared_ptr<sqlpp::postgresql::connection_config>
-make_test_config(const std::vector<sqlpp::log_category>& categories = all_categories) {
+inline std::shared_ptr<sqlpp::postgresql::connection_config> make_test_config(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
   auto config = std::make_shared<sqlpp::postgresql::connection_config>();
 
 #ifdef WIN32
@@ -50,17 +44,19 @@ make_test_config(const std::vector<sqlpp::log_category>& categories = all_catego
   config->user = getenv("USER");
   config->dbname = "sqlpp_postgresql";
 #endif
-  config->debug = debug_logger(categories, [](const std::string& message){std::clog << message << '\n'; });
+  config->debug = debug_logger(categories, [](const std::string& message) {
+    std::clog << message << '\n';
+  });
   return config;
 }
 
 // Starts a connection and sets the time zone to UTC
 inline ::sqlpp::postgresql::connection make_test_connection(
     const std::string& tz = "UTC",
-    const std::vector<sqlpp::log_category>& log_categories = all_categories) {
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
   namespace sql = sqlpp::postgresql;
 
-  auto config = make_test_config(log_categories);
+  auto config = make_test_config(categories);
 
   sql::connection db;
   try {

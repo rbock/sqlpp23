@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 namespace sql = ::sqlpp::sqlite3;
 
@@ -37,7 +38,7 @@ int ConnectionPool(int, char*[]) {
     config->path_to_database = "file:testpool?mode=memory&cache=shared";
     config->flags =
         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI;
-    config->debug = true;
+    config->debug = sqlpp::sqlite3::get_debug_logger();
     sqlpp::test::test_connection_pool<sql::connection_pool>(
         config,
         "CREATE TABLE tab_department ("

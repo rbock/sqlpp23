@@ -35,9 +35,9 @@
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/sqlite3/export.h>
-
+#include <sqlpp23/sqlite3/database/connection_config.h>
 #include <sqlpp23/sqlite3/detail/prepared_statement_handle.h>
+#include <sqlpp23/sqlite3/export.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -79,10 +79,13 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   prepared_statement_t(
       std::shared_ptr<detail::prepared_statement_handle_t>&& handle)
       : _handle(std::move(handle)) {
-    if (_handle and _handle->debug) {
-      std::cerr << "Sqlite3 debug: Constructing prepared_statement, "
-                   "using handle at "
-                << _handle.get() << std::endl;
+    if constexpr (debug_enabled) {
+      if (_handle) {
+        _handle->debug().log(
+            log_category::statement,
+            "Constructing prepared_statement, using handle at {}",
+            std::hash<void*>{}(_handle.get()));
+      }
     }
   }
   prepared_statement_t(const prepared_statement_t&) = delete;
@@ -96,17 +99,19 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _reset() {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: resetting prepared statement" << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::statement,
+                           "Sqlite3 debug: resetting prepared statement");
     }
     sqlite3_reset(_handle->sqlite_statement);
   }
 
   void _bind_parameter(size_t index, const bool& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding boolean parameter "
-                << (value ? "true" : "false") << " at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding boolean parameter {} at index {}", value,
+          index);
     }
 
     const int result = sqlite3_bind_int(_handle->sqlite_statement,
@@ -115,9 +120,11 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const double& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding floating_point parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding floating_point parameter {} at index {}",
+          value, index);
     }
 
     int result;
@@ -141,9 +148,11 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const int64_t& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding integral parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding integral parameter {} at index {}", value,
+          index);
     }
 
     const int result = sqlite3_bind_int64(_handle->sqlite_statement,
@@ -152,9 +161,11 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const uint64_t& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding unsigned integral parameter "
-                << value << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding unsigned integral parameter {} at index {}",
+          value, index);
     }
 
     const int result = sqlite3_bind_int64(_handle->sqlite_statement,
@@ -164,9 +175,10 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const std::string& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding text parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding text parameter {} at index {}", value, index);
     }
 
     const int result = sqlite3_bind_text(
@@ -176,9 +188,11 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const std::chrono::microseconds& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding time of day parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding time of day parameter {} at index {}", value,
+          index);
     }
 
     const auto text = std::format("{0:%H:%M:%S}", value);
@@ -189,9 +203,10 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding date parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding date parameter {} at index {}", value, index);
     }
 
     const auto text = std::format("{0:%Y-%m-%d}", value);
@@ -203,9 +218,11 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
 
   void _bind_parameter(size_t index,
                        const ::sqlpp::chrono::microsecond_point& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding date_time parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding date_time parameter {} at index {}", value,
+          index);
     }
 
     const auto text = std::format("{0:%Y-%m-%d %H:%M:%S}", value);
@@ -216,9 +233,11 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const std::vector<uint8_t>& value) {
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding vector parameter size of "
-                << value.size() << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter,
+          "Sqlite3 debug: binding blob parameter size of {} at index {}",
+          value.size(), index);
     }
 
     const int result = sqlite3_bind_blob(
@@ -235,9 +254,10 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
       return;
     }
 
-    if (_handle->debug) {
-      std::cerr << "Sqlite3 debug: binding NULL parameter at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "Sqlite3 debug: binding NULL parameter at index {}",
+                           index);
     }
 
     const int result = sqlite3_bind_null(_handle->sqlite_statement,

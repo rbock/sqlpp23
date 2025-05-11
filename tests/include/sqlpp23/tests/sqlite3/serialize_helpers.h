@@ -33,8 +33,8 @@
 
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    static auto db = sqlpp::sqlite3::make_test_connection();       \
-    sqlpp::sqlite3::context_t context{&db};                           \
+    static auto db = sqlpp::sqlite3::make_test_connection({});     \
+    sqlpp::sqlite3::context_t context{&db};                        \
                                                                    \
     using sqlpp::to_sql_string;                                    \
     const auto result = to_sql_string(context, expr);              \

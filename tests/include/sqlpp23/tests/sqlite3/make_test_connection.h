@@ -26,28 +26,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
+#include <sqlpp23/core/debug_logger.h>
 #include <sqlpp23/sqlite3/sqlite3.h>
 
 namespace sqlpp::sqlite3 {
+inline debug_logger get_debug_logger(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
+  return debug_logger(categories, [](const std::string& message) {
+    std::clog << message << '\n';
+  });
+}
+
 // Get configuration for test connection
-inline std::shared_ptr<sqlpp::sqlite3::connection_config>
-make_test_config() {
+inline std::shared_ptr<sqlpp::sqlite3::connection_config> make_test_config(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
   auto config = std::make_shared<sqlpp::sqlite3::connection_config>();
 
   config->path_to_database = ":memory:";
   config->flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-  config->debug = true;
+  config->debug = get_debug_logger(categories);
 
   return config;
 }
 
-inline ::sqlpp::sqlite3::connection make_test_connection() {
+inline ::sqlpp::sqlite3::connection make_test_connection(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
   namespace sql = sqlpp::sqlite3;
 
-  auto config = make_test_config();
+  auto config = make_test_config(categories);
 
   sql::connection db;
   db.connect_using(config);
   return db;
 }
-}  // namespace sqlpp::postgresql
+}  // namespace sqlpp::sqlite3

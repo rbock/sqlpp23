@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functional>
 #include <format>
+#include <functional>
 #include <string>
 
 namespace sqlpp {
@@ -38,26 +38,28 @@ static constexpr inline bool debug_enabled = false;
 static constexpr inline bool debug_enabled = true;
 #endif
 
-enum class log_category : int {
-  statement,   // Preparation and execution of statements.
-  parameter,   // The parameters sent with a prepared query.
-  result,      // Result fields and rows.
-  connection,  // Other interactions with the connection, e.g. opening, closing.
+enum class log_category : uint8_t {
+  statement = 0x01,   // Preparation and execution of statements.
+  parameter = 0x02,   // The parameters sent with a prepared query.
+  result = 0x04,      // Result fields and rows.
+  connection = 0x08,  // Other connection interactions, e.g. opening, closing.
+  all = 0xFF,
 };
 
-using log_function_t = std::function<void (const std::string&)>;
+using log_function_t = std::function<void(const std::string&)>;
 
 class debug_logger {
-  size_t _categories = 0;
+  uint8_t _categories = 0;
   log_function_t _log_function;
 
  public:
   debug_logger() = default;
-  debug_logger(const std::vector<log_category>& categories, log_function_t log_function)
+  debug_logger(const std::vector<log_category>& categories,
+               log_function_t log_function)
       : _log_function(std::move(log_function)) {
     for (auto category : categories) {
       _categories |=
-          (1 << static_cast<std::underlying_type_t<log_category>>(category));
+          static_cast<std::underlying_type_t<log_category>>(category);
     }
   }
   debug_logger(const debug_logger&) = default;
@@ -71,7 +73,7 @@ class debug_logger {
            std::format_string<Args...> fmt,
            Args&&... args) const {
     const auto category_bit =
-        (1 << static_cast<std::underlying_type_t<log_category>>(category));
+        static_cast<std::underlying_type_t<log_category>>(category);
     if (_categories & category_bit) {
       _log_function(std::format(fmt, std::forward<Args>(args)...));
     }

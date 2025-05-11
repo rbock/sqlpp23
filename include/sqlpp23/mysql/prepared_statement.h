@@ -30,7 +30,6 @@
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/mysql/bind_result.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
-#include <iostream>
 #include <memory>
 
 namespace sqlpp::mysql {
@@ -45,10 +44,14 @@ class prepared_statement_t {
   prepared_statement_t(
       std::shared_ptr<detail::prepared_statement_handle_t>&& handle)
       : _handle{std::move(handle)} {
-    if (_handle and _handle->debug)
-      std::cerr << "MySQL debug: Constructing prepared_statement, "
-                   "using handle at "
-                << _handle.get() << std::endl;
+    if constexpr (debug_enabled) {
+      if (_handle) {
+        _handle->debug().log(
+            log_category::statement,
+            "Constructing prepared_statement, using handle at {}",
+            std::hash<void*>{}(_handle.get()));
+      }
+    }
   }
 
   prepared_statement_t(const prepared_statement_t&) = delete;
@@ -64,10 +67,12 @@ class prepared_statement_t {
   void _pre_bind();
 
   void _bind_parameter(size_t index, const bool& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding boolean parameter "
-                << (value ? "true" : "false") << " at index: " << index
-                << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding boolean parameter {} at index {}", value,
+                           index);
+    }
+
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_TINY;
@@ -80,9 +85,12 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const int64_t& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding integral parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding integral parameter {} at index {}", value,
+                           index);
+    }
+
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
@@ -95,9 +103,12 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const uint64_t& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding unsigned integral parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding unsigned integral parameter {} at index {}",
+                           value, index);
+    }
+
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
@@ -110,9 +121,12 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const double& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding floating_point parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding floating_point parameter {} at index {}",
+                           value, index);
+    }
+
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_DOUBLE;
@@ -125,9 +139,12 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const std::string_view& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding text parameter " << value
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding text parameter {} at index {}", value,
+                           index);
+    }
+
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
     param.buffer_type = MYSQL_TYPE_STRING;
@@ -140,9 +157,11 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const sqlpp::chrono::day_point& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding date parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding date parameter {} at index {}", value,
+                           index);
+    }
 
     auto& bound_time = _handle->stmt_date_time_param_buffer[index];
     const auto ymd = std::chrono::year_month_day{value};
@@ -154,11 +173,12 @@ class prepared_statement_t {
     bound_time.minute = 0u;
     bound_time.second = 0u;
     bound_time.second_part = 0u;
-    if (_handle->debug)
-      std::cerr << "bound values: " << bound_time.year << '-'
-                << bound_time.month << '-' << bound_time.day << 'T'
-                << bound_time.hour << ':' << bound_time.minute << ':'
-                << bound_time.second << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter, "bound values: {}-{}-{}T{}:{}:{}.{}",
+          bound_time.year, bound_time.month, bound_time.day, bound_time.hour,
+          bound_time.minute, bound_time.second, bound_time.second_part);
+    }
 
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
@@ -173,9 +193,11 @@ class prepared_statement_t {
 
   void _bind_parameter(size_t index,
                        const sqlpp::chrono::microsecond_point& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding date_time parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding date_time parameter {} at index {}", value,
+                           index);
+    }
 
     auto& bound_time = _handle->stmt_date_time_param_buffer[index];
     const auto dp = std::chrono::floor<std::chrono::days>(value);
@@ -191,11 +213,12 @@ class prepared_statement_t {
     bound_time.second = static_cast<unsigned>(time.seconds().count());
     bound_time.second_part =
         static_cast<unsigned long>(time.subseconds().count());
-    if (_handle->debug)
-      std::cerr << "bound values: " << bound_time.year << '-'
-                << bound_time.month << '-' << bound_time.day << 'T'
-                << bound_time.hour << ':' << bound_time.minute << ':'
-                << bound_time.second << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter, "bound values: {}-{}-{}T{}:{}:{}.{}",
+          bound_time.year, bound_time.month, bound_time.day, bound_time.hour,
+          bound_time.minute, bound_time.second, bound_time.second_part);
+    }
 
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
@@ -209,9 +232,11 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding time_of_day parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter,
+                           "binding time_of_day parameter {} at index {}",
+                           value, index);
+    }
 
     auto& bound_time = _handle->stmt_date_time_param_buffer[index];
     const auto dp = std::chrono::floor<std::chrono::days>(value);
@@ -225,10 +250,12 @@ class prepared_statement_t {
     bound_time.second = static_cast<unsigned>(time.seconds().count());
     bound_time.second_part =
         static_cast<unsigned long>(time.subseconds().count());
-    if (_handle->debug)
-      std::cerr << "bound values: " << bound_time.hour << ':'
-                << bound_time.minute << ':' << bound_time.second << '.'
-                << bound_time.second_part << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(
+          log_category::parameter, "bound values: {}-{}-{}T{}:{}:{}.{}",
+          bound_time.year, bound_time.month, bound_time.day, bound_time.hour,
+          bound_time.minute, bound_time.second, bound_time.second_part);
+    }
 
     _handle->stmt_param_is_null[index] = false;
     MYSQL_BIND& param{_handle->stmt_params[index]};
@@ -249,9 +276,10 @@ class prepared_statement_t {
       return;
     }
 
-    if (_handle->debug)
-      std::cerr << "MySQL debug: binding NULL parameter "
-                << " at index: " << index << std::endl;
+    if constexpr (debug_enabled) {
+      _handle->debug().log(log_category::parameter, "binding NULL parameter {}",
+                           index);
+    }
 
     _handle->stmt_param_is_null[index] = true;
     MYSQL_BIND& param{_handle->stmt_params[index]};

@@ -27,14 +27,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql::detail {
 struct result_handle {
   MYSQL_RES* mysql_res;
-  bool debug;
+  const connection_config* config;
 
-  result_handle(MYSQL_RES* res, bool debug_) : mysql_res{res}, debug{debug_} {}
+  result_handle(MYSQL_RES* res, const connection_config* config_)
+      : mysql_res{res}, config{config_} {}
 
   result_handle(const result_handle&) = delete;
   result_handle(result_handle&&) = default;
@@ -47,5 +49,7 @@ struct result_handle {
   }
 
   bool operator!() const { return !mysql_res; }
+
+  const debug_logger& debug() { return config->debug; }
 };
 }  // namespace sqlpp::mysql::detail
