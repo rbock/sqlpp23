@@ -40,7 +40,6 @@
 #include <sqlpp23/sqlite3/export.h>
 
 #ifdef _MSC_VER
-#include <iso646.h>
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif

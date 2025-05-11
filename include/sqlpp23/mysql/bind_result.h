@@ -31,9 +31,6 @@
 #include <optional>
 #include <span>
 #include <string_view>
-#ifdef _MSC_VER
-#include <iso646.h>
-#endif
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>

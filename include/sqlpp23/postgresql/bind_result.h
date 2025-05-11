@@ -38,7 +38,6 @@
 #include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
 
 #ifdef _MSC_VER
-#include <iso646.h>
 #pragma warning(disable : 4800)  // int to bool
 #endif
 
