@@ -27,9 +27,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string_view>
+#include <functional>
+#include <format>
+#include <string>
 
 namespace sqlpp {
+#ifdef SQLPP23_DISABLE_DEBUG
+static constexpr inline bool debug_enabled = false;
+#else
+static constexpr inline bool debug_enabled = true;
+#endif
+
 enum class log_category : int {
   statement,   // Preparation and execution of statements.
   parameter,   // The parameters sent with a prepared query.
@@ -37,10 +45,37 @@ enum class log_category : int {
   connection,  // Other interactions with the connection, e.g. opening, closing.
 };
 
+using log_function_t = std::function<void (const std::string&)>;
+
 class debug_logger {
-  public:
-  virtual void log(log_category category, std::string_view message) = 0;
-  virtual ~debug_logger() = default;
+  size_t _categories = 0;
+  log_function_t _log_function;
+
+ public:
+  debug_logger() = default;
+  debug_logger(const std::vector<log_category>& categories, log_function_t log_function)
+      : _log_function(std::move(log_function)) {
+    for (auto category : categories) {
+      _categories |=
+          (1 << static_cast<std::underlying_type_t<log_category>>(category));
+    }
+  }
+  debug_logger(const debug_logger&) = default;
+  debug_logger(debug_logger&&) = default;
+  debug_logger& operator=(const debug_logger&) = default;
+  debug_logger& operator=(debug_logger&&) = default;
+  ~debug_logger() = default;
+
+  template <typename... Args>
+  void log(log_category category,
+           std::format_string<Args...> fmt,
+           Args&&... args) const {
+    const auto category_bit =
+        (1 << static_cast<std::underlying_type_t<log_category>>(category));
+    if (_categories & category_bit) {
+      _log_function(std::format(fmt, std::forward<Args>(args)...));
+    }
+  }
 };
 
 }  // namespace sqlpp

@@ -28,7 +28,6 @@
  */
 
 #include <cstring>
-#include <iostream>
 #include <string>
 
 #include <libpq-fe.h>

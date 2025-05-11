@@ -66,7 +66,7 @@ struct DLL_PUBLIC statement_handle_t {
     }
   }
 
-  debug_logger* debug() const { return connection.config->debug.get(); }
+  const debug_logger& debug() { return connection.config->debug; }
 };
 
 struct prepared_statement_handle_t : public statement_handle_t {

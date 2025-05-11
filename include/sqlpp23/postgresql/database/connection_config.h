@@ -28,7 +28,6 @@
  */
 
 #include <cstdint>
-#include <memory>
 #include <string>
 
 #include <sqlpp23/core/debug_logger.h>
@@ -69,7 +68,7 @@ struct DLL_PUBLIC connection_config {
   std::string krbsrvname;
   std::string service;
   // bool auto_reconnect {true};
-  std::unique_ptr<debug_logger> debug;
+  debug_logger debug; // not compared
 
   bool operator==(const connection_config& other) {
     return (
@@ -87,7 +86,7 @@ struct DLL_PUBLIC connection_config {
         other.sslcert == sslcert && other.sslkey == sslkey &&
         other.sslrootcert == sslrootcert && other.sslcrl == sslcrl &&
         other.requirepeer == requirepeer && other.krbsrvname == krbsrvname &&
-        other.service == service && other.debug == debug);
+        other.service == service);
   }
   bool operator!=(const connection_config& other) { return !operator==(other); }
 };

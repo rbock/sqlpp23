@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include <memory>
 #include "sqlpp23/core/query/statement.h"
 #include "sqlpp23/core/type_traits.h"
@@ -57,9 +56,8 @@ inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
     std::unique_ptr<connection_handle>& handle,
     const std::string& stmt,
     const size_t& param_count) {
-  if (handle->config->debug) {
-    handle->config->debug->log(log_category::statement,
-                               std::format("preparing: {}", stmt));
+  if constexpr (debug_enabled) {
+    handle->config->debug.log(log_category::statement, "preparing: {}", stmt);
   }
 
   return std::make_unique<detail::prepared_statement_handle_t>(*handle, stmt,
@@ -69,10 +67,10 @@ inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
 inline void execute_prepared_statement(
     std::unique_ptr<connection_handle>& handle,
     std::shared_ptr<detail::prepared_statement_handle_t>& prepared) {
-  if (handle->config->debug) {
-    handle->config->debug->log(
-        log_category::statement,
-        std::format("executing prepared statement: {}", prepared->name()));
+  if constexpr (debug_enabled) {
+    handle->config->debug.log(log_category::statement,
+                              "executing prepared statement: {}",
+                              prepared->name());
   }
   prepared->execute();
 }
@@ -104,9 +102,9 @@ class connection_base : public sqlpp::connection {
   std::shared_ptr<detail::statement_handle_t> _execute_impl(
       std::string_view stmt) {
     validate_connection_handle();
-    if (_handle->config->debug) {
-      _handle->config->debug->log(log_category::statement,
-                                  std::format("executing: {}", stmt));
+    if constexpr (debug_enabled) {
+      _handle->config->debug.log(log_category::statement, "executing: {}",
+                                 stmt);
     }
 
     auto result = std::make_shared<detail::statement_handle_t>(*_handle);
@@ -116,7 +114,9 @@ class connection_base : public sqlpp::connection {
     return result;
   }
 
-  bind_result_t select_impl(const std::string& stmt) { return _execute_impl(stmt); }
+  bind_result_t select_impl(const std::string& stmt) {
+    return _execute_impl(stmt);
+  }
 
   size_t insert_impl(const std::string& stmt) {
     return static_cast<size_t>(_execute_impl(stmt)->result.affected_rows());
@@ -401,13 +401,14 @@ class connection_base : public sqlpp::connection {
   }
 
   //! rollback transaction
-  void rollback_transaction(bool report) {
+  void rollback_transaction() {
     if (!_transaction_active) {
       throw sqlpp::exception{
           "PostgreSQL error: transaction failed or finished."};
     }
-    if (_handle->config->debug) {
-      _handle->config->debug->log(log_category::connection, "rolling back unfinished transaction");
+    if constexpr (debug_enabled) {
+      _handle->config->debug.log(log_category::connection,
+                                 "rolling back unfinished transaction");
     }
     _execute_impl("ROLLBACK");
     _transaction_active = false;
@@ -415,8 +416,9 @@ class connection_base : public sqlpp::connection {
 
   //! report rollback failure
   void report_rollback_failure(const std::string& message) noexcept {
-    if (_handle->config->debug) {
-      _handle->config->debug->log(log_category::connection, std::format("transaction rollback failure: {}", message));
+    if constexpr (debug_enabled) {
+      _handle->config->debug.log(log_category::connection,
+                                 "transaction rollback failure: {}", message);
     }
   }
 

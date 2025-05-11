@@ -31,19 +31,19 @@
 #include <sqlpp23/postgresql/database/connection.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 
-#define SQLPP_COMPARE(expr, expected_string)                             \
-  {                                                                      \
-    static auto db =                                                     \
-        sqlpp::postgresql::make_test_connection("UTC", /*debug=*/false); \
-    sqlpp::postgresql::context_t context{&db};                           \
-                                                                         \
-    using sqlpp::to_sql_string;                                          \
-    const auto result = to_sql_string(context, expr);                    \
-                                                                         \
-    if (result != expected_string) {                                     \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'                   \
-                << "Expected: -->|" << expected_string << "|<--\n"       \
-                << "Received: -->|" << result << "|<--\n";               \
-      return -1;                                                         \
-    }                                                                    \
+#define SQLPP_COMPARE(expr, expected_string)                               \
+  {                                                                        \
+    static auto db =                                                       \
+        sqlpp::postgresql::make_test_connection("UTC", /*categories=*/{}); \
+    sqlpp::postgresql::context_t context{&db};                             \
+                                                                           \
+    using sqlpp::to_sql_string;                                            \
+    const auto result = to_sql_string(context, expr);                      \
+                                                                           \
+    if (result != expected_string) {                                       \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'                     \
+                << "Expected: -->|" << expected_string << "|<--\n"         \
+                << "Received: -->|" << result << "|<--\n";                 \
+      return -1;                                                           \
+    }                                                                      \
   }

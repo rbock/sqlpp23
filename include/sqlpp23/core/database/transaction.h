@@ -44,27 +44,18 @@ enum class isolation_level {
 template <typename Db>
 class transaction_t {
   Db& _db;
-  const bool _report_unfinished_transaction;
   bool _finished = false;
 
  public:
-  transaction_t(Db& db, bool report_unfinished_transaction)
-      : _db(db), _report_unfinished_transaction(report_unfinished_transaction) {
-    _db.start_transaction();
-  }
+  transaction_t(Db& db) : _db(db) { _db.start_transaction(); }
 
-  transaction_t(Db& db,
-                bool report_unfinished_transaction,
-                isolation_level isolation)
-      : _db(db), _report_unfinished_transaction(report_unfinished_transaction) {
+  transaction_t(Db& db, isolation_level isolation) : _db(db) {
     _db.start_transaction(isolation);
   }
 
   transaction_t(const transaction_t&) = delete;
   transaction_t(transaction_t&& other)
-      : _db(other._db),
-        _report_unfinished_transaction(other._report_unfinished_transaction),
-        _finished(other._finished) {
+      : _db(other._db), _finished(other._finished) {
     other._finished = true;
   }
 
@@ -74,7 +65,7 @@ class transaction_t {
   ~transaction_t() {
     if (not _finished) {
       try {
-        _db.rollback_transaction(_report_unfinished_transaction);
+        _db.rollback_transaction();
       } catch (const std::exception& e) {
         _db.report_rollback_failure(std::string("auto rollback failed: ") +
                                     e.what());
@@ -97,17 +88,12 @@ class transaction_t {
 };
 
 template <typename Db>
-transaction_t<Db> start_transaction(
-    Db& db,
-    bool report_unfinished_transaction = report_auto_rollback) {
-  return {db, report_unfinished_transaction};
+transaction_t<Db> start_transaction(Db& db) {
+  return {db};
 }
 
 template <typename Db>
-transaction_t<Db> start_transaction(
-    Db& db,
-    isolation_level isolation,
-    bool report_unfinished_transaction = report_auto_rollback) {
-  return {db, report_unfinished_transaction, isolation};
+transaction_t<Db> start_transaction(Db& db, isolation_level isolation) {
+  return {db, isolation};
 }
 }  // namespace sqlpp

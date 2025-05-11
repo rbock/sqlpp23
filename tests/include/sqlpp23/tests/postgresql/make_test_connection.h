@@ -26,9 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/core/to_stream_logger.h>
 
 namespace sqlpp::postgresql {
 static std::vector<sqlpp::log_category> all_categories = {
@@ -46,12 +46,11 @@ make_test_config(const std::vector<sqlpp::log_category>& categories = all_catego
 #ifdef WIN32
   config->dbname = "test";
   config->user = "test";
-  config->debug = std::make_unique<to_stream_logger>(std::clog, categories);
 #else
   config->user = getenv("USER");
   config->dbname = "sqlpp_postgresql";
-  config->debug = std::make_unique<sqlpp::to_stream_logger>(std::clog, categories);
 #endif
+  config->debug = debug_logger(categories, [](const std::string& message){std::clog << message << '\n'; });
   return config;
 }
 
