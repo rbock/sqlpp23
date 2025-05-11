@@ -31,10 +31,9 @@
 #include <string>
 
 #include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/postgresql/visibility.h>
 
 namespace sqlpp::postgresql {
-struct DLL_PUBLIC connection_config {
+struct connection_config {
   enum class sslmode_t {
     disable,
     allow,

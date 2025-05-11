@@ -37,11 +37,6 @@
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
 
-#ifdef _MSC_VER
-#include <iso646.h>
-#pragma warning(disable : 4800)  // int to bool
-#endif
-
 namespace sqlpp::postgresql {
 namespace detail {
 struct statement_handle_t;

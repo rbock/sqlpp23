@@ -33,7 +33,6 @@
 */
 
 #include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/postgresql/visibility.h>
 #include <string>
 
 namespace sqlpp::postgresql {
@@ -55,7 +54,7 @@ namespace sqlpp::postgresql {
 
 /// Run-time failure encountered by sqlpp::postgresql connector, similar to
 /// std::runtime_error
-class DLL_PUBLIC failure : public ::sqlpp::exception {
+class failure : public ::sqlpp::exception {
   virtual const std::exception& base() const noexcept { return *this; }
 
  public:
@@ -82,7 +81,7 @@ class DLL_PUBLIC failure : public ::sqlpp::exception {
  *   // ...
  * @endcode
  */
-class DLL_PUBLIC broken_connection : public failure {
+class broken_connection : public failure {
  public:
   broken_connection() : failure{"Connection to database failed"} {}
 
@@ -92,7 +91,7 @@ class DLL_PUBLIC broken_connection : public failure {
 
 /// Exception class for failed queries.
 /** Carries a copy of the failed query in addition to a regular error message */
-class DLL_PUBLIC sql_error : public failure {
+class sql_error : public failure {
   std::string m_Q;
 
  public:
@@ -111,7 +110,7 @@ class DLL_PUBLIC sql_error : public failure {
  * defined pl/pgsql function
  *
  */
-class DLL_PUBLIC sql_user_error : public sql_error {
+class sql_user_error : public sql_error {
   std::string m_Code;
 
  public:
@@ -133,13 +132,13 @@ class DLL_PUBLIC sql_user_error : public sql_error {
  * the database is left in an indeterminate (but consistent) state, and only
  * manual inspection will tell which is the case.
  */
-class DLL_PUBLIC in_doubt_error : public failure {
+class in_doubt_error : public failure {
  public:
   explicit in_doubt_error(std::string whatarg) : failure{std::move(whatarg)} {}
 };
 
 /// Database feature not supported in current setup
-class DLL_PUBLIC feature_not_supported : public sql_error {
+class feature_not_supported : public sql_error {
  public:
   explicit feature_not_supported(std::string err) : sql_error{std::move(err)} {}
   feature_not_supported(std::string err, std::string Q)
@@ -147,14 +146,14 @@ class DLL_PUBLIC feature_not_supported : public sql_error {
 };
 
 /// Error in data provided to SQL statement
-class DLL_PUBLIC data_exception : public sql_error {
+class data_exception : public sql_error {
  public:
   explicit data_exception(std::string err) : sql_error{std::move(err)} {}
   data_exception(std::string err, std::string Q)
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC integrity_constraint_violation : public sql_error {
+class integrity_constraint_violation : public sql_error {
  public:
   explicit integrity_constraint_violation(std::string err)
       : sql_error{std::move(err)} {}
@@ -162,7 +161,7 @@ class DLL_PUBLIC integrity_constraint_violation : public sql_error {
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC restrict_violation : public integrity_constraint_violation {
+class restrict_violation : public integrity_constraint_violation {
  public:
   explicit restrict_violation(std::string err)
       : integrity_constraint_violation(std::move(err)) {}
@@ -170,7 +169,7 @@ class DLL_PUBLIC restrict_violation : public integrity_constraint_violation {
       : integrity_constraint_violation(std::move(err), std::move(Q)) {}
 };
 
-class DLL_PUBLIC not_null_violation : public integrity_constraint_violation {
+class not_null_violation : public integrity_constraint_violation {
  public:
   explicit not_null_violation(std::string err)
       : integrity_constraint_violation(std::move(err)) {}
@@ -178,7 +177,7 @@ class DLL_PUBLIC not_null_violation : public integrity_constraint_violation {
       : integrity_constraint_violation(std::move(err), std::move(Q)) {}
 };
 
-class DLL_PUBLIC foreign_key_violation : public integrity_constraint_violation {
+class foreign_key_violation : public integrity_constraint_violation {
  public:
   explicit foreign_key_violation(std::string err)
       : integrity_constraint_violation(std::move(err)) {}
@@ -186,7 +185,7 @@ class DLL_PUBLIC foreign_key_violation : public integrity_constraint_violation {
       : integrity_constraint_violation(std::move(err), std::move(Q)) {}
 };
 
-class DLL_PUBLIC unique_violation : public integrity_constraint_violation {
+class unique_violation : public integrity_constraint_violation {
  public:
   explicit unique_violation(std::string err)
       : integrity_constraint_violation(std::move(err)) {}
@@ -194,7 +193,7 @@ class DLL_PUBLIC unique_violation : public integrity_constraint_violation {
       : integrity_constraint_violation(std::move(err), std::move(Q)) {}
 };
 
-class DLL_PUBLIC check_violation : public integrity_constraint_violation {
+class check_violation : public integrity_constraint_violation {
  public:
   explicit check_violation(std::string err)
       : integrity_constraint_violation(std::move(err)) {}
@@ -202,14 +201,14 @@ class DLL_PUBLIC check_violation : public integrity_constraint_violation {
       : integrity_constraint_violation(std::move(err), std::move(Q)) {}
 };
 
-class DLL_PUBLIC invalid_cursor_state : public sql_error {
+class invalid_cursor_state : public sql_error {
  public:
   explicit invalid_cursor_state(std::string err) : sql_error{std::move(err)} {}
   invalid_cursor_state(std::string err, std::string Q)
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC invalid_sql_statement_name : public sql_error {
+class invalid_sql_statement_name : public sql_error {
  public:
   explicit invalid_sql_statement_name(std::string err)
       : sql_error{std::move(err)} {}
@@ -217,28 +216,28 @@ class DLL_PUBLIC invalid_sql_statement_name : public sql_error {
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC invalid_cursor_name : public sql_error {
+class invalid_cursor_name : public sql_error {
  public:
   explicit invalid_cursor_name(std::string err) : sql_error{std::move(err)} {}
   invalid_cursor_name(std::string err, std::string Q)
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC serialization_failure : public sql_error {
+class serialization_failure : public sql_error {
  public:
   explicit serialization_failure(std::string err) : sql_error{std::move(err)} {}
   serialization_failure(std::string err, std::string Q)
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC deadlock_detected : public sql_error {
+class deadlock_detected : public sql_error {
  public:
   explicit deadlock_detected(std::string err) : sql_error{std::move(err)} {}
   deadlock_detected(std::string err, std::string Q)
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC syntax_error : public sql_error {
+class syntax_error : public sql_error {
  public:
   /// Approximate position in string where error occurred, or -1 if unknown.
   const int error_position;
@@ -249,28 +248,28 @@ class DLL_PUBLIC syntax_error : public sql_error {
       : sql_error{std::move(err), std::move(Q)}, error_position{pos} {}
 };
 
-class DLL_PUBLIC undefined_column : public syntax_error {
+class undefined_column : public syntax_error {
  public:
   explicit undefined_column(std::string err) : syntax_error{std::move(err)} {}
   undefined_column(std::string err, std::string Q)
       : syntax_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC undefined_function : public syntax_error {
+class undefined_function : public syntax_error {
  public:
   explicit undefined_function(std::string err) : syntax_error{std::move(err)} {}
   undefined_function(std::string err, std::string Q)
       : syntax_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC undefined_table : public syntax_error {
+class undefined_table : public syntax_error {
  public:
   explicit undefined_table(std::string err) : syntax_error{std::move(err)} {}
   undefined_table(std::string err, std::string Q)
       : syntax_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC insufficient_privilege : public sql_error {
+class insufficient_privilege : public sql_error {
  public:
   explicit insufficient_privilege(std::string err)
       : sql_error{std::move(err)} {}
@@ -279,7 +278,7 @@ class DLL_PUBLIC insufficient_privilege : public sql_error {
 };
 
 /// Resource shortage on the server
-class DLL_PUBLIC insufficient_resources : public sql_error {
+class insufficient_resources : public sql_error {
  public:
   explicit insufficient_resources(std::string err)
       : sql_error{std::move(err)} {}
@@ -287,7 +286,7 @@ class DLL_PUBLIC insufficient_resources : public sql_error {
       : sql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC disk_full : public insufficient_resources {
+class disk_full : public insufficient_resources {
  public:
   explicit disk_full(std::string err)
       : insufficient_resources{std::move(err)} {}
@@ -295,7 +294,7 @@ class DLL_PUBLIC disk_full : public insufficient_resources {
       : insufficient_resources{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC out_of_memory : public insufficient_resources {
+class out_of_memory : public insufficient_resources {
  public:
   explicit out_of_memory(std::string err)
       : insufficient_resources{std::move(err)} {}
@@ -303,7 +302,7 @@ class DLL_PUBLIC out_of_memory : public insufficient_resources {
       : insufficient_resources{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC too_many_connections : public broken_connection {
+class too_many_connections : public broken_connection {
  public:
   explicit too_many_connections(std::string err)
       : broken_connection{std::move(err)} {}
@@ -311,7 +310,7 @@ class DLL_PUBLIC too_many_connections : public broken_connection {
 
 /// PL/pgSQL error
 /** Exceptions derived from this class are errors from PL/pgSQL procedures.*/
-class DLL_PUBLIC plpgsql_error : public sql_error {
+class plpgsql_error : public sql_error {
  public:
   explicit plpgsql_error(std::string err) : sql_error{std::move(err)} {}
   plpgsql_error(std::string err, std::string Q)
@@ -319,14 +318,14 @@ class DLL_PUBLIC plpgsql_error : public sql_error {
 };
 
 /// Exception raised in PL/pgSQL procedure
-class DLL_PUBLIC plpgsql_raise : public plpgsql_error {
+class plpgsql_raise : public plpgsql_error {
  public:
   explicit plpgsql_raise(std::string err) : plpgsql_error{std::move(err)} {}
   plpgsql_raise(std::string err, std::string Q)
       : plpgsql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC plpgsql_no_data_found : public plpgsql_error {
+class plpgsql_no_data_found : public plpgsql_error {
  public:
   explicit plpgsql_no_data_found(std::string err)
       : plpgsql_error{std::move(err)} {}
@@ -334,7 +333,7 @@ class DLL_PUBLIC plpgsql_no_data_found : public plpgsql_error {
       : plpgsql_error{std::move(err), std::move(Q)} {}
 };
 
-class DLL_PUBLIC plpgsql_too_many_rows : public plpgsql_error {
+class plpgsql_too_many_rows : public plpgsql_error {
  public:
   explicit plpgsql_too_many_rows(std::string err)
       : plpgsql_error{std::move(err)} {}

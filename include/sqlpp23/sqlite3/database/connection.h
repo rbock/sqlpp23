@@ -47,14 +47,8 @@
 #include <sqlpp23/sqlite3/database/connection_config.h>
 #include <sqlpp23/sqlite3/database/serializer_context.h>
 #include <sqlpp23/sqlite3/detail/connection_handle.h>
-#include <sqlpp23/sqlite3/export.h>
 #include <sqlpp23/sqlite3/prepared_statement.h>
 #include <sqlpp23/sqlite3/to_sql_string.h>
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 
 namespace sqlpp::sqlite3 {
 
@@ -123,7 +117,7 @@ inline void execute_statement(std::unique_ptr<connection_handle>& handle,
 }  // namespace detail
 
 // Base connection class
-class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection {
+class connection_base : public sqlpp::connection {
  public:
   using _connection_base_t = connection_base;
   using _config_t = connection_config;
@@ -469,6 +463,4 @@ using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
 }  // namespace sqlpp::sqlite3
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+

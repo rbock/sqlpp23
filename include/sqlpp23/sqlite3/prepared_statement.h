@@ -37,12 +37,6 @@
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
 #include <sqlpp23/sqlite3/detail/prepared_statement_handle.h>
-#include <sqlpp23/sqlite3/export.h>
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 
 namespace sqlpp::sqlite3 {
 // Forward declaration
@@ -70,7 +64,7 @@ inline void check_bind_result(int result, const char* const type) {
 }
 }  // namespace detail
 
-class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
+class prepared_statement_t {
   friend class ::sqlpp::sqlite3::connection_base;
   std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
@@ -267,6 +261,3 @@ class SQLPP11_SQLITE3_EXPORT prepared_statement_t {
 };
 }  // namespace sqlpp::sqlite3
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif

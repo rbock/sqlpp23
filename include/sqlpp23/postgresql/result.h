@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -34,10 +35,9 @@
 #include <pg_config.h>
 
 #include <sqlpp23/postgresql/database/exception.h>
-#include <sqlpp23/postgresql/visibility.h>
 
 namespace sqlpp::postgresql {
-class DLL_PUBLIC Result {
+class Result {
  public:
   Result() : m_result(nullptr) {}
 

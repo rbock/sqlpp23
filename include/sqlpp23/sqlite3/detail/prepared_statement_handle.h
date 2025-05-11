@@ -34,12 +34,6 @@
 #endif
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
-#include <sqlpp23/sqlite3/export.h>
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 
 namespace sqlpp::sqlite3::detail {
 struct prepared_statement_handle_t {
@@ -79,6 +73,3 @@ struct prepared_statement_handle_t {
 };
 }  // namespace sqlpp::sqlite3::detail
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif

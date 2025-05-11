@@ -33,13 +33,11 @@
 #include <vector>
 
 #include <libpq-fe.h>
-#include <sqlpp23/postgresql/result.h>
-#include <sqlpp23/postgresql/visibility.h>
-
 #include <sqlpp23/postgresql/database/connection_handle.h>
+#include <sqlpp23/postgresql/result.h>
 
 namespace sqlpp::postgresql::detail {
-struct DLL_PUBLIC statement_handle_t {
+struct statement_handle_t {
   connection_handle& connection;
   Result result;
   bool valid = false;

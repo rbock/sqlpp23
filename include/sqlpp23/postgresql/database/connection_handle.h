@@ -34,14 +34,10 @@
 #include <libpq-fe.h>
 #include <sqlpp23/postgresql/database/connection_config.h>
 #include <sqlpp23/postgresql/database/exception.h>
-#include <sqlpp23/postgresql/visibility.h>
 
 namespace sqlpp::postgresql {
-// Forward declaration
-struct connection_config;
-
 namespace detail {
-struct DLL_LOCAL connection_handle {
+struct connection_handle {
   std::shared_ptr<const connection_config> config;
   std::unique_ptr<PGconn, void (*)(PGconn*)> postgres;
   std::set<std::string> prepared_statement_names;

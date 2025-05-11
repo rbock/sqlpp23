@@ -37,16 +37,9 @@
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/sqlite3/detail/prepared_statement_handle.h>
-#include <sqlpp23/sqlite3/export.h>
-
-#ifdef _MSC_VER
-#include <iso646.h>
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 
 namespace sqlpp::sqlite3 {
-class SQLPP11_SQLITE3_EXPORT bind_result_t {
+class bind_result_t {
   std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
  public:
@@ -290,6 +283,4 @@ class SQLPP11_SQLITE3_EXPORT bind_result_t {
 };
 }  // namespace sqlpp::sqlite3
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+
