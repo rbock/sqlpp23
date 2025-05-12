@@ -1,6 +1,8 @@
 [**\< Differences**](/docs/differences-to-sqlpp11.md)
 
-# Before and after: Logging
+# Before and after: Debug logging
+
+Turning on debug logging got slightly more complicated is also much more flexible.
 
 <table>
 <tr>
@@ -71,6 +73,10 @@ config->debug = sqlpp::debug_logger{
 <td valign="top">
 
 ```c++
+constexpr auto log_clog =
+    [](const std::string& message) {
+      std::clog << message << '\n';
+    };
 // Log messages about statements and their
 // parameters to std::clog.
 config->debug = sqlpp::debug_logger{
