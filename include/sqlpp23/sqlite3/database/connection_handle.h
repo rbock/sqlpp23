@@ -44,6 +44,9 @@ struct connection_handle {
   std::shared_ptr<const connection_config> config;
   std::unique_ptr<::sqlite3, int (*)(::sqlite3*)> sqlite;
 
+  connection_handle()
+      : config{}, sqlite{nullptr, sqlite3_close} {}
+
   connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, sqlite{nullptr, sqlite3_close} {
 
@@ -84,16 +87,16 @@ struct connection_handle {
     // The connection is established in the constructor and the SQLite3 client
     // library doesn't seem to have a way to check passively if the connection
     // is still valid
-    return true;
+    return native_handle() != nullptr;
   }
 
   bool ping_server() const {
     // Loosely based on the implementation of PHP's pg_ping()
-    if (sqlite3_exec(native_handle(), "SELECT 1", nullptr, nullptr, nullptr) !=
-        SQLITE_OK) {
-      return false;
-    }
-    return true;
+    return is_connected() and
+           (sqlite3_exec(native_handle(), "SELECT 1", nullptr, nullptr,
+                         nullptr) == SQLITE_OK);
   }
+
+  const debug_logger& debug() { return config->debug; }
 };
 }  // namespace sqlpp::sqlite3::detail

@@ -50,6 +50,9 @@ constexpr auto log_cerr =
     [](const std::string& message) {
       std::cerr << message << '\n';
     };
+
+// ...
+
 config->debug = sqlpp::debug_logger{
     {sqlpp::log_category::all},
     log_cerr};
@@ -77,6 +80,9 @@ constexpr auto log_clog =
     [](const std::string& message) {
       std::clog << message << '\n';
     };
+
+// ...
+
 // Log messages about statements and their
 // parameters to std::clog.
 config->debug = sqlpp::debug_logger{

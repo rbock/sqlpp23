@@ -32,20 +32,20 @@
 
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/mysql/bind_result.h>
 #include <sqlpp23/mysql/char_result.h>
 #include <sqlpp23/mysql/clause/delete_from.h>
 #include <sqlpp23/mysql/clause/update.h>
 #include <sqlpp23/mysql/constraints.h>
 #include <sqlpp23/mysql/database/connection_config.h>
+#include <sqlpp23/mysql/database/connection_handle.h>
 #include <sqlpp23/mysql/database/serializer_context.h>
-#include <sqlpp23/mysql/detail/connection_handle.h>
 #include <sqlpp23/mysql/prepared_statement.h>
 #include <sqlpp23/mysql/to_sql_string.h>
-#include "sqlpp23/core/query/statement.h"
-#include "sqlpp23/core/type_traits.h"
 
 namespace sqlpp::mysql {
 namespace detail {
@@ -65,18 +65,18 @@ inline void thread_init() {
   thread_local mysql_thread_initializer thread_initializer;
 }
 
-inline void execute_statement(std::unique_ptr<connection_handle>& handle,
+inline void execute_statement(connection_handle& handle,
                               std::string_view statement) {
   thread_init();
 
   if constexpr (debug_enabled) {
-    handle->config->debug.log(log_category::statement, "Executing: '{}'",
+    handle.debug().log(log_category::statement, "Executing: '{}'",
                               statement);
   }
 
-  if (mysql_query(handle->native_handle(), statement.data())) {
+  if (mysql_query(handle.native_handle(), statement.data())) {
     throw sqlpp::exception{"MySQL error: Could not execute MySQL-statement: " +
-                           std::string{mysql_error(handle->native_handle())} +
+                           std::string{mysql_error(handle.native_handle())} +
                            " (statement was >>" + std::string(statement) +
                            "<<\n"};
   }
@@ -106,21 +106,21 @@ inline void execute_prepared_statement(
 }
 
 inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(
-    std::unique_ptr<connection_handle>& handle,
+    connection_handle& handle,
     const std::string& statement,
     size_t no_of_parameters,
     size_t no_of_columns) {
   thread_init();
 
   if constexpr (debug_enabled) {
-    handle->config->debug.log(log_category::statement, "Preparing: '{}'",
+    handle.debug().log(log_category::statement, "Preparing: '{}'",
                               statement);
   }
 
   auto prepared_statement =
       std::make_shared<detail::prepared_statement_handle_t>(
-          mysql_stmt_init(handle->native_handle()), no_of_parameters,
-          no_of_columns, handle->config.get());
+          mysql_stmt_init(handle.native_handle()), no_of_parameters,
+          no_of_columns, handle.config.get());
   if (not prepared_statement) {
     throw sqlpp::exception{
         "MySQL error: Could not allocate prepared statement\n"};
@@ -128,7 +128,7 @@ inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(
   if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(),
                          statement.size())) {
     throw sqlpp::exception{"MySQL error: Could not prepare statement: " +
-                           std::string{mysql_error(handle->native_handle())} +
+                           std::string{mysql_error(handle.native_handle())} +
                            " (statement was >>" + statement + "<<\n"};
   }
 
@@ -161,7 +161,7 @@ class connection_base : public sqlpp::connection {
   using _config_t = connection_config;
   using _config_ptr_t = std::shared_ptr<const _config_t>;
   using _handle_t = detail::connection_handle;
-  using _handle_ptr_t = std::unique_ptr<_handle_t>;
+  using _handle_ptr_t = _handle_t;
 
   using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
 
@@ -174,18 +174,18 @@ class connection_base : public sqlpp::connection {
 
   size_t execute_impl(std::string_view statement) {
     execute_statement(_handle, statement);
-    return mysql_affected_rows(_handle->native_handle());
+    return mysql_affected_rows(_handle.native_handle());
   }
 
   char_result_t select_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     std::unique_ptr<detail::result_handle> result_handle(
-        new detail::result_handle(mysql_store_result(_handle->native_handle()),
-                                  _handle->config.get()));
+        new detail::result_handle(mysql_store_result(_handle.native_handle()),
+                                  _handle.config.get()));
     if (!*result_handle) {
       throw sqlpp::exception{
           "MySQL error: Could not store result set: " +
-          std::string{mysql_error(_handle->native_handle())}};
+          std::string{mysql_error(_handle.native_handle())}};
     }
 
     return {std::move(result_handle)};
@@ -194,17 +194,17 @@ class connection_base : public sqlpp::connection {
   uint64_t insert_impl(const std::string& statement) {
     execute_statement(_handle, statement);
 
-    return mysql_insert_id(_handle->native_handle());
+    return mysql_insert_id(_handle.native_handle());
   }
 
   uint64_t update_impl(const std::string& statement) {
     execute_statement(_handle, statement);
-    return mysql_affected_rows(_handle->native_handle());
+    return mysql_affected_rows(_handle.native_handle());
   }
 
   uint64_t delete_from_impl(const std::string& statement) {
     execute_statement(_handle, statement);
-    return mysql_affected_rows(_handle->native_handle());
+    return mysql_affected_rows(_handle.native_handle());
   }
 
   // prepared execution
@@ -410,7 +410,7 @@ class connection_base : public sqlpp::connection {
           "MySQL: Cannot rollback a finished or failed transaction"};
     }
     if (debug_enabled) {
-      _handle->config->debug.log(log_category::connection,
+      _handle.debug().log(log_category::connection,
                                  "Rolling back unfinished transaction");
     }
     execute_statement(_handle, "ROLLBACK");
@@ -420,28 +420,28 @@ class connection_base : public sqlpp::connection {
   //! report a rollback failure (will be called by transactions in case of a
   //! rollback failure in the destructor)
   void report_rollback_failure(const std::string& message) noexcept {
-    _handle->config->debug.log(log_category::connection, "Rollback error: {}",
+    _handle.debug().log(log_category::connection, "Rollback error: {}",
                                message);
   }
 
   //! check if transaction is active
   bool is_transaction_active() { return _transaction_active; }
 
-  MYSQL* native_handle() { return _handle->native_handle(); }
+  MYSQL* native_handle() { return _handle.native_handle(); }
 
   std::string escape(const std::string_view& s) const {
     // Escape strings
     std::string result;
     result.resize((s.size() * 2) + 1);
 
-    size_t length = mysql_real_escape_string(_handle->native_handle(),
+    size_t length = mysql_real_escape_string(_handle.native_handle(),
                                              result.data(), s.data(), s.size());
     result.resize(length);
     return result;
   }
 
   const std::shared_ptr<const connection_config>& get_config() {
-    return _handle->config;
+    return _handle.config;
   }
 
  protected:

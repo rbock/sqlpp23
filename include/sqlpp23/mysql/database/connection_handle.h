@@ -101,6 +101,8 @@ struct connection_handle {
   std::shared_ptr<const connection_config> config;
   std::unique_ptr<MYSQL, void(STDCALL*)(MYSQL*)> mysql;
 
+  connection_handle() : config{}, mysql{nullptr, mysql_close} {}
+
   connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, mysql{mysql_init(nullptr), mysql_close} {
     if (not mysql) {
@@ -121,9 +123,13 @@ struct connection_handle {
     // The connection is established in the constructor and the MySQL client
     // library doesn't seem to have a way to check passively if the connection
     // is still valid
-    return true;
+    return native_handle() != nullptr;
   }
 
-  bool ping_server() const { return mysql_ping(native_handle()) == 0; }
+  bool ping_server() const {
+    return native_handle() and (mysql_ping(native_handle()) == 0);
+  }
+
+  const debug_logger& debug() { return config->debug; }
 };
 }  // namespace sqlpp::mysql::detail

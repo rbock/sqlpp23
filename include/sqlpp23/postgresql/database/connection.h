@@ -53,24 +53,23 @@ namespace sqlpp::postgresql {
 
 namespace detail {
 inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
-    std::unique_ptr<connection_handle>& handle,
+    connection_handle& handle,
     const std::string& stmt,
     const size_t& param_count) {
   if constexpr (debug_enabled) {
-    handle->config->debug.log(log_category::statement, "preparing: {}", stmt);
+    handle.debug().log(log_category::statement, "preparing: {}", stmt);
   }
 
-  return std::make_unique<detail::prepared_statement_handle_t>(*handle, stmt,
+  return std::make_unique<detail::prepared_statement_handle_t>(handle, stmt,
                                                                param_count);
 }
 
 inline void execute_prepared_statement(
-    std::unique_ptr<connection_handle>& handle,
+    connection_handle& handle,
     std::shared_ptr<detail::prepared_statement_handle_t>& prepared) {
   if constexpr (debug_enabled) {
-    handle->config->debug.log(log_category::statement,
-                              "executing prepared statement: {}",
-                              prepared->name());
+    handle.debug().log(log_category::statement,
+                       "executing prepared statement: {}", prepared->name());
   }
   prepared->execute();
 }
@@ -83,7 +82,6 @@ class connection_base : public sqlpp::connection {
   using _config_t = connection_config;
   using _config_ptr_t = std::shared_ptr<const _config_t>;
   using _handle_t = detail::connection_handle;
-  using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
   using _prepared_statement_t = prepared_statement_t;
 
@@ -93,7 +91,7 @@ class connection_base : public sqlpp::connection {
   bool _transaction_active{false};
 
   void validate_connection_handle() const {
-    if (!_handle) {
+    if (!_handle.native_handle()) {
       throw std::logic_error{"connection handle used, but not initialized"};
     }
   }
@@ -103,11 +101,11 @@ class connection_base : public sqlpp::connection {
       std::string_view stmt) {
     validate_connection_handle();
     if constexpr (debug_enabled) {
-      _handle->config->debug.log(log_category::statement, "executing: {}",
+      _handle.debug().log(log_category::statement, "executing: {}",
                                  stmt);
     }
 
-    auto result = std::make_shared<detail::statement_handle_t>(*_handle);
+    auto result = std::make_shared<detail::statement_handle_t>(_handle);
     result->result = PQexec(native_handle(), stmt.data());
     result->valid = true;
 
@@ -407,7 +405,7 @@ class connection_base : public sqlpp::connection {
           "PostgreSQL error: transaction failed or finished."};
     }
     if constexpr (debug_enabled) {
-      _handle->config->debug.log(log_category::connection,
+      _handle.debug().log(log_category::connection,
                                  "rolling back unfinished transaction");
     }
     _execute_impl("ROLLBACK");
@@ -417,7 +415,7 @@ class connection_base : public sqlpp::connection {
   //! report rollback failure
   void report_rollback_failure(const std::string& message) noexcept {
     if constexpr (debug_enabled) {
-      _handle->config->debug.log(log_category::connection,
+      _handle.debug().log(log_category::connection,
                                  "transaction rollback failure: {}", message);
     }
   }
@@ -442,7 +440,7 @@ class connection_base : public sqlpp::connection {
     return std::stoul(in);
   }
 
-  ::PGconn* native_handle() const { return _handle->native_handle(); }
+  ::PGconn* native_handle() const { return _handle.native_handle(); }
 
   std::string escape(const std::string_view& s) const {
     validate_connection_handle();
@@ -458,11 +456,11 @@ class connection_base : public sqlpp::connection {
   }
 
  protected:
-  _handle_ptr_t _handle;
+  _handle_t _handle;
 
   // Constructors
   connection_base() = default;
-  connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
+  connection_base(_handle_t&& handle) : _handle{std::move(handle)} {}
 };
 
 inline auto context_t::escape(std::string_view t) -> std::string {

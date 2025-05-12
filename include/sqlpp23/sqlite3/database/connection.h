@@ -45,8 +45,8 @@
 #include <sqlpp23/sqlite3/bind_result.h>
 #include <sqlpp23/sqlite3/constraints.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
+#include <sqlpp23/sqlite3/database/connection_handle.h>
 #include <sqlpp23/sqlite3/database/serializer_context.h>
-#include <sqlpp23/sqlite3/detail/connection_handle.h>
 #include <sqlpp23/sqlite3/prepared_statement.h>
 #include <sqlpp23/sqlite3/to_sql_string.h>
 
@@ -54,14 +54,14 @@ namespace sqlpp::sqlite3 {
 
 namespace detail {
 inline detail::prepared_statement_handle_t prepare_statement(
-    std::unique_ptr<connection_handle>& handle,
+    connection_handle& handle,
     const std::string_view& statement) {
   if constexpr (debug_enabled) {
-    handle->config->debug.log(log_category::statement,
+    handle.debug().log(log_category::statement,
                               "Sqlite3 debug: Preparing: '{}'", statement);
   }
 
-  detail::prepared_statement_handle_t result{nullptr, handle->config.get()};
+  detail::prepared_statement_handle_t result{nullptr, handle.config.get()};
 
   // ignore trailing spaces
   const auto end =
@@ -71,14 +71,14 @@ inline detail::prepared_statement_handle_t prepare_statement(
   const auto length = end - statement.begin();
 
   const char* uncompiledTail = nullptr;
-  const auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.data(),
+  const auto rc = sqlite3_prepare_v2(handle.native_handle(), statement.data(),
                                      static_cast<int>(length),
                                      &result.sqlite_statement, &uncompiledTail);
 
   if (rc != SQLITE_OK) {
     throw sqlpp::exception{
         "Sqlite3 error: Could not prepare statement: " +
-        std::string(sqlite3_errmsg(handle->native_handle())) +
+        std::string(sqlite3_errmsg(handle.native_handle())) +
         " ,statement was >>" +
         (rc == SQLITE_TOOBIG ? std::string(statement).substr(0, 128) + "..."
                              : std::string(statement)) +
@@ -94,7 +94,7 @@ inline detail::prepared_statement_handle_t prepare_statement(
   return result;
 }
 
-inline void execute_statement(std::unique_ptr<connection_handle>& handle,
+inline void execute_statement(connection_handle& handle,
                               detail::prepared_statement_handle_t& prepared) {
   auto rc = sqlite3_step(prepared.sqlite_statement);
   switch (rc) {
@@ -104,14 +104,14 @@ inline void execute_statement(std::unique_ptr<connection_handle>& handle,
       return;
     default:
       if constexpr (debug_enabled) {
-        handle->config->debug.log(log_category::statement,
+        handle.debug().log(log_category::statement,
                                   "Sqlite3 debug: sqlite3_step return code: {}",
                                   rc);
       }
 
       throw sqlpp::exception{
           "Sqlite3 error: Could not execute statement: " +
-          std::string(sqlite3_errmsg(handle->native_handle()))};
+          std::string(sqlite3_errmsg(handle.native_handle()))};
   }
 }
 }  // namespace detail
@@ -123,7 +123,6 @@ class connection_base : public sqlpp::connection {
   using _config_t = connection_config;
   using _config_ptr_t = std::shared_ptr<const connection_config>;
   using _handle_t = detail::connection_handle;
-  using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
   using _prepared_statement_t = prepared_statement_t;
 
@@ -397,7 +396,7 @@ class connection_base : public sqlpp::connection {
           "Sqlite3 error: Cannot rollback a finished or failed transaction"};
     }
     if constexpr (debug_enabled) {
-      _handle->config->debug.log(
+      _handle.debug().log(
           log_category::connection,
           "Sqlite3 warning: Rolling back unfinished transaction");
     }
@@ -410,7 +409,7 @@ class connection_base : public sqlpp::connection {
   //! rollback failure in the destructor)
   void report_rollback_failure(const std::string& message) noexcept {
     if constexpr (debug_enabled) {
-      _handle->config->debug.log(log_category::connection,
+      _handle.debug().log(log_category::connection,
                                  "rollback failure: ", message);
     }
   }
@@ -423,7 +422,7 @@ class connection_base : public sqlpp::connection {
     return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
   }
 
-  ::sqlite3* native_handle() const { return _handle->native_handle(); }
+  ::sqlite3* native_handle() const { return _handle.native_handle(); }
 
   schema_t attach(const connection_config& config, const std::string& name) {
     context_t context{this};
@@ -448,11 +447,11 @@ class connection_base : public sqlpp::connection {
   }
 
  protected:
-  _handle_ptr_t _handle;
+  _handle_t _handle;
 
   // Constructors
   connection_base() = default;
-  connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
+  connection_base(_handle_t&& handle) : _handle{std::move(handle)} {}
 };
 
 inline auto context_t::escape(std::string_view t) -> std::string {

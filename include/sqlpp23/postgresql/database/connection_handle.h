@@ -35,12 +35,13 @@
 #include <sqlpp23/postgresql/database/connection_config.h>
 #include <sqlpp23/postgresql/database/exception.h>
 
-namespace sqlpp::postgresql {
-namespace detail {
+namespace sqlpp::postgresql::detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
   std::unique_ptr<PGconn, void (*)(PGconn*)> postgres;
   std::set<std::string> prepared_statement_names;
+
+  connection_handle() : config{}, postgres{nullptr, PQfinish} {}
 
   connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, postgres{nullptr, PQfinish} {
@@ -159,8 +160,10 @@ struct connection_handle {
   ~connection_handle() {
     // Debug
     if constexpr (debug_enabled) {
-      config->debug.log(log_category::connection,
-                        "closing database connection.");
+      if (is_connected()) {
+        config->debug.log(log_category::connection,
+                          "closing database connection.");
+      }
     }
   }
 
@@ -177,8 +180,7 @@ struct connection_handle {
   PGconn* native_handle() const { return postgres.get(); }
 
   bool is_connected() const {
-    auto nh = native_handle();
-    return nh && (PQstatus(nh) == CONNECTION_OK);
+    return native_handle() and (PQstatus(native_handle()) == CONNECTION_OK);
   }
 
   bool ping_server() const {
@@ -191,6 +193,7 @@ struct connection_handle {
     PQclear(exec_res);
     return exec_ok;
   }
+
+  const debug_logger& debug() { return config->debug; }
 };
-}  // namespace detail
-}  // namespace sqlpp::postgresql
+}  // namespace sqlpp::postgresql::detail

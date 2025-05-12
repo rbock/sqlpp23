@@ -38,13 +38,11 @@ template <typename ConnectionBase>
 class common_connection : public ConnectionBase {
  public:
   bool is_connected() const {
-    return ConnectionBase::_handle ? ConnectionBase::_handle->is_connected()
-                                   : false;
+    return ConnectionBase::_handle.is_connected();
   }
 
   bool ping_server() const {
-    return ConnectionBase::_handle ? ConnectionBase::_handle->ping_server()
-                                   : false;
+    return ConnectionBase::_handle.ping_server();
   }
 
  protected:
@@ -65,7 +63,7 @@ class normal_connection : public common_connection<ConnectionBase> {
       : normal_connection{std::make_shared<_config_t>(config)} {}
 
   normal_connection(const _config_ptr_t& config)
-      : common_connection<ConnectionBase>(std::make_unique<_handle_t>(config)) {
+      : common_connection<ConnectionBase>(_handle_t{config}) {
   }
 
   normal_connection(const normal_connection&) = delete;
@@ -77,7 +75,7 @@ class normal_connection : public common_connection<ConnectionBase> {
 
   // creates a connection handle and connects to database
   void connect_using(const _config_ptr_t& config) noexcept(false) {
-    ConnectionBase::_handle = std::make_unique<_handle_t>(config);
+    ConnectionBase::_handle = {config};
   }
 
  private:
@@ -96,7 +94,6 @@ class pooled_connection : public common_connection<ConnectionBase> {
  public:
   using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
   using _handle_t = typename ConnectionBase::_handle_t;
-  using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
   using _pool_core_ptr_t =
       std::shared_ptr<typename connection_pool<ConnectionBase>::pool_core>;
 
@@ -123,12 +120,12 @@ class pooled_connection : public common_connection<ConnectionBase> {
   _pool_core_ptr_t _pool_core;
 
   // Constructors used by the connection pool
-  pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core)
+  pooled_connection(_handle_t&& handle, _pool_core_ptr_t pool_core)
       : common_connection<ConnectionBase>(std::move(handle)),
         _pool_core(pool_core) {}
 
   pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core)
-      : common_connection<ConnectionBase>(std::make_unique<_handle_t>(config)),
+      : common_connection<ConnectionBase>(_handle_t{config}),
         _pool_core(pool_core) {}
 
   void conn_release() {

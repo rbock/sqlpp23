@@ -41,7 +41,7 @@ template <typename ConnectionBase>
 class connection_pool {
  public:
   using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
-  using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
+  using _handle_t = typename ConnectionBase::_handle_t;
   using _pooled_connection_t = sqlpp::pooled_connection<ConnectionBase>;
 
   class pool_core : public std::enable_shared_from_this<pool_core> {
@@ -75,7 +75,7 @@ class connection_pool {
                                         this->shared_from_this()};
     }
 
-    void put(_handle_ptr_t& handle) {
+    void put(_handle_t& handle) {
       std::unique_lock<std::mutex> lock{_mutex};
       if (_handles.full()) {
         _handles.set_capacity(_handles.capacity() + 5);
@@ -90,22 +90,21 @@ class connection_pool {
     }
 
    private:
-    inline bool check_connection(_handle_ptr_t& handle,
-                                 connection_check check) {
+    inline bool check_connection(_handle_t& handle, connection_check check) {
       switch (check) {
         case connection_check::none:
           return true;
         case connection_check::passive:
-          return handle->is_connected();
+          return handle.is_connected();
         case connection_check::ping:
-          return handle->ping_server();
+          return handle.ping_server();
         default:
           throw std::invalid_argument{"Invalid connection check value"};
       }
     }
 
     _config_ptr_t _connection_config;
-    sqlpp::detail::circular_buffer<_handle_ptr_t> _handles;
+    sqlpp::detail::circular_buffer<_handle_t> _handles;
     std::mutex _mutex;
   };
 
