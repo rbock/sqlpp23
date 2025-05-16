@@ -83,7 +83,7 @@ inline void execute_statement(connection_handle& handle,
 }
 
 inline void execute_prepared_statement(
-    detail::prepared_statement_handle_t& prepared_statement) {
+    prepared_statement_t& prepared_statement) {
   thread_init();
 
   if constexpr (debug_enabled) {
@@ -91,48 +91,18 @@ inline void execute_prepared_statement(
                                    "Executing prepared_statement");
   }
 
-  if (mysql_stmt_bind_param(prepared_statement.mysql_stmt,
-                            prepared_statement.stmt_params.data())) {
+  if (mysql_stmt_bind_param(prepared_statement.native_handle().get(),
+                            prepared_statement.params().data())) {
     throw sqlpp::exception{
         std::string{"MySQL error: Could not bind parameters to statement"} +
-        mysql_stmt_error(prepared_statement.mysql_stmt)};
+        mysql_stmt_error(prepared_statement.native_handle().get())};
   }
 
-  if (mysql_stmt_execute(prepared_statement.mysql_stmt)) {
+  if (mysql_stmt_execute(prepared_statement.native_handle().get())) {
     throw sqlpp::exception{
         std::string{"MySQL error: Could not execute prepared statement: "} +
-        mysql_stmt_error(prepared_statement.mysql_stmt)};
+        mysql_stmt_error(prepared_statement.native_handle().get())};
   }
-}
-
-inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(
-    connection_handle& handle,
-    const std::string& statement,
-    size_t no_of_parameters,
-    size_t no_of_columns) {
-  thread_init();
-
-  if constexpr (debug_enabled) {
-    handle.debug().log(log_category::statement, "Preparing: '{}'",
-                              statement);
-  }
-
-  auto prepared_statement =
-      std::make_shared<detail::prepared_statement_handle_t>(
-          mysql_stmt_init(handle.native_handle()), no_of_parameters,
-          no_of_columns, handle.config.get());
-  if (not prepared_statement) {
-    throw sqlpp::exception{
-        "MySQL error: Could not allocate prepared statement\n"};
-  }
-  if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(),
-                         statement.size())) {
-    throw sqlpp::exception{"MySQL error: Could not prepare statement: " +
-                           std::string{mysql_error(handle.native_handle())} +
-                           " (statement was >>" + statement + "<<\n"};
-  }
-
-  return prepared_statement;
 }
 
 }  // namespace detail
@@ -209,32 +179,39 @@ class connection_base : public sqlpp::connection {
 
   // prepared execution
   prepared_statement_t prepare_impl(const std::string& statement,
-                                    size_t no_of_parameters,
-                                    size_t no_of_columns) {
-    return prepare_statement(_handle, statement, no_of_parameters,
-                             no_of_columns);
+                                    size_t no_of_parameters) {
+    detail::thread_init();
+
+    if constexpr (debug_enabled) {
+      _handle.debug().log(log_category::statement, "Preparing: '{}'",
+                          statement);
+    }
+
+    return prepared_statement_t(_handle.native_handle(), statement,
+                                       no_of_parameters,
+                                       _handle.config.get());
   }
 
   bind_result_t run_prepared_select_impl(
-      prepared_statement_t& prepared_statement) {
-    execute_prepared_statement(*prepared_statement._handle);
-    return prepared_statement._handle;
+      prepared_statement_t& prepared_statement, size_t no_of_columns) {
+    detail::execute_prepared_statement(prepared_statement);
+    return bind_result_t{prepared_statement.native_handle(), no_of_columns, _handle.config.get()};
   }
 
   uint64_t run_prepared_insert_impl(prepared_statement_t& prepared_statement) {
-    execute_prepared_statement(*prepared_statement._handle);
-    return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
+    detail::execute_prepared_statement(prepared_statement);
+    return mysql_stmt_insert_id(prepared_statement.native_handle().get());
   }
 
   uint64_t run_prepared_update_impl(prepared_statement_t& prepared_statement) {
-    execute_prepared_statement(*prepared_statement._handle);
-    return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+    detail::execute_prepared_statement(prepared_statement);
+    return mysql_stmt_affected_rows(prepared_statement.native_handle().get());
   }
 
   uint64_t run_prepared_delete_from_impl(
       prepared_statement_t& prepared_statement) {
-    execute_prepared_statement(*prepared_statement._handle);
-    return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+    detail::execute_prepared_statement(prepared_statement);
+    return mysql_stmt_affected_rows(prepared_statement.native_handle().get());
   }
 
   //! execute
@@ -246,15 +223,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Execute>
-  _prepared_statement_t _prepare_execute(Execute& u) {
+  _prepared_statement_t _prepare_execute(const Execute& u) {
     context_t context(this);
     const auto query = to_sql_string(context, u);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Execute>>::size(),
-                        0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Execute>>::size());
   }
 
   template <typename PreparedExecute>
-  size_t _run_prepared_execute(const PreparedExecute& u) {
+  size_t _run_prepared_execute(PreparedExecute& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
@@ -267,18 +243,19 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Select>
-  _prepared_statement_t _prepare_select(Select& s) {
+  _prepared_statement_t _prepare_select(const Select& s) {
     context_t context(this);
     const auto query = to_sql_string(context, s);
     return prepare_impl(
-        query, parameters_of_t<std::decay_t<Select>>::size(),
-        sqlpp::no_of_result_columns<std::decay_t<Select>>::value);
+        query, parameters_of_t<std::decay_t<Select>>::size());
   }
 
   template <typename PreparedSelect>
-  bind_result_t _run_prepared_select(const PreparedSelect& s) {
+  bind_result_t _run_prepared_select(PreparedSelect& s) {
     s._bind_params();
-    return run_prepared_select_impl(s._prepared_statement);
+    return run_prepared_select_impl(
+        s._prepared_statement,
+        sqlpp::no_of_result_columns<std::decay_t<PreparedSelect>>::value);
   }
 
   //! insert returns the last auto_incremented id (or zero, if there is none)
@@ -290,15 +267,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Insert>
-  _prepared_statement_t _prepare_insert(Insert& i) {
+  _prepared_statement_t _prepare_insert(const Insert& i) {
     context_t context(this);
     const auto query = to_sql_string(context, i);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size(),
-                        0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size());
   }
 
   template <typename PreparedInsert>
-  size_t _run_prepared_insert(const PreparedInsert& i) {
+  size_t _run_prepared_insert(PreparedInsert& i) {
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
   }
@@ -312,15 +288,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Update>
-  _prepared_statement_t _prepare_update(Update& u) {
+  _prepared_statement_t _prepare_update(const Update& u) {
     context_t context(this);
     const auto query = to_sql_string(context, u);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size(),
-                        0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size());
   }
 
   template <typename PreparedUpdate>
-  size_t _run_prepared_update(const PreparedUpdate& u) {
+  size_t _run_prepared_update(PreparedUpdate& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
@@ -334,15 +309,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Delete>
-  _prepared_statement_t _prepare_delete_from(Delete& r) {
+  _prepared_statement_t _prepare_delete_from(const Delete& r) {
     context_t context(this);
     const auto query = to_sql_string(context, r);
-    return prepare_impl(query, parameters_of_t<std::decay_t<Delete>>::size(),
-                        0);
+    return prepare_impl(query, parameters_of_t<std::decay_t<Delete>>::size());
   }
 
   template <typename PreparedDelete>
-  size_t _run_prepared_delete_from(const PreparedDelete& r) {
+  size_t _run_prepared_delete_from(PreparedDelete& r) {
     r._bind_params();
     return run_prepared_delete_from_impl(r._prepared_statement);
   }
@@ -358,9 +332,9 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename T>
-    requires(sqlpp::is_prepared_statement_v<T>)
-  auto operator()(const T& t) {
-    return sqlpp::statement_handler_t{}.run(t, *this);
+    requires(sqlpp::is_prepared_statement_v<std::decay_t<T>>)
+  auto operator()(T&& t) {
+    return sqlpp::statement_handler_t{}.run(std::forward<T>(t), *this);
   }
 
   //! Execute arbitrary statement (e.g. create a table).

@@ -54,7 +54,7 @@ struct statement_handle_t {
   statement_handle_t& operator=(const statement_handle_t&) = delete;
   statement_handle_t& operator=(statement_handle_t&&) = delete;
 
-  virtual ~statement_handle_t() { clear_result(); }
+  virtual ~statement_handle_t() = default;
 
   bool operator!() const { return !valid; }
 
@@ -108,7 +108,7 @@ struct prepared_statement_handle_t : public statement_handle_t {
     for (size_t i = 0u; i < size; i++)
       values.push_back(null_values[i]
                            ? nullptr
-                           : const_cast<char*>(param_values[i].c_str()));
+                           : param_values[i].c_str());
 
     // Execute prepared statement with the parameters.
     clear_result();

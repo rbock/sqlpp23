@@ -175,18 +175,6 @@ int Sample(int, char*[]) {
   pr.params.textNnD = "prepared cake";
   std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
-  // Check that a prepared select is default-constructible
-  {
-    auto s = select(all_of(tab))
-                 .from(tab)
-                 .where((tab.textNnD.like(parameter(tab.textNnD)) and
-                         tab.intN == parameter(tab.intN)) or
-                        tab.boolN != parameter(tab.boolN));
-    using P = decltype(db.prepare(s));
-    P p;  // You must not use this one yet!
-    p = db.prepare(s);
-  }
-
   {
     // insert_or with static assignments
     auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(

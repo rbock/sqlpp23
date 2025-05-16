@@ -32,28 +32,32 @@
 #include <span>
 #include <string_view>
 
+#ifdef SQLPP_USE_SQLCIPHER
+#include <sqlcipher/sqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
+
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/sqlite3/detail/prepared_statement_handle.h>
+#include <sqlpp23/sqlite3/database/connection_config.h>
 
 namespace sqlpp::sqlite3 {
 class bind_result_t {
-  std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+  std::shared_ptr<::sqlite3_stmt> _sqlite3_statement;
+  const connection_config* _config;
 
  public:
   bind_result_t() = default;
-  bind_result_t(
-      const std::shared_ptr<detail::prepared_statement_handle_t>& handle)
-      : _handle{handle} {
+  bind_result_t(std::shared_ptr<::sqlite3_stmt> statement, const connection_config* config)
+      : _sqlite3_statement{std::move(statement)}, _config{config} {
     if constexpr (debug_enabled) {
-      if (_handle) {
-        _handle->debug().log(
+        _config->debug.log(
             log_category::result,
-            "Sqlite3 debug: Constructing bind result, using handle at {}",
-            std::hash<void*>{}(_handle.get()));
-      }
+            "Constructing bind result, using handle at {}",
+            std::hash<void*>{}(_sqlite3_statement.get()));
     }
   }
 
@@ -64,12 +68,12 @@ class bind_result_t {
   ~bind_result_t() = default;
 
   bool operator==(const bind_result_t& rhs) const {
-    return _handle == rhs._handle;
+    return _sqlite3_statement == rhs._sqlite3_statement;
   }
 
   template <typename ResultRow>
   void next(ResultRow& result_row) {
-    if (!_handle) {
+    if (!_sqlite3_statement) {
       sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       return;
     }
@@ -88,96 +92,96 @@ class bind_result_t {
 
   void read_field(size_t index, bool& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
-                           "Sqlite3 debug: binding boolean result at index {}",
+      _config->debug.log(log_category::result,
+                           "binding boolean result at index {}",
                            index);
     }
 
     value = static_cast<signed char>(
-        sqlite3_column_int(_handle->sqlite_statement, static_cast<int>(index)));
+        sqlite3_column_int(_sqlite3_statement.get(), static_cast<int>(index)));
   }
 
   void read_field(size_t index, double& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
-          "Sqlite3 debug: binding floating_point result at index {}", index);
+          "binding floating_point result at index {}", index);
     }
 
-    switch (sqlite3_column_type(_handle->sqlite_statement,
+    switch (sqlite3_column_type(_sqlite3_statement.get(),
                                 static_cast<int>(index))) {
       case (SQLITE3_TEXT):
         value = atof(reinterpret_cast<const char*>(sqlite3_column_text(
-            _handle->sqlite_statement, static_cast<int>(index))));
+            _sqlite3_statement.get(), static_cast<int>(index))));
         break;
       default:
-        value = sqlite3_column_double(_handle->sqlite_statement,
+        value = sqlite3_column_double(_sqlite3_statement.get(),
                                       static_cast<int>(index));
     }
   }
 
   void read_field(size_t index, int64_t& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
-                           "Sqlite3 debug: reading integral result at index {}",
+      _config->debug.log(log_category::result,
+                           "reading integral result at index {}",
                            index);
     }
 
-    value = sqlite3_column_int64(_handle->sqlite_statement,
+    value = sqlite3_column_int64(_sqlite3_statement.get(),
                                  static_cast<int>(index));
   }
 
   void read_field(size_t index, uint64_t& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
-          "Sqlite3 debug: binding unsigned integral result at index {}", index);
+          "binding unsigned integral result at index {}", index);
     }
 
     value = static_cast<uint64_t>(sqlite3_column_int64(
-        _handle->sqlite_statement, static_cast<int>(index)));
+        _sqlite3_statement.get(), static_cast<int>(index)));
   }
 
   void read_field(size_t index, std::string_view& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding text result at index {}",
                            index);
     }
 
     value = std::string_view(
         reinterpret_cast<const char*>(sqlite3_column_text(
-            _handle->sqlite_statement, static_cast<int>(index))),
-        static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement,
+            _sqlite3_statement.get(), static_cast<int>(index))),
+        static_cast<size_t>(sqlite3_column_bytes(_sqlite3_statement.get(),
                                                  static_cast<int>(index))));
   }
 
   void read_field(size_t index, std::span<const uint8_t>& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding blob result at index {}",
                            index);
     }
 
     value = std::span<const uint8_t>(
         reinterpret_cast<const uint8_t*>(sqlite3_column_blob(
-            _handle->sqlite_statement, static_cast<int>(index))),
-        static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement,
+            _sqlite3_statement.get(), static_cast<int>(index))),
+        static_cast<size_t>(sqlite3_column_bytes(_sqlite3_statement.get(),
                                                  static_cast<int>(index))));
   }
 
   void read_field(size_t index, std::chrono::microseconds& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding date result at index {}",
                            index);
     }
 
     const auto time_of_day_string =
         reinterpret_cast<const char*>(sqlite3_column_text(
-            _handle->sqlite_statement, static_cast<int>(index)));
+            _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: time_of_day string {}",
                            time_of_day_string);
     }
@@ -186,7 +190,7 @@ class bind_result_t {
         false) {
       value = {};
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result,
+        _config->debug.log(log_category::result,
                              "Sqlite3 debug: invalid date result {}",
                              time_of_day_string);
       }
@@ -195,22 +199,22 @@ class bind_result_t {
 
   void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding date result at index {}",
                            index);
     }
 
     const auto date_string = reinterpret_cast<const char*>(sqlite3_column_text(
-        _handle->sqlite_statement, static_cast<int>(index)));
+        _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: date string: {}", date_string);
     }
 
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
       value = {};
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result,
+        _config->debug.log(log_category::result,
                              "Sqlite3 debug: invalid date result: {}",
                              date_string);
       }
@@ -219,16 +223,16 @@ class bind_result_t {
 
   void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding date result at index {}",
                            index);
     }
 
     const auto date_time_string =
         reinterpret_cast<const char*>(sqlite3_column_text(
-            _handle->sqlite_statement, static_cast<int>(index)));
+            _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: date_time string: {}",
                            date_time_string);
     }
@@ -238,7 +242,7 @@ class bind_result_t {
         false) {
       value = {};
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result,
+        _config->debug.log(log_category::result,
                              "Sqlite3 debug: invalid date_time result: {}",
                              date_time_string);
       }
@@ -248,7 +252,7 @@ class bind_result_t {
   template <typename T>
   auto read_field(size_t index, std::optional<T>& field) -> void {
     const bool is_null =
-        sqlite3_column_type(_handle->sqlite_statement,
+        sqlite3_column_type(_sqlite3_statement.get(),
                             static_cast<int>(index)) == SQLITE_NULL;
     if (is_null) {
       field.reset();
@@ -263,12 +267,12 @@ class bind_result_t {
  private:
   bool next_impl() {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "Sqlite3 debug: Accessing next row of handle at ",
-                           std::hash<void*>{}(_handle.get()));
+                           std::hash<void*>{}(_sqlite3_statement.get()));
     }
 
-    auto rc = sqlite3_step(_handle->sqlite_statement);
+    auto rc = sqlite3_step(_sqlite3_statement.get());
 
     switch (rc) {
       case SQLITE_ROW:

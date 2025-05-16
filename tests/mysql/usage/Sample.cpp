@@ -73,7 +73,7 @@ int Sample(int, char*[]) {
     // insert
     db(insert_into(tab).default_values());
     const auto x = select(all_of(tab)).from(tab);
-    const auto y = db.prepare(x);
+    auto y = db.prepare(x);
     for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab)))) {
       std::cerr << "intN: " << row.intN << std::endl;
       std::cerr << "textN: " << row.textN << std::endl;

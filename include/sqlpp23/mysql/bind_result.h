@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -35,26 +34,51 @@
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/mysql/detail/prepared_statement_handle.h>
+#include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql {
 class bind_result_t {
-  std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+  struct bind_result_buffer {
+    unsigned long length;
+    my_bool is_null;
+    my_bool error;
+    union  // unnamed union injects members into scope
+    {
+      bool bool_;
+      int64_t int64_;
+      uint64_t uint64_;
+      double double_;
+      MYSQL_TIME mysql_time_;
+    };
+    std::vector<char> var_buffer;  // text and blobs
+  };
+
+  std::shared_ptr<MYSQL_STMT> _mysql_stmt;
+  std::vector<MYSQL_BIND> _result_params;
+  std::vector<bind_result_buffer> _result_buffers;
+  const connection_config* _config;
   void* _result_row_address{nullptr};
   bool _require_bind = true;
 
  public:
   bind_result_t() = default;
-  bind_result_t(
-      const std::shared_ptr<detail::prepared_statement_handle_t>& handle)
-      : _handle{handle} {
+  bind_result_t(const std::shared_ptr<MYSQL_STMT>& mysql_stmt,
+                size_t no_of_columns,
+                const connection_config* config)
+      : _mysql_stmt{mysql_stmt},
+        _result_params(no_of_columns,
+                       MYSQL_BIND{}),  // ()-init for correct constructor
+        _result_buffers(
+            no_of_columns,
+            bind_result_buffer{}),  // ()-init for correct constructor
+        _config{config} {
     if constexpr (debug_enabled) {
-      if (_handle) {
-        _handle->debug().log(
+      if (_mysql_stmt) {
+        _config->debug.log(
             log_category::result,
             "MySQL debug: Constructing bind result, using handle at ",
-            std::hash<void*>{}(_handle.get()));
+            std::hash<void*>{}(_mysql_stmt.get()));
       }
     }
   }
@@ -63,12 +87,12 @@ class bind_result_t {
   bind_result_t& operator=(const bind_result_t&) = delete;
   bind_result_t& operator=(bind_result_t&&) = default;
   ~bind_result_t() {
-    if (_handle)
-      mysql_stmt_free_result(_handle->mysql_stmt);
+    if (_mysql_stmt)
+      mysql_stmt_free_result(_mysql_stmt.get());
   }
 
   bool operator==(const bind_result_t& rhs) const {
-    return _handle == rhs._handle;
+    return _mysql_stmt == rhs._mysql_stmt;
   }
 
   template <typename ResultRow>
@@ -102,19 +126,19 @@ class bind_result_t {
     }
   }
 
-  bool _invalid() const { return !_handle or !*_handle; }
+  bool _invalid() const { return !_mysql_stmt; }
 
   void bind_field(size_t index, bool& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: binding boolean result at index: {}",
                            index);
     }
 
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
     new (&buffer.bool_) bool{};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = MYSQL_TYPE_TINY;
     param.buffer = &buffer.bool_;
     param.buffer_length = sizeof(buffer.bool_);
@@ -126,15 +150,15 @@ class bind_result_t {
 
   void bind_field(size_t index, int64_t& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: binding integral result at index: {}",
                            index);
     }
 
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
     new (&buffer.int64_) int64_t{};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
     param.buffer = &buffer.int64_;
     param.buffer_length = sizeof(buffer.int64_);
@@ -146,15 +170,15 @@ class bind_result_t {
 
   void bind_field(size_t index, uint64_t& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
           "MySQL debug: binding unsigned integral result at index: {}", index);
     }
 
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
     new (&buffer.uint64_) uint64_t{};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
     param.buffer = &buffer.uint64_;
     param.buffer_length = sizeof(buffer.uint64_);
@@ -166,15 +190,15 @@ class bind_result_t {
 
   void bind_field(size_t index, double& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
           "MySQL debug: binding floating point result at index: {}", index);
     }
 
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
     new (&buffer.double_) double{};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = MYSQL_TYPE_DOUBLE;
     param.buffer = &buffer.double_;
     param.buffer_length = sizeof(buffer.double_);
@@ -186,14 +210,14 @@ class bind_result_t {
 
   void bind_field(size_t index, std::string_view& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: binding text result at index: {}",
                            index);
     }
 
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = MYSQL_TYPE_STRING;
     param.buffer = buffer.var_buffer.data();
     param.buffer_length = buffer.var_buffer.size();
@@ -205,14 +229,14 @@ class bind_result_t {
 
   void bind_field(size_t index, std::span<const uint8_t>& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: binding blob result at index: {}",
                            index);
     }
 
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = MYSQL_TYPE_BLOB;
     param.buffer = buffer.var_buffer.data();
     param.buffer_length = buffer.var_buffer.size();
@@ -223,10 +247,10 @@ class bind_result_t {
   }
 
   void bind_chrono_field(size_t index, enum_field_types buffer_type) {
-    auto& buffer{_handle->result_buffers[index]};
+    auto& buffer{_result_buffers[index]};
     new (&buffer.mysql_time_) MYSQL_TIME{};
 
-    MYSQL_BIND& param{_handle->result_params[index]};
+    MYSQL_BIND& param{_result_params[index]};
     param.buffer_type = buffer_type;
     param.buffer = &buffer.mysql_time_;
     param.buffer_length = sizeof(buffer.mysql_time_);
@@ -238,7 +262,7 @@ class bind_result_t {
 
   void bind_field(size_t index, ::sqlpp::chrono::day_point& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: binding date result at index: {}",
                            index);
     }
@@ -248,7 +272,7 @@ class bind_result_t {
 
   void bind_field(size_t index, ::sqlpp::chrono::microsecond_point& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: binding date time result at index: {}",
                            index);
     }
@@ -258,7 +282,7 @@ class bind_result_t {
 
   void bind_field(size_t index, ::std::chrono::microseconds& /*value*/) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
           "MySQL debug: binding time of day result at index: {}", index);
     }
@@ -274,51 +298,51 @@ class bind_result_t {
 
   void read_field(size_t index, bool& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading bool result at index: {}",
                            index);
     }
-    value = _handle->result_buffers[index].bool_;
+    value = _result_buffers[index].bool_;
   }
 
   void read_field(size_t index, int64_t& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading integral result at index: {}",
                            index);
     }
-    value = _handle->result_buffers[index].int64_;
+    value = _result_buffers[index].int64_;
   }
 
   void read_field(size_t index, uint64_t& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
           "MySQL debug: reading unsigned integral result at index: {}", index);
     }
-    value = _handle->result_buffers[index].uint64_;
+    value = _result_buffers[index].uint64_;
   }
 
   void read_field(size_t index, double& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
           "MySQL debug: reading floating point result at index: {}", index);
     }
-    value = _handle->result_buffers[index].double_;
+    value = _result_buffers[index].double_;
   }
 
   void refetch_if_required(size_t index) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: Checking result size at index: {}",
                            index);
     }
-    auto& buffer = _handle->result_buffers[index];
-    auto& params = _handle->result_params[index];
+    auto& buffer = _result_buffers[index];
+    auto& params = _result_params[index];
     if (*params.length > params.buffer_length) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result,
+        _config->debug.log(log_category::result,
                              "MySQL debug: increasing buffer at: {} to {}",
                              index, *params.length);
       }
@@ -327,38 +351,38 @@ class bind_result_t {
       params.buffer = buffer.var_buffer.data();
       params.buffer_length = buffer.var_buffer.size();
       const auto err =
-          mysql_stmt_fetch_column(_handle->mysql_stmt, &params, index, 0);
+          mysql_stmt_fetch_column(_mysql_stmt.get(), &params, index, 0);
       if (err)
         throw sqlpp::exception{
             std::string{"MySQL: Fetch column after reallocate failed: "} +
             "error-code: " + std::to_string(err) + ", stmt-error: " +
-            mysql_stmt_error(_handle->mysql_stmt) + ", stmt-errno: " +
-            std::to_string(mysql_stmt_errno(_handle->mysql_stmt))};
+            mysql_stmt_error(_mysql_stmt.get()) + ", stmt-errno: " +
+            std::to_string(mysql_stmt_errno(_mysql_stmt.get()))};
       _require_bind = true;
     }
   }
 
   void read_field(size_t index, std::string_view& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading text result at index: {}",
                            index);
     }
     refetch_if_required(index);
-    const auto& buffer = _handle->result_buffers[index];
-    const auto& params = _handle->result_params[index];
+    const auto& buffer = _result_buffers[index];
+    const auto& params = _result_params[index];
     value = std::string_view(buffer.var_buffer.data(), *params.length);
   }
 
   void read_field(size_t index, std::span<const uint8_t>& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading blob result at index: {}",
                            index);
     }
     refetch_if_required(index);
-    const auto& buffer = _handle->result_buffers[index];
-    const auto& params = _handle->result_params[index];
+    const auto& buffer = _result_buffers[index];
+    const auto& params = _result_params[index];
     value = std::span<const uint8_t>(
         reinterpret_cast<const uint8_t*>(buffer.var_buffer.data()),
         *params.length);
@@ -366,12 +390,12 @@ class bind_result_t {
 
   void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading date result at index: {}",
                            index);
     }
 
-    const auto& dt = _handle->result_buffers[index].mysql_time_;
+    const auto& dt = _result_buffers[index].mysql_time_;
     if (dt.year > std::numeric_limits<int>::max())
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
@@ -381,12 +405,12 @@ class bind_result_t {
 
   void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading date time result at index: {}",
                            index);
     }
 
-    const auto& dt = _handle->result_buffers[index].mysql_time_;
+    const auto& dt = _result_buffers[index].mysql_time_;
     if (dt.year > std::numeric_limits<int>::max())
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
@@ -400,12 +424,12 @@ class bind_result_t {
 
   void read_field(size_t index, ::std::chrono::microseconds& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: reading date time result at index: {}",
                            index);
     }
 
-    const auto& dt = _handle->result_buffers[index].mysql_time_;
+    const auto& dt = _result_buffers[index].mysql_time_;
     value = std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +
             std::chrono::seconds(dt.second) +
             std::chrono::microseconds(dt.second_part);
@@ -413,7 +437,7 @@ class bind_result_t {
 
   template <class T>
   void read_field(size_t index, std::optional<T>& value) {
-    if (_handle->result_buffers[index].is_null) {
+    if (_result_buffers[index].is_null) {
       value.reset();
       return;
     }
@@ -425,26 +449,26 @@ class bind_result_t {
  private:
   void bind_impl() {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: Binding results for handle at {}",
-                           std::hash<void*>{}(_handle.get()));
+                           std::hash<void*>{}(_mysql_stmt.get()));
     }
 
-    if (mysql_stmt_bind_result(_handle->mysql_stmt,
-                               _handle->result_params.data())) {
+    if (mysql_stmt_bind_result(_mysql_stmt.get(),
+                               _result_params.data())) {
       throw sqlpp::exception{std::string{"MySQL: mysql_stmt_bind_result: "} +
-                             mysql_stmt_error(_handle->mysql_stmt)};
+                             mysql_stmt_error(_mysql_stmt.get())};
     }
   }
 
   bool next_impl() {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "MySQL debug: Accessing next row of handle at {}",
-                           std::hash<void*>{}(_handle.get()));
+                           std::hash<void*>{}(_mysql_stmt.get()));
     }
 
-    const auto flag = mysql_stmt_fetch(_handle->mysql_stmt);
+    const auto flag = mysql_stmt_fetch(_mysql_stmt.get());
 
     switch (flag) {
       case 0:
@@ -453,7 +477,7 @@ class bind_result_t {
       case 1:
         throw sqlpp::exception{
             std::string{"MySQL: Could not fetch next result: "} +
-            mysql_stmt_error(_handle->mysql_stmt)};
+            mysql_stmt_error(_mysql_stmt.get())};
       case MYSQL_NO_DATA:
         return false;
       default:

@@ -99,7 +99,7 @@ inline void connect(MYSQL* mysql, const connection_config& config) {
 
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<MYSQL, void(STDCALL*)(MYSQL*)> mysql;
+  std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
 
   connection_handle() : config{}, mysql{nullptr, mysql_close} {}
 

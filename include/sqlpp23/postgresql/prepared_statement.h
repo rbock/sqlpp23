@@ -30,9 +30,9 @@
 
 #include <memory>
 #include <string>
-#include "sqlpp23/core/debug_logger.h"
 
 #include <sqlpp23/core/chrono.h>
+#include <sqlpp23/core/debug_logger.h>
 #include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 #include <sqlpp23/postgresql/detail/prepared_statement_handle.h>

@@ -174,13 +174,13 @@ class connection_base : public sqlpp::connection {
 
   // Prepared select
   template <typename Select>
-  _prepared_statement_t _prepare_select(Select& s) {
+  _prepared_statement_t _prepare_select(const Select& s) {
     context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedSelect>
-  bind_result_t _run_prepared_select(const PreparedSelect& s) {
+  bind_result_t _run_prepared_select(PreparedSelect& s) {
     s._bind_params();
     return run_prepared_select_impl(s._prepared_statement);
   }
@@ -193,13 +193,13 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Insert>
-  prepared_statement_t _prepare_insert(Insert& s) {
+  prepared_statement_t _prepare_insert(const Insert& s) {
     context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedInsert>
-  size_t _run_prepared_insert(const PreparedInsert& i) {
+  size_t _run_prepared_insert(PreparedInsert& i) {
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
   }
@@ -212,32 +212,32 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Update>
-  prepared_statement_t _prepare_update(Update& s) {
+  prepared_statement_t _prepare_update(const Update& s) {
     context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedUpdate>
-  size_t _run_prepared_update(const PreparedUpdate& u) {
+  size_t _run_prepared_update(PreparedUpdate& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
 
-  // Remove
-  template <typename Remove>
-  size_t _delete_from(const Remove& s) {
+  // Delete
+  template <typename Delete>
+  size_t _delete_from(const Delete& s) {
     context_t context(this);
     return delete_from_impl(to_sql_string(context, s));
   }
 
-  template <typename Remove>
-  prepared_statement_t _prepare_delete_from(Remove& s) {
+  template <typename Delete>
+  prepared_statement_t _prepare_delete_from(const Delete& s) {
     context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
-  template <typename PreparedRemove>
-  size_t _run_prepared_delete_from(const PreparedRemove& r) {
+  template <typename PreparedDelete>
+  size_t _run_prepared_delete_from(PreparedDelete& r) {
     r._bind_params();
     return run_prepared_delete_from_impl(r._prepared_statement);
   }
@@ -250,13 +250,13 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Execute>
-  _prepared_statement_t _prepare_execute(Execute& s) {
+  _prepared_statement_t _prepare_execute(const Execute& s) {
     context_t context(this);
     return prepare_impl(to_sql_string(context, s), context._count);
   }
 
   template <typename PreparedExecute>
-  size_t _run_prepared_execute(const PreparedExecute& x) {
+  size_t _run_prepared_execute(PreparedExecute& x) {
     x._prepared_statement._reset();
     x._bind_params();
     return run_prepared_execute_impl(x._prepared_statement);
@@ -279,9 +279,9 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename T>
-    requires(sqlpp::is_prepared_statement_v<T>)
-  auto operator()(const T& t) {
-    return sqlpp::statement_handler_t{}.run(t, *this);
+    requires(sqlpp::is_prepared_statement_v<std::decay_t<T>>)
+  auto operator()(T&& t) {
+    return sqlpp::statement_handler_t{}.run(std::forward<T>(t), *this);
   }
 
   template <typename T>

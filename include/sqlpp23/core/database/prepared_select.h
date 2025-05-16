@@ -39,21 +39,25 @@ struct prepared_select_t {
   using _parameter_list_t = make_parameter_list_t<_Statement>;
   using _prepared_statement_t = typename Database::_prepared_statement_t;
 
-  auto _run(Database& db) const
+  auto _run(Database& db)
       -> result_t<decltype(statement_handler_t{}.run_prepared_select(*this,
                                                                      db)),
                   _result_row_t> {
     return {statement_handler_t{}.run_prepared_select(*this, db)};
   }
 
-  void _bind_params() const { params._bind(_prepared_statement); }
+  void _bind_params() { params._bind(_prepared_statement); }
 
   _parameter_list_t params;
-  mutable _prepared_statement_t _prepared_statement;
+  _prepared_statement_t _prepared_statement;
 };
 
-template <typename Db, typename _Statement>
-struct is_prepared_statement<prepared_select_t<Db, _Statement>>
+template <typename Database, typename _Statement>
+struct is_prepared_statement<prepared_select_t<Database, _Statement>>
     : public std::true_type {};
+
+template <typename Database, typename _Statement>
+struct no_of_result_columns<prepared_select_t<Database, _Statement>>
+    : public no_of_result_columns<_Statement> {};
 
 }  // namespace sqlpp

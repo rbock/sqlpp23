@@ -76,9 +76,9 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename T>
-    requires(sqlpp::is_prepared_statement_v<T>)
-  auto operator()(const T& t) {
-    return sqlpp::statement_handler_t{}.run(t, *this);
+    requires(sqlpp::is_prepared_statement_v<std::decay_t<T>>)
+  auto operator()(T&& t) {
+    return sqlpp::statement_handler_t{}.run(std::forward<T>(t), *this);
   }
 
   auto operator()(std::string_view) { return size_t{}; }
@@ -107,8 +107,8 @@ struct MockDb : public sqlpp::connection {
     return 0;
   }
 
-  template <typename Remove>
-  size_t _delete_from(const Remove& x) {
+  template <typename Delete>
+  size_t _delete_from(const Delete& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running remove call with\n" << query << std::endl;
@@ -135,7 +135,7 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename Statement>
-  _prepared_statement_t _prepare_execute(Statement& x) {
+  _prepared_statement_t _prepare_execute(const Statement& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare execute call with\n" << query << std::endl;
@@ -143,7 +143,7 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename Insert>
-  _prepared_statement_t _prepare_insert(Insert& x) {
+  _prepared_statement_t _prepare_insert(const Insert& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare insert call with\n" << query << std::endl;
@@ -151,7 +151,7 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename Update>
-  _prepared_statement_t _prepare_update(Update& x) {
+  _prepared_statement_t _prepare_update(const Update& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare update call with\n" << query << std::endl;
@@ -159,22 +159,22 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename PreparedExecute>
-  size_t _run_prepared_execute(const PreparedExecute&) {
+  size_t _run_prepared_execute(PreparedExecute&) {
     return 0;
   }
 
   template <typename PreparedInsert>
-  size_t _run_prepared_insert(const PreparedInsert&) {
+  size_t _run_prepared_insert(PreparedInsert&) {
     return 0;
   }
 
   template <typename PreparedUpdate>
-  size_t _run_prepared_update(const PreparedUpdate&) {
+  size_t _run_prepared_update(PreparedUpdate&) {
     return 0;
   }
 
   template <typename Select>
-  _prepared_statement_t _prepare_select(Select& x) {
+  _prepared_statement_t _prepare_select(const Select& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare select call with\n" << query << std::endl;
