@@ -28,7 +28,6 @@
  */
 
 #include <memory>
-#include <set>
 #include <string>
 
 #include <libpq-fe.h>
@@ -39,7 +38,7 @@ namespace sqlpp::postgresql::detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
   std::unique_ptr<PGconn, void (*)(PGconn*)> postgres;
-  std::set<std::string> prepared_statement_names;
+  size_t _prepared_statement_count = 0;
 
   connection_handle() : config{}, postgres{nullptr, PQfinish} {}
 
@@ -170,11 +169,9 @@ struct connection_handle {
   connection_handle& operator=(const connection_handle&) = delete;
   connection_handle& operator=(connection_handle&&) = default;
 
-  void deallocate_prepared_statement(const std::string& name) {
-    std::string cmd = "DEALLOCATE \"" + name + "\"";
-    PGresult* result = PQexec(native_handle(), cmd.c_str());
-    PQclear(result);
-    prepared_statement_names.erase(name);
+  std::string get_prepared_statement_name() {
+    ++_prepared_statement_count;
+    return std::to_string(_prepared_statement_count);
   }
 
   PGconn* native_handle() const { return postgres.get(); }

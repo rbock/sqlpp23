@@ -60,14 +60,14 @@ class prepared_statement_t {
   std::vector<MYSQL_TIME> stmt_date_time_param_buffer;
   std::vector<detail::wrapped_bool>
       stmt_param_is_null;  // my_bool is bool after 8.0, and vector<bool> is bad
-  const connection_config* config;
+  const connection_config* _config;
 
  public:
   prepared_statement_t() = delete;
   prepared_statement_t(MYSQL* connection,
                               const std::string& statement,
                               size_t no_of_parameters,
-                              const connection_config* config_)
+                              const connection_config* config)
       : mysql_stmt{mysql_stmt_init(connection), mysql_stmt_close},
         stmt_params(no_of_parameters,
                     MYSQL_BIND{}),  // ()-init for correct constructor
@@ -76,7 +76,7 @@ class prepared_statement_t {
             MYSQL_TIME{}),  // ()-init for correct constructor
         stmt_param_is_null(no_of_parameters,
                            false),  // ()-init for correct constructor
-        config{config_} {
+        _config{config} {
     if (mysql_stmt_prepare(native_handle().get(), statement.data(),
                            statement.size())) {
       throw sqlpp::exception{"MySQL error: Could not prepare statement: " +
@@ -100,7 +100,7 @@ class prepared_statement_t {
   std::shared_ptr<MYSQL_STMT> native_handle() const { return mysql_stmt; }
   std::vector<MYSQL_BIND> params() {return stmt_params; }
 
-  const debug_logger& debug() { return config->debug; }
+  const debug_logger& debug() { return _config->debug; }
 
   bool operator==(const prepared_statement_t& rhs) const {
     return native_handle() == rhs.native_handle();

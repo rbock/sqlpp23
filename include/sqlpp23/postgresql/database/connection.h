@@ -41,7 +41,6 @@
 #include <sqlpp23/postgresql/database/connection_handle.h>
 #include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
 #include <sqlpp23/postgresql/prepared_statement.h>
 #include <sqlpp23/postgresql/result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
@@ -52,7 +51,7 @@ typedef struct pg_conn PGconn;
 namespace sqlpp::postgresql {
 
 namespace detail {
-inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
+inline prepared_statement_t prepare_statement(
     connection_handle& handle,
     const std::string& stmt,
     const size_t& param_count) {
@@ -60,18 +59,19 @@ inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(
     handle.debug().log(log_category::statement, "preparing: {}", stmt);
   }
 
-  return std::make_unique<detail::prepared_statement_handle_t>(handle, stmt,
-                                                               param_count);
+  return prepared_statement_t{
+      handle.native_handle(), stmt, handle.get_prepared_statement_name(),
+      param_count, handle.config.get()};
 }
 
-inline void execute_prepared_statement(
+inline Result execute_prepared_statement(
     connection_handle& handle,
-    std::shared_ptr<detail::prepared_statement_handle_t>& prepared) {
+    prepared_statement_t& prepared) {
   if constexpr (debug_enabled) {
     handle.debug().log(log_category::statement,
-                       "executing prepared statement: {}", prepared->name());
+                       "executing prepared statement: {}", prepared.name());
   }
-  prepared->execute();
+  return prepared.execute();
 }
 }  // namespace detail
 
@@ -97,72 +97,68 @@ class connection_base : public sqlpp::connection {
   }
 
   // direct execution
-  std::shared_ptr<detail::statement_handle_t> _execute_impl(
+  Result _execute_impl(
       std::string_view stmt) {
     validate_connection_handle();
     if constexpr (debug_enabled) {
-      _handle.debug().log(log_category::statement, "executing: {}",
+      _handle.debug().log(log_category::statement, "executing: '{}'",
                                  stmt);
     }
 
-    auto result = std::make_shared<detail::statement_handle_t>(_handle);
-    result->result = PQexec(native_handle(), stmt.data());
-    result->valid = true;
-
-    return result;
+    return Result{PQexec(native_handle(), stmt.data())};
   }
 
   bind_result_t select_impl(const std::string& stmt) {
-    return _execute_impl(stmt);
+    return {_execute_impl(stmt), _handle.config.get()};
   }
 
   size_t insert_impl(const std::string& stmt) {
-    return static_cast<size_t>(_execute_impl(stmt)->result.affected_rows());
+    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
   }
 
   size_t update_impl(const std::string& stmt) {
-    return static_cast<size_t>(_execute_impl(stmt)->result.affected_rows());
+    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
   }
 
   size_t delete_from_impl(const std::string& stmt) {
-    return static_cast<size_t>(_execute_impl(stmt)->result.affected_rows());
+    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
   }
 
   // prepared execution
   prepared_statement_t prepare_impl(const std::string& stmt,
                                     const size_t& param_count) {
     validate_connection_handle();
-    return {prepare_statement(_handle, stmt, param_count)};
+    return prepare_statement(_handle, stmt, param_count);
   }
 
   bind_result_t run_prepared_select_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    execute_prepared_statement(_handle, prep._handle);
-    return {prep._handle};
+    return {detail::execute_prepared_statement(_handle, prep),
+            _handle.config.get()};
   }
 
   size_t run_prepared_execute_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    execute_prepared_statement(_handle, prep._handle);
-    return static_cast<size_t>(prep._handle->result.affected_rows());
+    Result result = detail::execute_prepared_statement(_handle, prep);
+    return static_cast<size_t>(result.affected_rows());
   }
 
   size_t run_prepared_insert_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    execute_prepared_statement(_handle, prep._handle);
-    return static_cast<size_t>(prep._handle->result.affected_rows());
+    Result result = detail::execute_prepared_statement(_handle, prep);
+    return static_cast<size_t>(result.affected_rows());
   }
 
   size_t run_prepared_update_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    execute_prepared_statement(_handle, prep._handle);
-    return static_cast<size_t>(prep._handle->result.affected_rows());
+    Result result = detail::execute_prepared_statement(_handle, prep);
+    return static_cast<size_t>(result.affected_rows());
   }
 
   size_t run_prepared_delete_from_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    execute_prepared_statement(_handle, prep._handle);
-    return static_cast<size_t>(prep._handle->result.affected_rows());
+    Result result = detail::execute_prepared_statement(_handle, prep);
+    return static_cast<size_t>(result.affected_rows());
   }
 
   // Select stmt (returns a result)
@@ -267,7 +263,7 @@ class connection_base : public sqlpp::connection {
   //! Note that technically, this supports executing multiple statements today,
   //! but this is likely to change to align with other connectors.
   size_t operator()(std::string_view stmt) {
-    return static_cast<size_t>(_execute_impl(stmt)->result.affected_rows());
+    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
   }
 
   template <typename T>
@@ -320,13 +316,13 @@ class connection_base : public sqlpp::connection {
   //! get the currently set default transaction isolation level
   isolation_level get_default_isolation_level() {
     auto res = _execute_impl("SHOW default_transaction_isolation;");
-    auto status = res->result.status();
+    auto status = res.status();
     if ((status != PGRES_TUPLES_OK) && (status != PGRES_COMMAND_OK)) {
       throw sqlpp::exception{
           "PostgreSQL error: could not read default_transaction_isolation"};
     }
 
-    auto in = res->result.get_string_value(0, 0);
+    auto in = res.get_string_value(0, 0);
     if (in == "read committed") {
       return isolation_level::read_committed;
     } else if (in == "read uncommitted") {

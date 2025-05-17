@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -35,7 +34,8 @@
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
+#include <sqlpp23/postgresql/database/connection_config.h>
+#include <sqlpp23/postgresql/result.h>
 
 namespace sqlpp::postgresql {
 namespace detail {
@@ -94,53 +94,43 @@ inline size_t hex_assign(std::vector<uint8_t>& value,
 }  // namespace detail
 
 class bind_result_t {
+  Result _result;
+  const connection_config* _config;
+  int _row_index = -1;
+  int _row_count = 0;
+  int _field_count = 0;
   // Need to buffer blobs (or switch to PQexecParams with binary results)
   std::vector<std::vector<uint8_t>> _var_buffers;
 
- private:
-  std::shared_ptr<detail::statement_handle_t> _handle;
-
   bool next_impl() {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "accessing next row of handle at {}",
-                           std::hash<void*>{}(_handle.get()));
+                           std::hash<void*>{}(_result.native_handle()));
     }
 
-    // Fetch total amount
-    if (_handle->total_count == 0U) {
-      _handle->total_count = _handle->result.records_size();
-      if (_handle->total_count == 0U)
-        return false;
-    } else {
-      // Next row
-      if (_handle->count < (_handle->total_count - 1)) {
-        _handle->count++;
-      } else {
-        return false;
-      }
+    // Next row
+    ++_row_index;
+    if (_row_index < _row_count) {
+      return true;
     }
-
-    // Really needed?
-    if (_handle->fields == 0U) {
-      _handle->fields = _handle->result.field_count();
-    }
-
-    return true;
+    return false;
   }
 
  public:
   bind_result_t() = default;
 
-  bind_result_t(const std::shared_ptr<detail::statement_handle_t>& handle)
-      : _handle(handle) {
-    _var_buffers.resize(_handle->result.field_count());
+  bind_result_t(Result result, const connection_config* config)
+      : _result{std::move(result)},
+        _config{config},
+        _row_count{_result.records_size()},
+        _field_count{_result.field_count()},
+        _var_buffers{static_cast<size_t>(_field_count),
+                     std::vector<uint8_t>{}} {
     if constexpr (debug_enabled) {
-      if (this->_handle) {
-        _handle->debug().log(log_category::result,
-                             "constructing bind result, using handle at {}",
-                             std::hash<void*>{}(_handle.get()));
-      }
+      _config->debug.log(log_category::result,
+                         "constructing bind result, using handle at {}",
+                         std::hash<void*>{}(_result.native_handle()));
     }
   }
 
@@ -151,12 +141,12 @@ class bind_result_t {
   ~bind_result_t() = default;
 
   bool operator==(const bind_result_t& rhs) const {
-    return (this->_handle == rhs._handle);
+    return (this->_result == rhs._result);
   }
 
   template <typename ResultRow>
   void next(ResultRow& result_row) {
-    if (!this->_handle) {
+    if (!_result.native_handle()) {
       sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       return;
     }
@@ -176,55 +166,55 @@ class bind_result_t {
   void read_field(size_t _index, bool& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading boolean result at index {}", index);
     }
 
-    value = _handle->result.get_bool_value(_handle->count, index);
+    value = _result.get_bool_value(_row_index, index);
   }
 
   void read_field(size_t _index, double& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading floating_point result at index {}", index);
     }
 
-    value = _handle->result.get_double_value(_handle->count, index);
+    value = _result.get_double_value(_row_index, index);
   }
 
   void read_field(size_t _index, int64_t& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading integral result at index: {}", index);
     }
 
-    value = _handle->result.get_int64_value(_handle->count, index);
+    value = _result.get_int64_value(_row_index, index);
   }
 
   void read_field(size_t _index, uint64_t& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(
+      _config->debug.log(
           log_category::result,
           "PostgreSQL debug: reading unsigned integral result at index {}",
           index);
     }
 
-    value = _handle->result.get_uint64_value(_handle->count, index);
+    value = _result.get_uint64_value(_row_index, index);
   }
 
   void read_field(size_t _index, std::string_view& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading text result at index {}", index);
     }
 
     value = std::string_view(
-        _handle->result.get_char_ptr_value(_handle->count, index),
-        static_cast<size_t>(_handle->result.length(_handle->count, index)));
+        _result.get_char_ptr_value(_row_index, index),
+        static_cast<size_t>(_result.length(_row_index, index)));
   }
 
   // PostgreSQL will return one of those (using the default ISO client):
@@ -238,19 +228,19 @@ class bind_result_t {
     const auto index = static_cast<int>(_index);
 
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading date result at index {}", index);
     }
 
     const auto date_string =
-        _handle->result.get_char_ptr_value(_handle->count, index);
+        _result.get_char_ptr_value(_row_index, index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result, "date string: {}",
+      _config->debug.log(log_category::result, "date string: {}",
                            date_string);
     }
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result, "got invalid date '{}'",
+        _config->debug.log(log_category::result, "got invalid date '{}'",
                              date_string);
       }
     }
@@ -260,19 +250,19 @@ class bind_result_t {
   void read_field(size_t _index, ::sqlpp::chrono::microsecond_point& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading date_time result at index {}", index);
     }
 
     const auto date_string =
-        _handle->result.get_char_ptr_value(_handle->count, index);
+        _result.get_char_ptr_value(_row_index, index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result, "got date_time string: {}",
+      _config->debug.log(log_category::result, "got date_time string: {}",
                            date_string);
     }
     if (::sqlpp::detail::parse_timestamp(value, date_string) == false) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result, "got invalid date_time '{}'",
+        _config->debug.log(log_category::result, "got invalid date_time '{}'",
                              date_string);
       }
     }
@@ -282,21 +272,21 @@ class bind_result_t {
   void read_field(size_t _index, ::std::chrono::microseconds& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading time result at index {}", index);
     }
 
     const auto time_string =
-        _handle->result.get_char_ptr_value(_handle->count, index);
+        _result.get_char_ptr_value(_row_index, index);
 
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result, "got time string: {}",
+      _config->debug.log(log_category::result, "got time string: {}",
                            time_string);
     }
 
     if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result, "got invalid time '{}'",
+        _config->debug.log(log_category::result, "got invalid time '{}'",
                              time_string);
       }
     }
@@ -305,7 +295,7 @@ class bind_result_t {
   void read_field(size_t _index, std::span<const uint8_t>& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "reading blob result at index {}", index);
     }
 
@@ -315,8 +305,8 @@ class bind_result_t {
     // types.
     const auto size = detail::hex_assign(
         _var_buffers[_index],
-        _handle->result.get_blob_value(_handle->count, index),
-        static_cast<size_t>(_handle->result.length(_handle->count, index)));
+        _result.get_blob_value(_row_index, index),
+        static_cast<size_t>(_result.length(_row_index, index)));
 
     value = std::span<const uint8_t>(_var_buffers[_index].data(), size);
   }
@@ -324,7 +314,7 @@ class bind_result_t {
   template <typename T>
   auto read_field(size_t _index, std::optional<T>& value) -> void {
     const auto index = static_cast<int>(_index);
-    if (_handle->result.is_null(_handle->count, index)) {
+    if (_result.is_null(_row_index, index)) {
       value.reset();
     } else {
       if (not value.has_value()) {
@@ -334,6 +324,6 @@ class bind_result_t {
     }
   }
 
-  int size() const { return _handle->result.records_size(); }
+  int size() const { return _result.records_size(); }
 };
 }  // namespace sqlpp::postgresql

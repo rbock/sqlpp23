@@ -28,14 +28,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
 #include <string>
+
+#include <libpq-fe.h>
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/postgresql/database/connection_handle.h>
 #include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/detail/prepared_statement_handle.h>
+#include <sqlpp23/postgresql/result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
 
 namespace sqlpp::postgresql {
@@ -51,112 +53,152 @@ class prepared_statement_t {
  private:
   friend class sqlpp::postgresql::connection_base;
 
-  std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+  ::PGconn* _connection;
+  std::string _name;
+
+   // Parameters
+  std::vector<bool> _stmt_null_parameters;
+  std::vector<std::string> _stmt_parameters;
+
+  const connection_config* _config;
 
  public:
-  prepared_statement_t() = default;
-
+  prepared_statement_t() = delete;
   // ctor
-  prepared_statement_t(
-      std::shared_ptr<detail::prepared_statement_handle_t>&& handle)
-      : _handle{handle} {
+  prepared_statement_t(::PGconn* connection,
+                       const std::string& statement,
+                       std::string name,
+                       size_t no_of_parameters,
+                       const connection_config* config)
+      : _connection{connection},_name{std::move(name)},
+        _stmt_null_parameters(no_of_parameters, false),
+        _stmt_parameters(no_of_parameters, std::string{}),
+        _config{config} {
     if constexpr (debug_enabled) {
-      if (_handle) {
-        handle->debug().log(
+        config->debug.log(
             log_category::statement,
             "constructing prepared_statement, using handle at: {}",
-            std::hash<void*>{}(_handle.get()));
+            std::hash<void*>{}(_connection));
       }
-    }
+
+    // This will throw if preparation fails
+    Result result{PQprepare(_connection, _name.c_str(), statement.c_str(),
+                       /*nParams*/ 0, /*paramTypes*/ nullptr)};
   }
 
   prepared_statement_t(const prepared_statement_t&) = delete;
   prepared_statement_t(prepared_statement_t&&) = default;
   prepared_statement_t& operator=(const prepared_statement_t&) = delete;
   prepared_statement_t& operator=(prepared_statement_t&&) = default;
-  ~prepared_statement_t() = default;
+  ~prepared_statement_t() {
+    // PQclosePrepared is not available in all versions
+    // See https://www.postgresql.org/docs/16/libpq-exec.html
+    std::string cmd = "DEALLOCATE \"" + _name + "\"";
+    PGresult* result = PQexec(_connection, cmd.c_str());
+    PQclear(result);
+  }
 
   bool operator==(const prepared_statement_t& rhs) {
-    return (this->_handle == rhs._handle);
+    return (this->_name == rhs._name);
+  }
+
+  const std::string& name() const { return _name; }
+
+  Result execute() {
+    const size_t size = _stmt_parameters.size();
+
+    std::vector<const char*> values;
+    values.reserve(size);
+    for (size_t i = 0u; i < size; i++) {
+      values.push_back(_stmt_null_parameters[i] ? nullptr
+                                                : _stmt_parameters[i].c_str());
+    }
+
+    // Execute prepared statement with the parameters.
+    return Result{PQexecPrepared(_connection, /*stmtName*/ _name.data(),
+                                 /*nParams*/ static_cast<int>(size),
+                                 /*paramValues*/ values.data(),
+                                 /*paramLengths*/ nullptr,
+                                 /*paramFormats*/ nullptr, /*resultFormat*/ 0)};
   }
 
   void _bind_parameter(size_t index, const bool& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding boolean parameter {} at index {}", value,
                            index);
     }
 
-    _handle->null_values[index] = false;
+    _stmt_null_parameters[index] = false;
     if (value) {
-      _handle->param_values[index] = "TRUE";
+      _stmt_parameters[index] = "TRUE";
     } else {
-      _handle->param_values[index] = "FALSE";
+      _stmt_parameters[index] = "FALSE";
     }
   }
 
   void _bind_parameter(size_t index, const double& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding floating_point parameter {} at index {}",
                            value, index);
     }
 
-    _handle->null_values[index] = false;
+    _stmt_null_parameters[index] = false;
     context_t context{nullptr};
-    _handle->param_values[index] = to_sql_string(context, value);
+    _stmt_parameters[index] = to_sql_string(context, value);
   }
 
   void _bind_parameter(size_t index, const int64_t& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding integral parameter {} at index {}", value,
                            index);
     }
 
     // Assign values
-    _handle->null_values[index] = false;
-    _handle->param_values[index] = std::to_string(value);
+    _stmt_null_parameters[index] = false;
+    _stmt_parameters[index] = std::to_string(value);
   }
 
   void _bind_parameter(size_t index, const std::string& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding text parameter {} at index {}", value,
                            index);
     }
 
     // Assign values
-    _handle->null_values[index] = false;
-    _handle->param_values[index] = value;
+    _stmt_null_parameters[index] = false;
+    _stmt_parameters[index] = value;
   }
 
   void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding date parameter {} at index {} ", value,
                            index);
     }
-    _handle->null_values[index] = false;
+    _stmt_null_parameters[index] = false;
     const auto ymd = std::chrono::year_month_day{value};
     std::ostringstream os;
     os << ymd;
-    _handle->param_values[index] = os.str();
+    _stmt_parameters[index] = os.str();
 
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding date parameter string: {}",
-                           _handle->param_values[index]);
+                           _stmt_parameters[index]);
     }
   }
 
   void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding time parameter {} at index {}", value,
                            index);
     }
-    _handle->null_values[index] = false;
+    _stmt_null_parameters[index] = false;
     const auto dp = std::chrono::floor<std::chrono::days>(value);
     const auto time = std::chrono::hh_mm_ss(
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
@@ -164,21 +206,21 @@ class prepared_statement_t {
     // Timezone handling - always treat the local value as UTC.
     std::ostringstream os;
     os << time << "+00";
-    _handle->param_values[index] = os.str();
+    _stmt_parameters[index] = os.str();
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding time parameter string: {}",
-                           _handle->param_values[index]);
+                           _stmt_parameters[index]);
     }
   }
 
   void _bind_parameter(size_t index,
                        const ::sqlpp::chrono::microsecond_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding date_time parameter at index {}", index);
     }
-    _handle->null_values[index] = false;
+    _stmt_null_parameters[index] = false;
     const auto dp = std::chrono::floor<std::chrono::days>(value);
     const auto time = std::chrono::hh_mm_ss(
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
@@ -187,20 +229,20 @@ class prepared_statement_t {
     // Timezone handling - always treat the local value as UTC.
     std::ostringstream os;
     os << ymd << ' ' << time << "+00";
-    _handle->param_values[index] = os.str();
+    _stmt_parameters[index] = os.str();
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding date_time parameter string: {}",
-                           _handle->param_values[index]);
+                           _stmt_parameters[index]);
     }
   }
 
   void _bind_parameter(size_t index, const std::vector<unsigned char>& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding blob parameter at index {}", index);
     }
-    _handle->null_values[index] = false;
+    _stmt_null_parameters[index] = false;
     constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     auto param = std::string(value.size() * 2 + 2,
@@ -212,12 +254,12 @@ class prepared_statement_t {
       param[++i] = hex_chars[c >> 4];
       param[++i] = hex_chars[c & 0x0F];
     }
-    _handle->param_values[index] = std::move(param);
+    _stmt_parameters[index] = std::move(param);
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding blob parameter string (up to 100 "
                            "chars): {}",
-                           _handle->param_values[index].substr(0, 100));
+                           _stmt_parameters[index].substr(0, 100));
     }
   }
 
@@ -230,10 +272,10 @@ class prepared_statement_t {
     }
 
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::parameter,
+      _config->debug.log(log_category::parameter,
                            "binding NULL parameter at index {}", index);
     }
-    _handle->null_values[index] = true;
+    _stmt_null_parameters[index] = true;
   }
 };
 }  // namespace sqlpp::postgresql
