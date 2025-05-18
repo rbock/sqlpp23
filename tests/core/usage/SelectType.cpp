@@ -24,8 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
@@ -37,8 +38,8 @@ SQLPP_CREATE_NAME_TAG(right);
 }  // namespace alias
 
 int SelectType(int, char*[]) {
-  MockDb db = {};
-  MockDb::context_t printer = {};
+  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
+  sqlpp::mock_db::context_t printer;
 
   auto f = test::TabFoo{};
   auto t = test::TabBar{};

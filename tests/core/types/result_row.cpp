@@ -24,8 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/tables.h>
 
 #include <sqlpp23/tests/core/types_helpers.h>
@@ -38,7 +39,7 @@ constexpr bool is_same_type() {
 
 constexpr auto bar = test::TabBar{};
 constexpr auto foo = test::TabFoo{};
-auto db = MockDb{};
+auto db = sqlpp::mock_db::make_test_connection();
 }  // namespace
 
 SQLPP_CREATE_NAME_TAG(r_not_null);

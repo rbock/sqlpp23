@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2025, Roland Bock
  * All rights reserved.
@@ -24,34 +26,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/incompatible.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <iostream>
 
-int main() {
-  using CTX = sqlpp::mock_db::context_t;
+#include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/mock_db/mock_db.h>
 
-  // Incompatible expression
-  auto incompatible_select =
-      sqlpp::select(sqlpp::test::incompatible(7).as(sqlpp::alias::a));
-  static_assert(
-      std::is_same<decltype(check_basic_consistency(incompatible_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_prepare_consistency(incompatible_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_run_consistency(incompatible_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_compatibility<CTX>(incompatible_select)),
-                   sqlpp::test::assert_no_incompatible_t>::value);
+namespace sqlpp::mock_db {
+// Get configuration for test connection
+inline std::shared_ptr<sqlpp::mock_db::connection_config> make_test_config(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
+  auto config = std::make_shared<sqlpp::mock_db::connection_config>();
 
-#ifdef SQLPP_CHECK_STATIC_ASSERT
-  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-  for (const auto& row : db(incompatible_select)) {
-    std::ignore = row.a;
-  }
-#endif
+  config->id = "mock";
+  config->debug = debug_logger(categories, [](const std::string& message) {
+    std::clog << message << '\n';
+  });
+  return config;
 }
+
+// Starts a connection
+inline ::sqlpp::mock_db::connection make_test_connection(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
+  namespace sql = sqlpp::mock_db;
+
+  auto config = make_test_config(categories);
+
+  sql::connection db;
+  db.connect_using(config);
+
+  return db;
+}
+}  // namespace sqlpp::mock_db

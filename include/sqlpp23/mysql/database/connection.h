@@ -141,7 +141,6 @@ class connection_base : public sqlpp::connection {
   using _config_t = connection_config;
   using _config_ptr_t = std::shared_ptr<const _config_t>;
   using _handle_t = detail::connection_handle;
-  using _handle_ptr_t = _handle_t;
 
   using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
 
@@ -436,11 +435,11 @@ class connection_base : public sqlpp::connection {
   }
 
  protected:
-  _handle_ptr_t _handle;
+  _handle_t _handle;
 
   // Constructors
   connection_base() = default;
-  connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)} {}
+  connection_base(_handle_t handle) : _handle{std::move(handle)} {}
 };
 
 inline auto context_t::escape(std::string_view t) -> std::string {

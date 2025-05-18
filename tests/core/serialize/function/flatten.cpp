@@ -29,7 +29,7 @@
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  auto ctx = MockDb::context_t{};
+  auto ctx = sqlpp::mock_db::context_t{};
 
   SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
   SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");

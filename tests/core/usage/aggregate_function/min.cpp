@@ -27,14 +27,15 @@
 #include <cassert>
 #include <iostream>
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
   try {
     const auto tab = test::TabFoo{};
-    auto db = MockDb{};
+    auto db = sqlpp::mock_db::make_test_connection();
 
     // clear the table
     db(truncate(tab));

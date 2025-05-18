@@ -29,7 +29,7 @@
 #include <sqlpp23/tests/core/tables.h>
 
 void test_flatten() {
-  auto ctx = MockDb::context_t{};
+  auto ctx = sqlpp::mock_db::context_t{};
 
   {
     auto x = flatten(ctx, test::TabFoo{}.id);

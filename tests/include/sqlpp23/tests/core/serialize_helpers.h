@@ -26,12 +26,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/mock_db/database/connection.h>
 #include <iostream>
 
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    MockDb::context_t printer = {};                                \
+    sqlpp::mock_db::context_t printer;                             \
                                                                    \
     using sqlpp::to_sql_string;                                    \
     const auto result = to_sql_string(printer, expr);              \

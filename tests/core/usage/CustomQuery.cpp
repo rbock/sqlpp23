@@ -24,8 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <iostream>
@@ -34,16 +35,14 @@ namespace {
 struct on_duplicate_key_update {
   std::string _serialized;
 
-  template <typename Db, typename Assignment>
-  on_duplicate_key_update(Db&, Assignment assignment) {
-    typename Db::context_t context;
+  template <typename Context, typename Assignment>
+  on_duplicate_key_update(Context& context, Assignment assignment) {
     _serialized =
         " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
   }
 
-  template <typename Db, typename Assignment>
-  auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update& {
-    typename Db::context_t context;
+  template <typename Context, typename Assignment>
+  auto operator()(Context& context, Assignment assignment) -> on_duplicate_key_update& {
     _serialized += ", " + to_sql_string(context, assignment);
     return *this;
   }
@@ -55,8 +54,8 @@ struct on_duplicate_key_update {
 }  // namespace
 
 int CustomQuery(int, char*[]) {
-  MockDb db = {};
-  MockDb::context_t printer = {};
+  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
+  sqlpp::mock_db::context_t printer;
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
@@ -93,7 +92,8 @@ int CustomQuery(int, char*[]) {
 
   // Create a MYSQL style custom "insert on duplicate update"
   db(sqlpp::insert_into(t).set(t.textN = "sample", t.boolNn = true)
-     << on_duplicate_key_update(db, t.textN = "sample")(db, t.boolNn = false)
+     << on_duplicate_key_update(printer, t.textN = "sample")(printer,
+                                                             t.boolNn = false)
             .get());
 
   // A custom (select ... into) with adjusted return type
