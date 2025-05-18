@@ -40,42 +40,42 @@
 namespace sqlpp::postgresql {
 class Result {
  public:
-  Result() : m_result(nullptr, PQclear) {}
-  explicit Result(PGresult* res) : m_result(res, PQclear) { check_status(); }
+  Result() : _pg_result(nullptr, PQclear) {}
+  explicit Result(PGresult* res) : _pg_result(res, PQclear) { check_status(); }
 
-  PGresult* native_handle() { return m_result.get(); }
+  PGresult* native_handle() { return _pg_result.get(); }
 
-  ExecStatusType status() { return PQresultStatus(m_result.get()); }
+  ExecStatusType status() { return PQresultStatus(_pg_result.get()); }
 
   void clear() {
-    m_result.reset();
+    _pg_result.reset();
   }
 
   int affected_rows() {
-    const char* const rows_str = PQcmdTuples(m_result.get());
+    const char* const rows_str = PQcmdTuples(_pg_result.get());
     return rows_str[0] ? std::stoi(std::string{rows_str}) : 0;
   }
 
-  int records_size() const { return m_result.get() ? PQntuples(m_result.get()) : 0; }
+  int records_size() const { return _pg_result.get() ? PQntuples(_pg_result.get()) : 0; }
 
-  int field_count() const { return m_result.get() ? PQnfields(m_result.get()) : 0; }
+  int field_count() const { return _pg_result.get() ? PQnfields(_pg_result.get()) : 0; }
 
   int length(int record, int field) const {
     /// check index?
-    return PQgetlength(m_result.get(), record, field);
+    return PQgetlength(_pg_result.get(), record, field);
   }
 
   bool is_null(int record, int field) const {
     /// check index?
-    return PQgetisnull(m_result.get(), record, field);
+    return PQgetisnull(_pg_result.get(), record, field);
   }
 
-  operator bool() const { return m_result.get() != 0; }
+  operator bool() const { return _pg_result.get() != 0; }
 
   int64_t get_int64_value(int record, int field) const {
     check_index(record, field);
     auto t = int64_t{};
-    const auto txt = std::string{get_pq_value(m_result.get(), record, field)};
+    const auto txt = std::string{PQgetvalue(_pg_result.get(), record, field)};
     if (txt != "") {
       t = std::stoll(txt);
     }
@@ -86,7 +86,7 @@ class Result {
   uint64_t get_uint64_value(int record, int field) const {
     check_index(record, field);
     auto t = uint64_t{};
-    const auto txt = std::string{get_pq_value(m_result.get(), record, field)};
+    const auto txt = std::string{PQgetvalue(_pg_result.get(), record, field)};
     if (txt != "") {
       t = std::stoull(txt);
     }
@@ -97,7 +97,7 @@ class Result {
   double get_double_value(int record, int field) const {
     check_index(record, field);
     auto t = double{};
-    auto txt = std::string{get_pq_value(m_result.get(), record, field)};
+    auto txt = std::string{PQgetvalue(_pg_result.get(), record, field)};
     if (txt != "") {
       t = std::stod(txt);
     }
@@ -106,7 +106,7 @@ class Result {
   }
 
   const char* get_char_ptr_value(int record, int field) const {
-    return const_cast<const char*>(get_pq_value(m_result.get(), record, field));
+    return const_cast<const char*>(PQgetvalue(_pg_result.get(), record, field));
   }
 
   std::string get_string_value(int record, int field) const {
@@ -115,12 +115,12 @@ class Result {
 
   const uint8_t* get_blob_value(int record, int field) const {
     return reinterpret_cast<const uint8_t*>(
-        get_pq_value(m_result.get(), record, field));
+        PQgetvalue(_pg_result.get(), record, field));
   }
 
   bool get_bool_value(int record, int field) const {
     check_index(record, field);
-    auto val = get_pq_value(m_result.get(), record, field);
+    auto val = PQgetvalue(_pg_result.get(), record, field);
     if (*val == 't')
       return true;
     else if (*val == 'f')
@@ -139,7 +139,7 @@ class Result {
   [[noreturn]] void throw_sql_error(const std::string& err) const {
     // Try to establish more precise error type, and throw corresponding
     // exception
-    const char* const code = PQresultErrorField(m_result.get(), PG_DIAG_SQLSTATE);
+    const char* const code = PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE);
     if (code)
       switch (code[0]) {
         case '0':
@@ -228,12 +228,12 @@ class Result {
   }
 
   std::string status_error() const {
-    if (!m_result.get())
+    if (!_pg_result.get())
       throw failure{"No result set given"};
 
     std::string err;
 
-    switch (PQresultStatus(m_result.get())) {
+    switch (PQresultStatus(_pg_result.get())) {
       case PGRES_EMPTY_QUERY:  // The string sent to the backend was empty.
       case PGRES_COMMAND_OK:  // Successful completion of a command returning no
                               // data
@@ -247,7 +247,7 @@ class Result {
       case PGRES_BAD_RESPONSE:  // The server's response was not understood
       case PGRES_NONFATAL_ERROR:
       case PGRES_FATAL_ERROR:
-        err = PQresultErrorMessage(m_result.get());
+        err = PQresultErrorMessage(_pg_result.get());
         break;
 #if PG_MAJORVERSION_NUM >= 13
       case PGRES_COPY_BOTH:
@@ -259,15 +259,15 @@ class Result {
 #endif
       default:
         throw sqlpp::exception{"pqxx::result: Unrecognized response code " +
-                               std::to_string(PQresultStatus(m_result.get()))};
+                               std::to_string(PQresultStatus(_pg_result.get()))};
     }
     return err;
   }
 
   int error_position() const noexcept {
     int pos = -1;
-    if (m_result.get()) {
-      const char* p = PQresultErrorField(m_result.get(), PG_DIAG_STATEMENT_POSITION);
+    if (_pg_result.get()) {
+      const char* p = PQresultErrorField(_pg_result.get(), PG_DIAG_STATEMENT_POSITION);
       if (p)
         pos = std::stoi(std::string{p});
     }
@@ -279,12 +279,6 @@ class Result {
       throw std::out_of_range{"PostgreSQL error: index out of range"};
   }
 
-  // move PQgetvalue to implementation so we don't depend on the libpq in the
-  // public interface
-  const char* get_pq_value(PGresult* result, int record, int field) const {
-    return const_cast<const char*>(PQgetvalue(result, record, field));
-  }
-
-  std::unique_ptr<PGresult, void(*)(PGresult*)> m_result;
+  std::unique_ptr<PGresult, void(*)(PGresult*)> _pg_result;
 };
 }  // namespace sqlpp::postgresql

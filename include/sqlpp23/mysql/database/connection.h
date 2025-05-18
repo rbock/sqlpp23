@@ -38,7 +38,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/mysql/bind_result.h>
-#include <sqlpp23/mysql/char_result.h>
+#include <sqlpp23/mysql/text_result.h>
 #include <sqlpp23/mysql/clause/delete_from.h>
 #include <sqlpp23/mysql/clause/update.h>
 #include <sqlpp23/mysql/constraints.h>
@@ -149,7 +149,7 @@ class connection_base : public sqlpp::connection {
     return mysql_affected_rows(_handle.native_handle());
   }
 
-  char_result_t select_impl(const std::string& statement) {
+  text_result_t select_impl(const std::string& statement) {
     execute_statement(_handle, statement);
     std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)> result = 
     {mysql_store_result(_handle.native_handle()), mysql_free_result};
@@ -238,7 +238,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename Select>
-  char_result_t _select(const Select& s) {
+  text_result_t _select(const Select& s) {
     context_t context(this);
     const auto query = to_sql_string(context, s);
     return select_impl(query);

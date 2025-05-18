@@ -36,7 +36,7 @@
 #include <sqlpp23/core/database/transaction.h>
 #include <sqlpp23/core/query/statement_constructor_arg.h>
 #include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/postgresql/bind_result.h>
+#include <sqlpp23/postgresql/text_result.h>
 #include <sqlpp23/postgresql/database/connection_config.h>
 #include <sqlpp23/postgresql/database/connection_handle.h>
 #include <sqlpp23/postgresql/database/exception.h>
@@ -108,7 +108,7 @@ class connection_base : public sqlpp::connection {
     return Result{PQexec(native_handle(), stmt.data())};
   }
 
-  bind_result_t select_impl(const std::string& stmt) {
+  text_result_t select_impl(const std::string& stmt) {
     return {_execute_impl(stmt), _handle.config.get()};
   }
 
@@ -131,7 +131,7 @@ class connection_base : public sqlpp::connection {
     return prepare_statement(_handle, stmt, param_count);
   }
 
-  bind_result_t run_prepared_select_impl(prepared_statement_t& prep) {
+  text_result_t run_prepared_select_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     return {detail::execute_prepared_statement(_handle, prep),
             _handle.config.get()};
@@ -163,7 +163,7 @@ class connection_base : public sqlpp::connection {
 
   // Select stmt (returns a result)
   template <typename Select>
-  bind_result_t _select(const Select& s) {
+  text_result_t _select(const Select& s) {
     context_t context(this);
     return select_impl(to_sql_string(context, s));
   }
@@ -176,7 +176,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedSelect>
-  bind_result_t _run_prepared_select(PreparedSelect& s) {
+  text_result_t _run_prepared_select(PreparedSelect& s) {
     s._bind_params();
     return run_prepared_select_impl(s._prepared_statement);
   }

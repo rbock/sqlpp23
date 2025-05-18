@@ -37,23 +37,23 @@
 #include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/mysql/char_result_row.h>
+#include <sqlpp23/mysql/text_result_row.h>
 #include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql {
-class char_result_t {
+class text_result_t {
   std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)> _mysql_res = {nullptr, mysql_free_result};
   const connection_config* _config;
-  char_result_row_t _char_result_row;
+  text_result_row_t _text_result_row;
 
  public:
-  char_result_t() = default;
-  char_result_t(std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)>  mysql_res, const connection_config* config)
+  text_result_t() = default;
+  text_result_t(std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)>  mysql_res, const connection_config* config)
       : _mysql_res{std::move(mysql_res)}, _config{config} {
     if (_invalid())
       throw sqlpp::exception{
-          "MySQL: Constructing char_result without valid handle"};
+          "MySQL: Constructing text_result without valid handle"};
 
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
@@ -62,13 +62,13 @@ class char_result_t {
     }
   }
 
-  char_result_t(const char_result_t&) = delete;
-  char_result_t(char_result_t&& rhs) = default;
-  char_result_t& operator=(const char_result_t&) = delete;
-  char_result_t& operator=(char_result_t&&) = default;
-  ~char_result_t() = default;
+  text_result_t(const text_result_t&) = delete;
+  text_result_t(text_result_t&& rhs) = default;
+  text_result_t& operator=(const text_result_t&) = delete;
+  text_result_t& operator=(text_result_t&&) = default;
+  ~text_result_t() = default;
 
-  bool operator==(const char_result_t& rhs) const {
+  bool operator==(const text_result_t& rhs) const {
     return _mysql_res == rhs._mysql_res;
   }
 
@@ -98,31 +98,31 @@ class char_result_t {
   bool _invalid() const { return !_mysql_res; }
 
   void read_field(size_t index, bool& value) {
-    value = (_char_result_row.data[index][0] == 't' or
-             _char_result_row.data[index][0] == '1');
+    value = (_text_result_row.data[index][0] == 't' or
+             _text_result_row.data[index][0] == '1');
   }
 
   void read_field(size_t index, double& value) {
-    value = std::strtod(_char_result_row.data[index], nullptr);
+    value = std::strtod(_text_result_row.data[index], nullptr);
   }
 
   void read_field(size_t index, int64_t& value) {
-    value = std::strtoll(_char_result_row.data[index], nullptr, 10);
+    value = std::strtoll(_text_result_row.data[index], nullptr, 10);
   }
 
   void read_field(size_t index, uint64_t& value) {
-    value = std::strtoull(_char_result_row.data[index], nullptr, 10);
+    value = std::strtoull(_text_result_row.data[index], nullptr, 10);
   }
 
   void read_field(size_t index, std::span<const uint8_t>& value) {
     value = std::span<const uint8_t>(
-        reinterpret_cast<const uint8_t*>(_char_result_row.data[index]),
-        _char_result_row.len[index]);
+        reinterpret_cast<const uint8_t*>(_text_result_row.data[index]),
+        _text_result_row.len[index]);
   }
 
   void read_field(size_t index, std::string_view& value) {
-    value = std::string_view(_char_result_row.data[index],
-                             _char_result_row.len[index]);
+    value = std::string_view(_text_result_row.data[index],
+                             _text_result_row.len[index]);
   }
 
   void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
@@ -131,7 +131,7 @@ class char_result_t {
                            "parsing date result at index: {}", index);
     }
 
-    const auto date_string = _char_result_row.data[index];
+    const auto date_string = _text_result_row.data[index];
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date string: {}",
                            date_string);
@@ -151,7 +151,7 @@ class char_result_t {
                            "parsing date result at index: {}", index);
     }
 
-    const auto date_time_string = _char_result_row.data[index];
+    const auto date_time_string = _text_result_row.data[index];
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date_time string: {}",
                            date_time_string);
@@ -171,7 +171,7 @@ class char_result_t {
                            "parsing time of day result at index: {}", index);
     }
 
-    const auto time_string = _char_result_row.data[index];
+    const auto time_string = _text_result_row.data[index];
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "time of day string: {}",
                            time_string);
@@ -187,7 +187,7 @@ class char_result_t {
 
   template <typename T>
   auto read_field(size_t index, std::optional<T>& value) -> void {
-    const bool is_null = _char_result_row.data[index] == nullptr;
+    const bool is_null = _text_result_row.data[index] == nullptr;
     if (is_null) {
       value.reset();
     } else {
@@ -206,11 +206,11 @@ class char_result_t {
                            std::hash<void*>{}(_mysql_res.get()));
     }
 
-    _char_result_row.data =
+    _text_result_row.data =
         const_cast<const char**>(mysql_fetch_row(_mysql_res.get()));
-    _char_result_row.len = mysql_fetch_lengths(_mysql_res.get());
+    _text_result_row.len = mysql_fetch_lengths(_mysql_res.get());
 
-    return _char_result_row.data;
+    return _text_result_row.data;
   }
 };
 }  // namespace sqlpp::mysql

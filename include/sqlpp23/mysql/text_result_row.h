@@ -28,11 +28,11 @@
  */
 
 namespace sqlpp::mysql {
-struct char_result_row_t {
+struct text_result_row_t {
   const char** data;
   unsigned long* len;
 
-  bool operator==(const char_result_row_t& rhs) const {
+  bool operator==(const text_result_row_t& rhs) const {
     return data == rhs.data && len == rhs.len;
   }
 };

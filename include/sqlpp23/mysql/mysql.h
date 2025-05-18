@@ -28,6 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/char_result.h>
+#include <sqlpp23/mysql/text_result.h>
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/mysql/database/connection_pool.h>

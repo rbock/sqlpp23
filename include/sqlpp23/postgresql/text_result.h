@@ -93,7 +93,7 @@ inline size_t hex_assign(std::vector<uint8_t>& value,
 }
 }  // namespace detail
 
-class bind_result_t {
+class text_result_t {
   Result _result;
   const connection_config* _config;
   int _row_index = -1;
@@ -118,9 +118,9 @@ class bind_result_t {
   }
 
  public:
-  bind_result_t() = default;
+  text_result_t() = default;
 
-  bind_result_t(Result result, const connection_config* config)
+  text_result_t(Result result, const connection_config* config)
       : _result{std::move(result)},
         _config{config},
         _row_count{_result.records_size()},
@@ -134,13 +134,13 @@ class bind_result_t {
     }
   }
 
-  bind_result_t(const bind_result_t&) = delete;
-  bind_result_t(bind_result_t&&) = default;
-  bind_result_t& operator=(const bind_result_t&) = delete;
-  bind_result_t& operator=(bind_result_t&&) = default;
-  ~bind_result_t() = default;
+  text_result_t(const text_result_t&) = delete;
+  text_result_t(text_result_t&&) = default;
+  text_result_t& operator=(const text_result_t&) = delete;
+  text_result_t& operator=(text_result_t&&) = default;
+  ~text_result_t() = default;
 
-  bool operator==(const bind_result_t& rhs) const {
+  bool operator==(const text_result_t& rhs) const {
     return (this->_result == rhs._result);
   }
 
