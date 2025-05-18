@@ -36,8 +36,8 @@ int main(int, char*[]) {
     auto db = MockDb{};
 
     // Execute SQL string
-    auto affected_rows = db("SELECT NULL");
-    static_assert(std::is_same_v<size_t, decltype(affected_rows)>);
+    auto result = db("SELECT NULL");
+    static_assert(std::is_same_v<command_result, decltype(result)>);
 
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

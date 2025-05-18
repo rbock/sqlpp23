@@ -53,8 +53,10 @@
 namespace sqlpp::sqlite3 {
 
 namespace detail {
-inline prepared_statement_t prepare_statement(connection_handle& handle, std::string_view statement) {
-  return prepared_statement_t{handle.native_handle(), statement, handle.config.get()};
+inline prepared_statement_t prepare_statement(connection_handle& handle,
+                                              std::string_view statement) {
+  return prepared_statement_t{handle.native_handle(), statement,
+                              handle.config.get()};
 }
 inline void execute_statement(connection_handle& handle,
                               prepared_statement_t& prepared) {
@@ -67,8 +69,7 @@ inline void execute_statement(connection_handle& handle,
     default:
       if constexpr (debug_enabled) {
         handle.debug().log(log_category::statement,
-                                  "sqlite3_step return code: {}",
-                                  rc);
+                           "sqlite3_step return code: {}", rc);
       }
 
       throw sqlpp::exception{
@@ -77,6 +78,15 @@ inline void execute_statement(connection_handle& handle,
   }
 }
 }  // namespace detail
+
+struct command_result {
+  uint64_t affected_rows;
+};
+
+struct insert_result {
+  uint64_t affected_rows;
+  uint64_t last_insert_id;
+};
 
 // Base connection class
 class connection_base : public sqlpp::connection {
@@ -94,11 +104,12 @@ class connection_base : public sqlpp::connection {
   bool _transaction_active{false};
 
   // direct execution
-  size_t execute_impl(std::string_view statement) {
+  command_result execute_impl(std::string_view statement) {
     auto prepared = prepare_statement(_handle, statement);
     execute_statement(_handle, prepared);
 
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
+    return {.affected_rows =
+                static_cast<uint64_t>(sqlite3_changes(native_handle()))};
   }
 
   bind_result_t select_impl(const std::string& statement) {
@@ -107,23 +118,28 @@ class connection_base : public sqlpp::connection {
     return {prepared._sqlite3_statement, _handle.config.get()};
   }
 
-  size_t insert_impl(const std::string& statement) {
+  insert_result insert_impl(const std::string& statement) {
     auto prepared = prepare_statement(_handle, statement);
     execute_statement(_handle, prepared);
 
-    return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
+    return {
+        .affected_rows = static_cast<uint64_t>(sqlite3_changes(native_handle())),
+        .last_insert_id =
+            static_cast<uint64_t>(sqlite3_last_insert_rowid(native_handle()))};
   }
 
-  size_t update_impl(const std::string& statement) {
+  command_result update_impl(const std::string& statement) {
     auto prepared = prepare_statement(_handle, statement);
     execute_statement(_handle, prepared);
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
+    return {.affected_rows =
+                static_cast<uint64_t>(sqlite3_changes(native_handle()))};
   }
 
-  size_t delete_from_impl(const std::string& statement) {
+  command_result delete_from_impl(const std::string& statement) {
     auto prepared = prepare_statement(_handle, statement);
     execute_statement(_handle, prepared);
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
+    return {.affected_rows =
+                static_cast<uint64_t>(sqlite3_changes(native_handle()))};
   }
 
   // prepared execution
@@ -136,29 +152,38 @@ class connection_base : public sqlpp::connection {
     return {prepared_statement._sqlite3_statement, prepared_statement.config};
   }
 
-  size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement) {
-    execute_statement(_handle, prepared_statement);
-
-    return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
-  }
-
-  size_t run_prepared_update_impl(prepared_statement_t& prepared_statement) {
-    execute_statement(_handle, prepared_statement);
-
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
-  }
-
-  size_t run_prepared_delete_from_impl(
+  insert_result run_prepared_insert_impl(
       prepared_statement_t& prepared_statement) {
     execute_statement(_handle, prepared_statement);
 
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
+    return {
+        .affected_rows = static_cast<uint64_t>(sqlite3_changes(native_handle())),
+        .last_insert_id =
+            static_cast<uint64_t>(sqlite3_last_insert_rowid(native_handle()))};
   }
 
-  size_t run_prepared_execute_impl(prepared_statement_t& prepared_statement) {
+  command_result run_prepared_update_impl(
+      prepared_statement_t& prepared_statement) {
     execute_statement(_handle, prepared_statement);
 
-    return static_cast<size_t>(sqlite3_changes(native_handle()));
+    return {.affected_rows =
+                static_cast<uint64_t>(sqlite3_changes(native_handle()))};
+  }
+
+  command_result run_prepared_delete_from_impl(
+      prepared_statement_t& prepared_statement) {
+    execute_statement(_handle, prepared_statement);
+
+    return {.affected_rows =
+                static_cast<uint64_t>(sqlite3_changes(native_handle()))};
+  }
+
+  command_result run_prepared_execute_impl(
+      prepared_statement_t& prepared_statement) {
+    execute_statement(_handle, prepared_statement);
+
+    return {.affected_rows =
+                static_cast<uint64_t>(sqlite3_changes(native_handle()))};
   }
 
   //! select returns a result (which can be iterated row by row)
@@ -185,7 +210,7 @@ class connection_base : public sqlpp::connection {
 
   //! insert returns the last auto_incremented id (or zero, if there is none)
   template <typename Insert>
-  size_t _insert(const Insert& i) {
+  insert_result _insert(const Insert& i) {
     context_t context{this};
     auto query = to_sql_string(context, i);
     return insert_impl(query);
@@ -199,7 +224,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedInsert>
-  size_t _run_prepared_insert(PreparedInsert& i) {
+  insert_result _run_prepared_insert(PreparedInsert& i) {
     i._prepared_statement._reset();
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
@@ -207,7 +232,7 @@ class connection_base : public sqlpp::connection {
 
   //! update returns the number of affected rows
   template <typename Update>
-  size_t _update(const Update& u) {
+  command_result _update(const Update& u) {
     context_t context{this};
     auto query = to_sql_string(context, u);
     return update_impl(query);
@@ -221,7 +246,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedUpdate>
-  size_t _run_prepared_update(PreparedUpdate& u) {
+  command_result _run_prepared_update(PreparedUpdate& u) {
     u._prepared_statement._reset();
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
@@ -229,7 +254,7 @@ class connection_base : public sqlpp::connection {
 
   //! delete_from returns the number of deleted rows
   template <typename Delete>
-  size_t _delete_from(const Delete& r) {
+  command_result _delete_from(const Delete& r) {
     context_t context{this};
     auto query = to_sql_string(context, r);
     return delete_from_impl(query);
@@ -243,7 +268,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedDelete>
-  size_t _run_prepared_delete_from(PreparedDelete& r) {
+  command_result _run_prepared_delete_from(PreparedDelete& r) {
     r._prepared_statement._reset();
     r._bind_params();
     return run_prepared_delete_from_impl(r._prepared_statement);
@@ -253,7 +278,7 @@ class connection_base : public sqlpp::connection {
   //! Throws an exception if multiple statements are passed (e.g. separated by
   //! semicolon).
   template <typename Execute>
-  size_t _execute(const Execute& r) {
+  command_result _execute(const Execute& r) {
     context_t context{this};
     auto query = to_sql_string(context, r);
     return execute_impl(query);
@@ -267,7 +292,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedExecute>
-  size_t _run_prepared_execute(PreparedExecute& x) {
+  command_result _run_prepared_execute(PreparedExecute& x) {
     x._prepared_statement._reset();
     x._bind_params();
     return run_prepared_execute_impl(x._prepared_statement);
@@ -288,7 +313,7 @@ class connection_base : public sqlpp::connection {
     return sqlpp::statement_handler_t{}.run(std::forward<T>(t), *this);
   }
 
-  size_t operator()(std::string_view t) { return execute_impl(t); }
+  command_result operator()(std::string_view t) { return execute_impl(t); }
 
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
@@ -365,7 +390,7 @@ class connection_base : public sqlpp::connection {
   void report_rollback_failure(const std::string& message) noexcept {
     if constexpr (debug_enabled) {
       _handle.debug().log(log_category::connection,
-                                 "rollback failure: ", message);
+                          "rollback failure: ", message);
     }
   }
 
@@ -374,7 +399,7 @@ class connection_base : public sqlpp::connection {
 
   //! get the last inserted id
   uint64_t last_insert_id() noexcept {
-    return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
+    return static_cast<uint64_t>(sqlite3_last_insert_rowid(native_handle()));
   }
 
   ::sqlite3* native_handle() const { return _handle.native_handle(); }
@@ -416,5 +441,3 @@ inline auto context_t::escape(std::string_view t) -> std::string {
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
 }  // namespace sqlpp::sqlite3
-
-

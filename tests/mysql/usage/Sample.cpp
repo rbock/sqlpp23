@@ -170,18 +170,18 @@ int Sample(int, char*[]) {
     auto pi = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN),
                                               tab.boolNn = true));
     pi.params.textN = "prepared cake";
-    std::cerr << "Inserted: " << db(pi) << std::endl;
+    std::cerr << "Inserted: " << db(pi).last_insert_id << std::endl;
 
     auto pu = db.prepare(update(tab)
                              .set(tab.boolNn = parameter(tab.boolNn))
                              .where(tab.textN == "prepared cake"));
     pu.params.boolNn = false;
-    std::cerr << "Updated: " << db(pu) << std::endl;
+    std::cerr << "Updated: " << db(pu).last_insert_id << std::endl;
 
     auto pr =
         db.prepare(delete_from(tab).where(tab.textN != parameter(tab.textN)));
     pr.params.textN = "prepared cake";
-    std::cerr << "Deleted lines: " << db(pr) << std::endl;
+    std::cerr << "Deleted lines: " << db(pr).affected_rows << std::endl;
 
     for (const auto& row :
          db(select(case_when(tab.boolNn).then(tab.intN).else_(foo.intN).as(

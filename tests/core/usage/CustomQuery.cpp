@@ -102,14 +102,14 @@ int CustomQuery(int, char*[]) {
   auto c = select(all_of(t)).from(t)
            << into(f) << with_result_type_of(insert_into(f));
   std::cerr << to_sql_string(printer, c) << std::endl;
-  auto i = db(c);
+  auto i = db(c).last_insert_id;
   static_assert(std::is_integral<decltype(i)>::value,
                 "insert yields an integral value");
 
   auto d = sqlpp::statement_t{}
            << sqlpp::verbatim("INSERT INTO tab_sample VALUES()")
            << with_result_type_of(sqlpp::insert());
-  auto j = db(d);
+  auto j = db(d).last_insert_id;
   static_assert(std::is_integral<decltype(j)>::value,
                 "insert yields an integral value");
 

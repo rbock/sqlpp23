@@ -38,7 +38,7 @@ struct prepared_update_t {
   using _parameter_list_t = make_parameter_list_t<_Statement>;
   using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-  auto _run(Db& db) -> size_t {
+  auto _run(Db& db) {
     return statement_handler_t{}.run_prepared_insert(*this, db);
   }
 

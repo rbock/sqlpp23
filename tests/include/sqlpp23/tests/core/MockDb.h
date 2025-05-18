@@ -42,6 +42,15 @@ struct InternalMockData {
   sqlpp::isolation_level _default_isolation_level;
 };
 
+struct command_result {
+  uint64_t affected_rows;
+};
+
+struct insert_result {
+  uint64_t affected_rows;
+  uint64_t last_insert_id;
+};
+
 struct MockDb : public sqlpp::connection {
   struct context_t {
     auto escape(std::string_view t) -> std::string {
@@ -81,38 +90,38 @@ struct MockDb : public sqlpp::connection {
     return sqlpp::statement_handler_t{}.run(std::forward<T>(t), *this);
   }
 
-  auto operator()(std::string_view) { return size_t{}; }
+  auto operator()(std::string_view) { return command_result{}; }
 
   template <typename Statement>
-  size_t _execute(const Statement& x) {
+  command_result _execute(const Statement& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running execute call with\n" << query << std::endl;
-    return 0;
+    return {};
   }
 
   template <typename Insert>
-  size_t _insert(const Insert& x) {
+  insert_result _insert(const Insert& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running insert call with\n" << query << std::endl;
-    return 0;
+    return {};
   }
 
   template <typename Update>
-  size_t _update(const Update& x) {
+  command_result _update(const Update& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running update call with\n" << query << std::endl;
-    return 0;
+    return {};
   }
 
   template <typename Delete>
-  size_t _delete_from(const Delete& x) {
+  command_result _delete_from(const Delete& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running remove call with\n" << query << std::endl;
-    return 0;
+    return {};
   }
 
   template <typename Select>
@@ -159,18 +168,18 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename PreparedExecute>
-  size_t _run_prepared_execute(PreparedExecute&) {
-    return 0;
+  command_result _run_prepared_execute(PreparedExecute&) {
+    return {};
   }
 
   template <typename PreparedInsert>
-  size_t _run_prepared_insert(PreparedInsert&) {
-    return 0;
+  insert_result _run_prepared_insert(PreparedInsert&) {
+    return {};
   }
 
   template <typename PreparedUpdate>
-  size_t _run_prepared_update(PreparedUpdate&) {
-    return 0;
+  command_result _run_prepared_update(PreparedUpdate&) {
+    return {};
   }
 
   template <typename Select>

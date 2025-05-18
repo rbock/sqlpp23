@@ -93,19 +93,19 @@ int Blob(int, char*[]) {
   std::generate_n(blobN.begin(), blob_small_size, generator);
 
   // If we use the bigger blob it will trigger SQLITE_TOOBIG for the query
-  auto id = db(insert_into(tab).set(tab.blobN = smallBlob));
+  auto result = db(insert_into(tab).set(tab.blobN = smallBlob));
 
   auto prepared_insert =
       db.prepare(insert_into(tab).set(tab.blobN = parameter(tab.blobN)));
   prepared_insert.params.blobN = blobN;
-  const auto prep_id = db(prepared_insert);
+  const auto prep_result = db(prepared_insert);
   prepared_insert.params.blobN = std::nullopt;
-  const auto null_id = db(prepared_insert);
+  const auto null_result = db(prepared_insert);
 
-  verify_blob(db, smallBlob, id);
-  verify_blob(db, blobN, prep_id);
+  verify_blob(db, smallBlob, result.last_insert_id);
+  verify_blob(db, blobN, prep_result.last_insert_id);
   {
-    auto result = db(select(tab.blobN).from(tab).where(tab.id == null_id));
+    auto result = db(select(tab.blobN).from(tab).where(tab.id == null_result.last_insert_id));
     const auto& result_row = result.front();
     std::cerr << "Null blob is_null:\t" << std::boolalpha
               << (result_row.blobN == std::nullopt) << std::endl;

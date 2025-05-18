@@ -50,23 +50,25 @@ typedef struct pg_conn PGconn;
 
 namespace sqlpp::postgresql {
 
+struct command_result {
+  uint64_t affected_rows;
+};
+
 namespace detail {
-inline prepared_statement_t prepare_statement(
-    connection_handle& handle,
-    const std::string& stmt,
-    const size_t& param_count) {
+inline prepared_statement_t prepare_statement(connection_handle& handle,
+                                              const std::string& stmt,
+                                              const size_t& param_count) {
   if constexpr (debug_enabled) {
     handle.debug().log(log_category::statement, "preparing: {}", stmt);
   }
 
-  return prepared_statement_t{
-      handle.native_handle(), stmt, handle.get_prepared_statement_name(),
-      param_count, handle.config.get()};
+  return prepared_statement_t{handle.native_handle(), stmt,
+                              handle.get_prepared_statement_name(), param_count,
+                              handle.config.get()};
 }
 
-inline pg_result_t execute_prepared_statement(
-    connection_handle& handle,
-    prepared_statement_t& prepared) {
+inline pg_result_t execute_prepared_statement(connection_handle& handle,
+                                              prepared_statement_t& prepared) {
   if constexpr (debug_enabled) {
     handle.debug().log(log_category::statement,
                        "executing prepared statement: {}", prepared.name());
@@ -97,12 +99,10 @@ class connection_base : public sqlpp::connection {
   }
 
   // direct execution
-  pg_result_t _execute_impl(
-      std::string_view stmt) {
+  pg_result_t _execute_impl(std::string_view stmt) {
     validate_connection_handle();
     if constexpr (debug_enabled) {
-      _handle.debug().log(log_category::statement, "executing: '{}'",
-                                 stmt);
+      _handle.debug().log(log_category::statement, "executing: '{}'", stmt);
     }
 
     return pg_result_t{PQexec(native_handle(), stmt.data())};
@@ -112,16 +112,16 @@ class connection_base : public sqlpp::connection {
     return {_execute_impl(stmt), _handle.config.get()};
   }
 
-  size_t insert_impl(const std::string& stmt) {
-    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
+  command_result insert_impl(const std::string& stmt) {
+    return {.affected_rows = _execute_impl(stmt).affected_rows()};
   }
 
-  size_t update_impl(const std::string& stmt) {
-    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
+  command_result update_impl(const std::string& stmt) {
+    return {.affected_rows = _execute_impl(stmt).affected_rows()};
   }
 
-  size_t delete_from_impl(const std::string& stmt) {
-    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
+  command_result delete_from_impl(const std::string& stmt) {
+    return {.affected_rows = _execute_impl(stmt).affected_rows()};
   }
 
   // prepared execution
@@ -137,28 +137,28 @@ class connection_base : public sqlpp::connection {
             _handle.config.get()};
   }
 
-  size_t run_prepared_execute_impl(prepared_statement_t& prep) {
+  command_result run_prepared_execute_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     pg_result_t result = detail::execute_prepared_statement(_handle, prep);
-    return static_cast<size_t>(result.affected_rows());
+    return {.affected_rows = result.affected_rows()};
   }
 
-  size_t run_prepared_insert_impl(prepared_statement_t& prep) {
+  command_result run_prepared_insert_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     pg_result_t result = detail::execute_prepared_statement(_handle, prep);
-    return static_cast<size_t>(result.affected_rows());
+    return {.affected_rows = result.affected_rows()};
   }
 
-  size_t run_prepared_update_impl(prepared_statement_t& prep) {
+  command_result run_prepared_update_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     pg_result_t result = detail::execute_prepared_statement(_handle, prep);
-    return static_cast<size_t>(result.affected_rows());
+    return {.affected_rows = result.affected_rows()};
   }
 
-  size_t run_prepared_delete_from_impl(prepared_statement_t& prep) {
+  command_result run_prepared_delete_from_impl(prepared_statement_t& prep) {
     validate_connection_handle();
     pg_result_t result = detail::execute_prepared_statement(_handle, prep);
-    return static_cast<size_t>(result.affected_rows());
+    return {.affected_rows = result.affected_rows()};
   }
 
   // Select stmt (returns a result)
@@ -183,7 +183,7 @@ class connection_base : public sqlpp::connection {
 
   // Insert
   template <typename Insert>
-  size_t _insert(const Insert& s) {
+  command_result _insert(const Insert& s) {
     context_t context(this);
     return insert_impl(to_sql_string(context, s));
   }
@@ -195,14 +195,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedInsert>
-  size_t _run_prepared_insert(PreparedInsert& i) {
+  command_result _run_prepared_insert(PreparedInsert& i) {
     i._bind_params();
     return run_prepared_insert_impl(i._prepared_statement);
   }
 
   // Update
   template <typename Update>
-  size_t _update(const Update& s) {
+  command_result _update(const Update& s) {
     context_t context(this);
     return update_impl(to_sql_string(context, s));
   }
@@ -214,14 +214,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedUpdate>
-  size_t _run_prepared_update(PreparedUpdate& u) {
+  command_result _run_prepared_update(PreparedUpdate& u) {
     u._bind_params();
     return run_prepared_update_impl(u._prepared_statement);
   }
 
   // Delete
   template <typename Delete>
-  size_t _delete_from(const Delete& s) {
+  command_result _delete_from(const Delete& s) {
     context_t context(this);
     return delete_from_impl(to_sql_string(context, s));
   }
@@ -233,14 +233,14 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedDelete>
-  size_t _run_prepared_delete_from(PreparedDelete& r) {
+  command_result _run_prepared_delete_from(PreparedDelete& r) {
     r._bind_params();
     return run_prepared_delete_from_impl(r._prepared_statement);
   }
 
   // Execute
   template <typename Execute>
-  size_t _execute(const Execute& s) {
+  command_result _execute(const Execute& s) {
     context_t context(this);
     return operator()(to_sql_string(context, s));
   }
@@ -252,7 +252,7 @@ class connection_base : public sqlpp::connection {
   }
 
   template <typename PreparedExecute>
-  size_t _run_prepared_execute(PreparedExecute& x) {
+  command_result _run_prepared_execute(PreparedExecute& x) {
     x._prepared_statement._reset();
     x._bind_params();
     return run_prepared_execute_impl(x._prepared_statement);
@@ -262,8 +262,8 @@ class connection_base : public sqlpp::connection {
   //! Execute a single statement (like creating a table).
   //! Note that technically, this supports executing multiple statements today,
   //! but this is likely to change to align with other connectors.
-  size_t operator()(std::string_view stmt) {
-    return static_cast<size_t>(_execute_impl(stmt).affected_rows());
+  command_result operator()(std::string_view stmt) {
+    return {_execute_impl(stmt).affected_rows()};
   }
 
   template <typename T>
@@ -397,7 +397,7 @@ class connection_base : public sqlpp::connection {
     }
     if constexpr (debug_enabled) {
       _handle.debug().log(log_category::connection,
-                                 "rolling back unfinished transaction");
+                          "rolling back unfinished transaction");
     }
     _execute_impl("ROLLBACK");
     _transaction_active = false;
@@ -407,7 +407,7 @@ class connection_base : public sqlpp::connection {
   void report_rollback_failure(const std::string& message) noexcept {
     if constexpr (debug_enabled) {
       _handle.debug().log(log_category::connection,
-                                 "transaction rollback failure: {}", message);
+                          "transaction rollback failure: {}", message);
     }
   }
 
@@ -461,4 +461,3 @@ inline auto context_t::escape(std::string_view t) -> std::string {
 using connection = sqlpp::normal_connection<connection_base>;
 using pooled_connection = sqlpp::pooled_connection<connection_base>;
 }  // namespace sqlpp::postgresql
-

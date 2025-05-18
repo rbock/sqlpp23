@@ -25,6 +25,7 @@
  */
 
 #include <cassert>
+#include "sqlpp23/sqlite3/database/connection.h"
 
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
@@ -36,8 +37,8 @@ int main(int, char*[]) {
     auto db = sql::make_test_connection();
 
     // Execute SQL string
-    auto affected_rows = db("SELECT NULL");
-    static_assert(std::is_same_v<size_t, decltype(affected_rows)>);
+    auto result = db("SELECT NULL");
+    static_assert(std::is_same_v<sqlpp::sqlite3::command_result, decltype(result)>);
 
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

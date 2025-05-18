@@ -55,7 +55,7 @@ int DynamicSelect(int, char*[]) {
   i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
   i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
   i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
-  auto last_insert_rowid = db(i);
+  const auto last_insert_rowid = db(i).last_insert_id;
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;
 

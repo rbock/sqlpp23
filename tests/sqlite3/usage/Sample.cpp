@@ -163,37 +163,37 @@ int Sample(int, char*[]) {
   auto pi = db.prepare(
       insert_into(tab).set(tab.textNnD = parameter(tab.textNnD), tab.boolN = true));
   pi.params.textNnD = "prepared cake";
-  std::cerr << "Inserted: " << db(pi) << std::endl;
+  std::cerr << "Inserted: " << db(pi).last_insert_id << std::endl;
 
   auto pu = db.prepare(update(tab)
                            .set(tab.boolN = parameter(tab.boolN))
                            .where(tab.textNnD == "prepared cake"));
   pu.params.boolN = false;
-  std::cerr << "Updated: " << db(pu) << std::endl;
+  std::cerr << "Updated: " << db(pu).last_insert_id << std::endl;
 
   auto pr = db.prepare(delete_from(tab).where(tab.textNnD != parameter(tab.textNnD)));
   pr.params.textNnD = "prepared cake";
-  std::cerr << "Deleted lines: " << db(pr) << std::endl;
+  std::cerr << "Deleted lines: " << db(pr).affected_rows << std::endl;
 
   {
     // insert_or with static assignments
     auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
-        tab.textNnD = "test", tab.boolN = true));
+        tab.textNnD = "test", tab.boolN = true)).affected_rows;
     std::cerr << i << std::endl;
 
     i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(tab.textNnD = "test",
-                                                          tab.boolN = true));
+                                                          tab.boolN = true)).affected_rows;
     std::cerr << i << std::endl;
   }
 
   {
     // insert_or with a dynamic assignment
     auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
-        tab.textNnD = "test", dynamic(true, tab.boolN = true)));
+        tab.textNnD = "test", dynamic(true, tab.boolN = true))).last_insert_id;
     std::cerr << i << std::endl;
 
     i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(
-        tab.textNnD = "test", dynamic(true, tab.boolN = true)));
+        tab.textNnD = "test", dynamic(true, tab.boolN = true))).last_insert_id;
     std::cerr << i << std::endl;
   }
 
