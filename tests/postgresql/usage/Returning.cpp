@@ -64,8 +64,7 @@ int Returning(int, char*[]) {
       std::cout << row.intN << std::endl;
 
   }
-
-  catch (const sql::failure&) {
+  catch (const sqlpp::exception&) {
     return 1;
   }
 

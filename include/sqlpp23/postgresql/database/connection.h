@@ -33,16 +33,16 @@
 #include "sqlpp23/core/type_traits.h"
 
 #include <sqlpp23/core/database/connection.h>
+#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/database/transaction.h>
 #include <sqlpp23/core/query/statement_constructor_arg.h>
 #include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/postgresql/text_result.h>
 #include <sqlpp23/postgresql/database/connection_config.h>
 #include <sqlpp23/postgresql/database/connection_handle.h>
-#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp23/postgresql/pg_result.h>
 #include <sqlpp23/postgresql/prepared_statement.h>
-#include <sqlpp23/postgresql/result.h>
+#include <sqlpp23/postgresql/text_result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
 
 struct pg_conn;
@@ -64,7 +64,7 @@ inline prepared_statement_t prepare_statement(
       param_count, handle.config.get()};
 }
 
-inline Result execute_prepared_statement(
+inline pg_result_t execute_prepared_statement(
     connection_handle& handle,
     prepared_statement_t& prepared) {
   if constexpr (debug_enabled) {
@@ -97,7 +97,7 @@ class connection_base : public sqlpp::connection {
   }
 
   // direct execution
-  Result _execute_impl(
+  pg_result_t _execute_impl(
       std::string_view stmt) {
     validate_connection_handle();
     if constexpr (debug_enabled) {
@@ -105,7 +105,7 @@ class connection_base : public sqlpp::connection {
                                  stmt);
     }
 
-    return Result{PQexec(native_handle(), stmt.data())};
+    return pg_result_t{PQexec(native_handle(), stmt.data())};
   }
 
   text_result_t select_impl(const std::string& stmt) {
@@ -139,25 +139,25 @@ class connection_base : public sqlpp::connection {
 
   size_t run_prepared_execute_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    Result result = detail::execute_prepared_statement(_handle, prep);
+    pg_result_t result = detail::execute_prepared_statement(_handle, prep);
     return static_cast<size_t>(result.affected_rows());
   }
 
   size_t run_prepared_insert_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    Result result = detail::execute_prepared_statement(_handle, prep);
+    pg_result_t result = detail::execute_prepared_statement(_handle, prep);
     return static_cast<size_t>(result.affected_rows());
   }
 
   size_t run_prepared_update_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    Result result = detail::execute_prepared_statement(_handle, prep);
+    pg_result_t result = detail::execute_prepared_statement(_handle, prep);
     return static_cast<size_t>(result.affected_rows());
   }
 
   size_t run_prepared_delete_from_impl(prepared_statement_t& prep) {
     validate_connection_handle();
-    Result result = detail::execute_prepared_statement(_handle, prep);
+    pg_result_t result = detail::execute_prepared_statement(_handle, prep);
     return static_cast<size_t>(result.affected_rows());
   }
 
@@ -315,21 +315,16 @@ class connection_base : public sqlpp::connection {
 
   //! get the currently set default transaction isolation level
   isolation_level get_default_isolation_level() {
-    auto res = _execute_impl("SHOW default_transaction_isolation;");
-    auto status = res.status();
-    if ((status != PGRES_TUPLES_OK) && (status != PGRES_COMMAND_OK)) {
-      throw sqlpp::exception{
-          "PostgreSQL error: could not read default_transaction_isolation"};
-    }
+    auto pg_result = _execute_impl("SHOW default_transaction_isolation;");
 
-    auto in = res.get_string_value(0, 0);
-    if (in == "read committed") {
+    std::string_view in = PQgetvalue(pg_result.get(), 0, 0);
+    if (in == std::string_view("read committed")) {
       return isolation_level::read_committed;
-    } else if (in == "read uncommitted") {
+    } else if (in == std::string_view("read uncommitted")) {
       return isolation_level::read_uncommitted;
-    } else if (in == "repeatable read") {
+    } else if (in == std::string_view("repeatable read")) {
       return isolation_level::repeatable_read;
-    } else if (in == "serializable") {
+    } else if (in == std::string_view("serializable")) {
       return isolation_level::serializable;
     }
     return isolation_level::undefined;
@@ -427,7 +422,7 @@ class connection_base : public sqlpp::connection {
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
       std::string err{PQresultErrorMessage(res)};
       PQclear(res);
-      throw sqlpp::postgresql::undefined_table{err, sql};
+      throw sqlpp::exception{err};
     }
 
     // Parse the number and return.

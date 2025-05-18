@@ -1,8 +1,7 @@
 #pragma once
 
 /**
- * Copyright © 2014-2015, Matthijs Möhlmann
- * Copyright (c) 2023, Vesselin Atanasov
+ * Copyright © 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,8 +27,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/clause/delete_from.h>
-#include <sqlpp23/postgresql/clause/insert.h>
-#include <sqlpp23/postgresql/clause/update.h>
-#include <sqlpp23/postgresql/database/connection.h>
-#include <sqlpp23/postgresql/database/connection_pool.h>
+#include <cstdlib>
+#include <memory>
+
+#include <libpq-fe.h>
+#include <pg_config.h>
+
+#include <sqlpp23/core/database/exception.h>
+
+namespace sqlpp::postgresql {
+
+class pg_result_t {
+  std::unique_ptr<PGresult, void (*)(PGresult*)> _pg_result{nullptr, PQclear};
+  public:
+  pg_result_t() = default;
+
+  pg_result_t(PGresult* pg_result)
+      : _pg_result{std::move(pg_result), PQclear} {
+    switch(PQresultStatus(_pg_result.get())) {
+      case PGRES_TUPLES_OK:
+      case PGRES_COMMAND_OK:
+      case PGRES_SINGLE_TUPLE:
+        return;
+      default:
+        throw sqlpp::exception{
+            std::format("Postgresql error: code '{}', status '{}', message '{}'",
+                        PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE),
+                        PQresStatus(PQresultStatus(_pg_result.get())),
+                        PQresultErrorMessage(_pg_result.get()))};
+    }
+  }
+
+  pg_result_t(const pg_result_t&) = delete;
+  pg_result_t(pg_result_t&&) = default;
+  pg_result_t& operator=(const pg_result_t&) = delete;
+  pg_result_t& operator=(pg_result_t&&) = default;
+  ~pg_result_t() = default;
+
+  PGresult* get() const { return _pg_result.get(); }
+
+  size_t affected_rows() {
+    return std::strtoull(PQcmdTuples(_pg_result.get()), nullptr, 10);
+  }
+
+};
+}  // namespace sqlpp::postgresql

@@ -29,7 +29,6 @@
 #include <stdexcept>
 
 #include <sqlpp23/postgresql/database/connection.h>
-#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/sqlpp23.h>
 
 namespace sql = sqlpp::postgresql;
@@ -41,7 +40,7 @@ int Basic(int, char*[]) {
     sql::connection db(config);
 
     throw std::logic_error("should never reach this point");
-  } catch (const sqlpp::postgresql::broken_connection& ex) {
+  } catch (const sqlpp::exception& ex) {
     std::cout << "Got exception: '" << ex.what() << "'";
     return 0;
   }

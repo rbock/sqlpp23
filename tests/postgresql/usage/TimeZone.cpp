@@ -153,7 +153,7 @@ int TimeZone(int, char*[]) {
     for (const auto& tp : tps) {
       test_time_point(db, tp);
     }
-  } catch (const sql::failure& e) {
+  } catch (const sqlpp::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

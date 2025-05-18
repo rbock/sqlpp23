@@ -5,8 +5,9 @@
     bool exceptionThrown = false;                    \
     try {                                            \
       code;                                          \
-    } catch (const exception&) {                     \
+    } catch (const exception& e) {                   \
       exceptionThrown = true;                        \
+      std::cerr << "message: " << e.what() << '\n';  \
     }                                                \
     if (not exceptionThrown)                         \
       throw std::runtime_error("missing exception"); \

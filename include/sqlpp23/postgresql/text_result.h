@@ -31,11 +31,14 @@
 #include <span>
 #include <string_view>
 
+#include <libpq-fe.h>
+#include <pg_config.h>
+
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/postgresql/database/connection_config.h>
-#include <sqlpp23/postgresql/result.h>
+#include <sqlpp23/postgresql/pg_result.h>
 
 namespace sqlpp::postgresql {
 namespace detail {
@@ -94,7 +97,7 @@ inline size_t hex_assign(std::vector<uint8_t>& value,
 }  // namespace detail
 
 class text_result_t {
-  Result _result;
+  pg_result_t _pg_result;
   const connection_config* _config;
   int _row_index = -1;
   int _row_count = 0;
@@ -106,7 +109,7 @@ class text_result_t {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "accessing next row of handle at {}",
-                           std::hash<void*>{}(_result.native_handle()));
+                           std::hash<void*>{}(_pg_result.get()));
     }
 
     // Next row
@@ -120,17 +123,29 @@ class text_result_t {
  public:
   text_result_t() = default;
 
-  text_result_t(Result result, const connection_config* config)
-      : _result{std::move(result)},
+  text_result_t(pg_result_t pg_result, const connection_config* config)
+      : _pg_result{std::move(pg_result)},
         _config{config},
-        _row_count{_result.records_size()},
-        _field_count{_result.field_count()},
+        _row_count{PQntuples(_pg_result.get())},
+        _field_count{PQnfields(_pg_result.get())},
         _var_buffers{static_cast<size_t>(_field_count),
                      std::vector<uint8_t>{}} {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                          "constructing bind result, using handle at {}",
-                         std::hash<void*>{}(_result.native_handle()));
+                         std::hash<void*>{}(_pg_result.get()));
+    }
+    switch(PQresultStatus(_pg_result.get())) {
+      case PGRES_TUPLES_OK:
+      case PGRES_COMMAND_OK:
+      case PGRES_SINGLE_TUPLE:
+        return;
+      default:
+        throw sqlpp::exception{
+            std::format("Postgresql error: code '{}', status '{}', message '{}'",
+                        PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE),
+                        PQresStatus(PQresultStatus(_pg_result.get())),
+                        PQresultErrorMessage(_pg_result.get()))};
     }
   }
 
@@ -140,13 +155,17 @@ class text_result_t {
   text_result_t& operator=(text_result_t&&) = default;
   ~text_result_t() = default;
 
+  size_t affected_rows() {
+    return std::strtoull(PQcmdTuples(_pg_result.get()), nullptr, 10);
+  }
+
   bool operator==(const text_result_t& rhs) const {
-    return (this->_result == rhs._result);
+    return (this->_pg_result.get() == rhs._pg_result.get());
   }
 
   template <typename ResultRow>
   void next(ResultRow& result_row) {
-    if (!_result.native_handle()) {
+    if (!_pg_result.get()) {
       sqlpp::detail::result_row_bridge{}.invalidate(result_row);
       return;
     }
@@ -170,7 +189,13 @@ class text_result_t {
                            "reading boolean result at index {}", index);
     }
 
-    value = _result.get_bool_value(_row_index, index);
+    switch(PQgetvalue(_pg_result.get(), _row_index, index)[0]) {
+      case 't':
+        value = true;
+        break;
+      default:
+        value = false;
+    }
   }
 
   void read_field(size_t _index, double& value) {
@@ -180,17 +205,18 @@ class text_result_t {
                            "reading floating_point result at index {}", index);
     }
 
-    value = _result.get_double_value(_row_index, index);
+    value = std::strtod(PQgetvalue(_pg_result.get(), _row_index, index), nullptr);
   }
 
   void read_field(size_t _index, int64_t& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "reading integral result at index: {}", index);
+                         "reading integral result at index: {}", index);
     }
 
-    value = _result.get_int64_value(_row_index, index);
+    value = std::strtoll(PQgetvalue(_pg_result.get(), _row_index, index),
+                         nullptr, 10);
   }
 
   void read_field(size_t _index, uint64_t& value) {
@@ -202,7 +228,8 @@ class text_result_t {
           index);
     }
 
-    value = _result.get_uint64_value(_row_index, index);
+    value = std::strtoull(PQgetvalue(_pg_result.get(), _row_index, index),
+                          nullptr, 10);
   }
 
   void read_field(size_t _index, std::string_view& value) {
@@ -213,8 +240,8 @@ class text_result_t {
     }
 
     value = std::string_view(
-        _result.get_char_ptr_value(_row_index, index),
-        static_cast<size_t>(_result.length(_row_index, index)));
+        PQgetvalue(_pg_result.get(), _row_index, index),
+        static_cast<size_t>(PQgetlength(_pg_result.get(), _row_index, index)));
   }
 
   // PostgreSQL will return one of those (using the default ISO client):
@@ -232,8 +259,7 @@ class text_result_t {
                            "reading date result at index {}", index);
     }
 
-    const auto date_string =
-        _result.get_char_ptr_value(_row_index, index);
+    const auto date_string = PQgetvalue(_pg_result.get(), _row_index, index);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date string: {}",
                            date_string);
@@ -254,8 +280,7 @@ class text_result_t {
                            "reading date_time result at index {}", index);
     }
 
-    const auto date_string =
-        _result.get_char_ptr_value(_row_index, index);
+    const auto date_string = PQgetvalue(_pg_result.get(), _row_index, index);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "got date_time string: {}",
                            date_string);
@@ -276,8 +301,7 @@ class text_result_t {
                            "reading time result at index {}", index);
     }
 
-    const auto time_string =
-        _result.get_char_ptr_value(_row_index, index);
+    const auto time_string = PQgetvalue(_pg_result.get(), _row_index, index);
 
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "got time string: {}",
@@ -305,8 +329,9 @@ class text_result_t {
     // types.
     const auto size = detail::hex_assign(
         _var_buffers[_index],
-        _result.get_blob_value(_row_index, index),
-        static_cast<size_t>(_result.length(_row_index, index)));
+        reinterpret_cast<const uint8_t*>(
+            PQgetvalue(_pg_result.get(), _row_index, index)),
+        static_cast<size_t>(PQgetlength(_pg_result.get(), _row_index, index)));
 
     value = std::span<const uint8_t>(_var_buffers[_index].data(), size);
   }
@@ -314,7 +339,7 @@ class text_result_t {
   template <typename T>
   auto read_field(size_t _index, std::optional<T>& value) -> void {
     const auto index = static_cast<int>(_index);
-    if (_result.is_null(_row_index, index)) {
+    if (PQgetisnull(_pg_result.get(), _row_index, index)) {
       value.reset();
     } else {
       if (not value.has_value()) {
@@ -324,6 +349,6 @@ class text_result_t {
     }
   }
 
-  int size() const { return _result.records_size(); }
+  int size() const { return _row_count; }
 };
 }  // namespace sqlpp::postgresql

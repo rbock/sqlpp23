@@ -40,7 +40,7 @@ int Exceptions(int, char*[]) {
     // broken_connection exception on bad config
     auto config = std::make_shared<sql::connection_config>();
     config->host = "non-existing-host";
-    assert_throw(sql::connection db(config), sql::broken_connection);
+    assert_throw(sql::connection db(config), sqlpp::exception);
   }
 
   test::TabExcept tab;
@@ -50,14 +50,14 @@ int Exceptions(int, char*[]) {
     test::createTabExcept(db);
     assert_throw(db(insert_into(tab).set(
                      tab.intSmallNU = std::numeric_limits<int16_t>::max() + 1)),
-                 sql::data_exception);
+                 sqlpp::exception);
     assert_throw(db(insert_into(tab).set(tab.textShortN = "123456")),
-                 sql::check_violation);
+                 sqlpp::exception);
     db(insert_into(tab).set(tab.intSmallNU = 5));
     assert_throw(db(insert_into(tab).set(tab.intSmallNU = 5)),
-                 sql::integrity_constraint_violation);
+                 sqlpp::exception);
     assert_throw(db.last_insert_id("tabfoo", "no_such_column"),
-                 sqlpp::postgresql::undefined_table);
+                 sqlpp::exception);
 
     try {
       // Cause specific error
@@ -69,12 +69,10 @@ int Exceptions(int, char*[]) {
                     )");
 
       db("select cause_error();");
-    } catch (const sql::sql_user_error& e) {
-      std::cout << "Caught expected error. Code: " << e.code() << '\n';
-      if (e.code() != "ZX123")
-        throw std::runtime_error("unexpected error code");
+    } catch (const sqlpp::exception& e) {
+      std::cout << "Caught expected error. message: " << e.what() << '\n';
     }
-  } catch (const sql::failure& e) {
+  } catch (const sqlpp::exception& e) {
     std::cout << e.what();
     return 1;
   }

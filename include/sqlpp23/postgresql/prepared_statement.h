@@ -35,9 +35,8 @@
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/debug_logger.h>
 #include <sqlpp23/postgresql/database/connection_handle.h>
-#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/result.h>
+#include <sqlpp23/postgresql/pg_result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
 
 namespace sqlpp::postgresql {
@@ -82,8 +81,8 @@ class prepared_statement_t {
       }
 
     // This will throw if preparation fails
-    Result result{PQprepare(_connection, _name.c_str(), statement.c_str(),
-                       /*nParams*/ 0, /*paramTypes*/ nullptr)};
+      pg_result_t{PQprepare(_connection, _name.c_str(), statement.c_str(),
+                            /*nParams*/ 0, /*paramTypes*/ nullptr)};
   }
 
   prepared_statement_t(const prepared_statement_t&) = delete;
@@ -104,7 +103,7 @@ class prepared_statement_t {
 
   const std::string& name() const { return _name; }
 
-  Result execute() {
+  pg_result_t execute() {
     const size_t size = _stmt_parameters.size();
 
     std::vector<const char*> values;
@@ -115,7 +114,7 @@ class prepared_statement_t {
     }
 
     // Execute prepared statement with the parameters.
-    return Result{PQexecPrepared(_connection, /*stmtName*/ _name.data(),
+    return pg_result_t{PQexecPrepared(_connection, /*stmtName*/ _name.data(),
                                  /*nParams*/ static_cast<int>(size),
                                  /*paramValues*/ values.data(),
                                  /*paramLengths*/ nullptr,

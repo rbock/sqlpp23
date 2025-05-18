@@ -27,7 +27,6 @@
 #include <cassert>
 #include <iostream>
 
-#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
 
@@ -101,7 +100,7 @@ int DateTime(int, char*[]) {
       require_equal(__LINE__, row.timeOfDayNTz.value(), current);
       require_equal(__LINE__, row.timePointNTz.value(), now);
     }
-  } catch (const sql::failure& e) {
+  } catch (const sqlpp::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }

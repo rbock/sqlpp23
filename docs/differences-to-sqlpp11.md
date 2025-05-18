@@ -2,7 +2,7 @@
 
 # Differences between sqlpp11 and sqlpp23
 
-This is a (probably incomplete) list of differences as of April 2025.
+This is a (probably incomplete) list of differences as of May 2025.
 
 If seems a bit dry, follow the links to examples.
 
@@ -15,6 +15,7 @@ If seems a bit dry, follow the links to examples.
 | **Data types** | | |
 | nullable values | `sqlpp::value_or_null` | `std::optional` |
 | `NULL` | `sqlpp::null` | `std::nullopt` |
+| | | |
 | **Result row** | | |
 | result fields | specializations of the `result_field_t` template | standard types, like `int64_t`, `std::optional<int64_t>`, or `std::string_view` |
 | `TEXT` result fields | convertible to `std::string` | `std::string_view` |
@@ -71,10 +72,11 @@ If seems a bit dry, follow the links to examples.
 | aggregate functions | auto-named in `select` but not otherwise | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
 | **Misc** | | |
 | `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
-| `value_list` | required for operator `in()` | *dropped* |
-| `ppgen` | pre-processor code generation for tables | *dropped* |
+| `postgresql::failure` | Many specializations of `sqlpp::exception` | *dropped* (was incomplete, unmaintained) |
+| `ppgen` | Pre-processor code generation for tables | *dropped* |
 | sqlite2cpp.py | ddl2cpp variant for sqlite3 | *dropped* |
-| dynamic loading | ability to load connector library dynamically | *dropped* (was unmaintained) |
+| dynamic loading | Ability to load connector library dynamically | *dropped* (was unmaintained) |
+| memory allocation | Multiple cases of double pointer indirections (wrapping a smart pointer with yet another smart pointer) | Removed all known double pointer indirections |
 
 [**\< Index**](/docs/README.md)
 

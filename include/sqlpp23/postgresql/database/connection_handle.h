@@ -31,8 +31,9 @@
 #include <string>
 
 #include <libpq-fe.h>
+
 #include <sqlpp23/postgresql/database/connection_config.h>
-#include <sqlpp23/postgresql/database/exception.h>
+#include <sqlpp23/core/database/exception.h>
 
 namespace sqlpp::postgresql::detail {
 struct connection_handle {
@@ -149,7 +150,7 @@ struct connection_handle {
 
     if (is_connected() == false) {
       std::string msg{PQerrorMessage(native_handle())};
-      throw broken_connection{std::move(msg)};
+      throw sqlpp::exception{std::format("Postgresql error: {}", std::move(msg))};
     }
   }
 
