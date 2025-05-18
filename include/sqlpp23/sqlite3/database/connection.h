@@ -431,7 +431,7 @@ class connection_base : public sqlpp::connection {
 
   // Constructors
   connection_base() = default;
-  connection_base(_handle_t&& handle) : _handle{std::move(handle)} {}
+  connection_base(_handle_t handle) : _handle{std::move(handle)} {}
 };
 
 inline auto context_t::escape(std::string_view t) -> std::string {

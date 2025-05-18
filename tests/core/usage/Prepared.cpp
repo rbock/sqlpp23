@@ -24,14 +24,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 #include "is_regular.h"
 
 int Prepared(int, char*[]) {
-  MockDb db = {};
+  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   // test::TabFoo f;
   const auto t = test::TabBar{};
 

@@ -137,7 +137,7 @@ int main(int, char*[]) {
 
   // Joining sub selects
   const auto s = select(all_of(foo)).from(foo).as(something);
-  auto ctx = MockDb::context_t{};
+  auto ctx = sqlpp::mock_db::context_t{};
   const auto s_string = to_sql_string(ctx, s);
 
   SQLPP_COMPARE(foo.cross_join(s), "tab_foo CROSS JOIN " + s_string);

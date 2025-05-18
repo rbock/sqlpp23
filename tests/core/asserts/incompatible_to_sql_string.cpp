@@ -25,12 +25,12 @@
  */
 
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/tests/core/incompatible.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main() {
-  using CTX = MockDb::context_t;
+  using CTX = sqlpp::mock_db::context_t;
 
   // Incompatible expression
   auto incompatible_select = sqlpp::select(sqlpp::test::incompatible(7).as(sqlpp::alias::a));

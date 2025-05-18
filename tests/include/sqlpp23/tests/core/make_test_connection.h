@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2025, Roland Bock
  * All rights reserved.
@@ -24,44 +26,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
 #include <iostream>
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/make_test_connection.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/mock_db/mock_db.h>
 
-int main(int, char*[]) {
-  try {
-    const auto tab = test::TabFoo{};
-    auto db = sqlpp::mock_db::make_test_connection();
+namespace sqlpp::mock_db {
+// Get configuration for test connection
+inline std::shared_ptr<sqlpp::mock_db::connection_config> make_test_config(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
+  auto config = std::make_shared<sqlpp::mock_db::connection_config>();
 
-    // clear the table
-    db(truncate(tab));
-
-    // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
-
-    // select aggregates with over()
-    for (const auto& row : db(select(
-            avg(tab.intN).over().as(sqlpp::alias::avg_),
-            count(tab.intN).over().as(sqlpp::alias::count_),
-            max(tab.intN).over().as(sqlpp::alias::max_),
-            min(tab.intN).over().as(sqlpp::alias::min_),
-            sum(tab.intN).over().as(sqlpp::alias::sum_)
-            ).from(tab))) {
-      std::ignore = row.avg_;
-      std::ignore = row.count_;
-      std::ignore = row.max_;
-      std::ignore = row.min_;
-      std::ignore = row.sum_;
-    }
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
-  }
-  return 0;
+  config->id = "mock";
+  config->debug = debug_logger(categories, [](const std::string& message) {
+    std::clog << message << '\n';
+  });
+  return config;
 }
+
+// Starts a connection
+inline ::sqlpp::mock_db::connection make_test_connection(
+    const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
+  namespace sql = sqlpp::mock_db;
+
+  auto config = make_test_config(categories);
+
+  sql::connection db;
+  db.connect_using(config);
+
+  return db;
+}
+}  // namespace sqlpp::mock_db

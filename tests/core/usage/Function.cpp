@@ -24,8 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
@@ -35,7 +36,7 @@ SQLPP_CREATE_NAME_TAG(kaesekuchen);
 SQLPP_CREATE_NAME_TAG(something);
 
 int Function(int, char*[]) {
-  MockDb db = {};
+  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
 
@@ -296,7 +297,7 @@ int Function(int, char*[]) {
 
   // test flatten
   {
-    auto ctx = MockDb::context_t{};
+    auto ctx = sqlpp::mock_db::context_t{};
     using TB = decltype(flatten(ctx, t.boolNn));
     using TI = decltype(flatten(ctx, t.id));
     using TF = decltype(flatten(ctx, f.doubleN));

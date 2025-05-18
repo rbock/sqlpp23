@@ -29,8 +29,9 @@
 #include <tuple>
 #include <ranges>
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/tables.h>
 
 SQLPP_CREATE_NAME_TAG(cheese);
@@ -47,7 +48,7 @@ auto row_to_data = [](const auto& row) -> my_data {
 
 int main(int, char*[]) {
   try {
-    auto db = MockDb{};
+    auto db = sqlpp::mock_db::make_test_connection();
 
     const auto foo = test::TabFoo{};
 

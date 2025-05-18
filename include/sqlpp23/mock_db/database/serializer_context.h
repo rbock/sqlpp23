@@ -1,15 +1,18 @@
-/*
+#pragma once
+
+/**
  * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ *   Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -24,26 +27,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
+#include <string>
+#include <string_view>
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/make_test_connection.h>
-#include <sqlpp23/tests/core/tables.h>
+namespace sqlpp::mock_db {
 
-int main(int, char*[]) {
-  try {
-    auto db = sqlpp::mock_db::make_test_connection();
+// Context for serialization
+struct context_t {
+  explicit context_t() = default;
+  context_t(const context_t&) = delete;
+  context_t(context_t&&) = delete;
+  context_t& operator=(const context_t&) = delete;
+  context_t& operator=(context_t&&) = delete;
 
-    // Execute SQL string
-    auto result = db("SELECT NULL");
-    static_assert(
-        std::is_same_v<sqlpp::mock_db::command_result, decltype(result)>);
-
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
+  auto escape(std::string_view t) -> std::string {
+    auto result = std::string{};
+    result.reserve(t.size() * 2);
+    for (const auto c : t) {
+      if (c == '\'')
+        result.push_back(c);  // Escaping
+      result.push_back(c);
+    }
+    return result;
   }
-  return 0;
-}
+};
+
+}  // namespace sqlpp::mock_db

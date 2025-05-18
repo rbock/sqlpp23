@@ -26,21 +26,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+
 #include <sqlpp23/core/basic/schema.h>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/query/result_row.h>
+#include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/to_sql_string.h>
-#include <iostream>
-#include "sqlpp23/core/query/statement.h"
-#include "sqlpp23/core/type_traits.h"
+#include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/mock_db/text_result.h>
+#include <sqlpp23/mock_db/database/connection_config.h>
+#include <sqlpp23/mock_db/database/connection_handle.h>
+#include <sqlpp23/mock_db/database/serializer_context.h>
 
 // an object to store internal Mock flags and values to validate in tests
-struct InternalMockData {
+namespace sqlpp::mock_db {
+namespace detail {
+struct IsolationMockData {
   sqlpp::isolation_level _last_isolation_level;
   sqlpp::isolation_level _default_isolation_level;
 };
+}
 
 struct command_result {
   uint64_t affected_rows;
@@ -51,29 +59,11 @@ struct insert_result {
   uint64_t last_insert_id;
 };
 
-struct MockDb : public sqlpp::connection {
-  struct context_t {
-    auto escape(std::string_view t) -> std::string {
-      auto result = std::string{};
-      result.reserve(t.size() * 2);
-      for (const auto c : t) {
-        if (c == '\'')
-          result.push_back(c);  // Escaping
-        result.push_back(c);
-      }
-      return result;
-    }
-  };
-
-  class result_t {
-   public:
-    constexpr bool operator==(const result_t&) const { return true; }
-
-    template <typename ResultRow>
-    void next(ResultRow& result_row) {
-      sqlpp::detail::result_row_bridge{}.invalidate(result_row);
-    }
-  };
+class connection_base : public sqlpp::connection {
+ public:
+  using _config_t = connection_config;
+  using _config_ptr_t = std::shared_ptr<const _config_t>;
+  using _handle_t = detail::connection_handle;
 
   // Directly executed statements start here
   template <typename T>
@@ -125,11 +115,11 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename Select>
-  result_t _select(const Select& x) {
+  text_result_t _select(const Select& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running select call with\n" << query << std::endl;
-    return {};
+    return {&_mock_result_data, _handle.config.get()};
   }
 
   // Prepared statements start here
@@ -191,8 +181,8 @@ struct MockDb : public sqlpp::connection {
   }
 
   template <typename PreparedSelect>
-  result_t _run_prepared_select(PreparedSelect&) {
-    return {};
+  text_result_t _run_prepared_select(PreparedSelect&) {
+    return {&_mock_result_data, _handle.config.get()};
   }
 
   auto attach(std::string name) -> ::sqlpp::schema_t { return {name}; }
@@ -220,5 +210,18 @@ struct MockDb : public sqlpp::connection {
   void report_rollback_failure(std::string) {}
 
   // temporary data store to verify the expected results were produced
-  InternalMockData _mock_data;
+  detail::IsolationMockData _mock_data;
+  MockRes _mock_result_data;
+
+ protected:
+  _handle_t _handle;
+
+  // Constructors
+  connection_base() = default;
+  connection_base(_handle_t handle) : _handle{std::move(handle)} {}
 };
+
+using connection = sqlpp::normal_connection<connection_base>;
+using pooled_connection = sqlpp::pooled_connection<connection_base>;
+
+}  // namespace sqlpp::mock_db

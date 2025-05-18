@@ -24,12 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mock_db/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/MockDb.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/tables.h>
 
 int main() {
-  MockDb db = {};
+  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
   const auto bar = test::TabBar{};
 
