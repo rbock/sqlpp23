@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <memory>
 #include <string>
 
 #include <sqlpp23/core/database/connection.h>
@@ -45,6 +46,7 @@
 #include <sqlpp23/mysql/database/connection_handle.h>
 #include <sqlpp23/mysql/database/serializer_context.h>
 #include <sqlpp23/mysql/prepared_statement.h>
+#include <sqlpp23/mysql/sqlpp_mysql.h>
 #include <sqlpp23/mysql/to_sql_string.h>
 
 namespace sqlpp::mysql {
@@ -149,16 +151,16 @@ class connection_base : public sqlpp::connection {
 
   char_result_t select_impl(const std::string& statement) {
     execute_statement(_handle, statement);
-    std::unique_ptr<detail::result_handle> result_handle(
-        new detail::result_handle(mysql_store_result(_handle.native_handle()),
-                                  _handle.config.get()));
-    if (!*result_handle) {
+    std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)> result = 
+    {mysql_store_result(_handle.native_handle()), mysql_free_result};
+
+    if (!result) {
       throw sqlpp::exception{
           "MySQL error: Could not store result set: " +
           std::string{mysql_error(_handle.native_handle())}};
     }
 
-    return {std::move(result_handle)};
+    return {std::move(result), _handle.config.get()};
   }
 
   uint64_t insert_impl(const std::string& statement) {

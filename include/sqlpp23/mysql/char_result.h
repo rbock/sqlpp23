@@ -38,26 +38,27 @@
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/mysql/char_result_row.h>
-#include <sqlpp23/mysql/detail/result_handle.h>
+#include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql {
 class char_result_t {
-  std::unique_ptr<detail::result_handle> _handle;
+  std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)> _mysql_res = {nullptr, mysql_free_result};
+  const connection_config* _config;
   char_result_row_t _char_result_row;
 
  public:
   char_result_t() = default;
-  char_result_t(std::unique_ptr<detail::result_handle>&& handle)
-      : _handle{std::move(handle)} {
+  char_result_t(std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)>  mysql_res, const connection_config* config)
+      : _mysql_res{std::move(mysql_res)}, _config{config} {
     if (_invalid())
       throw sqlpp::exception{
           "MySQL: Constructing char_result without valid handle"};
 
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
-                           "Constructing result, using handle at {}",
-                           std::hash<void*>{}(_handle.get()));
+      _config->debug.log(log_category::result,
+                           "Constructing result, using mysql result at {}",
+                           std::hash<void*>{}(_mysql_res.get()));
     }
   }
 
@@ -68,11 +69,11 @@ class char_result_t {
   ~char_result_t() = default;
 
   bool operator==(const char_result_t& rhs) const {
-    return _handle == rhs._handle;
+    return _mysql_res == rhs._mysql_res;
   }
 
   size_t size() const {
-    return _handle ? mysql_num_rows(_handle->mysql_res) : size_t{};
+    return _mysql_res ? mysql_num_rows(_mysql_res.get()) : size_t{};
   }
 
   template <typename ResultRow>
@@ -94,7 +95,7 @@ class char_result_t {
     }
   }
 
-  bool _invalid() const { return !_handle or !*_handle; }
+  bool _invalid() const { return !_mysql_res; }
 
   void read_field(size_t index, bool& value) {
     value = (_char_result_row.data[index][0] == 't' or
@@ -126,19 +127,19 @@ class char_result_t {
 
   void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "parsing date result at index: {}", index);
     }
 
     const auto date_string = _char_result_row.data[index];
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result, "date string: {}",
+      _config->debug.log(log_category::result, "date string: {}",
                            date_string);
     }
 
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result, "invalid date result: {}",
+        _config->debug.log(log_category::result, "invalid date result: {}",
                              date_string);
       }
     }
@@ -146,19 +147,19 @@ class char_result_t {
 
   void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "parsing date result at index: {}", index);
     }
 
     const auto date_time_string = _char_result_row.data[index];
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result, "date_time string: {}",
+      _config->debug.log(log_category::result, "date_time string: {}",
                            date_time_string);
     }
 
     if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result,
+        _config->debug.log(log_category::result,
                              "invalid date_time result: {}", date_time_string);
       }
     }
@@ -166,19 +167,19 @@ class char_result_t {
 
   void read_field(size_t index, ::std::chrono::microseconds& value) {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
+      _config->debug.log(log_category::result,
                            "parsing time of day result at index: {}", index);
     }
 
     const auto time_string = _char_result_row.data[index];
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result, "time of day string: {}",
+      _config->debug.log(log_category::result, "time of day string: {}",
                            time_string);
     }
 
     if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
       if constexpr (debug_enabled) {
-        _handle->debug().log(log_category::result, "invalid time result: {}",
+        _config->debug.log(log_category::result, "invalid time result: {}",
                              time_string);
       }
     }
@@ -200,14 +201,14 @@ class char_result_t {
  private:
   bool next_impl() {
     if constexpr (debug_enabled) {
-      _handle->debug().log(log_category::result,
-                           "Accessing next row of handle at ",
-                           std::hash<void*>{}(_handle.get()));
+      _config->debug.log(log_category::result,
+                           "Accessing next row of mysql result at ",
+                           std::hash<void*>{}(_mysql_res.get()));
     }
 
     _char_result_row.data =
-        const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
-    _char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
+        const_cast<const char**>(mysql_fetch_row(_mysql_res.get()));
+    _char_result_row.len = mysql_fetch_lengths(_mysql_res.get());
 
     return _char_result_row.data;
   }
