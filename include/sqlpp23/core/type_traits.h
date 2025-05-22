@@ -103,6 +103,18 @@ struct values_are_comparable
                is_day_or_time_point<R>::value) or
               (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
+template <typename L, typename R>
+struct values_are_assignable
+    : public std::integral_constant<
+          bool,
+          (is_blob<L>::value and is_blob<R>::value) or
+              (is_boolean<L>::value and is_boolean<R>::value) or
+              (is_numeric<L>::value and is_numeric<R>::value) or
+              (is_text<L>::value and is_text<R>::value) or
+              (is_day_point<L>::value and is_day_point<R>::value) or
+              (is_time_point<L>::value and is_time_point<R>::value) or
+              (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
+
 template <typename T>
 struct result_value {};
 

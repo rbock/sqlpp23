@@ -55,8 +55,6 @@ int DateTime(int, char*[]) {
 
   db(insert_into(t).set(t.dayPointN = std::chrono::floor<std::chrono::days>(
                             std::chrono::system_clock::now())));
-  db(insert_into(t).set(t.timePointN = std::chrono::floor<std::chrono::days>(
-                            std::chrono::system_clock::now())));
   db(insert_into(t).set(t.timePointN = std::chrono::system_clock::now()));
   db(insert_into(t).set(t.timeOfDayN = sqlpp::chrono::time_of_day(
                             std::chrono::system_clock::now())));
@@ -64,12 +62,6 @@ int DateTime(int, char*[]) {
   db(update(t)
          .set(t.dayPointN = std::chrono::floor<std::chrono::days>(
                   std::chrono::system_clock::now()))
-         .where(t.dayPointN < std::chrono::system_clock::now()));
-  db(update(t)
-         .set(t.timePointN = std::chrono::floor<std::chrono::days>(
-                  std::chrono::system_clock::now()),
-              t.timeOfDayN =
-                  sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
          .where(t.dayPointN < std::chrono::system_clock::now()));
   db(update(t)
          .set(t.timePointN = std::chrono::system_clock::now(),

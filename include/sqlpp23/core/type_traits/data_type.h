@@ -28,6 +28,7 @@
  */
 
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <optional>
 #include <span>
@@ -181,8 +182,7 @@ struct data_type_of<day_point> {
   using type = day_point;
 };
 template <>
-struct data_type_of<
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::days>> {
+struct data_type_of<sqlpp::chrono::day_point> {
   using type = day_point;
 };
 
@@ -202,6 +202,7 @@ struct data_type_of<time_point> {
   using type = time_point;
 };
 template <typename Period>
+requires(Period{1} < std::chrono::days{1})
 struct data_type_of<
     std::chrono::time_point<std::chrono::system_clock, Period>> {
   using type = time_point;
