@@ -45,6 +45,7 @@ int main() {
   const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
+  const auto date_time = test::TabDateTime{};
 
   // OK
   bar.intN = 7;
@@ -63,6 +64,45 @@ int main() {
       not can_call_assign_with<decltype(bar.boolNn),
                                decltype(sqlpp::dynamic(maybe, true))>::value,
       "");
+
+  date_time.timePointN = sqlpp::chrono::microsecond_point{};
+  // Can assign different std::chrono::sys_time types to time_point
+  static_assert(
+      can_call_assign_with<decltype(date_time.timePointN),
+                               decltype(sqlpp::chrono::microsecond_point{})>::value);
+
+  static_assert(
+      can_call_assign_with<decltype(date_time.timePointN),
+                               decltype(std::chrono::sys_time<std::chrono::seconds>{})>::value);
+
+
+  // Must not mix date and date_time in assignments, see e.g.
+  // https://github.com/rbock/sqlpp23/issues/26
+  static_assert(not can_call_assign_with<
+                decltype(date_time.dayPointN),
+                decltype(sqlpp::chrono::microsecond_point{})>::value);
+
+  static_assert(
+      not can_call_assign_with<decltype(date_time.timePointN),
+                               decltype(sqlpp::chrono::day_point{})>::value);
+
+  // std::chrono::sys_time<Period> can be assigned to time_point columns if
+  // `Period{1} < std::chrono::days{1}`.
+  using week_point =
+      std::chrono::time_point<std::chrono::system_clock, std::chrono::weeks>;
+  using hour_point =
+      std::chrono::time_point<std::chrono::system_clock, std::chrono::hours>;
+  using minute_point =
+      std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
+
+  static_assert(not can_call_assign_with<decltype(date_time.timePointN),
+                                         decltype(week_point{})>::value);
+
+  static_assert(can_call_assign_with<decltype(date_time.timePointN),
+                                         decltype(hour_point{})>::value);
+
+  static_assert(can_call_assign_with<decltype(date_time.timePointN),
+                                         decltype(minute_point{})>::value);
 
   // Non-nullable without default cannot be assigned null / default
   static_assert(
@@ -102,6 +142,6 @@ int main() {
                                          decltype(std::nullopt)>::value,
                 "");
   static_assert(not can_call_assign_with<decltype(const_col),
-                                     decltype(sqlpp::default_value)>::value,
+                                         decltype(sqlpp::default_value)>::value,
                 "");
 }

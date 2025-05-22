@@ -62,7 +62,7 @@ auto get_rhs(dynamic_t<assign_expression<L, Operator, R>> e) -> dynamic_t<R> {
 
 template <typename L, typename R>
 constexpr bool are_correct_assignment_args =
-    not is_const<L>::value and values_are_comparable<L, R>::value and
+    not is_const<L>::value and values_are_assignable<L, R>::value and
     (can_be_null<L>::value or not can_be_null<R>::value);
 
 template <typename L>
