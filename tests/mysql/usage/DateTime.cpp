@@ -93,7 +93,7 @@ int DateTime(int, char*[]) {
     }
 
     db(update(tab)
-           .set(tab.dayPointN = yesterday, tab.timePointN = today)
+           .set(tab.dayPointN = yesterday, tab.timePointN = now)
            .where(true));
 
     for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {

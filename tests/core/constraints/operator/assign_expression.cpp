@@ -81,10 +81,16 @@ int main() {
   static_assert(not can_call_assign_with<
                 decltype(date_time.dayPointN),
                 decltype(sqlpp::chrono::microsecond_point{})>::value);
+  static_assert(not can_call_assign_with<
+                decltype(date_time.dayPointN),
+                decltype(date_time.timePointN)>::value);
 
   static_assert(
       not can_call_assign_with<decltype(date_time.timePointN),
                                decltype(sqlpp::chrono::day_point{})>::value);
+  static_assert(
+      not can_call_assign_with<decltype(date_time.timePointN),
+                               decltype(date_time.dayPointN)>::value);
 
   // std::chrono::sys_time<Period> can be assigned to time_point columns if
   // `Period{1} < std::chrono::days{1}`.
@@ -103,6 +109,9 @@ int main() {
 
   static_assert(can_call_assign_with<decltype(date_time.timePointN),
                                          decltype(minute_point{})>::value);
+
+  static_assert(can_call_assign_with<decltype(date_time.timePointN),
+                                         decltype(date_time.timePointN)>::value);
 
   // Non-nullable without default cannot be assigned null / default
   static_assert(

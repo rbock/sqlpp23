@@ -78,7 +78,7 @@ int DateTime(int, char*[]) {
       require_equal(__LINE__, row.timePointN.value(), now);
     }
 
-    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointN = today));
+    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointN = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
