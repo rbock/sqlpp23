@@ -27,86 +27,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <optional>
+#include <string>
+#include <tuple>
+#include <utility>
+
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/detail/type_vector.h> // For type_vector_cat_t
+#include <sqlpp23/core/detail/type_vector.h>
 #include <sqlpp23/core/name/char_sequence.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/tuple_to_sql_string.h> // For tuple_to_sql_string and tuple_clause
-#include <sqlpp23/core/logic.h> // For ::sqlpp::logic::any
-
-#include <optional> // Required for std::nullopt_t
-#include <string>  // Required for std::string
-#include <tuple>   // Required for std::tuple
-#include <utility> // Required for std::pair
+#include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp23/core/logic.h>
 
 namespace sqlpp {
-namespace detail {
-
-template <typename WhenThenPairsTuple, typename ElseType>
-struct nodes_of_case_impl; // Primary template
-
-template <typename... Pairs, typename ElseType>
-struct nodes_of_case_impl<std::tuple<Pairs...>, ElseType> {
-  // Requires each type in 'Pairs...' to have a '::nodes' type alias
-  // that is a type_vector.
-  // Also assumes ElseType is not void. If ElseType could be void or a marker for no ELSE,
-  // then type_vector<ElseType> might need to be conditional, e.g.
-  // type_vector_cat_t<typename Pairs::nodes..., MaybeElseVector>
-  // For now, assume ElseType is always a valid type for type_vector.
-  using type = ::sqlpp::detail::type_vector_cat_t<typename Pairs::nodes..., ::sqlpp::detail::type_vector<ElseType>>;
-};
-
-// New helper to check if any type in a type_vector can_be_null using ::sqlpp::logic::any
-template <typename TypeVector>
-struct can_any_in_vector_be_null; // Primary template
-
-template <typename... Types>
-struct can_any_in_vector_be_null<::sqlpp::detail::type_vector<Types...>>
-    : public ::sqlpp::logic::any<can_be_null<Types>::value...> {};
-
-  // Helper to collect all Then types from WhenThenPairsTuple and the ElseType
-  template <typename WhenThenPairsTuple, typename ElseType_>
-  struct get_then_and_else_expressions_for_nullability_check;
-
-  template <typename... PairTypes, typename ElseType_>
-  struct get_then_and_else_expressions_for_nullability_check<std::tuple<PairTypes...>, ElseType_> {
-    template <typename Tuple, typename Else, typename... Acc>
-    struct extract_thens_for_null_check_impl;
-
-    template <typename Else_, typename... Acc>
-    struct extract_thens_for_null_check_impl<std::tuple<>, Else_, Acc...> {
-      using type = ::sqlpp::detail::type_vector<Acc..., Else_>;
-    };
-
-    template <typename W, typename T, typename... RestPairs, typename Else_, typename... Acc>
-    struct extract_thens_for_null_check_impl<std::tuple<::sqlpp::when_then_pair_t<W,T>, RestPairs...>, Else_, Acc...> {
-      using type = typename extract_thens_for_null_check_impl<std::tuple<RestPairs...>, Else_, Acc..., T>::type;
-    };
-    
-    using type = typename extract_thens_for_null_check_impl<std::tuple<PairTypes...>, ElseType_>::type;
-  };
-
-template <typename WhenThenPairsTuple, typename ElseType, typename ResultType>
-struct derive_case_data_type_and_nullability {
-  using expressions_for_null_check = 
-      typename ::sqlpp::detail::get_then_and_else_expressions_for_nullability_check<WhenThenPairsTuple, ElseType>::type;
-  
-  static constexpr bool result_can_be_null = 
-      ::sqlpp::detail::can_any_in_vector_be_null<expressions_for_null_check>::value;
-
-  using base_cpp_type = ::sqlpp::data_type_of_t<ResultType>;
-  using type = std::conditional_t<result_can_be_null,
-                                  ::sqlpp::force_optional_t<base_cpp_type>,
-                                  base_cpp_type>;
-};
-
-} // namespace detail
-
-struct undefined_result_type_marker {};
-
 template <typename When, typename Then>
 struct when_then_pair_t {
   When _when;
@@ -123,16 +59,24 @@ struct when_then_pair_t {
   ~when_then_pair_t() = default;
 };
 
+template <typename When, typename Then>
+struct data_type_of<when_then_pair_t<When, Then>> : data_type_of<Then> {};
+
+template <typename When, typename Then>
+struct nodes_of<when_then_pair_t<When, Then>> {
+  using type = detail::type_vector<When, Then>;
+};
+
 template <typename Context, typename When, typename Then>
 auto to_sql_string(Context& context, const when_then_pair_t<When, Then>& pair) -> std::string {
   return " WHEN " + operand_to_sql_string(context, pair._when) +
          " THEN " + operand_to_sql_string(context, pair._then);
 }
 
-template <typename WhenThenList, typename Else, typename ResultType>
+template <typename DataType, typename Else, typename... WhenThenPairs>
 struct case_t : public enable_as, public enable_comparison {
-  case_t(WhenThenList when_then_list, Else else_) // Constructor signature remains the same for now
-      : _when_then_list(when_then_list), _else(else_) {}
+  case_t(std::tuple<WhenThenPairs...> when_then_list, Else else_)
+      : _when_then_list(std::move(when_then_list)), _else(std::move(else_)) {}
 
   case_t(const case_t&) = default;
   case_t(case_t&&) = default;
@@ -140,26 +84,27 @@ struct case_t : public enable_as, public enable_comparison {
   case_t& operator=(case_t&&) = default;
   ~case_t() = default;
 
-  WhenThenList _when_then_list;
+  std::tuple<WhenThenPairs...> _when_then_list;
   Else _else;
-  // ResultType is a tag, not stored as a member for now
 };
 
-template <typename WhenThenPairsTuple, typename Else, typename ResultType>
-struct nodes_of<case_t<WhenThenPairsTuple, Else, ResultType>> {
-  using type = typename ::sqlpp::detail::nodes_of_case_impl<WhenThenPairsTuple, Else>::type;
+template <typename DataType, typename Else, typename... WhenThenPairs>
+struct nodes_of<case_t<DataType, Else, WhenThenPairs...>> {
+  using type = detail::type_vector<WhenThenPairs...>;
 };
 
-template <typename WhenThenPairsTuple, typename Else, typename ResultType>
-struct data_type_of<case_t<WhenThenPairsTuple, Else, ResultType>>
-    : public ::sqlpp::detail::derive_case_data_type_and_nullability<WhenThenPairsTuple, Else, ResultType> {};
-
-template <typename WhenThenPairsTuple, typename Else, typename ResultType>
-struct requires_parentheses<case_t<WhenThenPairsTuple, Else, ResultType>> : public std::true_type {
+template <typename DataType, typename Else, typename... WhenThenPairs>
+struct data_type_of<case_t<DataType, Else, WhenThenPairs...>>
+{
+  using type = DataType;
 };
 
-template <typename Context, typename WhenThenList, typename Else, typename ResultType>
-auto to_sql_string(Context& context, const case_t<WhenThenList, Else, ResultType>& t) -> std::string {
+template <typename DataType, typename Else, typename... WhenThenPairs>
+struct requires_parentheses<case_t<DataType, Else, WhenThenPairs...>> : public std::true_type {
+};
+
+template <typename Context, typename DataType, typename Else, typename... WhenThenPairs>
+auto to_sql_string(Context& context, const case_t<DataType, Else, WhenThenPairs...>& t) -> std::string {
   std::string ret_val = "CASE";
   ret_val += ::sqlpp::tuple_to_sql_string(context, t._when_then_list, ::sqlpp::tuple_clause{""});
   ret_val += " ELSE " + operand_to_sql_string(context, t._else);
@@ -167,14 +112,19 @@ auto to_sql_string(Context& context, const case_t<WhenThenList, Else, ResultType
   return ret_val;
 }
 
-template <typename CurrentPairsTuple, typename ResultType>
+template <typename DataType, typename When, typename... WhenThenPairs>
+class case_pending_then_t;
+
+template <typename DataType, typename... WhenThenPairs>
 class case_builder_t {
  private:
-  CurrentPairsTuple _current_pairs;
-  // ResultType _result_type_tag; // Not storing as a member for now
+   std::tuple<WhenThenPairs...> _current_pairs;
+
+   template<typename Else>
+     using case_data_type = std::conditional_t<can_be_null<Else>::value, force_optional_t<DataType>, DataType>;
 
  public:
-  case_builder_t(CurrentPairsTuple current_pairs) // ResultType is not used in constructor for now
+  case_builder_t(std::tuple<WhenThenPairs...> current_pairs)
       : _current_pairs(current_pairs) {}
 
   case_builder_t(const case_builder_t&) = default;
@@ -183,38 +133,35 @@ class case_builder_t {
   case_builder_t& operator=(case_builder_t&&) = default;
   ~case_builder_t() = default;
 
-  template <typename NewWhenCondition>
-    requires(StaticBoolean<NewWhenCondition>::value)
+  template <DynamicBoolean NewWhenCondition>
   auto when(NewWhenCondition condition)
-      -> case_pending_then_t<NewWhenCondition, CurrentPairsTuple, ResultType> {
-    return {condition, _current_pairs}; // Assuming case_pending_then_t constructor will adapt
+      -> case_pending_then_t<DataType, NewWhenCondition, WhenThenPairs...> {
+    return {_current_pairs, condition};
   }
 
   template <typename ElseExpression>
-    requires(::sqlpp::values_are_comparable<ResultType, ElseExpression>::value)
+    requires(::sqlpp::values_are_comparable<DataType, ElseExpression>::value)
   auto else_(ElseExpression else_expr)
-      -> case_t<CurrentPairsTuple, ElseExpression, ResultType> { // Assuming case_t will adapt
+      -> case_t<case_data_type<ElseExpression>, ElseExpression, WhenThenPairs...> {
     return {_current_pairs, else_expr};
   }
 
-  template <typename ElseType = std::nullopt_t> // Added ElseType for clarity in requires
-    requires(::sqlpp::values_are_comparable<ResultType, ElseType>::value)
   auto else_(std::nullopt_t null_opt_value)
-      -> case_t<CurrentPairsTuple, std::nullopt_t, ResultType> { // Assuming case_t will adapt
+      -> case_t<force_optional_t<DataType>, std::nullopt_t, WhenThenPairs...> {
     return {_current_pairs, null_opt_value};
   }
 };
 
-template <typename WhenCondition, typename PreviousPairsTuple, typename ResultTypeSoFar = ::sqlpp::undefined_result_type_marker>
+template <typename DataType, typename When, typename... WhenThenPairs>
 class case_pending_then_t {
  private:
-  WhenCondition _condition;
-  PreviousPairsTuple _previous_pairs;
+  std::tuple<WhenThenPairs...> _previous_pairs;
+  When _condition;
 
  public:
-  case_pending_then_t(WhenCondition condition,
-                      PreviousPairsTuple previous_pairs) // ResultTypeSoFar is a tag, not passed to constructor
-      : _condition(condition), _previous_pairs(previous_pairs) {}
+  case_pending_then_t(std::tuple<WhenThenPairs...> previous_pairs,
+                      When condition)
+      : _previous_pairs(previous_pairs), _condition(condition) {}
 
   case_pending_then_t(const case_pending_then_t&) = default;
   case_pending_then_t(case_pending_then_t&&) = default;
@@ -222,26 +169,30 @@ class case_pending_then_t {
   case_pending_then_t& operator=(case_pending_then_t&&) = default;
   ~case_pending_then_t() = default;
 
-  template <typename ThenResult>
-    requires(::sqlpp::has_data_type<ThenResult>::value)
-  auto then(ThenResult result) { // Return type will be deduced or specified with decltype
-    auto new_pair = when_then_pair_t<WhenCondition, ThenResult>{_condition, result};
-    auto new_pairs_tuple = std::tuple_cat(_previous_pairs, std::make_tuple(new_pair));
+  template <typename Then>
+    requires(::sqlpp::has_data_type<Then>::value and
+             (std::is_same_v<DataType, no_value_t> or
+              values_are_comparable<DataType, Then>::value))
+  auto then(Then result) {
+    auto new_pair = when_then_pair_t<When, Then>{_condition, std::move(result)};
+    auto new_pairs_tuple = std::tuple_cat(_previous_pairs, std::make_tuple(std::move(new_pair)));
 
-    if constexpr (std::is_same_v<ResultTypeSoFar, ::sqlpp::undefined_result_type_marker>) {
-      // This is the first .then() call, establishing ResultType
-      return case_builder_t<decltype(new_pairs_tuple), ThenResult>{new_pairs_tuple};
-    } else {
-      // Subsequent .then() call, ResultTypeSoFar is established
-      static_assert(::sqlpp::values_are_comparable<ResultTypeSoFar, ThenResult>::value,
-                    "Type in .then() is not comparable with the type of the first .then() clause in CASE expression");
-      return case_builder_t<decltype(new_pairs_tuple), ResultTypeSoFar>{new_pairs_tuple};
-    }
+    using base_data_type =
+        std::conditional_t<std::is_same_v<DataType, no_value_t>,
+                           data_type_of_t<Then>, DataType>;
+
+    using data_type =
+        std::conditional_t<is_optional<DataType>::value or
+                               is_optional<data_type_of_t<Then>>::value,
+                           force_optional_t<base_data_type>, base_data_type>;
+
+    return case_builder_t<data_type, WhenThenPairs..., when_then_pair_t<When, Then>>{
+      std::move(new_pairs_tuple)};
   }
 };
 
 template <StaticBoolean When>
-auto case_when(When when) -> case_pending_then_t<When, std::tuple<>, ::sqlpp::undefined_result_type_marker> {
-  return {std::move(when), std::tuple<>{}};
+auto case_when(When when) -> case_pending_then_t<no_value_t, When> {
+  return {std::tuple<>{}, std::move(when)};
 }
 }  // namespace sqlpp
