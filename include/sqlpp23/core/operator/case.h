@@ -31,6 +31,7 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include "sqlpp23/core/type_traits/optional.h"
 
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/detail/type_set.h>
@@ -43,6 +44,34 @@
 #include <sqlpp23/core/logic.h>
 
 namespace sqlpp {
+namespace detail
+{
+  template<typename CaseDataType, typename ThenOrElse>
+  struct case_data_type {
+    using base_data_type = std::conditional_t<
+        std::is_same_v<sqlpp::remove_optional_t<CaseDataType>, no_value_t>,
+        data_type_of_t<ThenOrElse>,
+        CaseDataType>;
+
+    using type =
+        std::conditional_t<is_optional<CaseDataType>::value or
+                               is_optional<data_type_of_t<ThenOrElse>>::value,
+                           force_optional_t<base_data_type>,
+                           base_data_type>;
+  };
+  template<typename CaseDataType>
+  struct case_data_type<CaseDataType, std::nullopt_t> {
+    using base_data_type = std::conditional_t<
+        std::is_same_v<sqlpp::remove_optional_t<CaseDataType>, no_value_t>,
+        std::optional<no_value_t>,
+        CaseDataType>;
+
+    using type = force_optional_t<base_data_type>;
+  };
+  template<typename CaseDataType, typename ThenOrElse>
+  using case_data_type_t = typename case_data_type<CaseDataType, ThenOrElse>::type;
+}
+
 template <typename When, typename Then>
 struct when_then_pair_t {
   When _when;
@@ -69,8 +98,9 @@ struct nodes_of<when_then_pair_t<When, Then>> {
 
 template <typename Context, typename When, typename Then>
 auto to_sql_string(Context& context, const when_then_pair_t<When, Then>& pair) -> std::string {
-  return " WHEN " + operand_to_sql_string(context, pair._when) +
-         " THEN " + operand_to_sql_string(context, pair._then);
+  // Temporary result to enforce order of evaluation.
+  auto result = " WHEN " + operand_to_sql_string(context, pair._when);
+  return result + " THEN " + operand_to_sql_string(context, pair._then);
 }
 
 template <typename DataType, typename Else, typename... WhenThenPairs>
@@ -90,7 +120,7 @@ struct case_t : public enable_as, public enable_comparison {
 
 template <typename DataType, typename Else, typename... WhenThenPairs>
 struct nodes_of<case_t<DataType, Else, WhenThenPairs...>> {
-  using type = detail::type_vector<WhenThenPairs...>;
+  using type = detail::type_vector<WhenThenPairs..., Else>;
 };
 
 template <typename DataType, typename Else, typename... WhenThenPairs>
@@ -139,13 +169,18 @@ class case_builder_t {
     return {_current_pairs, condition};
   }
 
-  template <typename ElseExpression>
-    requires(::sqlpp::values_are_comparable<DataType, ElseExpression>::value)
-  auto else_(ElseExpression else_expr)
-      -> case_t<case_data_type<ElseExpression>, ElseExpression, WhenThenPairs...> {
+  template <typename Else>
+    requires(has_data_type<Else>::value and
+             (std::is_same_v<remove_optional_t<DataType>, no_value_t> or
+              values_are_optionally_same<DataType, Else>::value))
+  auto else_(Else else_expr) -> case_t<detail::case_data_type_t<DataType, Else>,
+                                       Else,
+                                       WhenThenPairs...> {
     return {_current_pairs, else_expr};
   }
 
+  template<typename = void>
+    requires(not std::is_same_v<remove_optional_t<DataType>, no_value_t>)
   auto else_(std::nullopt_t null_opt_value)
       -> case_t<force_optional_t<DataType>, std::nullopt_t, WhenThenPairs...> {
     return {_current_pairs, null_opt_value};
@@ -170,24 +205,26 @@ class case_pending_then_t {
   ~case_pending_then_t() = default;
 
   template <typename Then>
-    requires(::sqlpp::has_data_type<Then>::value and
-             (std::is_same_v<DataType, no_value_t> or
-              values_are_comparable<DataType, Then>::value))
+    requires(has_data_type<Then>::value and
+             (std::is_same_v<remove_optional_t<DataType>, no_value_t> or
+              values_are_optionally_same<DataType, Then>::value))
   auto then(Then result) {
     auto new_pair = when_then_pair_t<When, Then>{_condition, std::move(result)};
     auto new_pairs_tuple = std::tuple_cat(_previous_pairs, std::make_tuple(std::move(new_pair)));
 
-    using base_data_type =
-        std::conditional_t<std::is_same_v<DataType, no_value_t>,
-                           data_type_of_t<Then>, DataType>;
+    return case_builder_t<detail::case_data_type_t<DataType, Then>,
+                          WhenThenPairs..., when_then_pair_t<When, Then>>{
+        std::move(new_pairs_tuple)};
+  }
 
-    using data_type =
-        std::conditional_t<is_optional<DataType>::value or
-                               is_optional<data_type_of_t<Then>>::value,
-                           force_optional_t<base_data_type>, base_data_type>;
+  auto then(std::nullopt_t) {
+    auto new_pair = when_then_pair_t<When, std::nullopt_t>{_condition, std::nullopt};
+    auto new_pairs_tuple = std::tuple_cat(_previous_pairs, std::make_tuple(std::move(new_pair)));
 
-    return case_builder_t<data_type, WhenThenPairs..., when_then_pair_t<When, Then>>{
-      std::move(new_pairs_tuple)};
+    return case_builder_t<detail::case_data_type_t<DataType, std::nullopt_t>,
+                          WhenThenPairs...,
+                          when_then_pair_t<When, std::nullopt_t>>{
+        std::move(new_pairs_tuple)};
   }
 };
 

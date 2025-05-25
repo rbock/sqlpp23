@@ -51,7 +51,7 @@ using data_type_of_t = typename data_type_of<T>::type;
 
 template <typename T>
 struct data_type_of<std::optional<T>> {
-  using type = std::optional<data_type_of_t<remove_optional_t<T>>>;
+  using type = std::optional<data_type_of_t<T>>;
 };
 
 template <typename T>
