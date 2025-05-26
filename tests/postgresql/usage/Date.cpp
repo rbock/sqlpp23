@@ -98,8 +98,8 @@ int Date(int, char*[]) {
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
-      require_equal(__LINE__, row.timePointN.value(), today);
-      require_equal(__LINE__, row.timePointNTz.value(), today);
+      require_equal(__LINE__, row.timePointN.value(), now);
+      require_equal(__LINE__, row.timePointNTz.value(), now);
     }
 
     auto prepared_update = db.prepare(

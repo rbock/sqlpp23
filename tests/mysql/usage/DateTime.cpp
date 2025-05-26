@@ -98,7 +98,7 @@ int DateTime(int, char*[]) {
 
     for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dayPointN.value(), yesterday);
-      require_equal(__LINE__, row.timePointN.value(), today);
+      require_equal(__LINE__, row.timePointN.value(), now);
     }
 
     auto prepared_update =
