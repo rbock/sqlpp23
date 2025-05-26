@@ -42,6 +42,7 @@ The following pages will tell you how to use it:
 - **Building Blocks**
   - [Tables, Joins, and CTEs](/docs/tables.md)
   - [Functions](/docs/functions.md)
+  - [Operators](/docs/operators.md)
   - [Sub Selects](/docs/sub_select.md)
 - **Invoking Statements**
   - [Statement execution](/docs/statement_execution.md)

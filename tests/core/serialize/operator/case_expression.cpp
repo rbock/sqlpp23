@@ -26,10 +26,14 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
+  // Keep existing test variables if they don't conflict
   const auto cond = sqlpp::value(true);
-  const auto val = sqlpp::value(11);
+  const auto cond2 = sqlpp::value(false);
+  const auto val = 11;
+  const auto val2 = 13;
   const auto expr = sqlpp::value(17) + 4;
 
   // Case operands use parentheses where required.
@@ -49,6 +53,10 @@ int main(int, char*[]) {
                 "CASE WHEN (0 OR 1) THEN (17 + 4) ELSE 11 END");
   SQLPP_COMPARE(case_when(false or cond).then(expr).else_(expr),
                 "CASE WHEN (0 OR 1) THEN (17 + 4) ELSE (17 + 4) END");
+
+  // Mulitple when/then pairs serialize as expected.
+  SQLPP_COMPARE(case_when(cond).then(val).when(cond2).then(val2).else_(expr),
+                "CASE WHEN 1 THEN 11 WHEN 0 THEN 13 ELSE (17 + 4) END");
 
   return 0;
 }

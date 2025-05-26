@@ -54,6 +54,7 @@ If seems a bit dry, follow the links to examples.
 | `SOME` | `some` | *dropped* (use `any`) |
 | | | |
 | [**Operators**](/docs/tony_tables/operators.md) | | |
+| `CASE` | `case_when.then().else_()` supports a single `when`/`then` pair. Data types of `then` and `else_` must be comparable. `then` does not support `sqlpp::null` | Support for multiple `when`/`then` pairs. Data types of `then`s and `else` must be same (plus/minus optional). `then` supports `std::nullopt` if at least one `then` argument or the `else_` argument has a data type. |
 | `IN` | `in` requires `sqlpp::value_list` to pass `std::vector` | `something.in(my_vector)` |
 | `NOT IN` | `not_in` requires `sqlpp::value_list` to pass `std::vector` | `something.not_in(my_vector)` |
 | Unary `operator+()` | present | *dropped* |

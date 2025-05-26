@@ -104,6 +104,16 @@ int main() {
     SQLPP_COMPARE(cwt, "CASE WHEN $1 THEN $2 ELSE $3 END");
   }
 
+  {
+    auto cwt = case_when(parameter(foo.boolN))
+                   .then(parameter(foo.id))
+                   .when(parameter(bar.boolNn))
+                   .then(parameter(bar.id))
+                   .else_(parameter(bar.intN));
+
+    SQLPP_COMPARE(cwt, "CASE WHEN $1 THEN $2 WHEN $3 THEN $4 ELSE $5 END");
+  }
+
   SQLPP_COMPARE(
       sqlpp::on_conflict(foo.id).do_update(
           foo.intN = parameter(foo.intN), foo.textNnD = parameter(foo.textNnD)),

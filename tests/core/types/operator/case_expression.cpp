@@ -25,6 +25,7 @@
  */
 
 #include <sqlpp23/sqlpp23.h>
+#include <type_traits>
 
 template <typename T, typename Value>
 using is_same_type =
@@ -45,74 +46,123 @@ void test_case_expression(Value v) {
   static_assert(
       is_same_type<
           decltype(case_when(c_not_null).then(v_not_null).else_(v_not_null)),
-          DataType>::value,
-      "");
+          DataType>::value);
   static_assert(
       is_same_type<
           decltype(case_when(c_not_null).then(v_not_null).else_(v_maybe_null)),
-          OptDataType>::value,
-      "");
+          OptDataType>::value);
   static_assert(
       is_same_type<
           decltype(case_when(c_not_null).then(v_maybe_null).else_(v_not_null)),
-          OptDataType>::value,
-      "");
+          OptDataType>::value);
   static_assert(is_same_type<decltype(case_when(c_not_null)
                                           .then(v_maybe_null)
                                           .else_(v_maybe_null)),
-                             OptDataType>::value,
-                "");
+                             OptDataType>::value);
   static_assert(
       is_same_type<
           decltype(case_when(c_maybe_null).then(v_not_null).else_(v_not_null)),
-          OptDataType>::value,
-      "");
+          DataType>::value);
   static_assert(is_same_type<decltype(case_when(c_maybe_null)
                                           .then(v_not_null)
                                           .else_(v_maybe_null)),
-                             OptDataType>::value,
-                "");
+                             OptDataType>::value);
   static_assert(is_same_type<decltype(case_when(c_maybe_null)
                                           .then(v_maybe_null)
                                           .else_(v_not_null)),
-                             OptDataType>::value,
-                "");
+                             OptDataType>::value);
   static_assert(is_same_type<decltype(case_when(c_maybe_null)
                                           .then(v_maybe_null)
                                           .else_(v_maybe_null)),
-                             OptDataType>::value,
-                "");
+                             OptDataType>::value);
+
+  // Variations with NULL
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(std::nullopt)
+                                          .else_(v_maybe_null)),
+                             OptDataType>::value);
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(std::nullopt)
+                                          .else_(v_not_null)),
+                             OptDataType>::value);
+
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(v_maybe_null)
+                                          .else_(std::nullopt)),
+                             OptDataType>::value);
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(v_not_null)
+                                          .else_(std::nullopt)),
+                             OptDataType>::value);
+
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(std::nullopt)
+                                          .when(c_maybe_null)
+                                          .then(std::nullopt)
+                                          .else_(v_not_null)),
+                             OptDataType>::value);
+
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(std::nullopt)
+                                          .when(c_maybe_null)
+                                          .then(v_not_null)
+                                          .else_(std::nullopt)),
+                             OptDataType>::value);
+
+  static_assert(is_same_type<decltype(case_when(c_not_null)
+                                          .then(v_not_null)
+                                          .when(c_maybe_null)
+                                          .then(std::nullopt)
+                                          .else_(std::nullopt)),
+                             OptDataType>::value);
 
   // Incomplete case expressions have no value.
   static_assert(
-      not sqlpp::has_data_type<decltype(case_when(c_not_null))>::value, "");
+      not sqlpp::has_data_type<decltype(case_when(c_not_null))>::value);
   static_assert(not sqlpp::has_data_type<
-                    decltype(case_when(c_not_null).then(v_not_null))>::value,
-                "");
+                decltype(case_when(c_not_null).then(v_not_null))>::value);
 
   // Case expressions have the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(case_when(c_not_null)
                                                    .then(v_not_null)
-                                                   .else_(v_not_null))>::value,
-                "");
+                                                   .else_(v_not_null))>::value);
 
   // Case expressions enable comparison member functions.
   static_assert(
       sqlpp::has_enabled_comparison<decltype(case_when(c_not_null)
                                                  .then(v_not_null)
-                                                 .else_(v_not_null))>::value,
-      "");
+                                                 .else_(v_not_null))>::value);
 
-  // Between expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(c_not_null)>::type;
-  using M = typename std::decay<decltype(v_not_null)>::type;
-  using R = typename std::decay<decltype(v_maybe_null)>::type;
+  // Case expressions have their when/then pairs and the else expression as
+  // nodes
+  using W1 = typename std::decay<decltype(c_not_null)>::type;
+  using T1 = typename std::decay<decltype(v_not_null)>::type;
+  using W2 = typename std::decay<decltype(c_maybe_null)>::type;
+  using T2 = typename std::decay<decltype(std::nullopt)>::type;
+  using E = typename std::decay<decltype(v_maybe_null)>::type;
+
+  // One when/then pair
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(case_when(c_not_null)
                                                   .then(v_not_null)
                                                   .else_(v_maybe_null))>,
-                   sqlpp::detail::type_vector<L, M, R>>::value,
-      "");
+                   sqlpp::detail::type_vector<sqlpp::when_then_pair_t<W1, T1>,
+                                              E>>::value);
+
+  // Two when/then pairs
+  static_assert(
+      std::is_same<sqlpp::nodes_of_t<decltype(case_when(c_not_null)
+                                                  .then(v_not_null)
+                                                  .when(c_maybe_null)
+                                                  .then(std::nullopt)
+                                                  .else_(v_maybe_null))>,
+                   sqlpp::detail::type_vector<sqlpp::when_then_pair_t<W1, T1>,
+                                              sqlpp::when_then_pair_t<W2, T2>,
+                                              E>>::value);
+
+  static_assert(std::is_same<sqlpp::nodes_of_t<sqlpp::when_then_pair_t<W1, T1>>,
+                             sqlpp::detail::type_vector<W1, T1>>::value);
+
 }
 
 int main() {
