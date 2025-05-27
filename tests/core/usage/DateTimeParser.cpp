@@ -130,7 +130,8 @@ void test_valid_dates() {
            {"1981-02-29", year{1981} / 2 / 29},
            {"2100-02-29", year{2100} / 2 / 29}}) {
     day_point dp;
-    if (sqlpp::detail::parse_date(dp, date_pair.first) == false) {
+    const char* date = date_pair.first;
+    if (sqlpp::detail::parse_date(dp, date) == false) {
       std::cerr << "Could not parse a valid date string: " << date_pair.first
                 << std::endl;
       throw std::runtime_error{"Parse error"};
@@ -142,26 +143,45 @@ void test_valid_dates() {
 void test_invalid_dates() {
   using namespace sqlpp::chrono;
 
-  for (const auto& date_str : std::vector<const char*>{
+  for (const auto* date_str : std::vector<const char*>{
            // Invalid year
            "", "1", "12", "123", "1234", "A",
            // Invalid month
            "1980--02", "1980-1-02", "1980-123-02", "1980-W-02",
            // Invalid day
-           "1980-01-", "1980-01-0", "1980-01-123", "1980-01-Q",
+           "1980-01-", "1980-01-0", "1980-01-Q",
            // Invalid separator
            "1980 01 02", "1980- 01-02", "1980 -01-02", "1980-01 -02",
            "1980-01- 02",
-           "1980-01T02"
-           // Trailing characters
+           "1980-01T02"}) {
+    day_point dp;
+    const char* orig = date_str;
+    if (sqlpp::detail::parse_date(dp, date_str)) {
+      std::cerr << "Successfully parsed an invalid date string " << orig
+                << ", value " << sqlpp::to_sql_string(std::cerr, dp)
+                << std::endl;
+      throw std::runtime_error{"Parse error"};
+    }
+  }
+}
+
+void test_dates_with_trailing_characters() {
+  using namespace sqlpp::chrono;
+
+  for (const auto* date_str : std::vector<const char*>{
            "1980-01-02 ",
            "1980-01-02T", "1980-01-02 UTC", "1980-01-02EST", "1980-01-02+01"}) {
     day_point dp;
-    if (sqlpp::detail::parse_date(dp, date_str)) {
-      std::cerr << "Parsed successfully an invalid date string " << date_str
-                << ", value ";
-      sqlpp::to_sql_string(std::cerr, dp);
-      std::cerr << std::endl;
+    if (not sqlpp::detail::parse_date(dp, date_str)) {
+      std::cerr << "Failed to parse date string with trailing characters "
+                << date_str << ", value " << sqlpp::to_sql_string(std::cerr, dp)
+                << std::endl;
+      throw std::runtime_error{"Parse error"};
+    }
+    if (not *date_str) {
+      std::cerr << "date string fails to point to trailing characters "
+                << date_str << ", value " << sqlpp::to_sql_string(std::cerr, dp)
+                << std::endl;
       throw std::runtime_error{"Parse error"};
     }
   }
@@ -197,7 +217,8 @@ void test_valid_time_of_day() {
            // Valid format but invalid hour, minute or second range
            {"25:00:10", build_tod(25, 0, 10)}}) {
     microseconds us;
-    if (sqlpp::detail::parse_time_of_day(us, tod_pair.first) == false) {
+    const char* tod_str = tod_pair.first;
+    if (sqlpp::detail::parse_time_of_day(us, tod_str) == false) {
       std::cerr << "Could not parse a valid time-of-day string: "
                 << tod_pair.first << std::endl;
       throw std::runtime_error{"Parse error"};
@@ -209,18 +230,33 @@ void test_valid_time_of_day() {
 void test_invalid_time_of_day() {
   using namespace std::chrono;
 
-  for (const auto& tod_str : std::vector<const char*>{
+  for (const auto* tod_str : std::vector<const char*>{
            // Generic string
            "A", "BC", "!()",
            // Invalid hour
            "-01:23:45", "AA:10:11",
            // Invalid minute
            "13::07", "13:A:07", "13:1:07",
-           "13:-01:07"
+           "13:-01:07",
            // Invalid second
            "04:07:",
            "04:07:A", "04:07:1",
-           "04:07:-01"
+           "04:07:-01"}) {
+    microseconds us;
+    const char* orig = tod_str;
+    if (sqlpp::detail::parse_time_of_day(us, tod_str)) {
+      std::cerr << "Successfully parsed an invalid time-of-day string " << orig
+                << ", value " << sqlpp::to_sql_string(std::cerr, us)
+                << std::endl;
+      throw std::runtime_error{"Parse error"};
+    }
+  }
+}
+
+void test_time_of_day_with_trailing_characters() {
+  using namespace std::chrono;
+
+  for (const auto* tod_str : std::vector<const char*>{
            // Invalid fraction
            "01:02:03.",
            "01:02:03.A", "01:02:03.1234567", "01:02:03.1A2",
@@ -229,11 +265,18 @@ void test_invalid_time_of_day() {
            "01:03:03+456", "01:03:03+12:", "01:03:03+12:1", "01:03:03+12:1A",
            "01:03:03+12:01:", "01:03:03+12:01:1", "01:03:03+12:01:1A"}) {
     microseconds us;
-    if (sqlpp::detail::parse_time_of_day(us, tod_str)) {
-      std::cerr << "Parsed successfully an invalid time-of-day string "
-                << tod_str << ", value ";
-      sqlpp::to_sql_string(std::cerr, us);
-      std::cerr << std::endl;
+    const char* orig = tod_str;
+    if (not sqlpp::detail::parse_time_of_day(us, tod_str)) {
+      std::cerr
+          << "Failed to parse an time-of-day string with trailing characters"
+          << orig << ", value " << sqlpp::to_sql_string(std::cerr, us)
+          << std::endl;
+      throw std::runtime_error{"Parse error"};
+    }
+    if (not *tod_str) {
+      std::cerr << "time_of_day string fails to point to trailing characters "
+                << tod_str << ", value " << sqlpp::to_sql_string(std::cerr, us)
+                << std::endl;
       throw std::runtime_error{"Parse error"};
     }
   }
@@ -254,7 +297,8 @@ void test_valid_timestamp() {
             build_timestamp(1234, 3, 25, 23, 17, 8, 479210, true, 10, 17,
                             29)}}) {
     microsecond_point tp;
-    if (sqlpp::detail::parse_timestamp(tp, timestamp_pair.first) == false) {
+    const char* timestamp_str = timestamp_pair.first;
+    if (sqlpp::detail::parse_timestamp(tp, timestamp_str) == false) {
       std::cerr << "Could not parse a valid timestamp string: "
                 << timestamp_pair.first << std::endl;
       throw std::runtime_error{"Parse error"};
@@ -266,89 +310,62 @@ void test_valid_timestamp() {
 void test_invalid_timestamp() {
   using namespace sqlpp::chrono;
 
-  for (const auto& timestamp_str :
+  for (const auto* timestamp_str :
        std::vector<const char*>{// Generic string
                                 "", "B", ")-#\\",
                                 // Invalid date
                                 "197%-03-17 10:32:09",
                                 // Invalid time of day
-                                "2020-02-18 22:2:28"
-                                // Invalid time zone
-                                "1924-02-28 18:35:36+1"
+                                "2020-02-18 22:2:28",
                                 // Leading space
-                                " 2030-17-01 15:20:30",
+                                " 2030-17-01 15:20:30"}) {
+    microsecond_point tp;
+    const char* orig = timestamp_str;
+    if (sqlpp::detail::parse_timestamp(tp, timestamp_str)) {
+      std::cerr << "Successfully parsed an invalid timestamp string " << orig
+                << ", value " << sqlpp::to_sql_string(std::cerr, tp)
+                << std::endl;
+      throw std::runtime_error{"Parse error"};
+    }
+  }
+}
+
+void test_timestamp_with_trailing_characters() {
+  using namespace sqlpp::chrono;
+
+  for (const auto* timestamp_str :
+       std::vector<const char*>{// Invalid time zone
+                                "1924-02-28 18:35:36+1",
                                 // Trailing space
                                 "2030-17-01 15:20:30 "}) {
     microsecond_point tp;
-    if (sqlpp::detail::parse_timestamp(tp, timestamp_str)) {
-      std::cerr << "Parsed successfully an invalid timestamp string "
-                << timestamp_str << ", value ";
-      sqlpp::to_sql_string(std::cerr, tp);
-      std::cerr << std::endl;
+    const char* orig = timestamp_str;
+    if (not sqlpp::detail::parse_timestamp(tp, timestamp_str)) {
+      std::cerr << "Failed to parse timestamp string with trailing characters " << orig
+                << ", value " << sqlpp::to_sql_string(std::cerr, tp)
+                << std::endl;
+      throw std::runtime_error{"Parse error"};
+    }
+    if (not *timestamp_str) {
+      std::cerr << "timestamp string fails to point to trailing characters "
+                << timestamp_str << ", value " << sqlpp::to_sql_string(std::cerr, tp)
+                << std::endl;
       throw std::runtime_error{"Parse error"};
     }
   }
 }
 
-void test_valid_date_or_timestamp() {
-  using namespace sqlpp::chrono;
-  using namespace std::chrono;
-
-  for (const auto& timestamp_pair :
-       std::vector<std::pair<const char*, microsecond_point>>{
-           // Valid date
-           {"1998-02-03", build_timestamp(1998, 2, 3)},
-           // Valid timestamp
-           {"2015-07-08 06:32:45.872+23:14:39",
-            build_timestamp(2015, 7, 8, 6, 32, 45, 872000, true, 23, 14,
-                            39)}}) {
-    microsecond_point tp;
-    if (sqlpp::detail::parse_date_or_timestamp(tp, timestamp_pair.first) ==
-        false) {
-      std::cerr << "Could not parse a valid date or timestamp string: "
-                << timestamp_pair.first << std::endl;
-      throw std::runtime_error{"Parse error"};
-    }
-    require_equal(__LINE__, tp, timestamp_pair.second);
-  }
-}
-
-void test_invalid_date_or_timestamp() {
-  using namespace sqlpp::chrono;
-
-  for (const auto& timestamp_str :
-       std::vector<const char*>{// Generic string
-                                "", "C", "/=",
-                                // Invalid dates
-                                "A123-01-02", "1980-E-04", "1981-09-",
-                                // Invalid timestamps
-                                "2023-12-31 1:02:03", "2024-03-04 05::06",
-                                // Invalid time zone
-                                "1930-03-18 17:30:31+01:",
-                                // Leading space
-                                " 1930-03-18 17:30:31+01",
-                                // Trailing space
-                                "1930-03-18 17:30:31+01 "}) {
-    microsecond_point tp;
-    if (sqlpp::detail::parse_date_or_timestamp(tp, timestamp_str)) {
-      std::cerr << "Parsed successfully an invalid date or timestamp string "
-                << timestamp_str << ", value ";
-      sqlpp::to_sql_string(std::cerr, tp);
-      std::cerr << std::endl;
-      throw std::runtime_error{"Parse error"};
-    }
-  }
-}
 }  // namespace
 
 int DateTimeParser(int, char*[]) {
   test_valid_dates();
   test_invalid_dates();
+  test_dates_with_trailing_characters();
   test_valid_time_of_day();
   test_invalid_time_of_day();
+  test_time_of_day_with_trailing_characters();
   test_valid_timestamp();
   test_invalid_timestamp();
-  test_valid_date_or_timestamp();
-  test_invalid_date_or_timestamp();
+  test_timestamp_with_trailing_characters();
   return 0;
 }

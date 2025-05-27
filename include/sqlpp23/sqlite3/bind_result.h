@@ -177,7 +177,7 @@ class bind_result_t {
                            index);
     }
 
-    const auto time_of_day_string =
+    const char* time_of_day_string =
         reinterpret_cast<const char*>(sqlite3_column_text(
             _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
@@ -191,8 +191,14 @@ class bind_result_t {
       value = {};
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
-                             "Sqlite3 debug: invalid date result {}",
-                             time_of_day_string);
+                           "Sqlite3 debug: invalid time_of_day");
+      }
+    }
+    if (*time_of_day_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in time_of_day result: {}",
+                           time_of_day_string);
       }
     }
   }
@@ -204,7 +210,7 @@ class bind_result_t {
                            index);
     }
 
-    const auto date_string = reinterpret_cast<const char*>(sqlite3_column_text(
+    const char* date_string = reinterpret_cast<const char*>(sqlite3_column_text(
         _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
@@ -215,8 +221,14 @@ class bind_result_t {
       value = {};
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
-                             "Sqlite3 debug: invalid date result: {}",
-                             date_string);
+                             "Sqlite3 debug: invalid date");
+      }
+    }
+    if (*date_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in date result: {}",
+                           date_string);
       }
     }
   }
@@ -228,7 +240,7 @@ class bind_result_t {
                            index);
     }
 
-    const auto date_time_string =
+    const char* date_time_string =
         reinterpret_cast<const char*>(sqlite3_column_text(
             _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
@@ -237,14 +249,18 @@ class bind_result_t {
                            date_time_string);
     }
 
-    // We treat DATETIME fields as containing either date+time or just date.
-    if (::sqlpp::detail::parse_date_or_timestamp(value, date_time_string) ==
-        false) {
+    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
       value = {};
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
-                             "Sqlite3 debug: invalid date_time result: {}",
-                             date_time_string);
+                           "Sqlite3 debug: invalid date_time");
+      }
+    }
+    if (*date_time_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in date_time result: {}",
+                           date_time_string);
       }
     }
   }

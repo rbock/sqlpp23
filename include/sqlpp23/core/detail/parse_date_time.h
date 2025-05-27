@@ -165,16 +165,14 @@ inline bool parse_hh_mm_ss_us_tz(std::chrono::microseconds& us,
 // Parse timestamp formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
 // The microseconds and timezone offset are optional
 //
+// date_time_string will point to non-consumed characters
 inline bool parse_timestamp(chrono::microsecond_point& tp,
-                            const char* date_time_string) {
+                            const char*& date_time_string) {
   chrono::day_point parsed_ymd;
   std::chrono::microseconds parsed_tod;
   if ((parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) ||
       (parse_character(date_time_string, ' ') == false) ||
       (parse_hh_mm_ss_us_tz(parsed_tod, date_time_string) == false)) {
-    return false;
-  }
-  if (*date_time_string) {
     return false;
   }
   tp = parsed_ymd + parsed_tod;
@@ -183,52 +181,17 @@ inline bool parse_timestamp(chrono::microsecond_point& tp,
 
 // Parse date string formatted as YYYY-MM-DD
 //
-inline bool parse_date(chrono::day_point& dp, const char* date_string) {
-  if (parse_yyyy_mm_dd(dp, date_string) == false) {
-    return false;
-  }
-  if (*date_string) {
-    return false;
-  }
-  return true;
-}
-
-// Parse time string formatted as YYYY-MM-DD HH:MM:SS.U+HH:MM:SS
-// The time-of-day part is optional
-//
-inline bool parse_date_or_timestamp(chrono::microsecond_point& tp,
-                                    const char* date_time_string) {
-  chrono::day_point parsed_ymd;
-  if (parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) {
-    return false;
-  }
-  if (*date_time_string == 0) {
-    tp = parsed_ymd;
-    return true;
-  }
-  std::chrono::microseconds parsed_tod;
-  if ((parse_character(date_time_string, ' ') == false) ||
-      (parse_hh_mm_ss_us_tz(parsed_tod, date_time_string) == false)) {
-    return false;
-  }
-  if (*date_time_string == 0) {
-    tp = parsed_ymd + parsed_tod;
-    return true;
-  }
-  return false;
+// date_string will point to non-consumed characters
+inline bool parse_date(chrono::day_point& dp, const char*& date_string) {
+  return parse_yyyy_mm_dd(dp, date_string);
 }
 
 // Parse time of day string formatted as HH:MM:SS.U+HH:MM:SS
 // The microseconds and timezone offset are optional
 //
+// time_string will point to non-consumed characters
 inline bool parse_time_of_day(std::chrono::microseconds& us,
-                              const char* time_string) {
-  if (parse_hh_mm_ss_us_tz(us, time_string) == false) {
-    return false;
-  }
-  if (*time_string) {
-    return false;
-  }
-  return true;
+                              const char*& time_string) {
+  return parse_hh_mm_ss_us_tz(us, time_string);
 }
 }  // namespace sqlpp::detail

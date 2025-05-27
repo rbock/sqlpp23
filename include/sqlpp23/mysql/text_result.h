@@ -131,7 +131,7 @@ class text_result_t {
                            "parsing date result at index: {}", index);
     }
 
-    const auto date_string = _text_result_row.data[index];
+    const char* date_string = _text_result_row.data[index];
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date string: {}",
                            date_string);
@@ -139,8 +139,15 @@ class text_result_t {
 
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
       if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid date result: {}",
-                             date_string);
+        _config->debug.log(log_category::result, "invalid date");
+      }
+    }
+
+    if (*date_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in date result: {}",
+                           date_string);
       }
     }
   }
@@ -151,7 +158,7 @@ class text_result_t {
                            "parsing date result at index: {}", index);
     }
 
-    const auto date_time_string = _text_result_row.data[index];
+    const char* date_time_string = _text_result_row.data[index];
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date_time string: {}",
                            date_time_string);
@@ -159,8 +166,15 @@ class text_result_t {
 
     if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
       if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result, "invalid date_time");
+      }
+    }
+
+    if (*date_time_string) {
+      if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
-                             "invalid date_time result: {}", date_time_string);
+                           "trailing characters in date_time result: {}",
+                           date_time_string);
       }
     }
   }
@@ -171,7 +185,7 @@ class text_result_t {
                            "parsing time of day result at index: {}", index);
     }
 
-    const auto time_string = _text_result_row.data[index];
+    const char* time_string = _text_result_row.data[index];
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "time of day string: {}",
                            time_string);
@@ -179,8 +193,15 @@ class text_result_t {
 
     if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
       if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid time result: {}",
-                             time_string);
+        _config->debug.log(log_category::result, "invalid time");
+      }
+    }
+
+    if (*time_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in time result: {}",
+                           time_string);
       }
     }
   }

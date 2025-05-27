@@ -259,15 +259,22 @@ class text_result_t {
                            "reading date result at index {}", index);
     }
 
-    const auto date_string = PQgetvalue(_pg_result.get(), _row_index, index);
+    const char* date_string = PQgetvalue(_pg_result.get(), _row_index, index);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date string: {}",
                            date_string);
     }
     if (::sqlpp::detail::parse_date(value, date_string) == false) {
       if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "got invalid date '{}'",
-                             date_string);
+        _config->debug.log(log_category::result, "invalid date");
+      }
+    }
+
+    if (*date_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in date result: {}",
+                           date_string);
       }
     }
   }
@@ -280,15 +287,22 @@ class text_result_t {
                            "reading date_time result at index {}", index);
     }
 
-    const auto date_string = PQgetvalue(_pg_result.get(), _row_index, index);
+    const char* date_time_string = PQgetvalue(_pg_result.get(), _row_index, index);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "got date_time string: {}",
-                           date_string);
+                           date_time_string);
     }
-    if (::sqlpp::detail::parse_timestamp(value, date_string) == false) {
+    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
       if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "got invalid date_time '{}'",
-                             date_string);
+        _config->debug.log(log_category::result, "invalid date_time");
+      }
+    }
+
+    if (*date_time_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in date_time result: {}",
+                           date_time_string);
       }
     }
   }
@@ -301,7 +315,7 @@ class text_result_t {
                            "reading time result at index {}", index);
     }
 
-    const auto time_string = PQgetvalue(_pg_result.get(), _row_index, index);
+    const char* time_string = PQgetvalue(_pg_result.get(), _row_index, index);
 
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "got time string: {}",
@@ -310,8 +324,15 @@ class text_result_t {
 
     if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
       if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "got invalid time '{}'",
-                             time_string);
+        _config->debug.log(log_category::result, "invalid time");
+      }
+    }
+
+    if (*time_string) {
+      if constexpr (debug_enabled) {
+        _config->debug.log(log_category::result,
+                           "trailing characters in date_time result: {}",
+                           time_string);
       }
     }
   }
