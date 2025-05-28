@@ -177,28 +177,28 @@ class bind_result_t {
                            index);
     }
 
-    const char* time_of_day_string =
+    const char* time_string =
         reinterpret_cast<const char*>(sqlite3_column_text(
             _sqlite3_statement.get(), static_cast<int>(index)));
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "Sqlite3 debug: time_of_day string {}",
-                           time_of_day_string);
+                           "Sqlite3 debug: time string {}",
+                           time_string);
     }
 
-    if (::sqlpp::detail::parse_time_of_day(value, time_of_day_string) ==
+    if (::sqlpp::detail::parse_time(value, time_string) ==
         false) {
       value = {};
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
-                           "Sqlite3 debug: invalid time_of_day");
+                           "Sqlite3 debug: invalid time");
       }
     }
-    if (*time_of_day_string) {
+    if (*time_string) {
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
-                           "trailing characters in time_of_day result: {}",
-                           time_of_day_string);
+                           "trailing characters in time result: {}",
+                           time_string);
       }
     }
   }

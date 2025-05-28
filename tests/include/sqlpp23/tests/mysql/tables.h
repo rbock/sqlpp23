@@ -128,7 +128,7 @@ namespace test {
   date_n date,
   timestamp_n datetime(3),
   date_timestamp_n_d datetime DEFAULT CURRENT_TIMESTAMP,
-  time_of_day_n time(3)
+  time_n time(3)
 ))+++");
   }
 
@@ -154,8 +154,8 @@ namespace test {
       using has_default = std::true_type;
     };
     struct TimeOfDayN : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_of_day_n, timeOfDayN);
-      using data_type = std::optional<::sqlpp::time_of_day>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_n, timeN);
+      using data_type = std::optional<::sqlpp::time>;
       using has_default = std::true_type;
     };
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_date_time, tabDateTime);

@@ -180,7 +180,7 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_between_expression(minute_point{});
 
-  // time_of_day
+  // time
   test_between_expression(std::chrono::microseconds{});
 
   test_between_member_function();

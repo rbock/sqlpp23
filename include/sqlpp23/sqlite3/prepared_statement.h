@@ -234,7 +234,7 @@ class prepared_statement_t {
     const int result = sqlite3_bind_text(
         _sqlite3_statement.get(), static_cast<int>(index + 1), text.data(),
         static_cast<int>(text.size()), SQLITE_TRANSIENT);
-    detail::check_bind_result(result, "time_of_day");
+    detail::check_bind_result(result, "time");
   }
 
   void _bind_parameter(size_t index, const std::chrono::sys_days& value) {

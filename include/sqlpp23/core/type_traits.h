@@ -104,7 +104,7 @@ struct values_are_optionally_same
               (is_text<L>::value and is_text<R>::value) or
               (is_date<L>::value and is_date<R>::value) or
               (is_timestamp<L>::value and is_timestamp<R>::value) or
-              (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
+              (is_time<L>::value and is_time<R>::value)> {};
 
 template <typename L, typename R>
 struct values_are_comparable
@@ -125,7 +125,7 @@ struct values_are_assignable
               (is_text<L>::value and is_text<R>::value) or
               (is_date<L>::value and is_date<R>::value) or
               (is_timestamp<L>::value and is_timestamp<R>::value) or
-              (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
+              (is_time<L>::value and is_time<R>::value)> {};
 
 template <typename T>
 struct result_value {};
@@ -174,7 +174,7 @@ struct result_value<date> {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
 };
 template <>
-struct result_value<time_of_day> {
+struct result_value<time> {
   using type = std::chrono::microseconds;
 };
 
@@ -231,7 +231,7 @@ struct parameter_value<date> {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
 };
 template <>
-struct parameter_value<time_of_day> {
+struct parameter_value<time> {
   using type = std::chrono::microseconds;
 };
 

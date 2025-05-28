@@ -90,12 +90,12 @@ For assignments, expressions of type `sqlpp::timestamp` will work. Comparisons a
 
 ### Time of day
 
-SQL `TIME` is represented by `sqlpp::time_of_day`, e.g. in column specifications.
+SQL `TIME` is represented by `sqlpp::time`, e.g. in column specifications.
 
 Parameters and result fields use the C++ type `std::chrono::microseconds`.
 
-C++ data types `std::chrono::duration<Rep, Period>` is considered `sqlpp::time_of_day`.
+C++ data types `std::chrono::duration<Rep, Period>` is considered `sqlpp::time`.
 
-For assignments and comparisons expressions of type `sqlpp::time_of_day` will work.
+For assignments and comparisons expressions of type `sqlpp::time` will work.
 
 [**< Index**](/docs/README.md)

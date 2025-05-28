@@ -64,16 +64,16 @@ int DateTime(int, char*[]) {
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.has_value(), false);
-      require_equal(__LINE__, row.timeOfDayNTz.has_value(), false);
+      require_equal(__LINE__, row.timeNTz.has_value(), false);
       require_equal(__LINE__, row.timestampNTz.has_value(), false);
     }
 
-    db(update(tab).set(tab.dateN = today, tab.timeOfDayNTz = current,
+    db(update(tab).set(tab.dateN = today, tab.timeNTz = current,
                        tab.timestampNTz = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timeOfDayNTz.value(), current);
+      require_equal(__LINE__, row.timeNTz.value(), current);
       require_equal(__LINE__, row.timestampNTz.value(), now);
     }
 
@@ -81,23 +81,23 @@ int DateTime(int, char*[]) {
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), yesterday);
-      require_equal(__LINE__, row.timeOfDayNTz.value(), current);
+      require_equal(__LINE__, row.timeNTz.value(), current);
       require_equal(__LINE__, row.timestampNTz.value(), now);
     }
 
     auto prepared_update = db.prepare(
         update(tab).set(tab.dateN = parameter(tab.dateN),
-                        tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
+                        tab.timeNTz = parameter(tab.timeNTz),
                         tab.timestampNTz = parameter(tab.timestampNTz)));
     prepared_update.params.dateN = today;
-    prepared_update.params.timeOfDayNTz = current;
+    prepared_update.params.timeNTz = current;
     prepared_update.params.timestampNTz = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timeOfDayNTz.value(), current);
+      require_equal(__LINE__, row.timeNTz.value(), current);
       require_equal(__LINE__, row.timestampNTz.value(), now);
     }
   } catch (const sqlpp::exception& e) {

@@ -187,7 +187,7 @@ void test_dates_with_trailing_characters() {
   }
 }
 
-void test_valid_time_of_day() {
+void test_valid_time() {
   using namespace std::chrono;
 
   for (const auto& tod_pair : std::vector<std::pair<const char*, microseconds>>{
@@ -218,7 +218,7 @@ void test_valid_time_of_day() {
            {"25:00:10", build_tod(25, 0, 10)}}) {
     std::chrono::microseconds us;
     const char* tod_str = tod_pair.first;
-    if (sqlpp::detail::parse_time_of_day(us, tod_str) == false) {
+    if (sqlpp::detail::parse_time(us, tod_str) == false) {
       std::cerr << "Could not parse a valid time-of-day string: "
                 << tod_pair.first << std::endl;
       throw std::runtime_error{"Parse error"};
@@ -227,7 +227,7 @@ void test_valid_time_of_day() {
   }
 }
 
-void test_invalid_time_of_day() {
+void test_invalid_time() {
   for (const auto* tod_str : std::vector<const char*>{
            // Generic string
            "A", "BC", "!()",
@@ -242,7 +242,7 @@ void test_invalid_time_of_day() {
            "04:07:-01"}) {
     std::chrono::microseconds us;
     const char* orig = tod_str;
-    if (sqlpp::detail::parse_time_of_day(us, tod_str)) {
+    if (sqlpp::detail::parse_time(us, tod_str)) {
       std::cerr << "Successfully parsed an invalid time-of-day string " << orig
                 << ", value " << sqlpp::to_sql_string(std::cerr, us)
                 << std::endl;
@@ -251,7 +251,7 @@ void test_invalid_time_of_day() {
   }
 }
 
-void test_time_of_day_with_trailing_characters() {
+void test_time_with_trailing_characters() {
   for (const auto* tod_str : std::vector<const char*>{
            // Invalid fraction
            "01:02:03.",
@@ -262,7 +262,7 @@ void test_time_of_day_with_trailing_characters() {
            "01:03:03+12:01:", "01:03:03+12:01:1", "01:03:03+12:01:1A"}) {
     std::chrono::microseconds us;
     const char* orig = tod_str;
-    if (not sqlpp::detail::parse_time_of_day(us, tod_str)) {
+    if (not sqlpp::detail::parse_time(us, tod_str)) {
       std::cerr
           << "Failed to parse an time-of-day string with trailing characters"
           << orig << ", value " << sqlpp::to_sql_string(std::cerr, us)
@@ -270,7 +270,7 @@ void test_time_of_day_with_trailing_characters() {
       throw std::runtime_error{"Parse error"};
     }
     if (not *tod_str) {
-      std::cerr << "time_of_day string fails to point to trailing characters "
+      std::cerr << "time string fails to point to trailing characters "
                 << tod_str << ", value " << sqlpp::to_sql_string(std::cerr, us)
                 << std::endl;
       throw std::runtime_error{"Parse error"};
@@ -350,9 +350,9 @@ int DateTimeParser(int, char*[]) {
   test_valid_dates();
   test_invalid_dates();
   test_dates_with_trailing_characters();
-  test_valid_time_of_day();
-  test_invalid_time_of_day();
-  test_time_of_day_with_trailing_characters();
+  test_valid_time();
+  test_invalid_time();
+  test_time_with_trailing_characters();
   test_valid_timestamp();
   test_invalid_timestamp();
   test_timestamp_with_trailing_characters();

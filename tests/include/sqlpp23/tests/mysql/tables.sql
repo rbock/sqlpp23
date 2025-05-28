@@ -28,7 +28,7 @@ CREATE TABLE tab_date_time (
   date_n date,
   timestamp_n datetime(3),
   date_timestamp_n_d datetime DEFAULT CURRENT_TIMESTAMP,
-  time_of_day_n time(3)
+  time_n time(3)
 )
 
 DROP TABLE IF EXISTS tab_json;

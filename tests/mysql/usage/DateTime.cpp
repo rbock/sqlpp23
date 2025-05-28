@@ -70,18 +70,18 @@ int DateTime(int, char*[]) {
       require_equal(__LINE__, row.dateN.has_value(), false);
       require_equal(__LINE__, row.timestampN.has_value(), false);
       require_close(__LINE__, row.dateTimePointND.value(), now);
-      require_equal(__LINE__, row.timeOfDayN.has_value(), false);
+      require_equal(__LINE__, row.timeN.has_value(), false);
     }
 
     db(update(tab)
            .set(tab.dateN = today, tab.timestampN = now,
-                tab.timeOfDayN = current)
+                tab.timeN = current)
            .where(true));
 
     for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dateN.value(), today);
       require_equal(__LINE__, row.timestampN.value(), now);
-      require_close(__LINE__, row.timeOfDayN.value(), current);
+      require_close(__LINE__, row.timeN.value(), current);
     }
 
     auto statement = db.prepare(select(all_of(tab)).from(tab).where(true));
@@ -89,7 +89,7 @@ int DateTime(int, char*[]) {
       require_close(__LINE__, row.dateTimePointND.value(), now);
       require_equal(__LINE__, row.dateN.value(), today);
       require_equal(__LINE__, row.timestampN.value(), now);
-      require_close(__LINE__, row.timeOfDayN.value(), current);
+      require_close(__LINE__, row.timeN.value(), current);
     }
 
     db(update(tab)
@@ -105,18 +105,18 @@ int DateTime(int, char*[]) {
         db.prepare(update(tab)
                        .set(tab.dateN = parameter(tab.dateN),
                             tab.timestampN = parameter(tab.timestampN),
-                            tab.timeOfDayN = parameter(tab.timeOfDayN))
+                            tab.timeN = parameter(tab.timeN))
                        .where(true));
     prepared_update.params.dateN = today;
     prepared_update.params.timestampN = now;
-    prepared_update.params.timeOfDayN = current;
+    prepared_update.params.timeN = current;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab).where(true))) {
       require_equal(__LINE__, row.dateN.value(), today);
       require_equal(__LINE__, row.timestampN.value(), now);
-      require_equal(__LINE__, row.timeOfDayN.value(), current);
+      require_equal(__LINE__, row.timeN.value(), current);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

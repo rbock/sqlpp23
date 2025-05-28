@@ -129,6 +129,6 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_assign_expression(date_time.timestampN, minute_point{});
 
-  // time_of_day
-  test_assign_expression(date_time.timeOfDayN, std::chrono::microseconds{});
+  // time
+  test_assign_expression(date_time.timeN, std::chrono::microseconds{});
 }

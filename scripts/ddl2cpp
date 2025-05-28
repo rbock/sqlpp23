@@ -208,7 +208,7 @@ def initDllParser():
 
     ddlTime = pp.Or(
         map(pp.CaselessKeyword, sorted(ddlTimeTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("time_of_day"))
+    ).setParseAction(pp.replaceWith("time"))
 
     ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
 
@@ -365,7 +365,7 @@ def testDateTime():
 def testTime():
     for t in ddlTimeTypes:
         result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "time_of_day"
+        assert result[0] == "time"
 
 
 def testUnknown():

@@ -129,6 +129,6 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_count(minute_point{});
 
-  // time_of_day
+  // time
   test_count(std::chrono::microseconds{});
 }

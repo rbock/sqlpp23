@@ -39,7 +39,7 @@ void save_regular(sqlpp::postgresql::connection& db,
                   std::chrono::microseconds tod,
                   std::chrono::sys_days dp) {
   test::TabDateTime tab{};
-  db(update(tab).set(tab.timestampNTz = tp, tab.timeOfDayNTz = tod,
+  db(update(tab).set(tab.timestampNTz = tp, tab.timeNTz = tod,
                      tab.dateN = dp));
 }
 
@@ -50,10 +50,10 @@ void save_prepared(sqlpp::postgresql::connection& db,
   test::TabDateTime tab{};
   auto prepared_update =
       db.prepare(update(tab).set(tab.timestampNTz = parameter(tab.timestampNTz),
-                                 tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
+                                 tab.timeNTz = parameter(tab.timeNTz),
                                  tab.dateN = parameter(tab.dateN)));
   prepared_update.params.timestampNTz = tp;
-  prepared_update.params.timeOfDayNTz = tod;
+  prepared_update.params.timeNTz = tod;
   prepared_update.params.dateN = dp;
   db(prepared_update);
 }
@@ -82,10 +82,10 @@ void check_saved_values(sqlpp::postgresql::connection& db,
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from timestamp_n_tz)*1000000)::int8")
                  .as(sqlpp::alias::a),
-             // timeOfDayNTz as microseconds from the start of the day (00:00:00
+             // timeNTz as microseconds from the start of the day (00:00:00
              // UTC)
              sqlpp::verbatim<sqlpp::integral>(
-                 "floor(extract(epoch from time_of_day_n_tz)*1000000)::int8")
+                 "floor(extract(epoch from time_n_tz)*1000000)::int8")
                  .as(sqlpp::alias::b),
              // dateN as days from 1970-01-01 (timezone is not applicable to
              // date fields)
@@ -108,7 +108,7 @@ void check_saved_values(sqlpp::postgresql::connection& db,
   const auto rows_2 = db(select(all_of(tab)).from(tab));
   const auto& row_2 = rows_2.front();
   require_equal(__LINE__, row_2.timestampNTz.value(), tp);
-  require_equal(__LINE__, row_2.timeOfDayNTz.value(), tod);
+  require_equal(__LINE__, row_2.timeNTz.value(), tod);
   require_equal(__LINE__, row_2.dateN.value(), dp);
 }
 

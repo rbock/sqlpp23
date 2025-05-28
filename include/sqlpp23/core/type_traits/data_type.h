@@ -186,14 +186,14 @@ struct data_type_of<std::chrono::sys_days> {
   using type = date;
 };
 
-struct time_of_day {};
+struct time {};
 template <>
-struct data_type_of<time_of_day> {
-  using type = time_of_day;
+struct data_type_of<time> {
+  using type = time;
 };
 template <typename Rep, typename Period>
 struct data_type_of<std::chrono::duration<Rep, Period>> {
-  using type = time_of_day;
+  using type = time;
 };
 
 struct timestamp {};
@@ -290,11 +290,11 @@ struct is_day_or_timestamp
                                         is_timestamp<T>::value> {};
 
 template <typename T>
-struct is_time_of_day
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, time_of_day> {
+struct is_time
+    : public std::is_same<remove_optional_t<data_type_of_t<T>>, time> {
 };
 
 template <>
-struct is_time_of_day<std::nullopt_t> : public std::true_type {};
+struct is_time<std::nullopt_t> : public std::true_type {};
 
 }  // namespace sqlpp

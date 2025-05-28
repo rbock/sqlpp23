@@ -122,7 +122,7 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_exists(minute_point{});
 
-  // time_of_day
+  // time
   test_exists(std::chrono::microseconds{});
 
   test_exists_sub_select();

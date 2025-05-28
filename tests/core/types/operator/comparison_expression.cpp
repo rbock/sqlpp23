@@ -196,7 +196,7 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_comparison_expression(minute_point{});
 
-  // time_of_day
+  // time
   test_comparison_expression(std::chrono::microseconds{});
 
   // text

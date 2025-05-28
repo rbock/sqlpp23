@@ -262,6 +262,6 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_select_as(minute_point{});
 
-  // time_of_day
+  // time
   test_select_as(std::chrono::microseconds{});
 }

@@ -88,17 +88,17 @@ int DateTime(int, char*[]) {
     auto prepared_update =
         db.prepare(update(tab).set(tab.dateN = parameter(tab.dateN),
                                    tab.timestampN = parameter(tab.timestampN),
-                                   tab.timeOfDayN = parameter(tab.timeOfDayN)));
+                                   tab.timeN = parameter(tab.timeN)));
     prepared_update.params.dateN = today;
     prepared_update.params.timestampN = now;
-    prepared_update.params.timeOfDayN = time_of_day;
+    prepared_update.params.timeN = time_of_day;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
       require_equal(__LINE__, row.timestampN.value(), now);
-      require_equal(__LINE__, row.timeOfDayN.value(), time_of_day);
+      require_equal(__LINE__, row.timeN.value(), time_of_day);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

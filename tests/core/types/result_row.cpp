@@ -163,6 +163,6 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_result_row<::sqlpp::chrono::sys_microseconds>(minute_point{});
 
-  // time_of_day
+  // time
   test_result_row<std::chrono::microseconds>(std::chrono::microseconds{});
 }

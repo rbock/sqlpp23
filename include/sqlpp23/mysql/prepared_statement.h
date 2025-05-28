@@ -276,7 +276,7 @@ class prepared_statement_t {
   void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
     if constexpr (debug_enabled) {
       debug().log(log_category::parameter,
-                           "binding time_of_day parameter {} at index {}",
+                           "binding time parameter {} at index {}",
                            value, index);
     }
 

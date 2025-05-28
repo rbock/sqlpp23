@@ -344,8 +344,8 @@ int main() {
 
     // Not OK
     static_assert(not can_call_else_with<CW, decltype(dt.timestampN)>);
-    static_assert(not can_call_else_with<CW, decltype(dt.timeOfDayN)>);
+    static_assert(not can_call_else_with<CW, decltype(dt.timeN)>);
     static_assert(not can_call_then_with<CW2, decltype(dt.timestampN)>);
-    static_assert(not can_call_then_with<CW2, decltype(dt.timeOfDayN)>);
+    static_assert(not can_call_then_with<CW2, decltype(dt.timeN)>);
   }
 }

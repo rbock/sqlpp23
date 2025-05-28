@@ -190,7 +190,7 @@ inline bool parse_date(std::chrono::sys_days& dp, const char*& date_string) {
 // The microseconds and timezone offset are optional
 //
 // time_string will point to non-consumed characters
-inline bool parse_time_of_day(std::chrono::microseconds& us,
+inline bool parse_time(std::chrono::microseconds& us,
                               const char*& time_string) {
   return parse_hh_mm_ss_us_tz(us, time_string);
 }

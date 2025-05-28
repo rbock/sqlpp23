@@ -26,9 +26,9 @@ CREATE TABLE tab_date_time
 (
   date_n date,
   timestamp_n timestamp,
-  time_of_day_n time,
+  time_n time,
   timestamp_n_tz timestamp with time zone,
-  time_of_day_n_tz time with time zone
+  time_n_tz time with time zone
 );
 DROP TABLE IF EXISTS blob_sample;
 

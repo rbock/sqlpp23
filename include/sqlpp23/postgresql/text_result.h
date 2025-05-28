@@ -322,7 +322,7 @@ class text_result_t {
                            time_string);
     }
 
-    if (::sqlpp::detail::parse_time_of_day(value, time_string) == false) {
+    if (::sqlpp::detail::parse_time(value, time_string) == false) {
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result, "invalid time");
       }
