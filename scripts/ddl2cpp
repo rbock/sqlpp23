@@ -204,7 +204,7 @@ def initDllParser():
 
     ddlDateTime = pp.Or(
         map(pp.CaselessKeyword, sorted(ddlDateTimeTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("time_point"))
+    ).setParseAction(pp.replaceWith("timestamp"))
 
     ddlTime = pp.Or(
         map(pp.CaselessKeyword, sorted(ddlTimeTypes, reverse=True))
@@ -359,7 +359,7 @@ def testDate():
 def testDateTime():
     for t in ddlDateTimeTypes:
         result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "time_point"
+        assert result[0] == "timestamp"
 
 
 def testTime():
@@ -730,7 +730,7 @@ def createHeader():
                 DataTypeError = True
             if columnType == "integral" and column.isUnsigned:
                 columnType = "unsigned_" + columnType
-            if columnType == "time_point" and not noTimestampWarning:
+            if columnType == "timestamp" and not noTimestampWarning:
                 print(
                     "Warning: date and time values are assumed to be without timezone."
                 )

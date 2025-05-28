@@ -26,8 +26,8 @@ DROP TABLE IF EXISTS tab_date_time;
 CREATE TABLE tab_date_time (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   date_n date,
-  time_point_n datetime(3),
-  date_time_point_n_d datetime DEFAULT CURRENT_TIMESTAMP,
+  timestamp_n datetime(3),
+  date_timestamp_n_d datetime DEFAULT CURRENT_TIMESTAMP,
   time_of_day_n time(3)
 )
 

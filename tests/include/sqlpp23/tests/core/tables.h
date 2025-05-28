@@ -112,8 +112,8 @@ namespace test {
       using has_default = std::true_type;
     };
     struct TimePointN : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_point_n, timePointN);
-      using data_type = std::optional<::sqlpp::time_point>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(timestamp_n, timestampN);
+      using data_type = std::optional<::sqlpp::timestamp>;
       using has_default = std::true_type;
     };
     struct TimeOfDayN : public ::sqlpp::name_tag_base {

@@ -196,16 +196,16 @@ struct data_type_of<std::chrono::duration<Rep, Period>> {
   using type = time_of_day;
 };
 
-struct time_point {};
+struct timestamp {};
 template <>
-struct data_type_of<time_point> {
-  using type = time_point;
+struct data_type_of<timestamp> {
+  using type = timestamp;
 };
 template <typename Period>
 requires(Period{1} < std::chrono::days{1})
 struct data_type_of<
     std::chrono::time_point<std::chrono::system_clock, Period>> {
-  using type = time_point;
+  using type = timestamp;
 };
 
 template <typename T>
@@ -277,17 +277,17 @@ template <>
 struct is_date<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
-struct is_time_point
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, time_point> {};
+struct is_timestamp
+    : public std::is_same<remove_optional_t<data_type_of_t<T>>, timestamp> {};
 
 template <>
-struct is_time_point<std::nullopt_t> : public std::true_type {};
+struct is_timestamp<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
-struct is_day_or_time_point
+struct is_day_or_timestamp
     : public std::integral_constant<bool,
                                     is_date<T>::value or
-                                        is_time_point<T>::value> {};
+                                        is_timestamp<T>::value> {};
 
 template <typename T>
 struct is_time_of_day

@@ -103,7 +103,7 @@ struct values_are_optionally_same
               (is_floating_point<L>::value and is_floating_point<R>::value) or
               (is_text<L>::value and is_text<R>::value) or
               (is_date<L>::value and is_date<R>::value) or
-              (is_time_point<L>::value and is_time_point<R>::value) or
+              (is_timestamp<L>::value and is_timestamp<R>::value) or
               (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
 template <typename L, typename R>
@@ -112,8 +112,8 @@ struct values_are_comparable
                                     values_are_optionally_same<L, R>::value or
                                         (is_numeric<L>::value and
                                          is_numeric<R>::value) or
-                                        (is_day_or_time_point<L>::value and
-                                         is_day_or_time_point<R>::value)> {};
+                                        (is_day_or_timestamp<L>::value and
+                                         is_day_or_timestamp<R>::value)> {};
 
 template <typename L, typename R>
 struct values_are_assignable
@@ -124,7 +124,7 @@ struct values_are_assignable
               (is_numeric<L>::value and is_numeric<R>::value) or
               (is_text<L>::value and is_text<R>::value) or
               (is_date<L>::value and is_date<R>::value) or
-              (is_time_point<L>::value and is_time_point<R>::value) or
+              (is_timestamp<L>::value and is_timestamp<R>::value) or
               (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
 template <typename T>
@@ -179,7 +179,7 @@ struct result_value<time_of_day> {
 };
 
 template <>
-struct result_value<time_point> {
+struct result_value<timestamp> {
   using type = std::chrono::time_point<std::chrono::system_clock,
                                        std::chrono::microseconds>;
 };
@@ -236,7 +236,7 @@ struct parameter_value<time_of_day> {
 };
 
 template <>
-struct parameter_value<time_point> {
+struct parameter_value<timestamp> {
   using type = std::chrono::time_point<std::chrono::system_clock,
                                        std::chrono::microseconds>;
 };

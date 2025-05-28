@@ -64,7 +64,7 @@ C++ data types `std::array<uint8_t>`, `std::span<uint8_t>`, and `std::vector<uin
 
 For assignments and comparisons expressions of type `sqlpp::text` will work.
 
-## Date, Datetime, etc
+## Date, Timestamp, etc
 
 Note that sqlpp23 ignores timezones. It works best if both the database and the C++ code operate in UTC. If you are doing anything else, you are on your own.
 
@@ -72,25 +72,25 @@ Note that sqlpp23 ignores timezones. It works best if both the database and the 
 
 SQL `DATE` is represented by `sqlpp::date`, e.g. in column specifications.
 
-Parameters and result fields use the C++ type `std::chrono::time_point<std::chrono::system_clock, std::chrono::days>>`.
+Parameters and result fields use the C++ type `std::chrono::sys_days`.
 
-C++ data types `std::chrono::time_point<std::chrono::system_clock, std::chrono::days>>` is considered `sqlpp::date`.
+C++ data types `std::chrono::sys_days` is considered `sqlpp::date`.
 
-For assignments and comparisons expressions of type `sqlpp::date` will work.
+For assignments expressions of type `sqlpp::date` will work. Comparisons additionally work with `sqlpp::timestamp`.
 
-### Date time
+### Timestamp
 
-SQL `DATETIME` is represented by `sqlpp::time_point`, e.g. in column specifications.
+SQL `TIMESTAMP` is represented by `sqlpp::timestamp`, e.g. in column specifications.
 
-Parameters and result fields use the C++ type `std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>`.
+Parameters and result fields use the C++ type `std::chrono::sys_time<std::chrono::microseconds>>`.
 
-C++ data types `std::chrono::time_point<std::chrono::system_clock, Period>>` is considered `sqlpp::time_point` except where `Period` is `std::chrono::days`.
+C++ data types `std::chrono::sys_time<Period>>` is considered `sqlpp::timestamp` if `Period` is smaller than `std::chrono::days`.
 
-For assignments and comparisons expressions of type `sqlpp::time_point` will work.
+For assignments, expressions of type `sqlpp::timestamp` will work. Comparisons addtionally work with `sqlpp::date`.
 
 ### Time of day
 
-SQL `TIME` is represented by `sqlpp::time_point`, e.g. in column specifications.
+SQL `TIME` is represented by `sqlpp::time_of_day`, e.g. in column specifications.
 
 Parameters and result fields use the C++ type `std::chrono::microseconds`.
 

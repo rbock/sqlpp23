@@ -52,9 +52,9 @@ int DateTime(int, char*[]) {
   }
   for (const auto& row : db(select(all_of(t)).from(t))) {
     std::cout << row.dateN;
-    std::cout << row.timePointN;
+    std::cout << row.timestampN;
     const auto tp =
-        std::chrono::system_clock::time_point{row.timePointN.value()};
+        std::chrono::system_clock::timestamp{row.timestampN.value()};
     std::cout << std::chrono::system_clock::to_time_t(tp);
   }
   std::cerr << to_sql_string(printer,
@@ -63,7 +63,7 @@ int DateTime(int, char*[]) {
 
   db(insert_into(t).set(t.dateN = std::chrono::floor<std::chrono::days>(
                             std::chrono::system_clock::now())));
-  db(insert_into(t).set(t.timePointN = std::chrono::system_clock::now()));
+  db(insert_into(t).set(t.timestampN = std::chrono::system_clock::now()));
   db(insert_into(t).set(t.timeOfDayN = time_of_day(
                             std::chrono::system_clock::now())));
 
@@ -72,7 +72,7 @@ int DateTime(int, char*[]) {
                   std::chrono::system_clock::now()))
          .where(t.dateN < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.timePointN = std::chrono::system_clock::now(),
+         .set(t.timestampN = std::chrono::system_clock::now(),
               t.timeOfDayN =
                   time_of_day(std::chrono::system_clock::now()))
          .where(t.dateN < std::chrono::system_clock::now()));
@@ -82,9 +82,9 @@ int DateTime(int, char*[]) {
       std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
   db(delete_from(t).where(t.dateN == std::chrono::system_clock::now()));
   db(delete_from(t).where(
-      t.timePointN ==
+      t.timestampN ==
       std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
-  db(delete_from(t).where(t.timePointN == std::chrono::system_clock::now()));
+  db(delete_from(t).where(t.timestampN == std::chrono::system_clock::now()));
   db(delete_from(t).where(
       t.timeOfDayN ==
       time_of_day(std::chrono::system_clock::now())));

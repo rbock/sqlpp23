@@ -127,9 +127,9 @@ namespace test {
     db(R"+++(CREATE TABLE tab_date_time
 (
   date_n date,
-  time_point_n timestamp,
+  timestamp_n timestamp,
   time_of_day_n time,
-  time_point_n_tz timestamp with time zone,
+  timestamp_n_tz timestamp with time zone,
   time_of_day_n_tz time with time zone
 ))+++");
   }
@@ -141,8 +141,8 @@ namespace test {
       using has_default = std::true_type;
     };
     struct TimePointN : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_point_n, timePointN);
-      using data_type = std::optional<::sqlpp::time_point>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(timestamp_n, timestampN);
+      using data_type = std::optional<::sqlpp::timestamp>;
       using has_default = std::true_type;
     };
     struct TimeOfDayN : public ::sqlpp::name_tag_base {
@@ -151,8 +151,8 @@ namespace test {
       using has_default = std::true_type;
     };
     struct TimePointNTz : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_point_n_tz, timePointNTz);
-      using data_type = std::optional<::sqlpp::time_point>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(timestamp_n_tz, timestampNTz);
+      using data_type = std::optional<::sqlpp::timestamp>;
       using has_default = std::true_type;
     };
     struct TimeOfDayNTz : public ::sqlpp::name_tag_base {

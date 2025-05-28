@@ -39,7 +39,7 @@ void save_regular(sqlpp::postgresql::connection& db,
                   std::chrono::microseconds tod,
                   std::chrono::sys_days dp) {
   test::TabDateTime tab{};
-  db(update(tab).set(tab.timePointNTz = tp, tab.timeOfDayNTz = tod,
+  db(update(tab).set(tab.timestampNTz = tp, tab.timeOfDayNTz = tod,
                      tab.dateN = dp));
 }
 
@@ -49,10 +49,10 @@ void save_prepared(sqlpp::postgresql::connection& db,
                    std::chrono::sys_days dp) {
   test::TabDateTime tab{};
   auto prepared_update =
-      db.prepare(update(tab).set(tab.timePointNTz = parameter(tab.timePointNTz),
+      db.prepare(update(tab).set(tab.timestampNTz = parameter(tab.timestampNTz),
                                  tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
                                  tab.dateN = parameter(tab.dateN)));
-  prepared_update.params.timePointNTz = tp;
+  prepared_update.params.timestampNTz = tp;
   prepared_update.params.timeOfDayNTz = tod;
   prepared_update.params.dateN = dp;
   db(prepared_update);
@@ -77,10 +77,10 @@ void check_saved_values(sqlpp::postgresql::connection& db,
 
   const auto& rows_1 =
       db(select(
-             // timePointNTz as microseconds from the start of the UNIX epoch
+             // timestampNTz as microseconds from the start of the UNIX epoch
              // (1970-01-01 00:00:00 UTC)
              sqlpp::verbatim<sqlpp::integral>(
-                 "floor(extract(epoch from time_point_n_tz)*1000000)::int8")
+                 "floor(extract(epoch from timestamp_n_tz)*1000000)::int8")
                  .as(sqlpp::alias::a),
              // timeOfDayNTz as microseconds from the start of the day (00:00:00
              // UTC)
@@ -107,12 +107,12 @@ void check_saved_values(sqlpp::postgresql::connection& db,
   // types from C++ to PostgreSQL and then back from PostgreSQL to C++.
   const auto rows_2 = db(select(all_of(tab)).from(tab));
   const auto& row_2 = rows_2.front();
-  require_equal(__LINE__, row_2.timePointNTz.value(), tp);
+  require_equal(__LINE__, row_2.timestampNTz.value(), tp);
   require_equal(__LINE__, row_2.timeOfDayNTz.value(), tod);
   require_equal(__LINE__, row_2.dateN.value(), dp);
 }
 
-void test_time_point(sqlpp::postgresql::connection& db,
+void test_timestamp(sqlpp::postgresql::connection& db,
                      ::sqlpp::chrono::sys_microseconds tp) {
   auto dp = std::chrono::floor<std::chrono::days>(tp);
   auto tod = tp - dp;  // Time of day
@@ -151,7 +151,7 @@ int TimeZone(int, char*[]) {
             std::chrono::hours{0} + std::chrono::minutes{59} +
             std::chrono::seconds{59} + std::chrono::microseconds{987654}};
     for (const auto& tp : tps) {
-      test_time_point(db, tp);
+      test_timestamp(db, tp);
     }
   } catch (const sqlpp::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

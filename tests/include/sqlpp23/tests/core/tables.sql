@@ -52,7 +52,7 @@ CREATE TABLE tab_date_time
 (
 	id bigint AUTO_INCREMENT PRIMARY KEY,
 	date_n date,
-	time_point_n datetime,
+	timestamp_n datetime,
 	time_of_day_n time
 );
 

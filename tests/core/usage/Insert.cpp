@@ -71,12 +71,12 @@ int Insert(int, char*[]) {
 
   // Beware, you need exact types for inserted values in multi_insert
   insert_into(tabDateTime)
-      .set(tabDateTime.timePointN = std::chrono::system_clock::now());
+      .set(tabDateTime.timestampN = std::chrono::system_clock::now());
 
   auto multi_time_insert =
-      insert_into(tabDateTime).columns(tabDateTime.timePointN);
+      insert_into(tabDateTime).columns(tabDateTime.timestampN);
   multi_time_insert.add_values(
-      tabDateTime.timePointN =
+      tabDateTime.timestampN =
           std::chrono::time_point_cast<std::chrono::microseconds>(
               std::chrono::system_clock::now()));
 

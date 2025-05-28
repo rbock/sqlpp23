@@ -33,6 +33,6 @@ create_test(date)
 create_test(float)
 create_test(microseconds)
 create_test(text)
-create_test(time_point)
+create_test(timestamp)
 create_test(uint64_t)
 

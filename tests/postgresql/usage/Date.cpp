@@ -56,12 +56,12 @@ void prepare_table(Db&& db, bool with_tz) {
   if (with_tz) {
     // prepare test with timezone
     db.execute(
-        "CREATE TABLE tab_date_time (col_date DATE, col_time_point "
+        "CREATE TABLE tab_date_time (col_date DATE, col_timestamp "
         "TIMESTAMP WITH TIME ZONE)");
   } else {
     // prepare  test without timezone
     db.execute(
-        "CREATE TABLE tab_date_time (col_date DATE, col_time_point "
+        "CREATE TABLE tab_date_time (col_date DATE, col_timestamp "
         "TIMESTAMP)");
   }
 }
@@ -80,43 +80,43 @@ int Date(int, char*[]) {
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.has_value(), false);
-      require_equal(__LINE__, row.timePointN.has_value(), false);
-      require_equal(__LINE__, row.timePointNTz.has_value(), false);
+      require_equal(__LINE__, row.timestampN.has_value(), false);
+      require_equal(__LINE__, row.timestampNTz.has_value(), false);
     }
 
-    db(update(tab).set(tab.dateN = today, tab.timePointN = now,
-                       tab.timePointNTz = now));
+    db(update(tab).set(tab.dateN = today, tab.timestampN = now,
+                       tab.timestampNTz = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timePointN.value(), now);
-      require_equal(__LINE__, row.timePointNTz.value(), now);
+      require_equal(__LINE__, row.timestampN.value(), now);
+      require_equal(__LINE__, row.timestampNTz.value(), now);
     }
 
-    db(update(tab).set(tab.dateN = yesterday, tab.timePointN = now,
-                       tab.timePointNTz = now));
+    db(update(tab).set(tab.dateN = yesterday, tab.timestampN = now,
+                       tab.timestampNTz = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), yesterday);
-      require_equal(__LINE__, row.timePointN.value(), now);
-      require_equal(__LINE__, row.timePointNTz.value(), now);
+      require_equal(__LINE__, row.timestampN.value(), now);
+      require_equal(__LINE__, row.timestampNTz.value(), now);
     }
 
     auto prepared_update = db.prepare(
         update(tab).set(tab.dateN = parameter(tab.dateN),
-                        tab.timePointN = parameter(tab.timePointN),
-                        tab.timePointNTz = parameter(tab.timePointNTz)));
+                        tab.timestampN = parameter(tab.timestampN),
+                        tab.timestampNTz = parameter(tab.timestampNTz)));
     prepared_update.params.dateN = today;
-    prepared_update.params.timePointN = now;
-    prepared_update.params.timePointNTz = now;
+    prepared_update.params.timestampN = now;
+    prepared_update.params.timestampNTz = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timePointN.value(), now);
-      require_equal(__LINE__, row.timePointNTz.value(), now);
+      require_equal(__LINE__, row.timestampN.value(), now);
+      require_equal(__LINE__, row.timestampNTz.value(), now);
     }
   } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

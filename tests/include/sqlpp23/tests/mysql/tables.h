@@ -126,8 +126,8 @@ namespace test {
     db(R"+++(CREATE TABLE tab_date_time (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   date_n date,
-  time_point_n datetime(3),
-  date_time_point_n_d datetime DEFAULT CURRENT_TIMESTAMP,
+  timestamp_n datetime(3),
+  date_timestamp_n_d datetime DEFAULT CURRENT_TIMESTAMP,
   time_of_day_n time(3)
 ))+++");
   }
@@ -144,13 +144,13 @@ namespace test {
       using has_default = std::true_type;
     };
     struct TimePointN : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(time_point_n, timePointN);
-      using data_type = std::optional<::sqlpp::time_point>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(timestamp_n, timestampN);
+      using data_type = std::optional<::sqlpp::timestamp>;
       using has_default = std::true_type;
     };
     struct DateTimePointND : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(date_time_point_n_d, dateTimePointND);
-      using data_type = std::optional<::sqlpp::time_point>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(date_timestamp_n_d, dateTimePointND);
+      using data_type = std::optional<::sqlpp::timestamp>;
       using has_default = std::true_type;
     };
     struct TimeOfDayN : public ::sqlpp::name_tag_base {

@@ -123,11 +123,11 @@ int main() {
   test_assign_expression(date_time.dateN, std::chrono::sys_days{});
 
   // timestamp
-  test_assign_expression(date_time.timePointN,
+  test_assign_expression(date_time.timestampN,
                          ::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_assign_expression(date_time.timePointN, minute_point{});
+  test_assign_expression(date_time.timestampN, minute_point{});
 
   // time_of_day
   test_assign_expression(date_time.timeOfDayN, std::chrono::microseconds{});

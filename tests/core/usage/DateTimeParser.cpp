@@ -41,7 +41,7 @@ std::chrono::microseconds build_tod(int hour = 0,
                                     int tz_second = 0) {
   std::chrono::microseconds result{0};
   // We add time components one by one to the resulting microseconds in
-  // order to avoid going through temporary time_point values with small bitsize
+  // order to avoid going through temporary timestamp values with small bitsize
   // which could cause in integer overflow.
   result += std::chrono::hours{hour};
   result += std::chrono::minutes{minute};

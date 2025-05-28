@@ -65,14 +65,14 @@ int main() {
                                decltype(sqlpp::dynamic(maybe, true))>::value,
       "");
 
-  date_time.timePointN = ::sqlpp::chrono::sys_microseconds{};
-  // Can assign different std::chrono::sys_time types to time_point
+  date_time.timestampN = ::sqlpp::chrono::sys_microseconds{};
+  // Can assign different std::chrono::sys_time types to timestamp
   static_assert(
-      can_call_assign_with<decltype(date_time.timePointN),
+      can_call_assign_with<decltype(date_time.timestampN),
                                decltype(::sqlpp::chrono::sys_microseconds{})>::value);
 
   static_assert(
-      can_call_assign_with<decltype(date_time.timePointN),
+      can_call_assign_with<decltype(date_time.timestampN),
                                decltype(std::chrono::sys_time<std::chrono::seconds>{})>::value);
 
 
@@ -83,16 +83,16 @@ int main() {
                 decltype(::sqlpp::chrono::sys_microseconds{})>::value);
   static_assert(not can_call_assign_with<
                 decltype(date_time.dateN),
-                decltype(date_time.timePointN)>::value);
+                decltype(date_time.timestampN)>::value);
 
   static_assert(
-      not can_call_assign_with<decltype(date_time.timePointN),
+      not can_call_assign_with<decltype(date_time.timestampN),
                                decltype(std::chrono::sys_days{})>::value);
   static_assert(
-      not can_call_assign_with<decltype(date_time.timePointN),
+      not can_call_assign_with<decltype(date_time.timestampN),
                                decltype(date_time.dateN)>::value);
 
-  // std::chrono::sys_time<Period> can be assigned to time_point columns if
+  // std::chrono::sys_time<Period> can be assigned to timestamp columns if
   // `Period{1} < std::chrono::days{1}`.
   using week_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::weeks>;
@@ -101,17 +101,17 @@ int main() {
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
 
-  static_assert(not can_call_assign_with<decltype(date_time.timePointN),
+  static_assert(not can_call_assign_with<decltype(date_time.timestampN),
                                          decltype(week_point{})>::value);
 
-  static_assert(can_call_assign_with<decltype(date_time.timePointN),
+  static_assert(can_call_assign_with<decltype(date_time.timestampN),
                                          decltype(hour_point{})>::value);
 
-  static_assert(can_call_assign_with<decltype(date_time.timePointN),
+  static_assert(can_call_assign_with<decltype(date_time.timestampN),
                                          decltype(minute_point{})>::value);
 
-  static_assert(can_call_assign_with<decltype(date_time.timePointN),
-                                         decltype(date_time.timePointN)>::value);
+  static_assert(can_call_assign_with<decltype(date_time.timestampN),
+                                         decltype(date_time.timestampN)>::value);
 
   // Non-nullable without default cannot be assigned null / default
   static_assert(

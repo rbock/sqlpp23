@@ -68,36 +68,36 @@ int DateTime(int, char*[]) {
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN == std::nullopt, true);
-      require_equal(__LINE__, row.timePointN == std::nullopt, true);
+      require_equal(__LINE__, row.timestampN == std::nullopt, true);
     }
 
-    db(update(tab).set(tab.dateN = today, tab.timePointN = now));
+    db(update(tab).set(tab.dateN = today, tab.timestampN = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timePointN.value(), now);
+      require_equal(__LINE__, row.timestampN.value(), now);
     }
 
-    db(update(tab).set(tab.dateN = yesterday, tab.timePointN = now));
+    db(update(tab).set(tab.dateN = yesterday, tab.timestampN = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), yesterday);
-      require_equal(__LINE__, row.timePointN.value(), now);
+      require_equal(__LINE__, row.timestampN.value(), now);
     }
 
     auto prepared_update =
         db.prepare(update(tab).set(tab.dateN = parameter(tab.dateN),
-                                   tab.timePointN = parameter(tab.timePointN),
+                                   tab.timestampN = parameter(tab.timestampN),
                                    tab.timeOfDayN = parameter(tab.timeOfDayN)));
     prepared_update.params.dateN = today;
-    prepared_update.params.timePointN = now;
+    prepared_update.params.timestampN = now;
     prepared_update.params.timeOfDayN = time_of_day;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timePointN.value(), now);
+      require_equal(__LINE__, row.timestampN.value(), now);
       require_equal(__LINE__, row.timeOfDayN.value(), time_of_day);
     }
   } catch (const std::exception& e) {
