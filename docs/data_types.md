@@ -70,13 +70,13 @@ Note that sqlpp23 ignores timezones. It works best if both the database and the 
 
 ### Date
 
-SQL `DATE` is represented by `sqlpp::day_point`, e.g. in column specifications.
+SQL `DATE` is represented by `sqlpp::date`, e.g. in column specifications.
 
 Parameters and result fields use the C++ type `std::chrono::time_point<std::chrono::system_clock, std::chrono::days>>`.
 
-C++ data types `std::chrono::time_point<std::chrono::system_clock, std::chrono::days>>` is considered `sqlpp::day_point`.
+C++ data types `std::chrono::time_point<std::chrono::system_clock, std::chrono::days>>` is considered `sqlpp::date`.
 
-For assignments and comparisons expressions of type `sqlpp::day_point` will work.
+For assignments and comparisons expressions of type `sqlpp::date` will work.
 
 ### Date time
 

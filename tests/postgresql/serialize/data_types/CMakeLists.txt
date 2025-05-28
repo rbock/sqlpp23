@@ -30,7 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(blob)
-create_test(day_point)
+create_test(date)
 create_test(microseconds)
 create_test(text)
 create_test(time_point)

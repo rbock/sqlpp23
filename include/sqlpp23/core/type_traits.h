@@ -102,7 +102,7 @@ struct values_are_optionally_same
                is_unsigned_integral<R>::value) or
               (is_floating_point<L>::value and is_floating_point<R>::value) or
               (is_text<L>::value and is_text<R>::value) or
-              (is_day_point<L>::value and is_day_point<R>::value) or
+              (is_date<L>::value and is_date<R>::value) or
               (is_time_point<L>::value and is_time_point<R>::value) or
               (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
@@ -123,7 +123,7 @@ struct values_are_assignable
               (is_boolean<L>::value and is_boolean<R>::value) or
               (is_numeric<L>::value and is_numeric<R>::value) or
               (is_text<L>::value and is_text<R>::value) or
-              (is_day_point<L>::value and is_day_point<R>::value) or
+              (is_date<L>::value and is_date<R>::value) or
               (is_time_point<L>::value and is_time_point<R>::value) or
               (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
@@ -169,7 +169,7 @@ struct result_value<text> {
 };
 
 template <>
-struct result_value<day_point> {
+struct result_value<date> {
   using type =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
 };
@@ -226,7 +226,7 @@ struct parameter_value<text> {
 };
 
 template <>
-struct parameter_value<day_point> {
+struct parameter_value<date> {
   using type =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
 };

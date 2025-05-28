@@ -333,14 +333,14 @@ int main() {
     static_assert(not can_call_then_with<CW2, decltype(foo.doubleN)>);
   }
   {
-    auto cw = sqlpp::case_when(maybe).then(dt.dayPointN);
+    auto cw = sqlpp::case_when(maybe).then(dt.dateN);
     using CW = decltype(cw);
     auto cw2 = cw.when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(dt.dayPointN)>);
-    static_assert(can_call_then_with<CW2, decltype(dt.dayPointN)>);
+    static_assert(can_call_else_with<CW, decltype(dt.dateN)>);
+    static_assert(can_call_then_with<CW2, decltype(dt.dateN)>);
 
     // Not OK
     static_assert(not can_call_else_with<CW, decltype(dt.timePointN)>);

@@ -80,7 +80,7 @@ inline bool parse_hh_mm_ss(std::chrono::microseconds& us, const char*& input) {
     return false;
   }
   // Strings that have valid format but year, month and/or day values that fall
-  // outside of the correct ranges are still mapped to day_point values. For the
+  // outside of the correct ranges are still mapped to date values. For the
   // exact rules of the mapping see
   // https://en.cppreference.com/w/cpp/chrono/year_month_day/operator_days
   us = std::chrono::hours{hour} + std::chrono::minutes{minute} +

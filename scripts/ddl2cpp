@@ -198,7 +198,7 @@ def initDllParser():
 
     ddlDate = (
         pp.Or(map(pp.CaselessKeyword, sorted(ddlDateTypes, reverse=True)))
-        .setParseAction(pp.replaceWith("day_point"))
+        .setParseAction(pp.replaceWith("date"))
         .setResultsName("warnTimezone")
     )
 
@@ -353,7 +353,7 @@ def testBlob():
 def testDate():
     for t in ddlDateTypes:
         result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "day_point"
+        assert result[0] == "date"
 
 
 def testDateTime():

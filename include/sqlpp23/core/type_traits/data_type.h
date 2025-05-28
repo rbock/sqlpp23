@@ -176,14 +176,14 @@ struct data_type_of<std::span<std::uint8_t>> {
   using type = blob;
 };
 
-struct day_point {};
+struct date {};
 template <>
-struct data_type_of<day_point> {
-  using type = day_point;
+struct data_type_of<date> {
+  using type = date;
 };
 template <>
 struct data_type_of<std::chrono::sys_days> {
-  using type = day_point;
+  using type = date;
 };
 
 struct time_of_day {};
@@ -270,11 +270,11 @@ template <>
 struct is_blob<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
-struct is_day_point
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, day_point> {};
+struct is_date
+    : public std::is_same<remove_optional_t<data_type_of_t<T>>, date> {};
 
 template <>
-struct is_day_point<std::nullopt_t> : public std::true_type {};
+struct is_date<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
 struct is_time_point
@@ -286,7 +286,7 @@ struct is_time_point<std::nullopt_t> : public std::true_type {};
 template <typename T>
 struct is_day_or_time_point
     : public std::integral_constant<bool,
-                                    is_day_point<T>::value or
+                                    is_date<T>::value or
                                         is_time_point<T>::value> {};
 
 template <typename T>

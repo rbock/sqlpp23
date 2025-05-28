@@ -40,7 +40,7 @@ void save_regular(sqlpp::postgresql::connection& db,
                   std::chrono::sys_days dp) {
   test::TabDateTime tab{};
   db(update(tab).set(tab.timePointNTz = tp, tab.timeOfDayNTz = tod,
-                     tab.dayPointN = dp));
+                     tab.dateN = dp));
 }
 
 void save_prepared(sqlpp::postgresql::connection& db,
@@ -51,10 +51,10 @@ void save_prepared(sqlpp::postgresql::connection& db,
   auto prepared_update =
       db.prepare(update(tab).set(tab.timePointNTz = parameter(tab.timePointNTz),
                                  tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
-                                 tab.dayPointN = parameter(tab.dayPointN)));
+                                 tab.dateN = parameter(tab.dateN)));
   prepared_update.params.timePointNTz = tp;
   prepared_update.params.timeOfDayNTz = tod;
-  prepared_update.params.dayPointN = dp;
+  prepared_update.params.dateN = dp;
   db(prepared_update);
 }
 
@@ -87,10 +87,10 @@ void check_saved_values(sqlpp::postgresql::connection& db,
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from time_of_day_n_tz)*1000000)::int8")
                  .as(sqlpp::alias::b),
-             // dayPointN as days from 1970-01-01 (timezone is not applicable to
+             // dateN as days from 1970-01-01 (timezone is not applicable to
              // date fields)
              sqlpp::verbatim<sqlpp::integral>(
-                 "floor(extract(epoch from day_point_n)/86400)::int8")
+                 "floor(extract(epoch from date_n)/86400)::int8")
                  .as(sqlpp::alias::c))
              .from(tab));
   // Check if the internal values of our C++ time variables match the internal
@@ -109,7 +109,7 @@ void check_saved_values(sqlpp::postgresql::connection& db,
   const auto& row_2 = rows_2.front();
   require_equal(__LINE__, row_2.timePointNTz.value(), tp);
   require_equal(__LINE__, row_2.timeOfDayNTz.value(), tod);
-  require_equal(__LINE__, row_2.dayPointN.value(), dp);
+  require_equal(__LINE__, row_2.dateN.value(), dp);
 }
 
 void test_time_point(sqlpp::postgresql::connection& db,

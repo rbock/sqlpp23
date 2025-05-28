@@ -120,7 +120,7 @@ int main() {
   test_assign_expression(foo.blobN, std::vector<uint8_t>{});
 
   // date
-  test_assign_expression(date_time.dayPointN, std::chrono::sys_days{});
+  test_assign_expression(date_time.dateN, std::chrono::sys_days{});
 
   // timestamp
   test_assign_expression(date_time.timePointN,

@@ -29,7 +29,7 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-create_test(day_point)
+create_test(date)
 create_test(float)
 create_test(microseconds)
 create_test(text)

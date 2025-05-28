@@ -33,7 +33,7 @@ int main() {
   std::chrono::sys_days tp =
       static_cast<std::chrono::sys_days>(std::chrono::February / 8 / 2025);
 
-  // Testing day_point serialization
+  // Testing date serialization
   SQLPP_COMPARE(tp, "DATE('2025-02-08')");
 
   return 0;

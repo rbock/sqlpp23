@@ -24,7 +24,7 @@ CREATE TABLE tab_bar
 
 CREATE TABLE tab_date_time
 (
-  day_point_n date,
+  date_n date,
   time_point_n timestamp,
   time_of_day_n time,
   time_point_n_tz timestamp with time zone,

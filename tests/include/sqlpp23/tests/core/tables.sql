@@ -51,7 +51,7 @@ CREATE TABLE tab_bar
 CREATE TABLE tab_date_time
 (
 	id bigint AUTO_INCREMENT PRIMARY KEY,
-	day_point_n date,
+	date_n date,
 	time_point_n datetime,
 	time_of_day_n time
 );

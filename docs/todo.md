@@ -25,7 +25,7 @@ Note that in a sub select that is used as a value, we don't detect if a table is
 https://github.com/rbock/sqlpp11/issues/453
 
 ## implement cast?
-Implement cast, to support something like cast_as<sqlpp::day_point>(mt.startTime),
+Implement cast, to support something like cast_as<sqlpp::date>(mt.startTime),
 see https://github.com/rbock/sqlpp11/issues/606
 
 ## EXTRACT function for date/time

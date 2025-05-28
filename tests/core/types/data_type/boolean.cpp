@@ -39,7 +39,7 @@ void test_boolean() {
   static_assert(not sqlpp::is_text<T>::value, "");
   static_assert(not sqlpp::is_blob<T>::value, "");
   static_assert(not sqlpp::is_time_point<T>::value, "");
-  static_assert(not sqlpp::is_day_point<T>::value, "");
+  static_assert(not sqlpp::is_date<T>::value, "");
   static_assert(not sqlpp::is_time_of_day<T>::value, "");
 }
 

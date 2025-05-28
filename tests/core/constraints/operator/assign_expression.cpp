@@ -79,10 +79,10 @@ int main() {
   // Must not mix date and date_time in assignments, see e.g.
   // https://github.com/rbock/sqlpp23/issues/26
   static_assert(not can_call_assign_with<
-                decltype(date_time.dayPointN),
+                decltype(date_time.dateN),
                 decltype(::sqlpp::chrono::sys_microseconds{})>::value);
   static_assert(not can_call_assign_with<
-                decltype(date_time.dayPointN),
+                decltype(date_time.dateN),
                 decltype(date_time.timePointN)>::value);
 
   static_assert(
@@ -90,7 +90,7 @@ int main() {
                                decltype(std::chrono::sys_days{})>::value);
   static_assert(
       not can_call_assign_with<decltype(date_time.timePointN),
-                               decltype(date_time.dayPointN)>::value);
+                               decltype(date_time.dateN)>::value);
 
   // std::chrono::sys_time<Period> can be assigned to time_point columns if
   // `Period{1} < std::chrono::days{1}`.

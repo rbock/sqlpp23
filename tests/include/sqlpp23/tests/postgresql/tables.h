@@ -126,7 +126,7 @@ namespace test {
     db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
     db(R"+++(CREATE TABLE tab_date_time
 (
-  day_point_n date,
+  date_n date,
   time_point_n timestamp,
   time_of_day_n time,
   time_point_n_tz timestamp with time zone,
@@ -136,8 +136,8 @@ namespace test {
 
   struct TabDateTime_ : public ::sqlpp::name_tag_base {
     struct DayPointN : public ::sqlpp::name_tag_base {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(day_point_n, dayPointN);
-      using data_type = std::optional<::sqlpp::day_point>;
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(date_n, dateN);
+      using data_type = std::optional<::sqlpp::date>;
       using has_default = std::true_type;
     };
     struct TimePointN : public ::sqlpp::name_tag_base {
