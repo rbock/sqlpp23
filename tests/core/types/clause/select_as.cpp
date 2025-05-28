@@ -254,10 +254,10 @@ int main() {
   test_select_as(std::vector<uint8_t>{});
 
   // date
-  test_select_as(::sqlpp::chrono::day_point{});
+  test_select_as(std::chrono::sys_days{});
 
   // timestamp
-  test_select_as(::sqlpp::chrono::microsecond_point{});
+  test_select_as(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_select_as(minute_point{});

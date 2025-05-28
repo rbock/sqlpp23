@@ -65,11 +65,11 @@ int main() {
                                decltype(sqlpp::dynamic(maybe, true))>::value,
       "");
 
-  date_time.timePointN = sqlpp::chrono::microsecond_point{};
+  date_time.timePointN = ::sqlpp::chrono::sys_microseconds{};
   // Can assign different std::chrono::sys_time types to time_point
   static_assert(
       can_call_assign_with<decltype(date_time.timePointN),
-                               decltype(sqlpp::chrono::microsecond_point{})>::value);
+                               decltype(::sqlpp::chrono::sys_microseconds{})>::value);
 
   static_assert(
       can_call_assign_with<decltype(date_time.timePointN),
@@ -80,14 +80,14 @@ int main() {
   // https://github.com/rbock/sqlpp23/issues/26
   static_assert(not can_call_assign_with<
                 decltype(date_time.dayPointN),
-                decltype(sqlpp::chrono::microsecond_point{})>::value);
+                decltype(::sqlpp::chrono::sys_microseconds{})>::value);
   static_assert(not can_call_assign_with<
                 decltype(date_time.dayPointN),
                 decltype(date_time.timePointN)>::value);
 
   static_assert(
       not can_call_assign_with<decltype(date_time.timePointN),
-                               decltype(sqlpp::chrono::day_point{})>::value);
+                               decltype(std::chrono::sys_days{})>::value);
   static_assert(
       not can_call_assign_with<decltype(date_time.timePointN),
                                decltype(date_time.dayPointN)>::value);

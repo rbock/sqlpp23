@@ -54,7 +54,7 @@ inline bool parse_character(const char*& input, char ch) {
   return true;
 }
 
-inline bool parse_yyyy_mm_dd(chrono::day_point& dp, const char*& input) {
+inline bool parse_yyyy_mm_dd(std::chrono::sys_days& dp, const char*& input) {
   auto new_input = input;
   int year, month, day;
   if ((parse_unsigned(year, new_input, 4) == false) ||
@@ -166,9 +166,9 @@ inline bool parse_hh_mm_ss_us_tz(std::chrono::microseconds& us,
 // The microseconds and timezone offset are optional
 //
 // date_time_string will point to non-consumed characters
-inline bool parse_timestamp(chrono::microsecond_point& tp,
+inline bool parse_timestamp(::sqlpp::chrono::sys_microseconds& tp,
                             const char*& date_time_string) {
-  chrono::day_point parsed_ymd;
+  std::chrono::sys_days parsed_ymd;
   std::chrono::microseconds parsed_tod;
   if ((parse_yyyy_mm_dd(parsed_ymd, date_time_string) == false) ||
       (parse_character(date_time_string, ' ') == false) ||
@@ -182,7 +182,7 @@ inline bool parse_timestamp(chrono::microsecond_point& tp,
 // Parse date string formatted as YYYY-MM-DD
 //
 // date_string will point to non-consumed characters
-inline bool parse_date(chrono::day_point& dp, const char*& date_string) {
+inline bool parse_date(std::chrono::sys_days& dp, const char*& date_string) {
   return parse_yyyy_mm_dd(dp, date_string);
 }
 

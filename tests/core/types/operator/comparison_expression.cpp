@@ -188,10 +188,10 @@ int main() {
   test_comparison_expression(std::vector<uint8_t>{});
 
   // date
-  test_comparison_expression(::sqlpp::chrono::day_point{});
+  test_comparison_expression(std::chrono::sys_days{});
 
   // timestamp
-  test_comparison_expression(::sqlpp::chrono::microsecond_point{});
+  test_comparison_expression(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_comparison_expression(minute_point{});

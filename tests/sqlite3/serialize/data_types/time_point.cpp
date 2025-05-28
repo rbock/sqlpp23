@@ -30,7 +30,7 @@
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
 int main() {
-  sqlpp::chrono::microsecond_point tp =
+  ::sqlpp::chrono::sys_microseconds tp =
       static_cast<std::chrono::sys_days>(std::chrono::January / 8 / 1970) +
       std::chrono::hours{3} + std::chrono::minutes{20} +
       std::chrono::seconds{14} + std::chrono::milliseconds{17};

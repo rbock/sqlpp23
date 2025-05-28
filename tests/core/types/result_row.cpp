@@ -154,14 +154,14 @@ int main() {
   test_result_row<std::span<const uint8_t>>(v);
 
   // date
-  test_result_row<::sqlpp::chrono::day_point>(::sqlpp::chrono::day_point{});
+  test_result_row<std::chrono::sys_days>(std::chrono::sys_days{});
 
   // timestamp
-  test_result_row<::sqlpp::chrono::microsecond_point>(
-      ::sqlpp::chrono::microsecond_point{});
+  test_result_row<::sqlpp::chrono::sys_microseconds>(
+      ::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_result_row<::sqlpp::chrono::microsecond_point>(minute_point{});
+  test_result_row<::sqlpp::chrono::sys_microseconds>(minute_point{});
 
   // time_of_day
   test_result_row<std::chrono::microseconds>(std::chrono::microseconds{});

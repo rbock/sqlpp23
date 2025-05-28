@@ -121,10 +121,10 @@ int main() {
   test_max(std::vector<uint8_t>{});
 
   // date
-  test_max(::sqlpp::chrono::day_point{});
+  test_max(std::chrono::sys_days{});
 
   // timestamp
-  test_max(::sqlpp::chrono::microsecond_point{});
+  test_max(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_max(minute_point{});

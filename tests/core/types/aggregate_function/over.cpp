@@ -217,10 +217,10 @@ int main() {
   test_aggregate_functions(std::vector<uint8_t>{});
 
   // date
-  test_aggregate_functions(::sqlpp::chrono::day_point{});
+  test_aggregate_functions(std::chrono::sys_days{});
 
   // timestamp
-  test_aggregate_functions(::sqlpp::chrono::microsecond_point{});
+  test_aggregate_functions(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_aggregate_functions(minute_point{});

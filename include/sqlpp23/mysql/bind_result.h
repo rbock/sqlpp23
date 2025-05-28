@@ -260,7 +260,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, ::sqlpp::chrono::day_point& /*value*/) {
+  void bind_field(size_t index, std::chrono::sys_days& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding date result at index: {}",
@@ -270,7 +270,7 @@ class bind_result_t {
     bind_chrono_field(index, MYSQL_TYPE_DATE);
   }
 
-  void bind_field(size_t index, ::sqlpp::chrono::microsecond_point& /*value*/) {
+  void bind_field(size_t index, ::sqlpp::chrono::sys_microseconds& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding date time result at index: {}",
@@ -388,7 +388,7 @@ class bind_result_t {
         *params.length);
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
+  void read_field(size_t index, std::chrono::sys_days& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading date result at index: {}",
@@ -403,7 +403,7 @@ class bind_result_t {
             ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day);
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
+  void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading date time result at index: {}",
@@ -414,7 +414,7 @@ class bind_result_t {
     if (dt.year > std::numeric_limits<int>::max())
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
-    value = ::sqlpp::chrono::day_point(
+    value = std::chrono::sys_days(
                 ::std::chrono::year(static_cast<int>(dt.year)) /
                 ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day)) +
             std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +

@@ -94,7 +94,7 @@ inline auto to_sql_string(context_t&, const std::chrono::microseconds& t)
   return std::format("TIME('{0:%H:%M:%S}', 'subsec')", t);
 }
 
-inline auto to_sql_string(context_t&, const sqlpp::chrono::day_point& t)
+inline auto to_sql_string(context_t&, const std::chrono::sys_days& t)
     -> std::string {
   return std::format("DATE('{0:%Y-%m-%d}')", t);
 }

@@ -251,7 +251,7 @@ class text_result_t {
   // precision 1997-12-17 07:37:16-08 - ISO timestamp with timezone 1992-10-10
   // 01:02:03-06:30 - for some timezones with non-hour offset 1900-01-01 - date
   // only we do not support time-only values !
-  void read_field(size_t _index, ::sqlpp::chrono::day_point& value) {
+  void read_field(size_t _index, std::chrono::sys_days& value) {
     const auto index = static_cast<int>(_index);
 
     if constexpr (debug_enabled) {
@@ -280,7 +280,7 @@ class text_result_t {
   }
 
   // always returns UTC time for timestamp with time zone
-  void read_field(size_t _index, ::sqlpp::chrono::microsecond_point& value) {
+  void read_field(size_t _index, ::sqlpp::chrono::sys_microseconds& value) {
     const auto index = static_cast<int>(_index);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,

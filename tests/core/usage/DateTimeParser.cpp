@@ -40,7 +40,7 @@ std::chrono::microseconds build_tod(int hour = 0,
                                     int tz_minute = 0,
                                     int tz_second = 0) {
   std::chrono::microseconds result{0};
-  // We add time components one by one to the resulting microsecond_point in
+  // We add time components one by one to the resulting microseconds in
   // order to avoid going through temporary time_point values with small bitsize
   // which could cause in integer overflow.
   result += std::chrono::hours{hour};
@@ -57,17 +57,17 @@ std::chrono::microseconds build_tod(int hour = 0,
   return result;
 }
 
-sqlpp::chrono::microsecond_point build_timestamp(int year,
-                                                 int month,
-                                                 int day,
-                                                 int hour = 0,
-                                                 int minute = 0,
-                                                 int second = 0,
-                                                 int us = 0,
-                                                 bool tz_plus = true,
-                                                 int tz_hour = 0,
-                                                 int tz_minute = 0,
-                                                 int tz_second = 0) {
+::sqlpp::chrono::sys_microseconds build_timestamp(int year,
+                                                  int month,
+                                                  int day,
+                                                  int hour = 0,
+                                                  int minute = 0,
+                                                  int second = 0,
+                                                  int us = 0,
+                                                  bool tz_plus = true,
+                                                  int tz_hour = 0,
+                                                  int tz_minute = 0,
+                                                  int tz_second = 0) {
   return std::chrono::sys_days{std::chrono::year{year} / month / day} +
          build_tod(hour, minute, second, us, tz_plus, tz_hour, tz_minute,
                    tz_second);
@@ -89,7 +89,8 @@ void test_valid_dates() {
   using namespace sqlpp::chrono;
   using namespace std::chrono;
 
-  for (const auto& date_pair : std::vector<std::pair<const char*, day_point>>{
+  for (const auto& date_pair :
+       std::vector<std::pair<const char*, std::chrono::sys_days>>{
            // Minimum and maximum dates
            {"0001-01-01", year{1} / 1 / 1},
            {"9999-12-31", year{9999} / 12 / 31},
@@ -129,7 +130,7 @@ void test_valid_dates() {
            {"1980-01-32", year{1980} / 1 / 32},
            {"1981-02-29", year{1981} / 2 / 29},
            {"2100-02-29", year{2100} / 2 / 29}}) {
-    day_point dp;
+    std::chrono::sys_days dp;
     const char* date = date_pair.first;
     if (sqlpp::detail::parse_date(dp, date) == false) {
       std::cerr << "Could not parse a valid date string: " << date_pair.first
@@ -152,9 +153,8 @@ void test_invalid_dates() {
            "1980-01-", "1980-01-0", "1980-01-Q",
            // Invalid separator
            "1980 01 02", "1980- 01-02", "1980 -01-02", "1980-01 -02",
-           "1980-01- 02",
-           "1980-01T02"}) {
-    day_point dp;
+           "1980-01- 02", "1980-01T02"}) {
+    std::chrono::sys_days dp;
     const char* orig = date_str;
     if (sqlpp::detail::parse_date(dp, date_str)) {
       std::cerr << "Successfully parsed an invalid date string " << orig
@@ -168,10 +168,10 @@ void test_invalid_dates() {
 void test_dates_with_trailing_characters() {
   using namespace sqlpp::chrono;
 
-  for (const auto* date_str : std::vector<const char*>{
-           "1980-01-02 ",
-           "1980-01-02T", "1980-01-02 UTC", "1980-01-02EST", "1980-01-02+01"}) {
-    day_point dp;
+  for (const auto* date_str :
+       std::vector<const char*>{"1980-01-02 ", "1980-01-02T", "1980-01-02 UTC",
+                                "1980-01-02EST", "1980-01-02+01"}) {
+    std::chrono::sys_days dp;
     if (not sqlpp::detail::parse_date(dp, date_str)) {
       std::cerr << "Failed to parse date string with trailing characters "
                 << date_str << ", value " << sqlpp::to_sql_string(std::cerr, dp)
@@ -216,7 +216,7 @@ void test_valid_time_of_day() {
             build_tod(10, 9, 8, 123000, true, 12, 38, 49)},
            // Valid format but invalid hour, minute or second range
            {"25:00:10", build_tod(25, 0, 10)}}) {
-    microseconds us;
+    std::chrono::microseconds us;
     const char* tod_str = tod_pair.first;
     if (sqlpp::detail::parse_time_of_day(us, tod_str) == false) {
       std::cerr << "Could not parse a valid time-of-day string: "
@@ -228,8 +228,6 @@ void test_valid_time_of_day() {
 }
 
 void test_invalid_time_of_day() {
-  using namespace std::chrono;
-
   for (const auto* tod_str : std::vector<const char*>{
            // Generic string
            "A", "BC", "!()",
@@ -242,7 +240,7 @@ void test_invalid_time_of_day() {
            "04:07:",
            "04:07:A", "04:07:1",
            "04:07:-01"}) {
-    microseconds us;
+    std::chrono::microseconds us;
     const char* orig = tod_str;
     if (sqlpp::detail::parse_time_of_day(us, tod_str)) {
       std::cerr << "Successfully parsed an invalid time-of-day string " << orig
@@ -254,8 +252,6 @@ void test_invalid_time_of_day() {
 }
 
 void test_time_of_day_with_trailing_characters() {
-  using namespace std::chrono;
-
   for (const auto* tod_str : std::vector<const char*>{
            // Invalid fraction
            "01:02:03.",
@@ -264,7 +260,7 @@ void test_time_of_day_with_trailing_characters() {
            "01:03:03!01", "01:03:03+A", "01:03:03+1", "01:03:03+1A",
            "01:03:03+456", "01:03:03+12:", "01:03:03+12:1", "01:03:03+12:1A",
            "01:03:03+12:01:", "01:03:03+12:01:1", "01:03:03+12:01:1A"}) {
-    microseconds us;
+    std::chrono::microseconds us;
     const char* orig = tod_str;
     if (not sqlpp::detail::parse_time_of_day(us, tod_str)) {
       std::cerr
@@ -283,11 +279,8 @@ void test_time_of_day_with_trailing_characters() {
 }
 
 void test_valid_timestamp() {
-  using namespace sqlpp::chrono;
-  using namespace std::chrono;
-
   for (const auto& timestamp_pair :
-       std::vector<std::pair<const char*, microsecond_point>>{
+       std::vector<std::pair<const char*, ::sqlpp::chrono::sys_microseconds>>{
            // Minimum and maximum timestamps
            {"0001-01-01 00:00:00", build_timestamp(1, 1, 1)},
            {"9999-12-31 23:59:59.999999",
@@ -296,7 +289,7 @@ void test_valid_timestamp() {
            {"1234-03-25 23:17:08.479210+10:17:29",
             build_timestamp(1234, 3, 25, 23, 17, 8, 479210, true, 10, 17,
                             29)}}) {
-    microsecond_point tp;
+    ::sqlpp::chrono::sys_microseconds tp;
     const char* timestamp_str = timestamp_pair.first;
     if (sqlpp::detail::parse_timestamp(tp, timestamp_str) == false) {
       std::cerr << "Could not parse a valid timestamp string: "
@@ -308,8 +301,6 @@ void test_valid_timestamp() {
 }
 
 void test_invalid_timestamp() {
-  using namespace sqlpp::chrono;
-
   for (const auto* timestamp_str :
        std::vector<const char*>{// Generic string
                                 "", "B", ")-#\\",
@@ -319,7 +310,7 @@ void test_invalid_timestamp() {
                                 "2020-02-18 22:2:28",
                                 // Leading space
                                 " 2030-17-01 15:20:30"}) {
-    microsecond_point tp;
+    ::sqlpp::chrono::sys_microseconds tp;
     const char* orig = timestamp_str;
     if (sqlpp::detail::parse_timestamp(tp, timestamp_str)) {
       std::cerr << "Successfully parsed an invalid timestamp string " << orig
@@ -331,14 +322,12 @@ void test_invalid_timestamp() {
 }
 
 void test_timestamp_with_trailing_characters() {
-  using namespace sqlpp::chrono;
-
   for (const auto* timestamp_str :
        std::vector<const char*>{// Invalid time zone
                                 "1924-02-28 18:35:36+1",
                                 // Trailing space
                                 "2030-17-01 15:20:30 "}) {
-    microsecond_point tp;
+    ::sqlpp::chrono::sys_microseconds tp;
     const char* orig = timestamp_str;
     if (not sqlpp::detail::parse_timestamp(tp, timestamp_str)) {
       std::cerr << "Failed to parse timestamp string with trailing characters " << orig

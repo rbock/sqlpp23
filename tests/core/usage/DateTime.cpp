@@ -31,6 +31,14 @@
 #include <sqlpp23/tests/core/tables.h>
 #include <iostream>
 
+namespace {
+template <typename T>
+std::chrono::microseconds time_of_day(T t) {
+  const auto dp = std::chrono::floor<std::chrono::days>(t);
+  return std::chrono::duration_cast<std::chrono::microseconds>(t - dp);
+}
+}
+
 SQLPP_CREATE_NAME_TAG(now);
 
 int DateTime(int, char*[]) {
@@ -56,7 +64,7 @@ int DateTime(int, char*[]) {
   db(insert_into(t).set(t.dayPointN = std::chrono::floor<std::chrono::days>(
                             std::chrono::system_clock::now())));
   db(insert_into(t).set(t.timePointN = std::chrono::system_clock::now()));
-  db(insert_into(t).set(t.timeOfDayN = sqlpp::chrono::time_of_day(
+  db(insert_into(t).set(t.timeOfDayN = time_of_day(
                             std::chrono::system_clock::now())));
 
   db(update(t)
@@ -66,7 +74,7 @@ int DateTime(int, char*[]) {
   db(update(t)
          .set(t.timePointN = std::chrono::system_clock::now(),
               t.timeOfDayN =
-                  sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
+                  time_of_day(std::chrono::system_clock::now()))
          .where(t.dayPointN < std::chrono::system_clock::now()));
 
   db(delete_from(t).where(
@@ -79,7 +87,7 @@ int DateTime(int, char*[]) {
   db(delete_from(t).where(t.timePointN == std::chrono::system_clock::now()));
   db(delete_from(t).where(
       t.timeOfDayN ==
-      sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
+      time_of_day(std::chrono::system_clock::now())));
 
   return 0;
 }

@@ -198,7 +198,7 @@ class prepared_statement_t {
     param.error = nullptr;
   }
 
-  void _bind_parameter(size_t index, const sqlpp::chrono::day_point& value) {
+  void _bind_parameter(size_t index, const std::chrono::sys_days& value) {
     if constexpr (debug_enabled) {
       debug().log(log_category::parameter,
                            "binding date parameter {} at index {}", value,
@@ -234,7 +234,7 @@ class prepared_statement_t {
   }
 
   void _bind_parameter(size_t index,
-                       const sqlpp::chrono::microsecond_point& value) {
+                       const ::sqlpp::chrono::sys_microseconds& value) {
     if constexpr (debug_enabled) {
       debug().log(log_category::parameter,
                            "binding date_time parameter {} at index {}", value,

@@ -30,7 +30,7 @@
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
 int main() {
-  sqlpp::chrono::day_point tp =
+  std::chrono::sys_days tp =
       static_cast<std::chrono::sys_days>(std::chrono::February / 8 / 2025);
 
   // Testing day_point serialization

@@ -203,7 +203,7 @@ class bind_result_t {
     }
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::day_point& value) {
+  void read_field(size_t index, std::chrono::sys_days& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding date result at index {}",
@@ -233,7 +233,7 @@ class bind_result_t {
     }
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value) {
+  void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "Sqlite3 debug: binding date result at index {}",

@@ -182,7 +182,7 @@ struct data_type_of<day_point> {
   using type = day_point;
 };
 template <>
-struct data_type_of<sqlpp::chrono::day_point> {
+struct data_type_of<std::chrono::sys_days> {
   using type = day_point;
 };
 

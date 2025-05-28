@@ -10,7 +10,7 @@ int main() {
   tab_foo.myFloatingPoint = 12.34;
   tab_foo.myText = "test";
   tab_foo.myBlob = std::vector<uint8_t>{'b', 'l', 'o', 'b'};
-  tab_foo.myDate = sqlpp::chrono::day_point{};
+  tab_foo.myDate = std::chrono::sys_days{};
   tab_foo.myDateTime = std::chrono::system_clock::now();
   tab_foo.myTime = std::chrono::seconds{10};
   // Special cases
@@ -25,7 +25,7 @@ int main() {
   tab_foo.builtinFloatingPoint = 12.34;
   tab_foo.builtinText = "test";
   tab_foo.builtinBlob = std::vector<uint8_t>{'b', 'l', 'o', 'b'};
-  tab_foo.builtinDate = sqlpp::chrono::day_point{};
+  tab_foo.builtinDate = std::chrono::sys_days{};
   tab_foo.builtinDateTime = std::chrono::system_clock::now();
   tab_foo.builtinTime = std::chrono::seconds{10};
 }

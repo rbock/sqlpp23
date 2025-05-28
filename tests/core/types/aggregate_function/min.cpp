@@ -121,10 +121,10 @@ int main() {
   test_min(std::vector<uint8_t>{});
 
   // date
-  test_min(::sqlpp::chrono::day_point{});
+  test_min(std::chrono::sys_days{});
 
   // timestamp
-  test_min(::sqlpp::chrono::microsecond_point{});
+  test_min(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_min(minute_point{});

@@ -65,7 +65,7 @@ auto to_sql_string(
 }
 
 inline auto to_sql_string(postgresql::context_t&,
-                          const ::sqlpp::chrono::day_point& t) -> std::string {
+                          const std::chrono::sys_days& t) -> std::string {
   return std::format("DATE '{0:%Y-%m-%d}'", t);
 }
 

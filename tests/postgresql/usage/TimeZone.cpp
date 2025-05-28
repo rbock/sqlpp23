@@ -35,18 +35,18 @@
 
 namespace {
 void save_regular(sqlpp::postgresql::connection& db,
-                  sqlpp::chrono::microsecond_point tp,
+                  ::sqlpp::chrono::sys_microseconds tp,
                   std::chrono::microseconds tod,
-                  sqlpp::chrono::day_point dp) {
+                  std::chrono::sys_days dp) {
   test::TabDateTime tab{};
   db(update(tab).set(tab.timePointNTz = tp, tab.timeOfDayNTz = tod,
                      tab.dayPointN = dp));
 }
 
 void save_prepared(sqlpp::postgresql::connection& db,
-                   sqlpp::chrono::microsecond_point tp,
+                   ::sqlpp::chrono::sys_microseconds tp,
                    std::chrono::microseconds tod,
-                   sqlpp::chrono::day_point dp) {
+                   std::chrono::sys_days dp) {
   test::TabDateTime tab{};
   auto prepared_update =
       db.prepare(update(tab).set(tab.timePointNTz = parameter(tab.timePointNTz),
@@ -70,9 +70,9 @@ void require_equal(int line, const L& l, const R& r) {
 }
 
 void check_saved_values(sqlpp::postgresql::connection& db,
-                        sqlpp::chrono::microsecond_point tp,
+                        ::sqlpp::chrono::sys_microseconds tp,
                         std::chrono::microseconds tod,
-                        sqlpp::chrono::day_point dp) {
+                        std::chrono::sys_days dp) {
   test::TabDateTime tab{};
 
   const auto& rows_1 =
@@ -113,7 +113,7 @@ void check_saved_values(sqlpp::postgresql::connection& db,
 }
 
 void test_time_point(sqlpp::postgresql::connection& db,
-                     sqlpp::chrono::microsecond_point tp) {
+                     ::sqlpp::chrono::sys_microseconds tp) {
   auto dp = std::chrono::floor<std::chrono::days>(tp);
   auto tod = tp - dp;  // Time of day
 
@@ -140,7 +140,7 @@ int TimeZone(int, char*[]) {
   try {
     db(insert_into(tab).default_values());
 
-    std::vector<sqlpp::chrono::microsecond_point> tps{
+    std::vector<::sqlpp::chrono::sys_microseconds> tps{
         static_cast<std::chrono::sys_days>(std::chrono::January / 1 / 1970) +
             std::chrono::hours{1} + std::chrono::minutes{20} +
             std::chrono::seconds{14} + std::chrono::microseconds{1},

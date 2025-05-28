@@ -197,7 +197,7 @@ auto to_sql_string(Context& context, const std::array<uint8_t, N>& t)
 }
 
 template <typename Context>
-auto to_sql_string(Context&, const ::sqlpp::chrono::day_point& t)
+auto to_sql_string(Context&, const std::chrono::sys_days& t)
     -> std::string {
   return std::format("DATE '{0:%Y-%m-%d}'", t);
 }

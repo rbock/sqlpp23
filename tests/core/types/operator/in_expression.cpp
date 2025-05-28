@@ -147,10 +147,10 @@ int main() {
   test_in_expression(std::vector<uint8_t>{});
 
   // date
-  test_in_expression(::sqlpp::chrono::day_point{});
+  test_in_expression(std::chrono::sys_days{});
 
   // timestamp
-  test_in_expression(::sqlpp::chrono::microsecond_point{});
+  test_in_expression(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_in_expression(minute_point{});

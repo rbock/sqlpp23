@@ -120,11 +120,11 @@ int main() {
   test_assign_expression(foo.blobN, std::vector<uint8_t>{});
 
   // date
-  test_assign_expression(date_time.dayPointN, ::sqlpp::chrono::day_point{});
+  test_assign_expression(date_time.dayPointN, std::chrono::sys_days{});
 
   // timestamp
   test_assign_expression(date_time.timePointN,
-                         ::sqlpp::chrono::microsecond_point{});
+                         ::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_assign_expression(date_time.timePointN, minute_point{});

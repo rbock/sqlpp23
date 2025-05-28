@@ -114,10 +114,10 @@ int main() {
   test_exists(std::vector<uint8_t>{});
 
   // date
-  test_exists(::sqlpp::chrono::day_point{});
+  test_exists(std::chrono::sys_days{});
 
   // timestamp
-  test_exists(::sqlpp::chrono::microsecond_point{});
+  test_exists(::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
   test_exists(minute_point{});
