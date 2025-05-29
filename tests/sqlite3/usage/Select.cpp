@@ -120,6 +120,7 @@ int Select(int, char*[]) {
          exists(select(tab.intN).from(tab).where(tab.intN > 7)).as(something))
          .from(tab));
   db(select(trim(tab.textNnD).as(something)).from(tab));
+  db(select(coalesce(tab.textNnD, "fallback").as(something)).from(tab));
 
   // db(select(not_exists(select(tab.intN).from(tab).where(tab.intN >
   // 7))).from(tab)); db(select(all_of(tab)).from(tab).where(tab.intN ==

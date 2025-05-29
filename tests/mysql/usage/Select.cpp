@@ -96,6 +96,8 @@ int Select(int, char*[]) {
     db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
     testSelectAll(db, 3);
 
+    db(select(coalesce(tab.textNnD, "fallback").as(something)).from(tab));
+
     // Test size functionality
     const auto test_size = db(select(all_of(tab)).from(tab));
     assert(test_size.size() == 3ull);

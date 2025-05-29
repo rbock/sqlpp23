@@ -107,6 +107,7 @@ int Select(int, char*[]) {
   db(select(all_of(tab))
          .from(tab)
          .where((tab.textNnD + tab.textNnD).like("%'\"%")));
+  db(select(coalesce(tab.textNnD, "fallback").as(something)).from(tab));
 
   // test boolean value
   db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "asdf"));

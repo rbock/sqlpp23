@@ -33,7 +33,9 @@
 #include <sqlpp23/core/basic/value.h>
 #include <sqlpp23/core/basic/verbatim.h>
 #include <sqlpp23/core/basic/verbatim_table.h>
+#include <sqlpp23/core/data_type.h>
 #include <sqlpp23/core/database/parameter_list.h>
+#include <sqlpp23/core/function/coalesce.h>
 #include <sqlpp23/core/function/concat.h>
 #include <sqlpp23/core/function/current_date.h>
 #include <sqlpp23/core/function/current_time.h>
@@ -43,7 +45,6 @@
 #include <sqlpp23/core/function/upper.h>
 #include <sqlpp23/core/operator/case.h>
 #include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/data_type.h>
 
 namespace sqlpp {
 template <typename Context, typename Expression>

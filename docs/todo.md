@@ -21,18 +21,12 @@ Not new, but also not documented before: Need to document that you need to be a 
 Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
 
 
-## coalesce
-https://github.com/rbock/sqlpp11/issues/453
-
 ## implement cast?
 Implement cast, to support something like cast_as<sqlpp::date>(mt.startTime),
 see https://github.com/rbock/sqlpp11/issues/606
 
 ## EXTRACT function for date/time
 See https://github.com/rbock/sqlpp11/issues/611
-
-## Upgrade case statement to allow for multiple when clauses.
-See https://github.com/rbock/sqlpp11/issues/600
 
 ## Support for pragma tables
 See https://github.com/rbock/sqlpp11/issues/553

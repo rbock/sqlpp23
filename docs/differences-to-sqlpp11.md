@@ -50,6 +50,7 @@ If seems a bit dry, follow the links to examples.
 | custom queries  | `sqlpp::custom_query` | clauses can be concatenated using `operator<<` |
 | | | |
 | **Functions** | | |
+| `COALESCE` | N/A | `coalesce(<one or more arguments>)` |
 | `COUNT(*)` | N/A | `count(sqlpp::star)` |
 | `SOME` | `some` | *dropped* (use `any`) |
 | | | |

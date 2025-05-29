@@ -28,5 +28,6 @@ function(test_compile name)
     target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
 endfunction()
 
+test_compile(coalesce)
 test_compile(flatten)
 

@@ -29,6 +29,7 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(coalesce)
 create_test(concat)
 create_test(current_date)
 create_test(current_time)
