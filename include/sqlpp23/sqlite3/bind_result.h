@@ -39,20 +39,21 @@
 #endif
 
 #include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
+#include <sqlpp23/sqlite3/database/exception.h>
 
 namespace sqlpp::sqlite3 {
 class bind_result_t {
+  ::sqlite3* _connection = nullptr;
   std::shared_ptr<::sqlite3_stmt> _sqlite3_statement;
   const connection_config* _config;
 
  public:
   bind_result_t() = default;
-  bind_result_t(std::shared_ptr<::sqlite3_stmt> statement, const connection_config* config)
-      : _sqlite3_statement{std::move(statement)}, _config{config} {
+  bind_result_t(::sqlite3* connection, std::shared_ptr<::sqlite3_stmt> statement, const connection_config* config)
+      : _connection{connection}, _sqlite3_statement{std::move(statement)}, _config{config} {
     if constexpr (debug_enabled) {
         _config->debug.log(
             log_category::result,
@@ -288,7 +289,7 @@ class bind_result_t {
                            std::hash<void*>{}(_sqlite3_statement.get()));
     }
 
-    auto rc = sqlite3_step(_sqlite3_statement.get());
+    const auto rc = sqlite3_step(_sqlite3_statement.get());
 
     switch (rc) {
       case SQLITE_ROW:
@@ -296,8 +297,7 @@ class bind_result_t {
       case SQLITE_DONE:
         return false;
       default:
-        throw sqlpp::exception{
-            "Sqlite3 error: Unexpected return value for sqlite3_step()"};
+      throw exception{std::string(sqlite3_errmsg(_connection)), rc};
     }
   }
 };

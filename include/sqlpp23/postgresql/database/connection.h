@@ -350,9 +350,6 @@ class connection_base : public sqlpp::connection {
 
   //! start transaction
   void start_transaction(isolation_level level = isolation_level::undefined) {
-    if (_transaction_active) {
-      throw sqlpp::exception{"PostgreSQL error: transaction already open"};
-    }
     switch (level) {
       case isolation_level::serializable: {
         _execute_impl("BEGIN ISOLATION LEVEL SERIALIZABLE");
@@ -378,23 +375,14 @@ class connection_base : public sqlpp::connection {
     _transaction_active = true;
   }
 
-  //! commit transaction (or throw transaction if transaction has finished
-  //! already)
+  //! commit transaction
   void commit_transaction() {
-    if (!_transaction_active) {
-      throw sqlpp::exception{
-          "PostgreSQL error: transaction failed or finished."};
-    }
     _execute_impl("COMMIT");
     _transaction_active = false;
   }
 
   //! rollback transaction
   void rollback_transaction() {
-    if (!_transaction_active) {
-      throw sqlpp::exception{
-          "PostgreSQL error: transaction failed or finished."};
-    }
     if constexpr (debug_enabled) {
       _handle.debug().log(log_category::connection,
                           "rolling back unfinished transaction");
@@ -417,17 +405,10 @@ class connection_base : public sqlpp::connection {
   //! get the last inserted id for a certain table
   uint64_t last_insert_id(const std::string& table,
                           const std::string& fieldname) {
-    std::string sql = "SELECT currval('" + table + "_" + fieldname + "_seq')";
-    PGresult* res = PQexec(native_handle(), sql.c_str());
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-      std::string err{PQresultErrorMessage(res)};
-      PQclear(res);
-      throw sqlpp::exception{err};
-    }
+    auto result = _execute_impl("SELECT currval('" + table + "_" + fieldname + "_seq')");
 
     // Parse the number and return.
-    std::string in{PQgetvalue(res, 0, 0)};
-    PQclear(res);
+    std::string in{PQgetvalue(result.get(), 0, 0)};
     return std::stoul(in);
   }
 

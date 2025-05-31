@@ -47,6 +47,7 @@ inline std::shared_ptr<sqlpp::sqlite3::connection_config> make_test_config(
   config->path_to_database = ":memory:";
   config->flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
   config->debug = get_debug_logger(categories);
+  config->use_extended_result_codes = true;
 
   return config;
 }

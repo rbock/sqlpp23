@@ -32,9 +32,9 @@
 #include <string_view>
 
 #include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/mysql/database/connection_config.h>
+#include <sqlpp23/mysql/database/exception.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql {
@@ -352,12 +352,10 @@ class bind_result_t {
       params.buffer_length = buffer.var_buffer.size();
       const auto err =
           mysql_stmt_fetch_column(_mysql_stmt.get(), &params, index, 0);
-      if (err)
-        throw sqlpp::exception{
-            std::string{"MySQL: Fetch column after reallocate failed: "} +
-            "error-code: " + std::to_string(err) + ", stmt-error: " +
-            mysql_stmt_error(_mysql_stmt.get()) + ", stmt-errno: " +
-            std::to_string(mysql_stmt_errno(_mysql_stmt.get()))};
+      if (err){
+        throw exception{mysql_stmt_error(_mysql_stmt.get()),
+                        mysql_stmt_errno(_mysql_stmt.get())};
+      }
       _require_bind = true;
     }
   }
@@ -396,9 +394,10 @@ class bind_result_t {
     }
 
     const auto& dt = _result_buffers[index].mysql_time_;
-    if (dt.year > std::numeric_limits<int>::max())
+    if (dt.year > std::numeric_limits<int>::max()){
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
+    }
     value = ::std::chrono::year(static_cast<int>(dt.year)) /
             ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day);
   }
@@ -411,9 +410,10 @@ class bind_result_t {
     }
 
     const auto& dt = _result_buffers[index].mysql_time_;
-    if (dt.year > std::numeric_limits<int>::max())
+    if (dt.year > std::numeric_limits<int>::max()) {
       throw sqlpp::exception{"cannot read year from db: " +
                              std::to_string(dt.year)};
+    }
     value = std::chrono::sys_days(
                 ::std::chrono::year(static_cast<int>(dt.year)) /
                 ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day)) +
@@ -456,8 +456,8 @@ class bind_result_t {
 
     if (mysql_stmt_bind_result(_mysql_stmt.get(),
                                _result_params.data())) {
-      throw sqlpp::exception{std::string{"MySQL: mysql_stmt_bind_result: "} +
-                             mysql_stmt_error(_mysql_stmt.get())};
+      throw exception{mysql_stmt_error(_mysql_stmt.get()),
+                      mysql_stmt_errno(_mysql_stmt.get())};
     }
   }
 
@@ -474,15 +474,11 @@ class bind_result_t {
       case 0:
       case MYSQL_DATA_TRUNCATED:
         return true;
-      case 1:
-        throw sqlpp::exception{
-            std::string{"MySQL: Could not fetch next result: "} +
-            mysql_stmt_error(_mysql_stmt.get())};
       case MYSQL_NO_DATA:
         return false;
       default:
-        throw sqlpp::exception{
-            "MySQL: Unexpected return value for mysql_stmt_fetch()"};
+        throw exception{mysql_stmt_error(_mysql_stmt.get()),
+                        mysql_stmt_errno(_mysql_stmt.get())};
     }
   }
 };

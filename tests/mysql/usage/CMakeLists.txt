@@ -29,9 +29,10 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(exists)
+create_test(exceptions)
 add_subdirectory(aggregate_function)
 add_subdirectory(statement)
-create_test(exists)
 
 set(test_files
     Json.cpp

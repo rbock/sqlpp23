@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/mysql/database/exception.h>
 #include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
 
@@ -79,9 +79,7 @@ class prepared_statement_t {
         _config{config} {
     if (mysql_stmt_prepare(native_handle().get(), statement.data(),
                            statement.size())) {
-      throw sqlpp::exception{"MySQL error: Could not prepare statement: " +
-                             std::string{mysql_error(connection)} +
-                             " (statement was >>" + statement + "<<\n"};
+      throw exception{mysql_error(connection), mysql_errno(connection)};
     }
     if constexpr (debug_enabled) {
         debug().log(

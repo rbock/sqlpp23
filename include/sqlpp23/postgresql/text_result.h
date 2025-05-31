@@ -38,6 +38,7 @@
 #include <sqlpp23/core/detail/parse_date_time.h>
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/postgresql/database/connection_config.h>
+#include <sqlpp23/postgresql/database/exception.h>
 #include <sqlpp23/postgresql/pg_result.h>
 
 namespace sqlpp::postgresql {
@@ -141,11 +142,10 @@ class text_result_t {
       case PGRES_SINGLE_TUPLE:
         return;
       default:
-        throw sqlpp::exception{
-            std::format("Postgresql error: code '{}', status '{}', message '{}'",
-                        PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE),
-                        PQresStatus(PQresultStatus(_pg_result.get())),
-                        PQresultErrorMessage(_pg_result.get()))};
+        throw result_exception{
+            PQresultErrorMessage(_pg_result.get()),
+            PQresultStatus(_pg_result.get()),
+            PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE)};
     }
   }
 

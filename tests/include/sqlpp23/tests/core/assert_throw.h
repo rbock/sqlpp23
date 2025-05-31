@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * Copyright (c) 2025, Roland Bock
@@ -25,52 +26,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
+#include <print>
 
-#include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/tests/sqlite3/tables.h>
-
-SQLPP_CREATE_NAME_TAG(cheese);
-
-namespace sql = sqlpp::sqlite3;
-int main(int, char*[]) {
-  try {
-    auto db = sql::make_test_connection();
-    test::createTabFoo(db);
-
-    const auto foo = test::TabFoo{};
-
-    // select value
-    for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
-      std::ignore = row.cheese;
-    }
-
-    // select single column
-    for (const auto& row : db(select(foo.id).from(foo))) {
-      std::ignore = row.id;
-    }
-
-    // select two columns
-    for (const auto& row : db(select(foo.id, foo.textNnD).from(foo))) {
-      std::ignore = row.id;
-      std::ignore = row.textNnD;
-    }
-
-    // select all columns
-    for (const auto& row : db(select(all_of(foo)).from(foo))) {
-      std::ignore = row.id;
-      std::ignore = row.textNnD;
-      std::ignore = row.intN;
-    }
-
-  } catch (const sql::exception& e) {
-    std::cerr << "Sqlite3 exception: " << e.what() << " " << e.error_code() << std::endl;
-    return 1;
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << " " << std::endl;
-    return 1;
+#define assert_throw(code, exception)              \
+  {                                                \
+    bool exception_thrown = false;                 \
+    try {                                          \
+      code;                                        \
+    } catch (const exception& e) {                 \
+      exception_thrown = true;                     \
+      std::println("message: {}", e.what());       \
+    }                                              \
+    if (not exception_thrown)                      \
+      throw std::logic_error("missing exception"); \
   }
-  return 0;
-}

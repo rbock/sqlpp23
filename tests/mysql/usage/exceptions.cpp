@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2025, Roland Bock
  * All rights reserved.
@@ -25,52 +24,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
+#include <print>
 
-#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/tests/sqlite3/tables.h>
+#include <sqlpp23/tests/core/assert_throw.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/mysql/tables.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
-namespace sql = sqlpp::sqlite3;
-int main(int, char*[]) {
+namespace sql = sqlpp::mysql;
+int main() {
   try {
-    auto db = sql::make_test_connection();
+    {
+      // broken_connection exception on bad config
+      auto config = std::make_shared<sql::connection_config>();
+      config->host = "non-existing-host";
+      assert_throw(sql::connection{config}, sql::exception);
+    }
+
+    sql::connection db = sql::make_test_connection();
     test::createTabFoo(db);
 
-    const auto foo = test::TabFoo{};
+    constexpr auto foo = test::TabFoo{};
 
-    // select value
-    for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
-      std::ignore = row.cheese;
+    assert_throw(db(insert_into(foo).set(
+                     foo.intN = sqlpp::verbatim<sqlpp::integral>("nonsense"))),
+                 sql::exception);
+
+    // Test fields of a result_exception
+    try {
+      // Broken insert
+      db(insert_into(foo).set(foo.intN = sqlpp::verbatim<sqlpp::integral>("nonsense")));
+      throw std::runtime_error("Whoopsie, that broken insert worked?");
+    } catch (const sql::exception& e) {
+      std::println("Caught expected error.\nmessage: {}\ncode: {}",
+                   e.what(), e.error_code());
+      // see /usr/include/mysql/mysqld_error.h
+      // #define ER_BAD_FIELD_ERROR 1054
+      if (e.error_code() != 1054){
+        throw std::runtime_error("unexpected meta information in exception");
+      }
     }
-
-    // select single column
-    for (const auto& row : db(select(foo.id).from(foo))) {
-      std::ignore = row.id;
-    }
-
-    // select two columns
-    for (const auto& row : db(select(foo.id, foo.textNnD).from(foo))) {
-      std::ignore = row.id;
-      std::ignore = row.textNnD;
-    }
-
-    // select all columns
-    for (const auto& row : db(select(all_of(foo)).from(foo))) {
-      std::ignore = row.id;
-      std::ignore = row.textNnD;
-      std::ignore = row.intN;
-    }
-
-  } catch (const sql::exception& e) {
-    std::cerr << "Sqlite3 exception: " << e.what() << " " << e.error_code() << std::endl;
-    return 1;
   } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << " " << std::endl;
+    std::println("unexpected exception: {}", e.what());
     return 1;
   }
-  return 0;
 }

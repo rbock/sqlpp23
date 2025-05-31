@@ -31,6 +31,7 @@ function(create_test name)
 endfunction()
 
 create_test(exists)
+create_test(exceptions)
 add_subdirectory(aggregate_function)
 add_subdirectory(statement)
 
@@ -42,7 +43,6 @@ set(test_files
     ConnectionPool.cpp
     Date.cpp
     DateTime.cpp
-    Exceptions.cpp
     InsertOnConflict.cpp
     Returning.cpp
     Select.cpp

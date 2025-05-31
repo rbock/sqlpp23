@@ -33,7 +33,7 @@
 #include <libpq-fe.h>
 #include <pg_config.h>
 
-#include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/postgresql/database/exception.h>
 
 namespace sqlpp::postgresql {
 
@@ -50,11 +50,10 @@ class pg_result_t {
       case PGRES_SINGLE_TUPLE:
         return;
       default:
-        throw sqlpp::exception{
-            std::format("Postgresql error: code '{}', status '{}', message '{}'",
-                        PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE),
-                        PQresStatus(PQresultStatus(_pg_result.get())),
-                        PQresultErrorMessage(_pg_result.get()))};
+        throw result_exception{
+            PQresultErrorMessage(_pg_result.get()),
+            PQresultStatus(_pg_result.get()),
+            PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE)};
     }
   }
 

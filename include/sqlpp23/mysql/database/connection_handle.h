@@ -28,49 +28,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/mysql/database/connection_config.h>
-#include <sqlpp23/mysql/sqlpp_mysql.h>
-
 #include <memory>
+
+#include <sqlpp23/mysql/database/connection_config.h>
+#include <sqlpp23/mysql/database/exception.h>
+#include <sqlpp23/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql::detail {
 inline void connect(MYSQL* mysql, const connection_config& config) {
   if (config.connect_timeout_seconds != 0 &&
       mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT,
                     &config.connect_timeout_seconds)) {
-    throw sqlpp::exception{
-        "MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT"};
+    throw exception{mysql_error(mysql), mysql_errno(mysql)};
   }
 
   if (config.read_timeout > 0 &&
       mysql_options(mysql, MYSQL_OPT_READ_TIMEOUT, &config.read_timeout)) {
-    throw sqlpp::exception(
-        "MySQL: could not set option MYSQL_OPT_READ_TIMEOUT");
+    throw exception{mysql_error(mysql), mysql_errno(mysql)};
   }
 
   if (config.ssl) {
     if (!config.ssl_key.empty() &&
         mysql_options(mysql, MYSQL_OPT_SSL_KEY, config.ssl_key.c_str())) {
-      throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_KEY");
+      throw exception{mysql_error(mysql), mysql_errno(mysql)};
     }
     if (!config.ssl_cert.empty() &&
         mysql_options(mysql, MYSQL_OPT_SSL_CERT, config.ssl_cert.c_str())) {
-      throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CERT");
+      throw exception{mysql_error(mysql), mysql_errno(mysql)};
     }
     if (!config.ssl_ca.empty() &&
         mysql_options(mysql, MYSQL_OPT_SSL_CA, config.ssl_ca.c_str())) {
-      throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_SSL_CA");
+      throw exception{mysql_error(mysql), mysql_errno(mysql)};
     }
     if (!config.ssl_capath.empty() &&
         mysql_options(mysql, MYSQL_OPT_SSL_CAPATH, config.ssl_capath.c_str())) {
-      throw sqlpp::exception(
-          "MySQL: could not set option MYSQL_OPT_SSL_CAPATH");
+      throw exception{mysql_error(mysql), mysql_errno(mysql)};
     }
     if (!config.ssl_cipher.empty() &&
         mysql_options(mysql, MYSQL_OPT_SSL_CIPHER, config.ssl_cipher.c_str())) {
-      throw sqlpp::exception(
-          "MySQL: could not set option MYSQL_OPT_SSL_CIPHER");
+      throw exception{mysql_error(mysql), mysql_errno(mysql)};
     }
   }
 
@@ -81,19 +77,16 @@ inline void connect(MYSQL* mysql, const connection_config& config) {
           config.port,
           config.unix_socket.empty() ? nullptr : config.unix_socket.c_str(),
           config.client_flag)) {
-    throw sqlpp::exception{"MySQL: could not connect to server: " +
-                           std::string{mysql_error(mysql)}};
+    throw exception{mysql_error(mysql), mysql_errno(mysql)};
   }
 
   if (mysql_set_character_set(mysql, config.charset.c_str())) {
-    throw sqlpp::exception{"MySQL error: can't set character set " +
-                           config.charset};
+    throw exception{mysql_error(mysql), mysql_errno(mysql)};
   }
 
   if (not config.database.empty() and
       mysql_select_db(mysql, config.database.c_str())) {
-    throw sqlpp::exception{"MySQL error: can't select database '" +
-                           config.database + "'"};
+    throw exception{mysql_error(mysql), mysql_errno(mysql)};
   }
 }
 

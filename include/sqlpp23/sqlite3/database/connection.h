@@ -37,7 +37,6 @@
 #endif
 #include <sqlpp23/core/basic/schema.h>
 #include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/database/transaction.h>
 #include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/to_sql_string.h>
@@ -46,6 +45,7 @@
 #include <sqlpp23/sqlite3/constraints.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
 #include <sqlpp23/sqlite3/database/connection_handle.h>
+#include <sqlpp23/sqlite3/database/exception.h>
 #include <sqlpp23/sqlite3/database/serializer_context.h>
 #include <sqlpp23/sqlite3/prepared_statement.h>
 #include <sqlpp23/sqlite3/to_sql_string.h>
@@ -71,10 +71,7 @@ inline void execute_statement(connection_handle& handle,
         handle.debug().log(log_category::statement,
                            "sqlite3_step return code: {}", rc);
       }
-
-      throw sqlpp::exception{
-          "Sqlite3 error: Could not execute statement: " +
-          std::string(sqlite3_errmsg(handle.native_handle()))};
+      throw exception{sqlite3_errmsg(handle.native_handle()), rc};
   }
 }
 }  // namespace detail
@@ -115,7 +112,8 @@ class connection_base : public sqlpp::connection {
   bind_result_t select_impl(const std::string& statement) {
     auto prepared = prepare_statement(_handle, statement);
 
-    return {prepared._sqlite3_statement, _handle.config.get()};
+    return {native_handle(), prepared._sqlite3_statement,
+            _handle.config.get()};
   }
 
   insert_result insert_impl(const std::string& statement) {
@@ -149,7 +147,8 @@ class connection_base : public sqlpp::connection {
 
   bind_result_t run_prepared_select_impl(
       prepared_statement_t& prepared_statement) {
-    return {prepared_statement._sqlite3_statement, prepared_statement.config};
+    return {native_handle(), prepared_statement._sqlite3_statement,
+            prepared_statement.config};
   }
 
   insert_result run_prepared_insert_impl(
@@ -345,36 +344,20 @@ class connection_base : public sqlpp::connection {
 
   //! start transaction
   void start_transaction() {
-    if (_transaction_active) {
-      throw sqlpp::exception{
-          "Sqlite3 error: Cannot have more than one open "
-          "transaction per connection"};
-    }
-
     auto prepared = prepare_statement(_handle, "BEGIN");
     execute_statement(_handle, prepared);
     _transaction_active = true;
   }
 
-  //! commit transaction (or throw if the transaction has been finished already)
+  //! commit transaction
   void commit_transaction() {
-    if (!_transaction_active) {
-      throw sqlpp::exception{
-          "Sqlite3 error: Cannot commit a finished or failed transaction"};
-    }
     auto prepared = prepare_statement(_handle, "COMMIT");
     execute_statement(_handle, prepared);
     _transaction_active = false;
   }
 
-  //! rollback transaction with or without reporting the rollback (or throw if
-  //! the transaction has been finished
-  // already)
+  //! rollback transaction with or without reporting the rollback
   void rollback_transaction() {
-    if (!_transaction_active) {
-      throw sqlpp::exception{
-          "Sqlite3 error: Cannot rollback a finished or failed transaction"};
-    }
     if constexpr (debug_enabled) {
       _handle.debug().log(
           log_category::connection,

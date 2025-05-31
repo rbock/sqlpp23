@@ -32,7 +32,6 @@
 #include <string>
 
 #include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/query/statement_handler.h>
 #include <sqlpp23/core/to_sql_string.h>
@@ -43,6 +42,7 @@
 #include <sqlpp23/mysql/constraints.h>
 #include <sqlpp23/mysql/database/connection_config.h>
 #include <sqlpp23/mysql/database/connection_handle.h>
+#include <sqlpp23/mysql/database/exception.h>
 #include <sqlpp23/mysql/database/serializer_context.h>
 #include <sqlpp23/mysql/prepared_statement.h>
 #include <sqlpp23/mysql/sqlpp_mysql.h>
@@ -76,10 +76,8 @@ inline void execute_statement(connection_handle& handle,
   }
 
   if (mysql_query(handle.native_handle(), statement.data())) {
-    throw sqlpp::exception{"MySQL error: Could not execute MySQL-statement: " +
-                           std::string{mysql_error(handle.native_handle())} +
-                           " (statement was >>" + std::string(statement) +
-                           "<<\n"};
+    throw exception{mysql_error(handle.native_handle()),
+                    mysql_errno(handle.native_handle())};
   }
 }
 
@@ -94,15 +92,13 @@ inline void execute_prepared_statement(
 
   if (mysql_stmt_bind_param(prepared_statement.native_handle().get(),
                             prepared_statement.params().data())) {
-    throw sqlpp::exception{
-        std::string{"MySQL error: Could not bind parameters to statement"} +
-        mysql_stmt_error(prepared_statement.native_handle().get())};
+    throw exception{mysql_stmt_error(prepared_statement.native_handle().get()),
+                    mysql_stmt_errno(prepared_statement.native_handle().get())};
   }
 
   if (mysql_stmt_execute(prepared_statement.native_handle().get())) {
-    throw sqlpp::exception{
-        std::string{"MySQL error: Could not execute prepared statement: "} +
-        mysql_stmt_error(prepared_statement.native_handle().get())};
+    throw exception{mysql_stmt_error(prepared_statement.native_handle().get()),
+                    mysql_stmt_errno(prepared_statement.native_handle().get())};
   }
 }
 
@@ -162,8 +158,8 @@ class connection_base : public sqlpp::connection {
         mysql_store_result(_handle.native_handle()), mysql_free_result};
 
     if (!result) {
-      throw sqlpp::exception{"MySQL error: Could not store result set: " +
-                             std::string{mysql_error(_handle.native_handle())}};
+    throw exception{mysql_error(_handle.native_handle()),
+                    mysql_errno(_handle.native_handle())};
     }
 
     return {std::move(result), _handle.config.get()};
@@ -374,31 +370,18 @@ class connection_base : public sqlpp::connection {
 
   //! start transaction
   void start_transaction() {
-    if (_transaction_active) {
-      throw sqlpp::exception{
-          "MySQL: Cannot have more than one open transaction per connection"};
-    }
     execute_statement(_handle, "START TRANSACTION");
     _transaction_active = true;
   }
 
-  //! commit transaction (or throw if the transaction has been finished already)
+  //! commit transaction
   void commit_transaction() {
-    if (not _transaction_active) {
-      throw sqlpp::exception{
-          "MySQL: Cannot commit a finished or failed transaction"};
-    }
     execute_statement(_handle, "COMMIT");
     _transaction_active = false;
   }
 
-  //! rollback transaction (or throw if the transaction has been finished
-  //! already)
+  //! rollback transaction
   void rollback_transaction() {
-    if (not _transaction_active) {
-      throw sqlpp::exception{
-          "MySQL: Cannot rollback a finished or failed transaction"};
-    }
     if (debug_enabled) {
       _handle.debug().log(log_category::connection,
                           "Rolling back unfinished transaction");

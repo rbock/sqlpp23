@@ -36,8 +36,8 @@
 #include <sqlite3.h>
 #endif
 
-#include <sqlpp23/core/database/exception.h>
 #include <sqlpp23/sqlite3/database/connection_config.h>
+#include <sqlpp23/sqlite3/database/exception.h>
 
 namespace sqlpp::sqlite3::detail {
 struct connection_handle {
@@ -49,28 +49,29 @@ struct connection_handle {
 
   connection_handle(const std::shared_ptr<const connection_config>& conf)
       : config{conf}, sqlite{nullptr, sqlite3_close} {
-
-    ::sqlite3* sqlite_ptr;
-    const auto rc = sqlite3_open_v2(
-        conf->path_to_database.c_str(), &sqlite_ptr, conf->flags,
-        conf->vfs.empty() ? nullptr : conf->vfs.c_str());
-    if (rc != SQLITE_OK) {
-      const std::string msg = sqlite3_errmsg(sqlite_ptr);
-      sqlite3_close(sqlite_ptr);
-      throw sqlpp::exception{"Sqlite3 error: Can't open database: " + msg};
+    {
+      ::sqlite3* sqlite_ptr;
+      const auto rc = sqlite3_open_v2(
+          conf->path_to_database.c_str(), &sqlite_ptr, conf->flags,
+          conf->vfs.empty() ? nullptr : conf->vfs.c_str());
+      sqlite.reset(sqlite_ptr);
+      if (rc != SQLITE_OK) {
+        throw exception{sqlite3_errmsg(native_handle()), rc};
+      }
     }
-
-    sqlite.reset(sqlite_ptr);
+    if (config->use_extended_result_codes) {
+      if (const auto rc =
+              sqlite3_extended_result_codes(native_handle(), true)) {
+        throw exception{sqlite3_errmsg(native_handle()), rc};
+      }
+    }
 
 #ifdef SQLITE_HAS_CODEC
     if (conf->password.size() > 0) {
       int ret = sqlite3_key(native_handle(), conf->password.data(),
                             conf->password.size());
       if (ret != SQLITE_OK) {
-        const std::string msg = sqlite3_errmsg(native_handle());
-        sqlite3_close(native_handle());
-        throw sqlpp::exception{
-            "Sqlite3 error: Can't set password to database: " + msg};
+        throw exception{sqlite3_errmsg(native_handle()), rc};
       }
     }
 #endif

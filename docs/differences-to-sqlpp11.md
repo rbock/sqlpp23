@@ -36,9 +36,10 @@ If seems a bit dry, follow the links to examples.
 | `operator()` | executes statements, but not strings | executes statements and strings |
 | `execute` | executes strings and non-select statements | *dropped* |
 | `query` | executes select statements | *dropped* |
+| exceptions | many individual exception classes for postgresql, but not for other connectors | exception classes for each connector to transport native error codes |
 | | | |
 | [**Constraints**](/docs/tony_tables/constraints.md) | | |
-| read-only columns  | e.g. for auto-increment | *dropped* |
+| read-only columns  | e.g. for auto-increment | for generated columns (`GENERATED`) |
 | required `where`  | in `select`, `update`, `remove` | *dropped* |
 | `unconditionally()`  | to explicitly omit `where` or `on` condition in joins | *dropped* |
 | | | |

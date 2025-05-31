@@ -74,15 +74,14 @@ class prepared_statement_t {
         _stmt_parameters(no_of_parameters, std::string{}),
         _config{config} {
     if constexpr (debug_enabled) {
-        config->debug.log(
-            log_category::statement,
-            "constructing prepared_statement, using handle at: {}",
-            std::hash<void*>{}(_connection));
-      }
+      config->debug.log(log_category::statement,
+                        "constructing prepared_statement, using handle at: {}",
+                        std::hash<void*>{}(_connection));
+    }
 
     // This will throw if preparation fails
-      pg_result_t{PQprepare(_connection, _name.c_str(), statement.c_str(),
-                            /*nParams*/ 0, /*paramTypes*/ nullptr)};
+    pg_result_t{PQprepare(_connection, _name.c_str(), statement.c_str(),
+                          /*nParams*/ 0, /*paramTypes*/ nullptr)};
   }
 
   prepared_statement_t(const prepared_statement_t&) = delete;

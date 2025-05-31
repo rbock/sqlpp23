@@ -43,17 +43,20 @@ struct connection_config {
                     int fl = 0,
                     std::string vf = "",
                     std::string password = "",
-                    debug_logger dbg = {})
+                    debug_logger dbg = {},
+                    bool use_extended_result_codes = false)
       : path_to_database{std::move(path)},
         flags{fl},
         vfs{std::move(vf)},
         password{password},
-        debug{std::move(dbg)} {}
+        debug{std::move(dbg)},
+        use_extended_result_codes{use_extended_result_codes} {}
 
   bool operator==(const connection_config& other) const {
     return (other.path_to_database == path_to_database &&
             other.flags == flags && other.vfs == vfs &&
-            other.password == password);
+            other.password == password &&
+            other.use_extended_result_codes == use_extended_result_codes);
   }
 
   bool operator!=(const connection_config& other) const {
@@ -65,5 +68,6 @@ struct connection_config {
   std::string vfs;
   std::string password;
   debug_logger debug;  // not compared
+  bool use_extended_result_codes = false;
 };
 }  // namespace sqlpp::sqlite3
