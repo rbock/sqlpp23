@@ -157,6 +157,8 @@ class connection_base : public sqlpp::connection {
     std::unique_ptr<MYSQL_RES, void (*)(MYSQL_RES*)> result = {
         mysql_store_result(_handle.native_handle()), mysql_free_result};
 
+    _handle.debug().log(log_category::result, "fields {}", mysql_field_count(_handle.native_handle()));
+
     if (!result) {
     throw exception{mysql_error(_handle.native_handle()),
                     mysql_errno(_handle.native_handle())};

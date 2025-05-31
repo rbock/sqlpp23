@@ -131,7 +131,10 @@ class text_result_t {
                            "parsing date result at index: {}", index);
     }
 
+    _config->debug.log(log_category::result, "data: {}", (void*)(_text_result_row.data));
+
     const char* date_string = _text_result_row.data[index];
+    _config->debug.log(log_category::result, "date: {}", std::hash<const void*>{}(date_string));
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result, "date string: {}",
                            date_string);
@@ -155,7 +158,7 @@ class text_result_t {
   void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "parsing date result at index: {}", index);
+                           "parsing timestamp result at index: {}", index);
     }
 
     const char* date_time_string = _text_result_row.data[index];
@@ -223,13 +226,16 @@ class text_result_t {
   bool next_impl() {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "Accessing next row of mysql result at ",
+                           "Accessing next row of mysql result at {}",
                            std::hash<void*>{}(_mysql_res.get()));
     }
 
     _text_result_row.data =
         const_cast<const char**>(mysql_fetch_row(_mysql_res.get()));
     _text_result_row.len = mysql_fetch_lengths(_mysql_res.get());
+
+    _config->debug.log(log_category::result, "number of rows: {}", mysql_num_rows(_mysql_res.get()));
+    _config->debug.log(log_category::result, "row: {}", std::hash<void*>{}(_text_result_row.data));
 
     return _text_result_row.data;
   }

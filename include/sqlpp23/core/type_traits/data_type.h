@@ -61,9 +61,15 @@ struct has_data_type
           not std::is_same<data_type_of_t<T>, no_value_t>::value> {};
 
 template <typename T>
+struct is_data_type : public std::false_type {};
+
+template <typename T>
 static inline constexpr bool has_data_type_v = has_data_type<T>::value;
 
 struct boolean {};
+
+template<>
+struct is_data_type<boolean> : std::true_type {};
 
 template <>
 struct data_type_of<boolean> {
@@ -76,6 +82,8 @@ struct data_type_of<bool> {
 
 struct integral {};
 template <>
+struct is_data_type<integral> : std::true_type {};
+template<>
 struct data_type_of<integral> {
   using type = integral;
 };
@@ -97,6 +105,8 @@ struct data_type_of<int64_t> {
 };
 
 struct unsigned_integral {};
+template <>
+struct is_data_type<unsigned_integral> : std::true_type {};
 template <>
 struct data_type_of<unsigned_integral> {
   using type = unsigned_integral;
@@ -120,6 +130,8 @@ struct data_type_of<uint64_t> {
 
 struct floating_point {};
 template <>
+struct is_data_type<floating_point> : std::true_type {};
+template <>
 struct data_type_of<floating_point> {
   using type = floating_point;
 };
@@ -137,6 +149,8 @@ struct data_type_of<long double> {
 };
 
 struct text {};
+template <>
+struct is_data_type<text> : std::true_type {};
 template <>
 struct data_type_of<text> {
   using type = text;
@@ -160,6 +174,8 @@ struct data_type_of<std::string_view> {
 
 struct blob {};
 template <>
+struct is_data_type<blob> : std::true_type {};
+template <>
 struct data_type_of<blob> {
   using type = blob;
 };
@@ -179,6 +195,8 @@ struct data_type_of<std::span<std::uint8_t>> {
 // date
 struct date {};
 template <>
+struct is_data_type<date> : std::true_type {};
+template <>
 struct data_type_of<date> {
   using type = date;
 };
@@ -190,6 +208,8 @@ struct data_type_of<std::chrono::sys_days> {
 // time of day
 struct time {};
 template <>
+struct is_data_type<time> : std::true_type {};
+template <>
 struct data_type_of<time> {
   using type = time;
 };
@@ -200,6 +220,8 @@ struct data_type_of<std::chrono::duration<Rep, Period>> {
 
 // timestamp aka date_time
 struct timestamp {};
+template <>
+struct is_data_type<timestamp> : std::true_type {};
 template <>
 struct data_type_of<timestamp> {
   using type = timestamp;

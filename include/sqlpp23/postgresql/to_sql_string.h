@@ -79,6 +79,12 @@ inline auto to_sql_string(postgresql::context_t&, const bool& t)
     -> std::string {
   return t ? "'t'::boolean" : "'f'::boolean";
 }
+
+inline auto data_type_to_sql_string(postgresql::context_t&,
+                          const sqlpp::blob&) -> std::string {
+  return "BYTEA";
+}
+
 }  // namespace postgresql
 
 }  // namespace sqlpp

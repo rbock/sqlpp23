@@ -25,6 +25,7 @@
  */
 
 #include <cassert>
+#include <chrono>
 #include <iostream>
 #include <vector>
 
@@ -108,6 +109,13 @@ int Select(int, char*[]) {
          .from(tab)
          .where((tab.textNnD + tab.textNnD).like("%'\"%")));
   db(select(coalesce(tab.textNnD, "fallback").as(something)).from(tab));
+  db(select(cast_as("17", sqlpp::integral{}).as(something)).from(tab));
+  db(select(cast_as(std::chrono::system_clock::now(), sqlpp::date{}).as(something)).from(tab));
+  db(select(cast_as(std::chrono::sys_days(std::chrono::floor<std::chrono::days>(
+                        std::chrono::system_clock::now())),
+                    sqlpp::timestamp{})
+                .as(something))
+         .from(tab));
 
   // test boolean value
   db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "asdf"));
