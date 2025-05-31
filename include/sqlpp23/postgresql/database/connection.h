@@ -44,6 +44,7 @@
 #include <sqlpp23/postgresql/prepared_statement.h>
 #include <sqlpp23/postgresql/text_result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
+#include <sqlpp23/postgresql/constraints.h>
 
 struct pg_conn;
 typedef struct pg_conn PGconn;

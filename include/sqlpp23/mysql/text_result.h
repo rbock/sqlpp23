@@ -155,7 +155,7 @@ class text_result_t {
   void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "parsing date result at index: {}", index);
+                           "parsing timestamp result at index: {}", index);
     }
 
     const char* date_time_string = _text_result_row.data[index];
@@ -223,7 +223,7 @@ class text_result_t {
   bool next_impl() {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "Accessing next row of mysql result at ",
+                           "Accessing next row of mysql result at {}",
                            std::hash<void*>{}(_mysql_res.get()));
     }
 

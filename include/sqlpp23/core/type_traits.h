@@ -112,8 +112,8 @@ struct values_are_comparable
                                     values_are_optionally_same<L, R>::value or
                                         (is_numeric<L>::value and
                                          is_numeric<R>::value) or
-                                        (is_day_or_timestamp<L>::value and
-                                         is_day_or_timestamp<R>::value)> {};
+                                        (is_date_or_timestamp<L>::value and
+                                         is_date_or_timestamp<R>::value)> {};
 
 template <typename L, typename R>
 struct values_are_assignable

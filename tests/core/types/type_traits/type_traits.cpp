@@ -27,6 +27,7 @@
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 #include <sqlpp23/tests/core/types_helpers.h>
+#include "sqlpp23/core/type_traits/data_type.h"
 
 SQLPP_CREATE_NAME_TAG(something);
 
@@ -66,6 +67,37 @@ void test_is_as_expression() {
   static_assert(
       sqlpp::is_as_expression<decltype((trim(col_txt)).as(something))>::value,
       "");
+
+  // Data types themselves do not have data types
+  static_assert(not sqlpp::has_data_type<sqlpp::boolean>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::integral>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::unsigned_integral>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::floating_point>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::text>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::blob>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::date>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::timestamp>::value);
+  static_assert(not sqlpp::has_data_type<sqlpp::time>::value);
+
+  // Data types themselves are data types, though
+  static_assert(sqlpp::is_data_type<sqlpp::boolean>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::integral>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::unsigned_integral>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::floating_point>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::text>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::blob>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::date>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::timestamp>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::time>::value);
+
+  // Data type of nested optionals is still just optional something
+  using OptText = decltype(test::TabBar{}.textN);
+  static_assert(std::is_same_v<sqlpp::data_type_of_t<OptText>,
+                               std::optional<sqlpp::text>>);
+  static_assert(std::is_same_v<sqlpp::data_type_of_t<std::optional<OptText>>,
+                               std::optional<sqlpp::text>>);
+  static_assert(sqlpp::is_text<std::optional<OptText>>::value);
+  static_assert(sqlpp::is_text<std::optional<std::optional<OptText>>>::value);
 }
 
 int main() {

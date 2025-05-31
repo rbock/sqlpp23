@@ -61,7 +61,7 @@ db(sql::insert_into(foo)
 ```
 
 > [!NOTE]
-> sqlpp23 does not understand constraints. It has no way of verifying whether the conflict targets are valid.
+> sqlpp23 does not understand SQL constraints. It has no way of verifying whether the conflict targets are valid.
 
 ## `on_conflict` ... `do_update` ... [`where` ...]
 
@@ -78,6 +78,13 @@ for (const auto& row : db(sql::insert_into(foo)
   // use row.textNnD;
 }
 ```
+
+## CAST
+
+PostgreSQL does not support
+
+- cast to `sqlpp::unsigned_integral` since it generally does not support `unsigned integral`
+- cast from `sqlpp::boolean` to any numeric type.
 
 ## Exceptions
 

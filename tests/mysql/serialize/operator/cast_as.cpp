@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,25 +24,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
 
-template <typename T>
-void test_boolean() {
-  static_assert(std::is_same<sqlpp::data_type_of_t<T>, sqlpp::boolean>::value,
-                "");
-  static_assert(sqlpp::is_boolean<T>::value, "");
-  static_assert(sqlpp::is_numeric<T>::value, "");
-
-  static_assert(not sqlpp::is_integral<T>::value, "");
-  static_assert(not sqlpp::is_unsigned_integral<T>::value, "");
-  static_assert(not sqlpp::is_floating_point<T>::value, "");
-  static_assert(not sqlpp::is_text<T>::value, "");
-  static_assert(not sqlpp::is_blob<T>::value, "");
-  static_assert(not sqlpp::is_timestamp<T>::value, "");
-  static_assert(not sqlpp::is_date<T>::value, "");
-  static_assert(not sqlpp::is_time<T>::value, "");
-}
+#include <sqlpp23/tests/mysql/serialize_helpers.h>
+#include <sqlpp23/tests/mysql/tables.h>
 
 int main() {
-  test_boolean<bool>();
+  // Testing data type serialization
+  SQLPP_COMPARE(cast("7", as(sqlpp::integral{})), "CAST('7' AS SIGNED INTEGER)");
+  SQLPP_COMPARE(cast("7", as(sqlpp::unsigned_integral{})), "CAST('7' AS UNSIGNED INTEGER)");
+  SQLPP_COMPARE(cast("7", as(sqlpp::floating_point{})), "CAST('7' AS DOUBLE)");
+  SQLPP_COMPARE(cast("7", as(sqlpp::text{})), "CAST('7' AS CHAR)");
+  SQLPP_COMPARE(cast("7", as(sqlpp::blob{})), "CAST('7' AS BINARY)");
+  SQLPP_COMPARE(cast("7", as(sqlpp::timestamp{})), "CAST('7' AS DATETIME)");
+
+  return 0;
 }

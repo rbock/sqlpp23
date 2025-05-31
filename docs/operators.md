@@ -52,7 +52,7 @@ If the first `then` argument is not NULL, its type determines the overall non-op
 If `std::nullopt` is used in a subsequent `then` or in `else_`, the entire CASE expression becomes nullable.
 
 ```c++
-const auto conditional_name = ::sqlpp::case_when(foo.category == 1).then(foo.name)
+const auto conditional_name = case_when(foo.category == 1).then(foo.name)
                                   .when(foo.category == 3).then(std::nullopt) // Makes expression potentially NULL
                                   .else_(sqlpp::value("Default Name"));
 ```
@@ -65,5 +65,41 @@ If the first `then` argument is NULL, then the type of the expression is determi
 const auto another_value = ::sqlpp::case_when(foo.id > 100).then(std::nullopt)
                               .else_(foo.id);
 ```
+
+## CAST Operator
+
+The SQL `CAST` function is expressed as
+
+```c++
+// CAST(expression AS type)
+cast_as(expression, type);
+```
+
+`type` is any of
+
+```c++
+sqlpp::boolean{};
+sqlpp::integral{};
+sqlpp::unsigned_integral{};
+sqlpp::floating_point{};
+sqlpp::text{};
+sqlpp::blob{};
+sqlpp::date{};
+sqlpp::timestamp{};
+sqlpp::time{};
+```
+
+The return type can be null and corresponds to `type`, see [data types](/docs/data_types.md).
+
+The following combinations of data types for `expression` and `type` are allowed by the library:
+
+- `std::nullopt` can be cast to any data type.
+- any data type can be cast to itself.
+- anything can be cast to an from `text`.
+- numeric [data types](/docs/data_types.md) can be cast to other numeric data types.
+- `date` and `timestamp` can be cast to `timestamp` and `date`.
+
+Also see [connector documentation](/docs/connectors.md) for specific considerations.
+
 
 [**\< Index**](/docs/README.md)

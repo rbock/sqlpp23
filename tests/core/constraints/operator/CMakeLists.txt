@@ -33,5 +33,6 @@ create_test(any)
 create_test(as_expression)
 create_test(assign_expression)
 create_test(case)
+create_test(cast)
 create_test(exists)
 

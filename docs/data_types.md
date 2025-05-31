@@ -98,4 +98,13 @@ C++ data types `std::chrono::duration<Rep, Period>` is considered `sqlpp::time`.
 
 For assignments and comparisons expressions of type `sqlpp::time` will work.
 
+## Numeric data types
+
+The following data types are considered numeric by the library
+
+- `sqlpp::boolean`
+- `sqlpp::integral`
+- `sqlpp::unsigned_integral`
+- `sqlpp::floating_point`
+
 [**< Index**](/docs/README.md)

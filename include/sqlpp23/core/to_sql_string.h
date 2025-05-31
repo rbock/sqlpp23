@@ -248,6 +248,51 @@ auto name_to_sql_string(Context& context, const NameTag&) -> std::string {
   }
 }
 
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const boolean&) {
+  return "BOOLEAN";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const integral&) {
+  return "BIGINT";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const unsigned_integral&) {
+  return "BIGINT UNSIGNED";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const floating_point&) {
+  return "DOUBLE PRECISION";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const text&) {
+  return "VARCHAR";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const blob&) {
+  return "BLOB";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const time&) {
+  return "TIME";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const timestamp&) {
+  return "TIMESTAMP";
+}
+
+template<typename Context>
+std::string data_type_to_sql_string(Context&, const date&) {
+  return "DATE";
+}
+
 template <typename Context, typename Data>
 auto dynamic_clause_to_sql_string(Context& context,
                                   std::string_view name,

@@ -169,7 +169,26 @@ template <typename... Ctes>
 struct compatibility_check<sqlite3::context_t, with_t<Ctes...>> {
   using type = sqlite3::assert_no_with_t;
 };
-
 }  // namespace sqlpp
 #endif
+
+namespace sqlpp {
+namespace sqlite3 {
+class assert_no_cast_to_date_time : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    static_assert(wrong<T...>, "Sqlite3: No support for casting to date / time types");
+  }
+};
+}  // namespace sqlite3
+
+template <typename Expression, typename Type>
+  requires(std::is_same_v<Type, date> or std::is_same_v<Type, timestamp> or
+           std::is_same_v<Type, time>)
+struct compatibility_check<sqlite3::context_t, cast_t<Expression, Type>> {
+  using type = sqlite3::assert_no_cast_to_date_time;
+};
+
+}  // namespace sqlpp
 

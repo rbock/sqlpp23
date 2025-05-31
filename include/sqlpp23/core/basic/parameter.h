@@ -64,20 +64,18 @@ auto to_sql_string(Context&, const parameter_t<DataType, NameTag>&)
 }
 
 template <typename NamedExpr>
+  requires(has_data_type<NamedExpr>::value and
+           has_name_tag<NamedExpr>::value)
 auto parameter(const NamedExpr& /*unused*/)
     -> parameter_t<data_type_of_t<NamedExpr>, name_tag_of_t<NamedExpr>> {
-  static_assert(has_data_type<NamedExpr>::value, "not a named expression");
-  static_assert(has_name_tag<NamedExpr>::value, "not a named expression");
   return {};
 }
 
 template <typename DataType, typename NameTagProvider>
+  requires((is_data_type<DataType>::value or has_data_type<DataType>::value) and
+           has_name_tag<NameTagProvider>::value)
 auto parameter(const DataType& /*unused*/, const NameTagProvider& /*unused*/)
-    -> parameter_t<data_type_of_t<DataType>, name_tag_of_t<NameTagProvider>> {
-  static_assert(has_data_type<DataType>::value,
-                "first argument is not a value type");
-  static_assert(has_name_tag<NameTagProvider>::value,
-                "second argument does not have a name");
+    -> parameter_t<DataType, name_tag_of_t<NameTagProvider>> {
   return {};
 }
 }  // namespace sqlpp

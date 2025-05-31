@@ -51,7 +51,7 @@ using data_type_of_t = typename data_type_of<T>::type;
 
 template <typename T>
 struct data_type_of<std::optional<T>> {
-  using type = std::optional<data_type_of_t<T>>;
+  using type = force_optional_t<data_type_of_t<T>>;
 };
 
 template <typename T>
@@ -61,14 +61,16 @@ struct has_data_type
           not std::is_same<data_type_of_t<T>, no_value_t>::value> {};
 
 template <typename T>
+struct is_data_type : public std::false_type {};
+
+template <typename T>
 static inline constexpr bool has_data_type_v = has_data_type<T>::value;
 
 struct boolean {};
 
-template <>
-struct data_type_of<boolean> {
-  using type = boolean;
-};
+template<>
+struct is_data_type<boolean> : std::true_type {};
+
 template <>
 struct data_type_of<bool> {
   using type = boolean;
@@ -76,9 +78,8 @@ struct data_type_of<bool> {
 
 struct integral {};
 template <>
-struct data_type_of<integral> {
-  using type = integral;
-};
+struct is_data_type<integral> : std::true_type {};
+
 template <>
 struct data_type_of<int8_t> {
   using type = integral;
@@ -98,9 +99,8 @@ struct data_type_of<int64_t> {
 
 struct unsigned_integral {};
 template <>
-struct data_type_of<unsigned_integral> {
-  using type = unsigned_integral;
-};
+struct is_data_type<unsigned_integral> : std::true_type {};
+
 template <>
 struct data_type_of<uint8_t> {
   using type = unsigned_integral;
@@ -120,9 +120,8 @@ struct data_type_of<uint64_t> {
 
 struct floating_point {};
 template <>
-struct data_type_of<floating_point> {
-  using type = floating_point;
-};
+struct is_data_type<floating_point> : std::true_type {};
+
 template <>
 struct data_type_of<float> {
   using type = floating_point;
@@ -138,9 +137,8 @@ struct data_type_of<long double> {
 
 struct text {};
 template <>
-struct data_type_of<text> {
-  using type = text;
-};
+struct is_data_type<text> : std::true_type {};
+
 template <>
 struct data_type_of<char> {
   using type = text;
@@ -160,9 +158,8 @@ struct data_type_of<std::string_view> {
 
 struct blob {};
 template <>
-struct data_type_of<blob> {
-  using type = blob;
-};
+struct is_data_type<blob> : std::true_type {};
+
 template <std::size_t N>
 struct data_type_of<std::array<std::uint8_t, N>> {
   using type = blob;
@@ -179,9 +176,8 @@ struct data_type_of<std::span<std::uint8_t>> {
 // date
 struct date {};
 template <>
-struct data_type_of<date> {
-  using type = date;
-};
+struct is_data_type<date> : std::true_type {};
+
 template <>
 struct data_type_of<std::chrono::sys_days> {
   using type = date;
@@ -190,9 +186,8 @@ struct data_type_of<std::chrono::sys_days> {
 // time of day
 struct time {};
 template <>
-struct data_type_of<time> {
-  using type = time;
-};
+struct is_data_type<time> : std::true_type {};
+
 template <typename Rep, typename Period>
 struct data_type_of<std::chrono::duration<Rep, Period>> {
   using type = time;
@@ -201,9 +196,8 @@ struct data_type_of<std::chrono::duration<Rep, Period>> {
 // timestamp aka date_time
 struct timestamp {};
 template <>
-struct data_type_of<timestamp> {
-  using type = timestamp;
-};
+struct is_data_type<timestamp> : std::true_type {};
+
 template <typename Period>
 requires(Period{1} < std::chrono::days{1})
 struct data_type_of<
@@ -287,7 +281,7 @@ template <>
 struct is_timestamp<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
-struct is_day_or_timestamp
+struct is_date_or_timestamp
     : public std::integral_constant<bool,
                                     is_date<T>::value or
                                         is_timestamp<T>::value> {};

@@ -27,40 +27,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/database/serializer_context.h>
+#include <sqlpp23/postgresql/database/serializer_context.h>
 #include <sqlpp23/sqlpp23.h>
 
 namespace sqlpp {
-namespace mysql {
-class assert_no_full_outer_join_t : public wrapped_static_assert {
+namespace postgresql {
+class assert_no_unsigned : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    static_assert(wrong<T...>, "MySQL: No support for full outer join");
+    static_assert(wrong<T...>, "Postgresql: No support for unsigned integral");
   }
 };
-}  // namespace mysql
 
-template <typename Lhs, typename Rhs, typename Condition>
-struct compatibility_check<mysql::context_t,
-                           join_t<Lhs, full_outer_join_t, Rhs, Condition>> {
-  using type = mysql::assert_no_full_outer_join_t;
-};
-
-namespace mysql {
-class assert_no_bool_cast : public wrapped_static_assert {
+class assert_no_cast_bool_to_numeric : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    static_assert(wrong<T...>, "MySQL: No support for bool cast");
+    static_assert(wrong<T...>, "Postgresql: No support for casting bool to numeric");
   }
 };
 }  // namespace postgresql
 
-template <typename Expression, typename Type>
-  requires(is_boolean<Expression>::value or std::is_same_v<Type, boolean>)
-struct compatibility_check<mysql::context_t, cast_t<Expression, Type>> {
-  using type = mysql::assert_no_bool_cast;
+template <typename Expression>
+struct compatibility_check<postgresql::context_t,
+                           cast_t<Expression, sqlpp::unsigned_integral>> {
+  using type = postgresql::assert_no_unsigned;
+};
+
+template <typename Type>
+  requires(std::is_same_v<Type, integral> or
+           std::is_same_v<Type, unsigned_integral> or
+           std::is_same_v<Type, floating_point>)
+struct compatibility_check<postgresql::context_t, cast_t<bool, Type>> {
+  using type = postgresql::assert_no_cast_bool_to_numeric;
 };
 
 }  // namespace sqlpp

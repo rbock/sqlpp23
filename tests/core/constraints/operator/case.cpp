@@ -294,6 +294,7 @@ int main() {
     static_assert(can_call_then_with<CW2, decltype(foo.textNnD)>);
     static_assert(can_call_then_with<CW2, decltype(std::optional<std::string>(
                                              std::nullopt))>);
+    static_assert(can_call_then_with<CW2, decltype(std::nullopt)>);
 
     // OK: the value type of CASE is determined by the first THEN expression.
     static_assert(can_call_then_with<CW2, decltype(std::nullopt)>);

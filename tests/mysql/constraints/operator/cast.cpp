@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,25 +24,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/sqlpp23.h>
-
-template <typename T>
-void test_boolean() {
-  static_assert(std::is_same<sqlpp::data_type_of_t<T>, sqlpp::boolean>::value,
-                "");
-  static_assert(sqlpp::is_boolean<T>::value, "");
-  static_assert(sqlpp::is_numeric<T>::value, "");
-
-  static_assert(not sqlpp::is_integral<T>::value, "");
-  static_assert(not sqlpp::is_unsigned_integral<T>::value, "");
-  static_assert(not sqlpp::is_floating_point<T>::value, "");
-  static_assert(not sqlpp::is_text<T>::value, "");
-  static_assert(not sqlpp::is_blob<T>::value, "");
-  static_assert(not sqlpp::is_timestamp<T>::value, "");
-  static_assert(not sqlpp::is_date<T>::value, "");
-  static_assert(not sqlpp::is_time<T>::value, "");
-}
+#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
 
 int main() {
-  test_boolean<bool>();
+  auto db = sqlpp::mysql::make_test_connection();
+  auto ctx = sqlpp::mysql::context_t{&db};
+  using CTX = decltype(ctx);
+
+  // No support for cast to/from bool
+  {
+    auto ca = cast(std::nullopt, as(sqlpp::boolean{}));
+    auto cb = cast(7, as(sqlpp::boolean{}));
+    auto cc = cast(true, as(sqlpp::integral{}));
+
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(ca)),
+                               sqlpp::mysql::assert_no_bool_cast>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(cb)),
+                               sqlpp::mysql::assert_no_bool_cast>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(cc)),
+                               sqlpp::mysql::assert_no_bool_cast>::value);
+  }
+
 }

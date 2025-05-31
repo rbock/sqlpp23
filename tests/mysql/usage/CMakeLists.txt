@@ -29,8 +29,9 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-create_test(exists)
 create_test(exceptions)
+create_test(exists)
+create_test(operator)
 add_subdirectory(aggregate_function)
 add_subdirectory(statement)
 

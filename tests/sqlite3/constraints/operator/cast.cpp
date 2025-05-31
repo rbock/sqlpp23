@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,25 +24,32 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
-
-template <typename T>
-void test_boolean() {
-  static_assert(std::is_same<sqlpp::data_type_of_t<T>, sqlpp::boolean>::value,
-                "");
-  static_assert(sqlpp::is_boolean<T>::value, "");
-  static_assert(sqlpp::is_numeric<T>::value, "");
-
-  static_assert(not sqlpp::is_integral<T>::value, "");
-  static_assert(not sqlpp::is_unsigned_integral<T>::value, "");
-  static_assert(not sqlpp::is_floating_point<T>::value, "");
-  static_assert(not sqlpp::is_text<T>::value, "");
-  static_assert(not sqlpp::is_blob<T>::value, "");
-  static_assert(not sqlpp::is_timestamp<T>::value, "");
-  static_assert(not sqlpp::is_date<T>::value, "");
-  static_assert(not sqlpp::is_time<T>::value, "");
-}
+#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include "sqlpp23/sqlite3/constraints.h"
 
 int main() {
-  test_boolean<bool>();
+  auto db = sqlpp::sqlite3::make_test_connection();
+  auto ctx = sqlpp::sqlite3::context_t{&db};
+  using CTX = decltype(ctx);
+
+  // No support for cast to date / time
+  {
+    auto ca = cast("", as(sqlpp::date{}));
+    auto cb = cast("", as(sqlpp::timestamp{}));
+    auto cc = cast("", as(sqlpp::time{}));
+
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(ca)),
+                     sqlpp::sqlite3::assert_no_cast_to_date_time>::value);
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(cb)),
+                     sqlpp::sqlite3::assert_no_cast_to_date_time>::value);
+    static_assert(
+        std::is_same<decltype(check_compatibility<CTX>(cc)),
+                     sqlpp::sqlite3::assert_no_cast_to_date_time>::value);
+  }
+
 }

@@ -37,10 +37,10 @@ void test_case_expression(Value v) {
   auto c_maybe_null = sqlpp::value(std::make_optional(false));
 
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = std::make_optional(sqlpp::value(v));
 
-  using DataType = sqlpp::data_type_of_t<decltype(v_not_null)>;
-  using OptDataType = sqlpp::data_type_of_t<decltype(v_maybe_null)>;
+  using DataType = decltype(v_not_null);
+  using OptDataType = decltype(v_maybe_null);
 
   // Variations of nullable and non-nullable values
   static_assert(
@@ -184,7 +184,6 @@ int main() {
   // floating point
   test_case_expression(float{7.7});
   test_case_expression(double{7.7});
-
   // text
   test_case_expression('7');
   test_case_expression("seven");

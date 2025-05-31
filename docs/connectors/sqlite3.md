@@ -101,6 +101,14 @@ These are not supported and will fail to compile before version 3.39.0.
 
 This is not supported and will fail to compile before version 3.8.0.
 
+## CAST
+
+sqlite3 does not support
+
+- cast to `sqlpp::date`.
+- cast to `sqlpp::timestamp`.
+- cast to `sqlpp::time`.
+
 ## Exceptions
 
 In exceptional situations that yield an Sqlite3 error code, an `sqlpp::sqlite3::exception` will be thrown. The native

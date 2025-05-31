@@ -23,3 +23,4 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_subdirectory(basic)
+add_subdirectory(operator)

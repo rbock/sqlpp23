@@ -56,6 +56,12 @@ db(select(foo.id, bar.name)
     .from(foo.full_outer_join(bar).on(foo.id == bar.id)));
 ```
 
+## CAST
+
+MySQL does not support
+
+- cast to or from `sqlpp::boolean`.
+
 ## Exceptions
 
 In exceptional situations that yield a MySQL error code, an `sqlpp::mysql::exception` will be thrown. The native
