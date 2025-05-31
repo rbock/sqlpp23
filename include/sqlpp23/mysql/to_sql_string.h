@@ -30,6 +30,7 @@
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
 #include "sqlpp23/core/operator/comparison_expression.h"
+#include "sqlpp23/core/type_traits/data_type.h"
 
 namespace sqlpp::mysql {
 template <typename L, typename R>
@@ -60,4 +61,35 @@ inline auto quoted_name_to_sql_string(mysql::context_t&,
     -> std::string {
   return '`' + std::string(name) + '`';
 }
+
+inline auto data_type_to_sql_string(mysql::context_t&,
+                          const sqlpp::integral&) -> std::string {
+  return "SIGNED INTEGER";
+}
+
+inline auto data_type_to_sql_string(mysql::context_t&,
+                          const sqlpp::unsigned_integral&) -> std::string {
+  return "UNSIGNED INTEGER";
+}
+
+inline auto data_type_to_sql_string(mysql::context_t&,
+                          const sqlpp::floating_point&) -> std::string {
+  return "DOUBLE";
+}
+
+inline auto data_type_to_sql_string(mysql::context_t&,
+                          const sqlpp::text&) -> std::string {
+  return "CHAR";
+}
+
+inline auto data_type_to_sql_string(mysql::context_t&,
+                          const sqlpp::blob&) -> std::string {
+  return "BINARY";
+}
+
+inline auto data_type_to_sql_string(mysql::context_t&,
+                          const sqlpp::timestamp&) -> std::string {
+  return "DATETIME";
+}
+
 }  // namespace sqlpp
