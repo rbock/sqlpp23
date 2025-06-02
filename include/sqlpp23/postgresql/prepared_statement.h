@@ -179,9 +179,7 @@ class prepared_statement_t {
     }
     _stmt_null_parameters[index] = false;
     const auto ymd = std::chrono::year_month_day{value};
-    std::ostringstream os;
-    os << ymd;
-    _stmt_parameters[index] = os.str();
+    _stmt_parameters[index] = std::format("{}", ymd);
 
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
@@ -202,9 +200,7 @@ class prepared_statement_t {
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
 
     // Timezone handling - always treat the local value as UTC.
-    std::ostringstream os;
-    os << time << "+00";
-    _stmt_parameters[index] = os.str();
+    _stmt_parameters[index] = std::format("{}+00", time);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
                            "binding time parameter string: {}",
@@ -225,9 +221,7 @@ class prepared_statement_t {
     const auto ymd = std::chrono::year_month_day{dp};
 
     // Timezone handling - always treat the local value as UTC.
-    std::ostringstream os;
-    os << ymd << ' ' << time << "+00";
-    _stmt_parameters[index] = os.str();
+    _stmt_parameters[index] = std::format("{} {}+00", ymd, time);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
                            "binding date_time parameter string: {}",

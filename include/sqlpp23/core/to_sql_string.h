@@ -29,10 +29,9 @@
 
 #include <array>
 #include <cmath>
-#include <iomanip>
+#include <format>
 #include <optional>
 #include <span>
-#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -118,10 +117,7 @@ auto float_to_sql_string(Context& context, const T& f) -> std::string {
     return f > std::numeric_limits<T>::max() ? inf_to_sql_string(context)
                                              : neg_inf_to_sql_string(context);
   } else {
-    // TODO: Once gcc and clang support to_chars, try that
-    auto oss = std::ostringstream{};
-    oss << std::setprecision(std::numeric_limits<T>::max_digits10) << f;
-    return oss.str();
+    return std::format("{:.{}g}", f, std::numeric_limits<T>::max_digits10);
   }
 }
 

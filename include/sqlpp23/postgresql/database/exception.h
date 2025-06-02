@@ -67,6 +67,6 @@ class result_exception : public sqlpp::exception {
   ExecStatusType status() const { return _status; }
 
   // Returns value of PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE)
-  std::string_view result_sql_state() const { return _result_sql_state.c_str(); }
+  std::string_view result_sql_state() const { return _result_sql_state; }
 };
 }  // namespace sqlpp
