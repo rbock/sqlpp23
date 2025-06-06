@@ -62,8 +62,8 @@ int main() {
     } catch (const sql::result_exception& e) {
       std::println("Caught expected error.\nmessage: {}\nstatus: {}\ncode: {}",
                    e.what(), static_cast<int>(e.status()),
-                   e.result_sql_state());
-      if (e.status() != PGRES_FATAL_ERROR or e.result_sql_state() != "42703"){
+                   e.sql_state());
+      if (e.status() != PGRES_FATAL_ERROR or e.sql_state() != "42703"){
         throw std::runtime_error("unexpected meta information in exception");
       }
     }

@@ -47,26 +47,26 @@ class connection_exception : public sqlpp::exception {
 
 class result_exception : public sqlpp::exception {
   ExecStatusType _status;
-  std::string _result_sql_state;
+  std::string _sql_state;
  public:
   result_exception(const std::string& what_arg,
                    ExecStatusType status,
-                   const std::string result_sql_state)
+                   const std::string sql_state)
       : sqlpp::exception{what_arg},
         _status{status},
-        _result_sql_state{std::move(result_sql_state)} {}
+        _sql_state{std::move(sql_state)} {}
 
   result_exception(const char* what_arg,
                    ExecStatusType status,
-                   const std::string result_sql_state)
+                   const std::string sql_state)
       : sqlpp::exception{what_arg ? what_arg : fallback},
         _status{status},
-        _result_sql_state{std::move(result_sql_state)} {}
+        _sql_state{std::move(sql_state)} {}
 
   // Returns value of PQresultStatus(_pg_result.get())
   ExecStatusType status() const { return _status; }
 
   // Returns value of PQresultErrorField(_pg_result.get(), PG_DIAG_SQLSTATE)
-  std::string_view result_sql_state() const { return _result_sql_state; }
+  std::string_view sql_state() const { return _sql_state; }
 };
 }  // namespace sqlpp
