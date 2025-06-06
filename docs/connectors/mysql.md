@@ -56,5 +56,19 @@ db(select(foo.id, bar.name)
     .from(foo.full_outer_join(bar).on(foo.id == bar.id)));
 ```
 
+## Exceptions
+
+In exceptional situations that yield a MySQL error code, an `sqlpp::mysql::exception` will be thrown. The native
+error code can be obtained through the `error_code` function, e.g.
+
+```c++
+try {
+  auto db = sqlpp::mysql::connection(config);
+  db(select(sqlpp::verbatim("nonsense").as(sqlpp::alias::a)));
+} catch (const sqlpp::mysql::exception& e) {
+  println("Exception: {}, MySQL error code: {}", e.what(), e.error_code());
+}
+```
+
 [**\< Connectors**](/docs/connectors.md)
 

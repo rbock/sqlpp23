@@ -79,4 +79,27 @@ for (const auto& row : db(sql::insert_into(foo)
 }
 ```
 
+## Exceptions
+
+There are two types of exceptions specific to PostgreSQL in sqlpp23:
+
+`sqlpp::postgresql::connection_exception` will be thrown in case of connection failures.
+
+`sqlpp::postgresql::result_exception` will be thrown in case of statement execution or result evaluation failures.
+Assuming a `PGresult` called `p`, this exception type provides `PQresultStatus(p)` via `status()` and `PQresultErrorField(p, PG_DIAG_SQLSTATE)` via `sql_state()`.
+
+For instance:
+
+```c++
+try {
+  auto db = sqlpp::postgresql::connection(config);
+  db(select(sqlpp::verbatim("nonsense").as(sqlpp::alias::a)));
+} catch (const sqlpp::postgresql::connection_exception& e) {
+  println("Connection exception: {}, e.what());
+} catch (const sqlpp::postgresql::result_exception& e) {
+  println("Result exception: {}, status: {}, sql state: {}",
+          e.what(), static_cast<int>(e.status()), e.sql_state());
+}
+```
+
 [**\< Connectors**](/docs/connectors.md)

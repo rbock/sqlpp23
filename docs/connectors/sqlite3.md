@@ -101,4 +101,18 @@ These are not supported and will fail to compile before version 3.39.0.
 
 This is not supported and will fail to compile before version 3.8.0.
 
+## Exceptions
+
+In exceptional situations that yield an Sqlite3 error code, an `sqlpp::sqlite3::exception` will be thrown. The native
+error code can be obtained through the `error_code` function, e.g.
+
+```c++
+try {
+  auto db = sqlpp::sqlite3::connection(config);
+  db(select(sqlpp::verbatim("nonsense").as(sqlpp::alias::a)));
+} catch (const sqlpp::sqlite3::exception& e) {
+  println("Exception: {}, Sqlite3 error code: {}", e.what(), e.error_code());
+}
+```
+
 [**\< Connectors**](/docs/connectors.md)
