@@ -83,9 +83,9 @@ int Type(int, char*[]) {
     auto prepared_update = db.prepare(update(tab).set(
         tab.intN = parameter(tab.intN), tab.textN = parameter(tab.textN),
         tab.boolNn = parameter(tab.boolNn)));
-    prepared_update.params.intN = 30;
-    prepared_update.params.textN = "IceCream";
-    prepared_update.params.boolNn = true;
+    prepared_update.parameters.intN = 30;
+    prepared_update.parameters.textN = "IceCream";
+    prepared_update.parameters.boolNn = true;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;

@@ -91,8 +91,8 @@ You can now set the parameters and execute the prepared statement multiple times
 for (const auto& input : input_values)
 {
   // Set parameters
-  prepared_insert.params.alpha = input.alpa;
-  prepared_insert.params.cheese = input.beta;
+  prepared_insert.parameters.alpha = input.alpa;
+  prepared_insert.parameters.cheese = input.beta;
 
   // Execute prepared statement with the current set of parameters
   db(prepared_insert);

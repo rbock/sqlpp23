@@ -52,9 +52,9 @@ void save_prepared(sqlpp::postgresql::connection& db,
       db.prepare(update(tab).set(tab.timestampNTz = parameter(tab.timestampNTz),
                                  tab.timeNTz = parameter(tab.timeNTz),
                                  tab.dateN = parameter(tab.dateN)));
-  prepared_update.params.timestampNTz = tp;
-  prepared_update.params.timeNTz = tod;
-  prepared_update.params.dateN = dp;
+  prepared_update.parameters.timestampNTz = tp;
+  prepared_update.parameters.timeNTz = tod;
+  prepared_update.parameters.dateN = dp;
   db(prepared_update);
 }
 

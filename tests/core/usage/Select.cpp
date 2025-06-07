@@ -212,8 +212,8 @@ int Select(int, char*[]) {
       sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
           "ABS(field1 -", sqlpp::parameter(t.id), ")") <=
       sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
-  abs.params.id = 7;
-  abs.params.param2 = 7;
+  abs.parameters.id = 7;
+  abs.parameters.param2 = 7;
   std::ignore = abs;
 
   return 0;

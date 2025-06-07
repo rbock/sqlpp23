@@ -75,7 +75,7 @@ int CustomQuery(int, char*[]) {
   // which does have a return type, in this case the select
   auto p = db.prepare(select(all_of(t))
                       << from(t) << where(t.id > sqlpp::parameter(t.id)));
-  p.params.id = 8;
+  p.parameters.id = 8;
   for (const auto& row : db(p)) {
     std::cerr << row.id << std::endl;
   }

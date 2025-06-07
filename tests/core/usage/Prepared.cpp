@@ -123,7 +123,7 @@ int Prepared(int, char*[]) {
         (t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
         t.boolNn != parameter(t.boolNn));
     auto p = db.prepare(s);
-    p.params.id = 7;
+    p.parameters.id = 7;
     using S = decltype(s);
     using P = sqlpp::make_parameter_list_t<S>;
     P npl;

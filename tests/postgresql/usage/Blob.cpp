@@ -91,10 +91,10 @@ int Blob(int, char*[]) {
 
   auto prepared_insert =
       db.prepare(insert_into(blob).set(blob.data = parameter(blob.data)));
-  prepared_insert.params.data = data;
+  prepared_insert.parameters.data = data;
   db(prepared_insert);
   const auto prep_id = db.last_insert_id("blob_sample", "id");
-  prepared_insert.params.data = std::nullopt;
+  prepared_insert.parameters.data = std::nullopt;
   db(prepared_insert);
   const auto null_id = db.last_insert_id("blob_sample", "id");
 

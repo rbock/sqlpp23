@@ -89,9 +89,9 @@ int DateTime(int, char*[]) {
         update(tab).set(tab.dateN = parameter(tab.dateN),
                         tab.timeNTz = parameter(tab.timeNTz),
                         tab.timestampNTz = parameter(tab.timestampNTz)));
-    prepared_update.params.dateN = today;
-    prepared_update.params.timeNTz = current;
-    prepared_update.params.timestampNTz = now;
+    prepared_update.parameters.dateN = today;
+    prepared_update.parameters.timeNTz = current;
+    prepared_update.parameters.timestampNTz = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;

@@ -107,9 +107,9 @@ int DateTime(int, char*[]) {
                             tab.timestampN = parameter(tab.timestampN),
                             tab.timeN = parameter(tab.timeN))
                        .where(true));
-    prepared_update.params.dateN = today;
-    prepared_update.params.timestampN = now;
-    prepared_update.params.timeN = current;
+    prepared_update.parameters.dateN = today;
+    prepared_update.parameters.timestampN = now;
+    prepared_update.parameters.timeN = current;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;

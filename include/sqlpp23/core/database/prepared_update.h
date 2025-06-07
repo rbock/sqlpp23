@@ -47,7 +47,7 @@ struct prepared_update_t {
   prepared_update_t& operator=(prepared_update_t&&) = default;
   ~prepared_update_t() = default;
 
-  _parameter_list_t params = {};
+  _parameter_list_t parameters = {};
 
  private:
   friend statement_handler_t;
@@ -56,7 +56,7 @@ struct prepared_update_t {
     return statement_handler_t{}.run_prepared_insert(*this, db);
   }
 
-  void _bind_parameters() { params._bind(_prepared_statement); }
+  void _bind_parameters() { parameters._bind(_prepared_statement); }
 
   _prepared_statement_t _prepared_statement;
 };

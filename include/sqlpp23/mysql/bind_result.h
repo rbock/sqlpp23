@@ -339,19 +339,19 @@ class bind_result_t {
                            index);
     }
     auto& buffer = _result_buffers[index];
-    auto& params = _result_params[index];
-    if (*params.length > params.buffer_length) {
+    auto& parameters = _result_params[index];
+    if (*parameters.length > parameters.buffer_length) {
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
                              "MySQL debug: increasing buffer at: {} to {}",
-                             index, *params.length);
+                             index, *parameters.length);
       }
 
-      buffer.var_buffer.resize(*params.length);
-      params.buffer = buffer.var_buffer.data();
-      params.buffer_length = buffer.var_buffer.size();
+      buffer.var_buffer.resize(*parameters.length);
+      parameters.buffer = buffer.var_buffer.data();
+      parameters.buffer_length = buffer.var_buffer.size();
       const auto err =
-          mysql_stmt_fetch_column(_mysql_stmt.get(), &params, index, 0);
+          mysql_stmt_fetch_column(_mysql_stmt.get(), &parameters, index, 0);
       if (err){
         throw exception{mysql_stmt_error(_mysql_stmt.get()),
                         mysql_stmt_errno(_mysql_stmt.get())};
@@ -368,8 +368,8 @@ class bind_result_t {
     }
     refetch_if_required(index);
     const auto& buffer = _result_buffers[index];
-    const auto& params = _result_params[index];
-    value = std::string_view(buffer.var_buffer.data(), *params.length);
+    const auto& parameters = _result_params[index];
+    value = std::string_view(buffer.var_buffer.data(), *parameters.length);
   }
 
   void read_field(size_t index, std::span<const uint8_t>& value) {
@@ -380,10 +380,10 @@ class bind_result_t {
     }
     refetch_if_required(index);
     const auto& buffer = _result_buffers[index];
-    const auto& params = _result_params[index];
+    const auto& parameters = _result_params[index];
     value = std::span<const uint8_t>(
         reinterpret_cast<const uint8_t*>(buffer.var_buffer.data()),
-        *params.length);
+        *parameters.length);
   }
 
   void read_field(size_t index, std::chrono::sys_days& value) {

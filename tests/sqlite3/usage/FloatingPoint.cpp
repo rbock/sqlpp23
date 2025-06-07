@@ -81,11 +81,11 @@ int FloatingPoint(int, char*[]) {
 
   auto prepared_insert =
       db.prepare(insert_into(tab).set(tab.doubleN = parameter(tab.doubleN)));
-  prepared_insert.params.doubleN = std::numeric_limits<double>::quiet_NaN();
+  prepared_insert.parameters.doubleN = std::numeric_limits<double>::quiet_NaN();
   db(prepared_insert);
-  prepared_insert.params.doubleN = std::numeric_limits<double>::infinity();
+  prepared_insert.parameters.doubleN = std::numeric_limits<double>::infinity();
   db(prepared_insert);
-  prepared_insert.params.doubleN = -std::numeric_limits<double>::infinity();
+  prepared_insert.parameters.doubleN = -std::numeric_limits<double>::infinity();
   db(prepared_insert);
 
   auto q = select(tab.doubleN).from(tab);

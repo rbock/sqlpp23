@@ -96,7 +96,7 @@ class prepared_statement_t {
   ~prepared_statement_t() = default;
 
   std::shared_ptr<MYSQL_STMT> native_handle() const { return mysql_stmt; }
-  std::vector<MYSQL_BIND> params() {return stmt_params; }
+  std::vector<MYSQL_BIND> parameters() {return stmt_params; }
 
   const debug_logger& debug() { return _config->debug; }
 

@@ -97,9 +97,9 @@ int Blob(int, char*[]) {
 
   auto prepared_insert =
       db.prepare(insert_into(tab).set(tab.blobN = parameter(tab.blobN)));
-  prepared_insert.params.blobN = blobN;
+  prepared_insert.parameters.blobN = blobN;
   const auto prep_result = db(prepared_insert);
-  prepared_insert.params.blobN = std::nullopt;
+  prepared_insert.parameters.blobN = std::nullopt;
   const auto null_result = db(prepared_insert);
 
   verify_blob(db, smallBlob, result.last_insert_id);

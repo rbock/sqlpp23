@@ -142,9 +142,9 @@ int Sample(int, char*[]) {
                              .where(tab.intN != parameter(tab.intN) and
                                     tab.textN != parameter(tab.textN) and
                                     tab.boolNn != parameter(tab.boolNn)));
-    ps.params.intN = 7;
-    ps.params.textN = "wurzelbrunft";
-    ps.params.boolNn = true;
+    ps.parameters.intN = 7;
+    ps.parameters.textN = "wurzelbrunft";
+    ps.parameters.boolNn = true;
     for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
@@ -152,7 +152,7 @@ int Sample(int, char*[]) {
     }
 
     std::cerr << "--------" << std::endl;
-    ps.params.boolNn = false;
+    ps.parameters.boolNn = false;
     for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
@@ -160,7 +160,7 @@ int Sample(int, char*[]) {
     }
 
     std::cerr << "--------" << std::endl;
-    ps.params.textN = "kaesekuchen";
+    ps.parameters.textN = "kaesekuchen";
     for (const auto& row : db(ps)) {
       std::cerr << "bound result: intN: " << row.intN << std::endl;
       std::cerr << "bound result: textN: " << row.textN << std::endl;
@@ -169,18 +169,18 @@ int Sample(int, char*[]) {
 
     auto pi = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN),
                                               tab.boolNn = true));
-    pi.params.textN = "prepared cake";
+    pi.parameters.textN = "prepared cake";
     std::cerr << "Inserted: " << db(pi).last_insert_id << std::endl;
 
     auto pu = db.prepare(update(tab)
                              .set(tab.boolNn = parameter(tab.boolNn))
                              .where(tab.textN == "prepared cake"));
-    pu.params.boolNn = false;
+    pu.parameters.boolNn = false;
     std::cerr << "Updated: " << db(pu).last_insert_id << std::endl;
 
     auto pr =
         db.prepare(delete_from(tab).where(tab.textN != parameter(tab.textN)));
-    pr.params.textN = "prepared cake";
+    pr.parameters.textN = "prepared cake";
     std::cerr << "Deleted lines: " << db(pr).affected_rows << std::endl;
 
     for (const auto& row :

@@ -91,7 +91,7 @@ inline void execute_prepared_statement(
   }
 
   if (mysql_stmt_bind_param(prepared_statement.native_handle().get(),
-                            prepared_statement.params().data())) {
+                            prepared_statement.parameters().data())) {
     throw exception{mysql_stmt_error(prepared_statement.native_handle().get()),
                     mysql_stmt_errno(prepared_statement.native_handle().get())};
   }

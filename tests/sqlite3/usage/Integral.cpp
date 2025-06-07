@@ -83,8 +83,8 @@ int Integral(int, char*[]) {
   auto prepared_insert = db.prepare(insert_into(foo).set(
       foo.intN = parameter(foo.intN),
       foo.uIntN = parameter(foo.uIntN)));
-  prepared_insert.params.intN = int64_t_value_min;
-  prepared_insert.params.uIntN = uint64_t_value_unsupported;
+  prepared_insert.parameters.intN = int64_t_value_min;
+  prepared_insert.parameters.uIntN = uint64_t_value_unsupported;
   db(prepared_insert);
 
   db(insert_into(foo).set(foo.intN = size_t_value_min,

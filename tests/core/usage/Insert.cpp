@@ -94,19 +94,19 @@ int Insert(int, char*[]) {
 
   auto prepared_insert = db.prepare(insert_into(t).set(
       t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN)));
-  prepared_insert.params.boolNn = true;
-  prepared_insert.params.intN = std::nullopt;
-  prepared_insert.params.intN = 17;
-  prepared_insert.params.intN = std::nullopt;
-  prepared_insert.params.intN = std::make_optional(17);
+  prepared_insert.parameters.boolNn = true;
+  prepared_insert.parameters.intN = std::nullopt;
+  prepared_insert.parameters.intN = 17;
+  prepared_insert.parameters.intN = std::nullopt;
+  prepared_insert.parameters.intN = std::make_optional(17);
   db(prepared_insert);
 
   auto prepared_insert_sv = db.prepare(insert_into(t).set(
       t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN),
       t.textN = parameter(t.textN)));
-  prepared_insert_sv.params.boolNn = true;
-  prepared_insert_sv.params.intN = 17;
-  prepared_insert_sv.params.textN = std::string_view("string_view");
+  prepared_insert_sv.parameters.boolNn = true;
+  prepared_insert_sv.parameters.intN = 17;
+  prepared_insert_sv.parameters.textN = std::string_view("string_view");
   ;
   db(prepared_insert_sv);
 

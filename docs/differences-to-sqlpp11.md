@@ -2,7 +2,7 @@
 
 # Differences between sqlpp11 and sqlpp23
 
-This is a (probably incomplete) list of differences as of May 2025.
+This is a (probably incomplete) list of differences as of June 2025.
 
 If seems a bit dry, follow the links to examples.
 
@@ -10,6 +10,7 @@ If seems a bit dry, follow the links to examples.
 | :------------- | :------------- | :----- |
 | **IDE code completion** | | |
 | statement data members | all public | fewer and private (less noisy) |
+| prepared statement data members | all public | *only* API public (less noisy) |
 | connection functions | all public | *only* API public (less noisy) |
 | | | |
 | **Data types** | | |
@@ -74,8 +75,8 @@ If seems a bit dry, follow the links to examples.
 | `operator+=` etc | `x += y` was translated into `x = x + y` | *no magic*  |
 | aggregate functions | auto-named in `select` but not otherwise | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
 | **Misc** | | |
+| prepared statement parameters | `.params` | `.parameters` |
 | `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
-| `postgresql::failure` | Many specializations of `sqlpp::exception` | *dropped* (was incomplete, unmaintained) |
 | `ppgen` | Pre-processor code generation for tables | *dropped* |
 | sqlite2cpp.py | ddl2cpp variant for sqlite3 | *dropped* |
 | dynamic loading | Ability to load connector library dynamically | *dropped* (was unmaintained) |
