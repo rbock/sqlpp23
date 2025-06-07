@@ -62,5 +62,8 @@ int delete_from(int, char*[]) {
 
   db(truncate(t));
 
+  db(db.prepare(delete_from(t)));
+  db(db.prepare(truncate(t)));
+
   return 0;
 }

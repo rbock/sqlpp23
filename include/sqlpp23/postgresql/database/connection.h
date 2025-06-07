@@ -177,8 +177,9 @@ class connection_base : public sqlpp::connection {
 
   template <typename PreparedSelect>
   text_result_t _run_prepared_select(PreparedSelect& s) {
-    s._bind_params();
-    return run_prepared_select_impl(s._prepared_statement);
+    sqlpp::statement_handler_t{}.bind_parameters(s);
+    return run_prepared_select_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(s));
   }
 
   // Insert
@@ -196,8 +197,9 @@ class connection_base : public sqlpp::connection {
 
   template <typename PreparedInsert>
   command_result _run_prepared_insert(PreparedInsert& i) {
-    i._bind_params();
-    return run_prepared_insert_impl(i._prepared_statement);
+    sqlpp::statement_handler_t{}.bind_parameters(i);
+    return run_prepared_insert_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(i));
   }
 
   // Update
@@ -215,8 +217,9 @@ class connection_base : public sqlpp::connection {
 
   template <typename PreparedUpdate>
   command_result _run_prepared_update(PreparedUpdate& u) {
-    u._bind_params();
-    return run_prepared_update_impl(u._prepared_statement);
+    sqlpp::statement_handler_t{}.bind_parameters(u);
+    return run_prepared_update_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(u));
   }
 
   // Delete
@@ -234,8 +237,9 @@ class connection_base : public sqlpp::connection {
 
   template <typename PreparedDelete>
   command_result _run_prepared_delete_from(PreparedDelete& r) {
-    r._bind_params();
-    return run_prepared_delete_from_impl(r._prepared_statement);
+    sqlpp::statement_handler_t{}.bind_parameters(r);
+    return run_prepared_delete_from_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(r));
   }
 
   // Execute
@@ -253,9 +257,10 @@ class connection_base : public sqlpp::connection {
 
   template <typename PreparedExecute>
   command_result _run_prepared_execute(PreparedExecute& x) {
-    x._prepared_statement._reset();
-    x._bind_params();
-    return run_prepared_execute_impl(x._prepared_statement);
+    sqlpp::statement_handler_t{}.get_prepared_statement(x)._reset();
+    sqlpp::statement_handler_t{}.bind_parameters(x);
+    return run_prepared_execute_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(x));
   }
 
  public:

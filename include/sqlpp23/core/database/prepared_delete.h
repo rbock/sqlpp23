@@ -38,13 +38,26 @@ struct prepared_delete_t {
   using _parameter_list_t = make_parameter_list_t<_Statement>;
   using _prepared_statement_t = typename Db::_prepared_statement_t;
 
+  prepared_delete_t() = default;
+  explicit prepared_delete_t(_prepared_statement_t prepared_statement)
+      : _prepared_statement(std::move(prepared_statement)) {}
+  prepared_delete_t(const prepared_delete_t&) = default;
+  prepared_delete_t(prepared_delete_t&&) = default;
+  prepared_delete_t& operator=(const prepared_delete_t&) = default;
+  prepared_delete_t& operator=(prepared_delete_t&&) = default;
+  ~prepared_delete_t() = default;
+
+  _parameter_list_t params = {};
+
+ private:
+  friend statement_handler_t;
+
   auto _run(Db& db) {
     return statement_handler_t{}.run_prepared_delete_from(*this, db);
   }
 
-  void _bind_params() { params._bind(_prepared_statement); }
+  void _bind_parameters() { params._bind(_prepared_statement); }
 
-  _parameter_list_t params;
   _prepared_statement_t _prepared_statement;
 };
 

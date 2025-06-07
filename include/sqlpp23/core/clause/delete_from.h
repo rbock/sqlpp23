@@ -70,9 +70,9 @@ struct delete_result_methods_t {
   template <typename Statement, typename Db>
   auto _prepare(this Statement&& self, Db& db)
       -> prepared_delete_t<Db, std::decay_t<Statement>> {
-    return {{},
-            statement_handler_t{}.prepare_delete_from(
-                std::forward<Statement>(self), db)};
+    return prepared_delete_t<Db, std::decay_t<Statement>>{
+        statement_handler_t{}.prepare_delete_from(std::forward<Statement>(self),
+                                                  db)};
   }
 };
 

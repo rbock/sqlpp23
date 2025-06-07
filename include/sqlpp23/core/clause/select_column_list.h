@@ -143,9 +143,9 @@ struct select_result_methods_t {
   template <typename Statement, typename Db>
   auto _prepare(this Statement&& self, Db& db)
       -> prepared_select_t<Db, std::decay_t<Statement>> {
-    return {{},
-            statement_handler_t{}.prepare_select(std::forward<Statement>(self),
-                                                 db)};
+    return prepared_select_t<Db, std::decay_t<Statement>>{
+        statement_handler_t{}.prepare_select(std::forward<Statement>(self),
+                                             db)};
   }
 };
 

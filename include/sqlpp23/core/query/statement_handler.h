@@ -117,6 +117,16 @@ class statement_handler_t {
   auto run_prepared_update(Statement&& statement, Db& db) {
     return db._run_prepared_update(std::forward<Statement>(statement));
   }
+
+  template <typename PreparedStatement>
+  auto bind_parameters(PreparedStatement& statement) {
+    return statement._bind_parameters();
+  }
+
+  template <typename PreparedStatement>
+  auto& get_prepared_statement(PreparedStatement& statement) {
+    return statement._prepared_statement;
+  }
 };
 
 }  // namespace sqlpp
