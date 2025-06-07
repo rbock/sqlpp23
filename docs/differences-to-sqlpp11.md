@@ -8,7 +8,7 @@ If seems a bit dry, follow the links to examples.
 
 | % | sqlpp11 | sqlpp23 |
 | :------------- | :------------- | :----- |
-| **IDE code completion** | | |
+| [**IDE code completion**](/docs/tony_tables/ide.md) | | |
 | statement data members | all public | fewer and private (less noisy) |
 | prepared statement data members | all public | *only* API public (less noisy) |
 | connection functions | all public | *only* API public (less noisy) |
