@@ -26,8 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
 #include <sqlpp23/core/basic/schema.h>
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/transaction.h>
@@ -37,6 +35,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/mock_db/text_result.h>
+#include <sqlpp23/mock_db/prepared_statement.h>
 #include <sqlpp23/mock_db/database/connection_config.h>
 #include <sqlpp23/mock_db/database/connection_handle.h>
 #include <sqlpp23/mock_db/database/serializer_context.h>
@@ -54,15 +53,17 @@ struct command_result {
   uint64_t affected_rows;
 };
 
-struct prepared_statement_t {
-  template<typename Parameter>
-  void _bind_parameter(size_t /*index*/, const Parameter& /*parameter*/) {};
-};
-
 struct insert_result {
   uint64_t affected_rows;
   uint64_t last_insert_id;
 };
+
+inline void execute_statement(detail::connection_handle& handle,
+                              std::string_view statement) {
+  if constexpr (debug_enabled) {
+    handle.debug().log(log_category::statement, "Executing: '{}'", statement);
+  }
+}
 
 class connection_base : public sqlpp::connection {
  public:
@@ -91,7 +92,7 @@ class connection_base : public sqlpp::connection {
   command_result _execute(const Statement& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running execute call with\n" << query << std::endl;
+    execute_statement(_handle, query);
     return {};
   }
 
@@ -99,7 +100,7 @@ class connection_base : public sqlpp::connection {
   insert_result _insert(const Insert& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running insert call with\n" << query << std::endl;
+    execute_statement(_handle, query);
     return {};
   }
 
@@ -107,7 +108,7 @@ class connection_base : public sqlpp::connection {
   command_result _update(const Update& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running update call with\n" << query << std::endl;
+    execute_statement(_handle, query);
     return {};
   }
 
@@ -115,7 +116,7 @@ class connection_base : public sqlpp::connection {
   command_result _delete_from(const Delete& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running remove call with\n" << query << std::endl;
+    execute_statement(_handle, query);
     return {};
   }
 
@@ -123,8 +124,44 @@ class connection_base : public sqlpp::connection {
   text_result_t _select(const Select& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running select call with\n" << query << std::endl;
+    execute_statement(_handle, query);
     return {&_mock_result_data, _handle.config.get()};
+  }
+
+  prepared_statement_t prepare_impl(const std::string& statement,
+                                    size_t /*no_of_parameters*/) {
+    if constexpr (debug_enabled) {
+      _handle.debug().log(log_category::statement, "Preparing: '{}'",
+                          statement);
+    }
+
+    return prepared_statement_t{_handle.config.get()};
+  }
+
+  command_result run_prepared_delete_from_impl(
+      prepared_statement_t& /*prepared_statement*/) {
+    return {.affected_rows = 0};
+  }
+
+  command_result run_prepared_execute_impl(
+      prepared_statement_t& /*prepared_statement*/) {
+    return {.affected_rows = 0};
+  }
+
+  insert_result run_prepared_insert_impl(
+      prepared_statement_t& /*prepared_statement*/) {
+    return {.affected_rows = 0, .last_insert_id = 0};
+  }
+
+  text_result_t run_prepared_select_impl(
+      prepared_statement_t& /* prepared_statement */,
+      size_t /*no_of_columns*/) {
+    return {&_mock_result_data, _handle.config.get()};
+  }
+
+  command_result run_prepared_update_impl(
+      prepared_statement_t& /*prepared_statement*/) {
+    return {.affected_rows = 0};
   }
 
   // Prepared statements start here
@@ -142,70 +179,73 @@ class connection_base : public sqlpp::connection {
   _prepared_statement_t _prepare_delete_from(const DeleteFrom& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running prepare delete_from call with\n" << query << std::endl;
-    return {};
+    return prepare_impl(query,
+                        parameters_of_t<std::decay_t<DeleteFrom>>::size());
   }
 
   template <typename Statement>
   _prepared_statement_t _prepare_execute(const Statement& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running prepare execute call with\n" << query << std::endl;
-    return {};
+    return prepare_impl(query,
+                        parameters_of_t<std::decay_t<Statement>>::size());
   }
 
   template <typename Insert>
   _prepared_statement_t _prepare_insert(const Insert& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running prepare insert call with\n" << query << std::endl;
-    return {};
+    return prepare_impl(query, parameters_of_t<std::decay_t<Insert>>::size());
   }
 
   template <typename Select>
   _prepared_statement_t _prepare_select(const Select& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running prepare select call with\n" << query << std::endl;
-    return {};
+    return prepare_impl(query, parameters_of_t<std::decay_t<Select>>::size());
   }
 
   template <typename Update>
   _prepared_statement_t _prepare_update(const Update& x) {
     context_t context;
     const auto query = to_sql_string(context, x);
-    std::cout << "Running prepare update call with\n" << query << std::endl;
-    return {};
+    return prepare_impl(query, parameters_of_t<std::decay_t<Update>>::size());
   }
 
   template <typename PreparedDelete>
   command_result _run_prepared_delete_from(PreparedDelete& d) {
     statement_handler_t{}.bind_parameters(d);
-    return {};
+    return run_prepared_delete_from_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(d));
   }
 
   template <typename PreparedExecute>
   command_result _run_prepared_execute(PreparedExecute& e) {
     statement_handler_t{}.bind_parameters(e);
-    return {};
+    return run_prepared_execute_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(e));
   }
 
   template <typename PreparedInsert>
   insert_result _run_prepared_insert(PreparedInsert& i) {
     statement_handler_t{}.bind_parameters(i);
-    return {};
-  }
-
-  template <typename PreparedUpdate>
-  command_result _run_prepared_update(PreparedUpdate& u) {
-    statement_handler_t{}.bind_parameters(u);
-    return {};
+    return run_prepared_insert_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(i));
   }
 
   template <typename PreparedSelect>
   text_result_t _run_prepared_select(PreparedSelect& s) {
     statement_handler_t{}.bind_parameters(s);
-    return {&_mock_result_data, _handle.config.get()};
+    return run_prepared_select_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(s),
+        sqlpp::no_of_result_columns<std::decay_t<PreparedSelect>>::value);
+  }
+
+  template <typename PreparedUpdate>
+  command_result _run_prepared_update(PreparedUpdate& u) {
+    statement_handler_t{}.bind_parameters(u);
+    return run_prepared_update_impl(
+        sqlpp::statement_handler_t{}.get_prepared_statement(u));
   }
 
   auto attach(std::string name) -> ::sqlpp::schema_t { return {name}; }

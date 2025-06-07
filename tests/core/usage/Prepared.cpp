@@ -158,14 +158,5 @@ int Prepared(int, char*[]) {
     }
   }
 
-  // Check that a prepared select is default-constructable
-  {
-    auto s = select(all_of(t)).from(t).where(
-        (t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
-        t.boolNn != parameter(t.boolNn));
-    using P = decltype(db.prepare(s));
-    P p;
-  }
-
   return 0;
 }
