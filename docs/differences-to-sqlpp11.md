@@ -16,6 +16,7 @@ If seems a bit dry, follow the links to examples.
 | **Data types** | | |
 | nullable values | `sqlpp::value_or_null` | `std::optional` |
 | `NULL` | `sqlpp::null` | `std::nullopt` |
+| date and time | `day_point`, `time_point`, and `time_of_day` are prepresented as `sqlpp::chrono::day_point`, `sqlpp::chrono::microsecond_point`, and `std::chrono::microseconds` | `date`, `timestamp`, `time` are represented as `std::chrono::sys_days`, `std::chrono::sys_time<std::chrono::microseconds>`, and `std::chrono::microseconds` |
 | | | |
 | **Result row** | | |
 | result fields | specializations of the `result_field_t` template | standard types, like `int64_t`, `std::optional<int64_t>`, or `std::string_view` |

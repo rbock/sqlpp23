@@ -176,6 +176,7 @@ struct data_type_of<std::span<std::uint8_t>> {
   using type = blob;
 };
 
+// date
 struct date {};
 template <>
 struct data_type_of<date> {
@@ -186,6 +187,7 @@ struct data_type_of<std::chrono::sys_days> {
   using type = date;
 };
 
+// time of day
 struct time {};
 template <>
 struct data_type_of<time> {
@@ -196,6 +198,7 @@ struct data_type_of<std::chrono::duration<Rep, Period>> {
   using type = time;
 };
 
+// timestamp aka date_time
 struct timestamp {};
 template <>
 struct data_type_of<timestamp> {
