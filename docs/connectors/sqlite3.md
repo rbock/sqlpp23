@@ -89,7 +89,7 @@ This is not supported and will fail to compile.
 
 ## `delete_from` ... `using`
 
-`using` is not suppored and will fail to compile.
+`using` is not supported and will fail to compile.
 
 These are not supported and will fail to compile before version 3.39.0.
 

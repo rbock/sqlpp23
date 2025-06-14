@@ -30,6 +30,6 @@ db(truncate(tab));
 
 > [!NOTE]
 > sqlite3 does not support `TRUNCATE`. The sqlite3/SQLCipher connector
-> therefore serializes this as conditionless `DELETE FROM`.
+> therefore serializes this as unconditional `DELETE FROM`.
 
 [**< Index**](/docs/README.md)

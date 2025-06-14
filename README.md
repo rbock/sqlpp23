@@ -67,7 +67,7 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
 }
 ```
 
-[database specfic](/docs/connectors.md)
+[database specific](/docs/connectors.md)
 ```C++
   for (const auto &row : db(sql::insert_into(foo)
                                 .set(foo.id = 7, foo.name = std::nullopt, foo.hasFun = false)

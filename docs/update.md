@@ -16,7 +16,7 @@ The `update` function takes a single [raw table](/docs/tables.md) as its argumen
 
 ## `set`
 
-The `set` function has to be called with one or more assigments as its
+The `set` function has to be called with one or more assignments as its
 arguments. The left sides of these assignments have to be columns of the table
 mentioned above.
 

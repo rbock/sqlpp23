@@ -21,7 +21,7 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
 
 In this example, selected columns are fixed (`foo.id`, `foo.name`,
 `foo.hasFun`), they belong to exactly one table (`foo`), and the condition
-definetely compares the id with a number (`17`).
+definitely compares the id with a number (`17`).
 
 ## Using variables
 

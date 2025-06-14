@@ -1,6 +1,6 @@
 [**\< Connectors**](/docs/connectors.md)
 
-# Postgresql connector
+# PostgreSQL connector
 
 ## Creating a connection
 

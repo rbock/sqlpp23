@@ -12,7 +12,7 @@ same way.
 It is a bit different with comparisons. SQL `NULL` is a strange beast from a C++
 point of view. It can be compared to anything but that comparison never returns
 `true`. It also never returns `false`, it returns `NULL`. Even when you compare
-`NULL` ot itself, the result is `NULL`.
+`NULL` to itself, the result is `NULL`.
 
 ```SQL
 NULL != NULL    -> NULL
@@ -34,7 +34,7 @@ This checks if a value is or isn't `NULL`.
 ## `IS DISTINCT FROM` and `IS NOT DISTINCT FROM`
 
 These operators offer a `NULL`-safe comparison. They will return boolean results
-even if either or both operatands are `NULL`.
+even if either or both operands are `NULL`.
 
 `IS DISTINCT FROM` resembles
 `std::optional<T>::operator!=`.\

@@ -66,7 +66,7 @@ For assignments and comparisons expressions of type `sqlpp::text` will work.
 
 ## Date, Timestamp, etc
 
-Note that sqlpp23 ignores timezones. It works best if both the database and the C++ code operate in UTC. If you are doing anything else, you are on your own.
+Note that sqlpp23 ignores time zones. It works best if both the database and the C++ code operate in UTC. If you are doing anything else, you are on your own.
 
 ### Date
 
@@ -86,7 +86,7 @@ Parameters and result fields use the C++ type `std::chrono::sys_time<std::chrono
 
 C++ data types `std::chrono::sys_time<Period>>` is considered `sqlpp::timestamp` if `Period` is smaller than `std::chrono::days`.
 
-For assignments, expressions of type `sqlpp::timestamp` will work. Comparisons addtionally work with `sqlpp::date`.
+For assignments, expressions of type `sqlpp::timestamp` will work. Comparisons additionally work with `sqlpp::date`.
 
 ### Time of day
 

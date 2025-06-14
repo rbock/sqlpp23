@@ -2,7 +2,7 @@
 
 # Connection Pools
 
-SQLPP11 has support for connection pools which are centralized caches of database connections. When you need a database connection, you can fetch one from the connection pool, use the connection to make SQL
+sqlpp11 has support for connection pools which are centralized caches of database connections. When you need a database connection, you can fetch one from the connection pool, use the connection to make SQL
 queries and when you no longer need the connection object, destroy it, usually by letting it go out of scope. When a connection object is destroyed, the actual connection to the database server is not closed,
 but put in a cache instead and next time when you need a database connection object, you will be handed one that reuses a cached connection. If there are no connections is the cache, then a new connection
 will be created, wrapped in a connection object and handed to you.

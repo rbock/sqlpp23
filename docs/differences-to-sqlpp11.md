@@ -16,7 +16,7 @@ If seems a bit dry, follow the links to examples.
 | **Data types** | | |
 | nullable values | `sqlpp::value_or_null` | `std::optional` |
 | `NULL` | `sqlpp::null` | `std::nullopt` |
-| date and time | `day_point`, `time_point`, and `time_of_day` are prepresented as `sqlpp::chrono::day_point`, `sqlpp::chrono::microsecond_point`, and `std::chrono::microseconds` | `date`, `timestamp`, `time` are represented as `std::chrono::sys_days`, `std::chrono::sys_time<std::chrono::microseconds>`, and `std::chrono::microseconds` |
+| date and time | `day_point`, `time_point`, and `time_of_day` are represented as `sqlpp::chrono::day_point`, `sqlpp::chrono::microsecond_point`, and `std::chrono::microseconds` | `date`, `timestamp`, `time` are represented as `std::chrono::sys_days`, `std::chrono::sys_time<std::chrono::microseconds>`, and `std::chrono::microseconds` |
 | | | |
 | **Result row** | | |
 | result fields | specializations of the `result_field_t` template | standard types, like `int64_t`, `std::optional<int64_t>`, or `std::string_view` |
@@ -38,7 +38,7 @@ If seems a bit dry, follow the links to examples.
 | `operator()` | executes statements, but not strings | executes statements and strings |
 | `execute` | executes strings and non-select statements | *dropped* |
 | `query` | executes select statements | *dropped* |
-| exceptions | many individual exception classes for postgresql, but not for other connectors | exception classes for each connector to transport native error codes |
+| exceptions | many individual exception classes for PostgreSQL, but not for other connectors | exception classes for each connector to transport native error codes |
 | | | |
 | [**Constraints**](/docs/tony_tables/constraints.md) | | |
 | read-only columns  | e.g. for auto-increment | for generated columns (`GENERATED`) |

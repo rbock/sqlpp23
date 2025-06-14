@@ -99,7 +99,7 @@ Named expressions are expressions with a name. No surprise there. But what kind
 of expressions have a name? Table columns, for instance. In our example, that
 would be `foo.id`, `foo.name` and `foo.hasFun`.
 
-Other expressions, like function calls or arithmetic operations, for intance, do
+Other expressions, like function calls or arithmetic operations, for instance, do
 not have a name per se. But you can give them a name using the
 `as(name_provider)` method. The easiest way is to use a named expression as
 `name_provider`, e.g.

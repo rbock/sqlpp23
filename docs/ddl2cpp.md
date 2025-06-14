@@ -3,7 +3,7 @@
 # Code Generation
 
 sqlpp23 requires C++ representations for the database tables you want interact
-with. You can generate these table represenations using the `ddl2cpp` script.
+with. You can generate these table representations using the `ddl2cpp` script.
 
 ## Generate ddl files
 

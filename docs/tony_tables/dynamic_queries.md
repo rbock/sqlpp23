@@ -11,7 +11,7 @@
 </tr>
 <tr><td colspan=2>
 
-  **Dynamically selected colum**
+  **Dynamically selected column**
 
 </td></tr>
 <tr>
