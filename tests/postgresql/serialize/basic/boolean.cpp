@@ -30,7 +30,7 @@
 #include <sqlpp23/tests/postgresql/serialize_helpers.h>
 
 int main() {
-  SQLPP_COMPARE(true, "'t'");
+  SQLPP_COMPARE(true, "'t'::boolean");
 
   return 0;
 }
