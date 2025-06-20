@@ -1,6 +1,6 @@
 [**\< Differences**](/docs/differences-to-sqlpp11.md)
 
-# Before and after: dynamic queries
+# Before and after: Dynamic queries
 
 ## `CASE`
 

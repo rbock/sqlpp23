@@ -41,16 +41,16 @@ The following pages will tell you how to use it:
   - [Static vs. Dynamic](/docs/dynamic.md)
   - [Exceptions](exception.md)
 - **Building Blocks**
-  - [Tables, Joins, and CTEs](/docs/tables.md)
+  - [Tables, joins, and CTEs](/docs/tables.md)
   - [Functions](/docs/functions.md)
   - [Operators](/docs/operators.md)
-  - [Sub Selects](/docs/sub_select.md)
+  - [Sub-selects](/docs/sub_select.md)
 - **Invoking Statements**
   - [Statement execution](/docs/statement_execution.md)
   - [Transaction](/docs/transaction.md)
 - **Advanced Topics**
-  - [Thread Safety](/docs/thread_safety.md)
-  - [Connection Pool](/docs/connection_pool.md)
+  - [Thread safety](/docs/thread_safety.md)
+  - [Connection pools](/docs/connection_pool.md)
 
 If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be
 interested in the [differences](/docs/differences-to-sqlpp11.md).

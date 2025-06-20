@@ -18,7 +18,7 @@ define types representing the tables and columns you want to work with)
 Lets also assume we have an object `db` representing a connection to your
 [database](/docs/connection.md).
 
-## A Basic example
+## A basic example
 
 This shows how you can select some data from table and iterate over the results:
 
@@ -148,7 +148,7 @@ SQLPP_ALIAS_PROVIDER(barId);
 select(foo.id, bar.id.as(barId));
 ```
 
-### Select All Columns
+### Select all columns
 
 Statements like `SELECT * from foo` is used pretty often in SQL. sqlpp23 offers
 something similar:
@@ -204,7 +204,7 @@ columns have to be added afterwards
 sqlpp::select().columns(foo.id, foo.name);
 ```
 
-### Select Flags
+### Select flags
 
 The following flags are currently supported:
 
@@ -271,7 +271,7 @@ select(foo.id).from(foo)
     .where(dynamic(maybe, foo.id > 17));
 ```
 
-### Group By
+### Group by
 
 The `group_by` clause takes one or more expression arguments, for instance:
 
@@ -299,7 +299,7 @@ method.
 dynamic condition is false, no `HAVING` will be included in the serialized
 statement.
 
-### Order By
+### Order by
 
 The `order_by` method takes one of more order expression, which are normal
 expression adorned with `.asc()` or `.desc()`, e.g.
@@ -313,7 +313,7 @@ not be serialized if their conditions are false. If all arguments are dynamic
 and all conditions are false, the `ORDER BY` clause will not be serialized at
 all.
 
-### Limit And Offset
+### Limit and offset
 
 The methods `limit` and `offset` take a `size_t` argument, for instance:
 
@@ -325,7 +325,7 @@ select(all_of(foo)).from(foo).unconditionally().limit(10u).offset(20u);
 In case the dynamic condition is false, the `LIMIT` or `OFFSET` clause will not
 be included in the serialized statement.
 
-### For Update
+### For update
 
 The `for_update` method modifies the query with a simplified "FOR UPDATE" clause
 without columns.
@@ -334,7 +334,7 @@ without columns.
 select(all_of(foo)).from(foo).where(foo.id != 17).for_update();
 ```
 
-## Running The Statement
+## Running the statement
 
 OK, so now we know how to create a select statement. But the statement does not
 really do anything unless we hand it over to the database:
@@ -350,12 +350,12 @@ normally want to use `auto`:
 auto result = db(select(all_of(foo)).from(foo).unconditionally());
 ```
 
-## Accessing The Results
+## Accessing the results
 
 The `result` object created by executing a `select` query is a container of
 result rows.
 
-### Range-based For Loops
+### Range-based for loops
 
 Not surprisingly, you can iterate over the rows using a range-based for-loop
 like this:
@@ -372,7 +372,7 @@ Lovely, isn't it? The row objects have types specifically tailored for the
 select query you wrote. You can access their member by name, and these members
 have the expected type.
 
-### Function-based Access
+### Function-based access
 
 If for some reason, you don't want to use range-based for-loops, you can use
 `front()` and `pop_front()` on the result, like this:
