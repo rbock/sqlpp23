@@ -1,6 +1,6 @@
 [**\< Index**](/docs/README.md)
 
-# Connection Pools
+# Connection pools
 
 sqlpp11 has support for connection pools which are centralized caches of database connections. When you need a database connection, you can fetch one from the connection pool, use the connection to make SQL
 queries and when you no longer need the connection object, destroy it, usually by letting it go out of scope. When a connection object is destroyed, the actual connection to the database server is not closed,

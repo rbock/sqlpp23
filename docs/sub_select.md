@@ -1,8 +1,8 @@
 [**< Index**](/docs/README.md)
 
-# Sub-Select
+# Sub-select
 
-## Sub-Select as a value
+## Sub-select as a value
 
 A sub select with a single column and a single result row can be used as a value, for instance in `where`, e.g.
 
@@ -17,7 +17,7 @@ for (const auto& row :
 }
 ```
 
-## Sub-Select as a selected value
+## Sub-select as a selected value
 
 As seen above, a sub select statement with single column and a single result row can be used as a value. But it does not have a name.
 To use it a sub select as a column, you need to wrap in `sqlpp::value` and give the whole thing a name, e.g.
@@ -34,7 +34,7 @@ for (const auto& row :
   const int b = row.cheese_cake;
 }
 ```
-# Sub-Select as a value set
+# Sub-select as a value set
 
 A sub select with a single column can be used in combination with operators like `exist`, `any`, or `in`, e.g.
 
@@ -49,7 +49,7 @@ for (const auto& row :
 }
 ```
 
-### Sub-Select as a table
+### Sub-select as a table
 
 A select can be used as a pseudo table in another select. You just have to give
 it a name.

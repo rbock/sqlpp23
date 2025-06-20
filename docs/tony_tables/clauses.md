@@ -1,6 +1,6 @@
 [**\< Differences**](/docs/differences-to-sqlpp11.md)
 
-# Before and after: clauses
+# Before and after: Clauses
 
 ## `DELETE FROM`
 

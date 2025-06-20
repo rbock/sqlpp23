@@ -1,6 +1,6 @@
 [**< Index**](/docs/README.md)
 
-# Thread Safety
+# Thread safety
 
 sqlpp23 aspires to have no influence on thread safety itself, but offers no
 particular guarantees. This means that in the general case your program may have
