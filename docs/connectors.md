@@ -1,6 +1,6 @@
 [**\< Index**](/docs/README.md)
 
-# Database Connectors
+# Database connectors
 
 Database connector classes connect your SQL code with the respective database backend.
 

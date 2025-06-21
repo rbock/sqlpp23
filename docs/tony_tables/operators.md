@@ -1,6 +1,6 @@
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
-# Before and after: dynamic queries
+# Before and after: Dynamic queries
 
 ## `CASE`
 
@@ -220,5 +220,5 @@ foo.textN.is_not_distinct_from(
 </tr>
 </table>
 
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 

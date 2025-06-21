@@ -1,6 +1,6 @@
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
-# Before and after: clauses
+# Before and after: Clauses
 
 ## `DELETE FROM`
 
@@ -129,5 +129,5 @@ select(all_of(t)).from(t)
 </tr>
 </table>
 
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 

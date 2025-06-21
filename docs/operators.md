@@ -4,7 +4,7 @@
 
 This page describes various SQL operators and expressions available in sqlpp23.
 
-## CASE Operator
+## CASE operator
 
 The CASE operator allows for conditional expression evaluation, similar to an if/then/else structure in programming languages. sqlpp23 provides a fluent interface to construct CASE expressions.
 

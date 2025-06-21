@@ -1,6 +1,6 @@
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
-# Before and after: dynamic queries
+# Before and after: Dynamic queries
 
 ## `SELECT`
 
@@ -142,5 +142,5 @@ for (const auto& row :
 </tr>
 </table>
 
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
