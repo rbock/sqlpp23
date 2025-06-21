@@ -53,6 +53,6 @@ The following pages will tell you how to use it:
   - [Connection pools](/docs/connection_pool.md)
 
 If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be
-interested in the [differences](/docs/differences-to-sqlpp11.md).
+interested in the [differences](/docs/differences_to_sqlpp11.md).
 
 [**^ Overview**](/README.md)

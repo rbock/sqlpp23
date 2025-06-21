@@ -1,4 +1,4 @@
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
 # Before and after: Clauses
 
@@ -129,5 +129,5 @@ select(all_of(t)).from(t)
 </tr>
 </table>
 
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
