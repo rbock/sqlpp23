@@ -1,4 +1,4 @@
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
 
 # Before and after: IDE code completion
 
@@ -216,4 +216,4 @@ Suggested members:
 </tr>
 </table>
 
-[**\< Differences**](/docs/differences-to-sqlpp11.md)
+[**\< Differences**](/docs/differences_to_sqlpp11.md)
