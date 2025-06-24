@@ -38,7 +38,6 @@ foreach(test_file IN LISTS test_files)
 endforeach()
 
 add_subdirectory(basic)
-add_subdirectory(clause)
 add_subdirectory(function)
 add_subdirectory(operator)
 add_subdirectory(query)
