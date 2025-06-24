@@ -1,15 +1,15 @@
-# Copyright (c) 2021-2021, Roland Bock
+# Copyright (c) 2025, Vesselin Atanasov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
 #
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
+#   Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this
-#    list of conditions and the following disclaimer in the documentation and/or
-#    other materials provided with the distribution.
+#   Redistributions in binary form must reproduce the above copyright notice, this
+#   list of conditions and the following disclaimer in the documentation and/or
+#   other materials provided with the distribution.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -22,12 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp23_postgresql_testing INTERFACE)
-target_include_directories(sqlpp23_postgresql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+function(create_test name)
+    set(target sqlpp23_postgresql_recipes_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
 
-add_subdirectory(asserts)
-add_subdirectory(constraints)
-add_subdirectory(recipes)
-add_subdirectory(serialize)
-add_subdirectory(types)
-add_subdirectory(usage)
+create_test(optimistic_concurrency_control)
