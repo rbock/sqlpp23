@@ -144,5 +144,26 @@ sqlpp23::coalesce(my_table.text_column, my_table.another_column, "default_value"
 sqlpp23::coalesce(my_table.int_column, "default_value");
 ```
 
+### `value`
+
+Most of the time, raw values like `7` or `"seven"` can be used in expressions just like that, e.g.
+
+```c++
+select((tab.id + 3).as(something))
+    .from(tab)
+    .where(tab.id == 7 or tab.name == "seven");
+insert_into(tab).set(tab.name = "eight");
+```
+
+But if member functions like `.as()` or `.in()` are needed, then such raw values need to be wrapped by the `value` function, e.g.
+
+```c++
+select(value(7).as(something), tab.id)
+    .from(tab)
+    .where(value("seven").in(tab.first, tab.last));
+```
+
+The other use of the `value` function is to wrap a [sub select](/docs/sub_select.md) for use as a selected column.
+
 [**< Index**](/docs/README.md)
 

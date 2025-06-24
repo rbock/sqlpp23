@@ -180,7 +180,7 @@ Otherwise, either
 
 Columns can be selected conditionally using [`dynamic`](/docs/dynamic.md):
 
-```C++
+```c++
 select(
     foo.id,                          // statically selected
     dynamic(maybe1, foo.textN),       // dynamically selected, if maybe1 == true
@@ -193,6 +193,22 @@ row. In case the condition (e.g. `maybe1`) is false:
 
 - the column serializes to `NULL as <name>`
 - the field in the result row will be `std::nullopt`
+
+### Constants
+
+`select` requires arguments to have an sqlpp data type and a name. Thus, the following would fail to compile:
+
+```c++
+select(7); // 7 has no name
+```
+
+The [`value`](/docs/functions.md) function can be used to wrap constant values and give them names:
+
+```c++
+for (const auto& row : select(value(7).as(sqlpp::alias::a))) {
+    assert(row.a == 7);
+}
+```
 
 ### Alternative syntax for selecting columns
 
