@@ -500,6 +500,11 @@ struct is_select_column {
 };
 
 template <typename T>
+decltype(auto) unwrap_value(T t) {
+  return t;
+}
+
+template <typename T>
 static inline constexpr bool is_select_column_v = is_select_column<T>::value;
 
 template <typename... T>

@@ -30,8 +30,6 @@
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
 
-#include <iostream>
-
 SQLPP_CREATE_NAME_TAG(kaesekuchen);
 SQLPP_CREATE_NAME_TAG(something);
 
@@ -289,6 +287,17 @@ int Function(int, char*[]) {
     using TI = decltype(sqlpp::value(7));
     using TF = decltype(sqlpp::value(1.5));
     using TT = decltype(sqlpp::value("cheesecake"));
+    static_assert(not sqlpp::has_data_type<TB>::value, "type requirement");
+    static_assert(not sqlpp::has_data_type<TI>::value, "type requirement");
+    static_assert(not sqlpp::has_data_type<TF>::value, "type requirement");
+    static_assert(not sqlpp::has_data_type<TT>::value, "type requirement");
+  }
+
+  {
+    using TB = decltype(unwrap_value(sqlpp::value(true)));
+    using TI = decltype(unwrap_value(sqlpp::value(7)));
+    using TF = decltype(unwrap_value(sqlpp::value(1.5)));
+    using TT = decltype(unwrap_value(sqlpp::value("cheesecake")));
     static_assert(sqlpp::is_boolean<TB>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(sqlpp::is_floating_point<TF>::value, "type requirement");

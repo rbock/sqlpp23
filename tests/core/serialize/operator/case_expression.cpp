@@ -29,34 +29,34 @@
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  // Keep existing test variables if they don't conflict
-  const auto cond = sqlpp::value(true);
-  const auto cond2 = sqlpp::value(false);
+  const auto foo = test::TabFoo{};
+  const auto cond = true;
+  const auto cond2 = false;
   const auto val = 11;
   const auto val2 = 13;
-  const auto expr = sqlpp::value(17) + 4;
+  const auto expr = foo.id + 4;
 
   // Case operands use parentheses where required.
-  SQLPP_COMPARE(case_when(cond).then(val).else_(val),
+  SQLPP_COMPARE(sqlpp::case_when(cond).then(val).else_(val),
                 "CASE WHEN 1 THEN 11 ELSE 11 END");
-  SQLPP_COMPARE(case_when(cond).then(val).else_(expr),
-                "CASE WHEN 1 THEN 11 ELSE (17 + 4) END");
-  SQLPP_COMPARE(case_when(cond).then(expr).else_(val),
-                "CASE WHEN 1 THEN (17 + 4) ELSE 11 END");
-  SQLPP_COMPARE(case_when(cond).then(expr).else_(expr),
-                "CASE WHEN 1 THEN (17 + 4) ELSE (17 + 4) END");
-  SQLPP_COMPARE(case_when(false or cond).then(val).else_(val),
+  SQLPP_COMPARE(sqlpp::case_when(cond).then(val).else_(expr),
+                "CASE WHEN 1 THEN 11 ELSE (tab_foo.id + 4) END");
+  SQLPP_COMPARE(sqlpp::case_when(cond).then(expr).else_(val),
+                "CASE WHEN 1 THEN (tab_foo.id + 4) ELSE 11 END");
+  SQLPP_COMPARE(sqlpp::case_when(cond).then(expr).else_(expr),
+                "CASE WHEN 1 THEN (tab_foo.id + 4) ELSE (tab_foo.id + 4) END");
+  SQLPP_COMPARE(sqlpp::case_when(false or cond).then(val).else_(val),
                 "CASE WHEN (0 OR 1) THEN 11 ELSE 11 END");
-  SQLPP_COMPARE(case_when(false or cond).then(val).else_(expr),
-                "CASE WHEN (0 OR 1) THEN 11 ELSE (17 + 4) END");
-  SQLPP_COMPARE(case_when(false or cond).then(expr).else_(val),
-                "CASE WHEN (0 OR 1) THEN (17 + 4) ELSE 11 END");
-  SQLPP_COMPARE(case_when(false or cond).then(expr).else_(expr),
-                "CASE WHEN (0 OR 1) THEN (17 + 4) ELSE (17 + 4) END");
+  SQLPP_COMPARE(sqlpp::case_when(false or cond).then(val).else_(expr),
+                "CASE WHEN (0 OR 1) THEN 11 ELSE (tab_foo.id + 4) END");
+  SQLPP_COMPARE(sqlpp::case_when(false or cond).then(expr).else_(val),
+                "CASE WHEN (0 OR 1) THEN (tab_foo.id + 4) ELSE 11 END");
+  SQLPP_COMPARE(sqlpp::case_when(false or cond).then(expr).else_(expr),
+                "CASE WHEN (0 OR 1) THEN (tab_foo.id + 4) ELSE (tab_foo.id + 4) END");
 
   // Mulitple when/then pairs serialize as expected.
-  SQLPP_COMPARE(case_when(cond).then(val).when(cond2).then(val2).else_(expr),
-                "CASE WHEN 1 THEN 11 WHEN 0 THEN 13 ELSE (17 + 4) END");
+  SQLPP_COMPARE(sqlpp::case_when(cond).then(val).when(cond2).then(val2).else_(expr),
+                "CASE WHEN 1 THEN 11 WHEN 0 THEN 13 ELSE (tab_foo.id + 4) END");
 
   return 0;
 }

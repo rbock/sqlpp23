@@ -29,7 +29,7 @@
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(17);
+  const auto val = 17;
 
   const auto foo = test::TabFoo{};
 
@@ -76,7 +76,7 @@ int main(int, char*[]) {
                 "");
 
   // Single declared column
-  SQLPP_COMPARE(group_by(val), " GROUP BY 17");
+  SQLPP_COMPARE(sqlpp::group_by(val), " GROUP BY 17");
   // Note that the parentheses are superflous but also don't hurt.
   SQLPP_COMPARE(group_by(foo.id + 17),
                 " GROUP BY (tab_foo.id + 17)");
@@ -88,14 +88,14 @@ int main(int, char*[]) {
                 " GROUP BY 17, tab_foo.id");
 
   // Mixed dynamic declared column
-  SQLPP_COMPARE(group_by(foo.id, dynamic(true, val)),
+  SQLPP_COMPARE(group_by(foo.id, sqlpp::dynamic(true, val)),
                 " GROUP BY tab_foo.id, 17");
-  SQLPP_COMPARE(group_by(dynamic(true, val), foo.id),
+  SQLPP_COMPARE(group_by(sqlpp::dynamic(true, val), foo.id),
                 " GROUP BY 17, tab_foo.id");
 
-  SQLPP_COMPARE(group_by(foo.id, dynamic(false, val)),
+  SQLPP_COMPARE(group_by(foo.id, sqlpp::dynamic(false, val)),
                 " GROUP BY tab_foo.id");
-  SQLPP_COMPARE(group_by(dynamic(false, val), foo.id),
+  SQLPP_COMPARE(group_by(sqlpp::dynamic(false, val), foo.id),
                 " GROUP BY tab_foo.id");
 
   return 0;

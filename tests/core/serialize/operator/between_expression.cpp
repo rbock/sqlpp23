@@ -26,22 +26,24 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
+  const auto foo = test::TabFoo{};
   const auto val = sqlpp::value(1);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto expr = foo.id + 4;
 
   // Operands are enclosed in parenheses where required
-  SQLPP_COMPARE(val.between(val, val), "1 BETWEEN 1 AND 1");
-  SQLPP_COMPARE(val.between(val, expr), "1 BETWEEN 1 AND (17 + 4)");
-  SQLPP_COMPARE(val.between(expr, val), "1 BETWEEN (17 + 4) AND 1");
-  SQLPP_COMPARE(val.between(expr, expr), "1 BETWEEN (17 + 4) AND (17 + 4)");
-  SQLPP_COMPARE(expr.between(val, val), "(17 + 4) BETWEEN 1 AND 1");
-  SQLPP_COMPARE(expr.between(val, expr), "(17 + 4) BETWEEN 1 AND (17 + 4)");
-  SQLPP_COMPARE(expr.between(expr, val), "(17 + 4) BETWEEN (17 + 4) AND 1");
+  SQLPP_COMPARE(val.between(1, 1), "1 BETWEEN 1 AND 1");
+  SQLPP_COMPARE(val.between(1, expr), "1 BETWEEN 1 AND (tab_foo.id + 4)");
+  SQLPP_COMPARE(val.between(expr, 1), "1 BETWEEN (tab_foo.id + 4) AND 1");
+  SQLPP_COMPARE(val.between(expr, expr), "1 BETWEEN (tab_foo.id + 4) AND (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr.between(1, 1), "(tab_foo.id + 4) BETWEEN 1 AND 1");
+  SQLPP_COMPARE(expr.between(1, expr), "(tab_foo.id + 4) BETWEEN 1 AND (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr.between(expr, 1), "(tab_foo.id + 4) BETWEEN (tab_foo.id + 4) AND 1");
   SQLPP_COMPARE(expr.between(expr, expr),
-                "(17 + 4) BETWEEN (17 + 4) AND (17 + 4)");
+                "(tab_foo.id + 4) BETWEEN (tab_foo.id + 4) AND (tab_foo.id + 4)");
 
-  SQLPP_COMPARE(val.between(val, val) and true, "(1 BETWEEN 1 AND 1) AND 1");
+  SQLPP_COMPARE(val.between(1, 1) and true, "(1 BETWEEN 1 AND 1) AND 1");
   return 0;
 }

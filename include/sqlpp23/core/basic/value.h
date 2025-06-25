@@ -45,22 +45,8 @@ struct value_t : public enable_as, public enable_comparison {
 };
 
 template <typename T>
-struct data_type_of<value_t<T>> {
-  using type = data_type_of_t<T>;
-};
-
-template <typename T>
-struct nodes_of<value_t<T>> {
-  // Required in case of value(select(...)).
-  using type = detail::type_vector<T>;
-};
-
-template <typename T>
-struct requires_parentheses<value_t<T>> : public requires_parentheses<T> {};
-
-template <typename Context, typename T>
-auto to_sql_string(Context& context, const value_t<T>& t) -> std::string {
-  return to_sql_string(context, t._value);
+decltype(auto) unwrap_value(value_t<T> t) {
+  return t._value;
 }
 
 template <typename T>

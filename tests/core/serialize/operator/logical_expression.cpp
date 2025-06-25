@@ -26,18 +26,20 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(true);
-  const auto expr = sqlpp::value(17) > 15;
+  const auto foo = test::TabFoo{};
+  const auto val = true;
+  const auto expr = foo.id > 15;
 
   // Operands are enclosed in parenheses where required
-  SQLPP_COMPARE(val and val, "1 AND 1");
+  SQLPP_COMPARE(foo.boolN and val, "tab_foo.bool_n AND 1");
   SQLPP_COMPARE(val and expr, "1 AND (17 > 15)");
   SQLPP_COMPARE(expr and val, "(17 > 15) AND 1");
   SQLPP_COMPARE(expr and expr, "(17 > 15) AND (17 > 15)");
 
-  SQLPP_COMPARE(val or val, "1 OR 1");
+  SQLPP_COMPARE(foo.boolN or val, "tab_foo.bool_n OR 1");
   SQLPP_COMPARE(val or expr, "1 OR (17 > 15)");
   SQLPP_COMPARE(expr or val, "(17 > 15) OR 1");
   SQLPP_COMPARE(expr or expr, "(17 > 15) OR (17 > 15)");
@@ -52,58 +54,58 @@ int main(int, char*[]) {
   SQLPP_COMPARE(not(val or expr), "NOT (1 OR (17 > 15))");
 
   // Chains are not nested in parentheses.
-  SQLPP_COMPARE(val and val and val and val and val,
-                "1 AND 1 AND 1 AND 1 AND 1");
-  SQLPP_COMPARE(val or val or val or val or val, "1 OR 1 OR 1 OR 1 OR 1");
+  SQLPP_COMPARE(foo.boolN and val and val and val and val,
+                "tab_foo.bool_n AND 1 AND 1 AND 1 AND 1");
+  SQLPP_COMPARE(foo.boolN or val or val or val or val, "tab_foo.bool_n OR 1 OR 1 OR 1 OR 1");
 
   // Broken chains use parentheses for the respective blocks.
-  SQLPP_COMPARE((val and val and val) or (val and val),
-                "(1 AND 1 AND 1) OR (1 AND 1)");
-  SQLPP_COMPARE((val or val or val) and (val or val),
-                "(1 OR 1 OR 1) AND (1 OR 1)");
+  SQLPP_COMPARE((foo.boolN and val and val) or (foo.boolN and val),
+                "(tab_foo.bool_n AND 1 AND 1) OR (tab_foo.bool_n AND 1)");
+  SQLPP_COMPARE((foo.boolN or val or val) and (foo.boolN or val),
+                "(tab_foo.bool_n OR 1 OR 1) AND (tab_foo.bool_n OR 1)");
 
   // NOT is not chained gracefully, but hey, don't do that anyways.
   SQLPP_COMPARE(not not not val, "NOT (NOT (NOT 1))");
 
   // Operands are enclosed in parentheses where required or completely dropped
   // if inactive
-  SQLPP_COMPARE(val and dynamic(true, val), "1 AND 1");
+  SQLPP_COMPARE(val and sqlpp::dynamic(true, val), "1 AND 1");
   SQLPP_COMPARE(val and dynamic(true, expr), "1 AND (17 > 15)");
-  SQLPP_COMPARE(expr and dynamic(true, val), "(17 > 15) AND 1");
+  SQLPP_COMPARE(expr and sqlpp::dynamic(true, val), "(17 > 15) AND 1");
   SQLPP_COMPARE(expr and dynamic(true, expr), "(17 > 15) AND (17 > 15)");
 
-  SQLPP_COMPARE(val or dynamic(true, val), "1 OR 1");
+  SQLPP_COMPARE(val or sqlpp::dynamic(true, val), "1 OR 1");
   SQLPP_COMPARE(val or dynamic(true, expr), "1 OR (17 > 15)");
-  SQLPP_COMPARE(expr or dynamic(true, val), "(17 > 15) OR 1");
+  SQLPP_COMPARE(expr or sqlpp::dynamic(true, val), "(17 > 15) OR 1");
   SQLPP_COMPARE(expr or dynamic(true, expr), "(17 > 15) OR (17 > 15)");
 
-  SQLPP_COMPARE(val and dynamic(false, val), "1");
+  SQLPP_COMPARE(val and sqlpp::dynamic(false, val), "1");
   SQLPP_COMPARE(val and dynamic(false, expr), "1");
-  SQLPP_COMPARE(expr and dynamic(false, val), "17 > 15");
+  SQLPP_COMPARE(expr and sqlpp::dynamic(false, val), "17 > 15");
   SQLPP_COMPARE(expr and dynamic(false, expr), "17 > 15");
 
-  SQLPP_COMPARE(val or dynamic(false, val), "1");
+  SQLPP_COMPARE(val or sqlpp::dynamic(false, val), "1");
   SQLPP_COMPARE(val or dynamic(false, expr), "1");
-  SQLPP_COMPARE(expr or dynamic(false, val), "17 > 15");
+  SQLPP_COMPARE(expr or sqlpp::dynamic(false, val), "17 > 15");
   SQLPP_COMPARE(expr or dynamic(false, expr), "17 > 15");
 
   // Chained partially dynamic expressions
-  SQLPP_COMPARE(val and dynamic(true, val) and expr, "1 AND 1 AND (17 > 15)");
-  SQLPP_COMPARE(val and dynamic(false, val) and expr, "1 AND (17 > 15)");
+  SQLPP_COMPARE(val and sqlpp::dynamic(true, val) and expr, "1 AND 1 AND (17 > 15)");
+  SQLPP_COMPARE(val and sqlpp::dynamic(false, val) and expr, "1 AND (17 > 15)");
 
-  SQLPP_COMPARE(val or dynamic(true, val) or expr, "1 OR 1 OR (17 > 15)");
-  SQLPP_COMPARE(val or dynamic(false, val) or expr, "1 OR (17 > 15)");
+  SQLPP_COMPARE(val or sqlpp::dynamic(true, val) or expr, "1 OR 1 OR (17 > 15)");
+  SQLPP_COMPARE(val or sqlpp::dynamic(false, val) or expr, "1 OR (17 > 15)");
 
   // More complex expressions
-  SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(true, val),
+  SQLPP_COMPARE((val and dynamic(true, expr)) or sqlpp::dynamic(true, val),
                 "(1 AND (17 > 15)) OR 1");
   // The extra parentheses are not great, but also difficult to avoid and not a
   // problem I believe.
-  SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(true, val),
+  SQLPP_COMPARE((val and dynamic(false, expr)) or sqlpp::dynamic(true, val),
                 "(1) OR 1");
-  SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(false, val),
+  SQLPP_COMPARE((val and dynamic(true, expr)) or sqlpp::dynamic(false, val),
                 "1 AND (17 > 15)");
-  SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(false, val), "1")
+  SQLPP_COMPARE((val and dynamic(false, expr)) or sqlpp::dynamic(false, val), "1")
 
   return 0;
 }

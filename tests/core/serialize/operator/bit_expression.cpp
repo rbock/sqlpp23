@@ -26,39 +26,41 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(1);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto foo = test::TabFoo{};
+  const auto val = foo.id;
+  const auto expr = foo.id + 4;
 
   // Operands are enclosed in parentheses where required.
-  SQLPP_COMPARE(val & val, "1 & 1");
-  SQLPP_COMPARE(val | val, "1 | 1");
-  SQLPP_COMPARE(val ^ val, "1 ^ 1");
-  SQLPP_COMPARE(val << val, "1 << 1");
-  SQLPP_COMPARE(val >> val, "1 >> 1");
+  SQLPP_COMPARE(val & val, "tab_foo.id & tab_foo.id");
+  SQLPP_COMPARE(val | val, "tab_foo.id | tab_foo.id");
+  SQLPP_COMPARE(val ^ val, "tab_foo.id ^ tab_foo.id");
+  SQLPP_COMPARE(val << val, "tab_foo.id << tab_foo.id");
+  SQLPP_COMPARE(val >> val, "tab_foo.id >> tab_foo.id");
 
-  SQLPP_COMPARE(val & expr, "1 & (17 + 4)");
-  SQLPP_COMPARE(val | expr, "1 | (17 + 4)");
-  SQLPP_COMPARE(val ^ expr, "1 ^ (17 + 4)");
-  SQLPP_COMPARE(val << expr, "1 << (17 + 4)");
-  SQLPP_COMPARE(val >> expr, "1 >> (17 + 4)");
+  SQLPP_COMPARE(val & expr, "tab_foo.id & (tab_foo.id + 4)");
+  SQLPP_COMPARE(val | expr, "tab_foo.id | (tab_foo.id + 4)");
+  SQLPP_COMPARE(val ^ expr, "tab_foo.id ^ (tab_foo.id + 4)");
+  SQLPP_COMPARE(val << expr, "tab_foo.id << (tab_foo.id + 4)");
+  SQLPP_COMPARE(val >> expr, "tab_foo.id >> (tab_foo.id + 4)");
 
-  SQLPP_COMPARE(expr & val, "(17 + 4) & 1");
-  SQLPP_COMPARE(expr | val, "(17 + 4) | 1");
-  SQLPP_COMPARE(expr ^ val, "(17 + 4) ^ 1");
-  SQLPP_COMPARE(expr << val, "(17 + 4) << 1");
-  SQLPP_COMPARE(expr >> val, "(17 + 4) >> 1");
+  SQLPP_COMPARE(expr & val, "(tab_foo.id + 4) & tab_foo.id");
+  SQLPP_COMPARE(expr | val, "(tab_foo.id + 4) | tab_foo.id");
+  SQLPP_COMPARE(expr ^ val, "(tab_foo.id + 4) ^ tab_foo.id");
+  SQLPP_COMPARE(expr << val, "(tab_foo.id + 4) << tab_foo.id");
+  SQLPP_COMPARE(expr >> val, "(tab_foo.id + 4) >> tab_foo.id");
 
-  SQLPP_COMPARE(expr & expr, "(17 + 4) & (17 + 4)");
-  SQLPP_COMPARE(expr | expr, "(17 + 4) | (17 + 4)");
-  SQLPP_COMPARE(expr ^ expr, "(17 + 4) ^ (17 + 4)");
-  SQLPP_COMPARE(expr << expr, "(17 + 4) << (17 + 4)");
-  SQLPP_COMPARE(expr >> expr, "(17 + 4) >> (17 + 4)");
+  SQLPP_COMPARE(expr & expr, "(tab_foo.id + 4) & (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr | expr, "(tab_foo.id + 4) | (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr ^ expr, "(tab_foo.id + 4) ^ (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr << expr, "(tab_foo.id + 4) << (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr >> expr, "(tab_foo.id + 4) >> (tab_foo.id + 4)");
 
   // Same for unary operators
-  SQLPP_COMPARE(~val, "~1");
-  SQLPP_COMPARE(~expr, "~(17 + 4)");
+  SQLPP_COMPARE(~val, "~tab_foo.id");
+  SQLPP_COMPARE(~expr, "~(tab_foo.id + 4)");
 
   return 0;
 }

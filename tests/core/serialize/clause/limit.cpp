@@ -29,16 +29,18 @@
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(17);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto foo = test::TabFoo{};
+
+  const auto val = foo.id;
+  const auto expr = foo.id + 4;
 
   // Without static limit.
   SQLPP_COMPARE(sqlpp::limit(17), " LIMIT 17");
-  SQLPP_COMPARE(limit(val), " LIMIT 17");
-  SQLPP_COMPARE(limit(expr), " LIMIT 17 + 4");
+  SQLPP_COMPARE(limit(val), " LIMIT tab_foo.id");
+  SQLPP_COMPARE(limit(expr), " LIMIT tab_foo.id + 4");
 
   // With dynamic limit.
-  SQLPP_COMPARE(limit(dynamic(true, val)), " LIMIT 17");
+  SQLPP_COMPARE(limit(dynamic(true, val)), " LIMIT tab_foo.id");
   SQLPP_COMPARE(limit(dynamic(false, val)), "");
 
   return 0;

@@ -33,15 +33,15 @@ SQLPP_CREATE_NAME_TAG(something);
 }
 
 int main(int, char*[]) {
-  const auto expr = sqlpp::value(17) + 4;
-
   const auto foo = test::TabFoo{};
+
+  const auto expr = foo.id + 4;
 
   // Empty.
   SQLPP_COMPARE(sqlpp::select(), "SELECT ");
 
   // SELECT a value.
-  SQLPP_COMPARE(sqlpp::select(expr.as(foo.id)), "SELECT (17 + 4) AS id");
+  SQLPP_COMPARE(sqlpp::select(expr.as(foo.id)), "SELECT (tab_foo.id + 4) AS id");
 
   // SELECT FROM.
   SQLPP_COMPARE(select(foo.id).from(foo), "SELECT tab_foo.id FROM tab_foo");

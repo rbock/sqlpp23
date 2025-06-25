@@ -56,8 +56,7 @@ int DateTime(int, char*[]) {
     const auto tp = row.timestampN.value();
     std::cout << std::chrono::system_clock::to_time_t(tp);
   }
-  std::cerr << to_sql_string(printer,
-                             ::sqlpp::value(std::chrono::system_clock::now()))
+  std::cerr << sqlpp::to_sql_string(printer, std::chrono::system_clock::now())
             << std::endl;
 
   db(insert_into(t).set(t.dateN = std::chrono::floor<std::chrono::days>(

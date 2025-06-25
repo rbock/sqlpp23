@@ -62,7 +62,6 @@ int Select(int, char*[]) {
 
   select(count(t.id).as(N));
   select(sqlpp::count(1).as(N));
-  select(count(sqlpp::value(1)).as(N));
 
   std::cerr << to_sql_string(printer,
                              select(sqlpp::value(false).as(sqlpp::alias::a)))

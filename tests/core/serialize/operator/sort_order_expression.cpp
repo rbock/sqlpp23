@@ -26,21 +26,23 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(1);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto foo = test::TabFoo{};
+  const auto val = foo.id;
+  const auto expr = foo.id + 4;
 
   // Operands are enclosed in parentheses where required.
-  SQLPP_COMPARE(val.asc(), "1 ASC");
-  SQLPP_COMPARE(val.desc(), "1 DESC");
-  SQLPP_COMPARE(val.order(sqlpp::sort_type::asc), "1 ASC");
-  SQLPP_COMPARE(val.order(sqlpp::sort_type::desc), "1 DESC");
+  SQLPP_COMPARE(val.asc(), "tab_foo.id ASC");
+  SQLPP_COMPARE(val.desc(), "tab_foo.id DESC");
+  SQLPP_COMPARE(val.order(sqlpp::sort_type::asc), "tab_foo.id ASC");
+  SQLPP_COMPARE(val.order(sqlpp::sort_type::desc), "tab_foo.id DESC");
 
-  SQLPP_COMPARE(expr.asc(), "(17 + 4) ASC");
-  SQLPP_COMPARE(expr.desc(), "(17 + 4) DESC");
-  SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc), "(17 + 4) ASC");
-  SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc), "(17 + 4) DESC");
+  SQLPP_COMPARE(expr.asc(), "(tab_foo.id + 4) ASC");
+  SQLPP_COMPARE(expr.desc(), "(tab_foo.id + 4) DESC");
+  SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc), "(tab_foo.id + 4) ASC");
+  SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc), "(tab_foo.id + 4) DESC");
 
   return 0;
 }

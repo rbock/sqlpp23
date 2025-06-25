@@ -26,22 +26,24 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 SQLPP_CREATE_NAME_TAG(v);
 
 int main(int, char*[]) {
+  const auto foo = test::TabFoo{};
   const auto val = sqlpp::value(17);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto expr = foo.id + 4;
   using expr_t = typename std::decay<decltype(expr)>::type;
 
   // IN expression with single select or other singe expression: No extra
   // parentheses.
-  SQLPP_COMPARE(val.in(val), "17 IN (17)");
-  SQLPP_COMPARE(val.in(expr), "17 IN (17 + 4)");
+  SQLPP_COMPARE(val.in(17), "17 IN (17)");
+  SQLPP_COMPARE(val.in(expr), "17 IN (tab_foo.id + 4)");
   SQLPP_COMPARE(val.in(select(val.as(v))), "17 IN (SELECT 17 AS v)");
 
-  SQLPP_COMPARE(val.not_in(val), "17 NOT IN (17)");
-  SQLPP_COMPARE(val.not_in(expr), "17 NOT IN (17 + 4)");
+  SQLPP_COMPARE(val.not_in(17), "17 NOT IN (17)");
+  SQLPP_COMPARE(val.not_in(expr), "17 NOT IN (tab_foo.id + 4)");
   SQLPP_COMPARE(val.not_in(select(val.as(v))), "17 NOT IN (SELECT 17 AS v)");
 
   // IN expressions with multiple arguments require inner parentheses.
@@ -49,14 +51,14 @@ int main(int, char*[]) {
                 "17 IN (1, (SELECT 17 AS v), 23)");
   SQLPP_COMPARE(val.in(std::vector<int>{17, 18, 19}), "17 IN (17, 18, 19)");
   SQLPP_COMPARE(val.in(std::vector<expr_t>{expr, expr, expr}),
-                "17 IN ((17 + 4), (17 + 4), (17 + 4))");
+                "17 IN ((tab_foo.id + 4), (tab_foo.id + 4), (tab_foo.id + 4))");
 
   SQLPP_COMPARE(val.not_in(1, select(val.as(v))),
                 "17 NOT IN (1, (SELECT 17 AS v))");
   SQLPP_COMPARE(val.not_in(std::vector<int>{17, 18, 19}),
                 "17 NOT IN (17, 18, 19)");
   SQLPP_COMPARE(val.not_in(std::vector<expr_t>{expr, expr, expr}),
-                "17 NOT IN ((17 + 4), (17 + 4), (17 + 4))");
+                "17 NOT IN ((tab_foo.id + 4), (tab_foo.id + 4), (tab_foo.id + 4))");
 
   // IN expressions with no arguments are an error in SQL. No magic protection.
   SQLPP_COMPARE(val.in(std::vector<expr_t>{}), "17 IN ()");

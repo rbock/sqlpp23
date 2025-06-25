@@ -29,13 +29,12 @@
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  constexpr auto t = test::TabFoo{};
-  const auto val = sqlpp::value(17);
+  constexpr auto foo = test::TabFoo{};
 
   // Operands in assignments are enclosed in parentheses as required.
-  SQLPP_COMPARE(t.intN = val, "int_n = 17");
-  SQLPP_COMPARE(t.intN = val + 4, "int_n = (17 + 4)");
-  SQLPP_COMPARE(t.intN = std::nullopt, "int_n = NULL");
+  SQLPP_COMPARE(foo.intN = 17, "int_n = 17");
+  SQLPP_COMPARE(foo.intN = foo.id + 4, "int_n = (tab_foo.id + 4)");
+  SQLPP_COMPARE(foo.intN = std::nullopt, "int_n = NULL");
 
   return 0;
 }

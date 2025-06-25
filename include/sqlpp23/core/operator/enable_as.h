@@ -36,8 +36,8 @@ class enable_as {
  public:
   template <typename Expr, typename NameTagProvider>
   constexpr auto as(this Expr&& self, const NameTagProvider& alias)
-      -> decltype(::sqlpp::as(std::forward<Expr>(self), alias)) {
-    return ::sqlpp::as(std::forward<Expr>(self), alias);
+      -> decltype(::sqlpp::as(unwrap_value(std::forward<Expr>(self)), alias)) {
+    return ::sqlpp::as(unwrap_value(std::forward<Expr>(self)), alias);
   }
 };
 

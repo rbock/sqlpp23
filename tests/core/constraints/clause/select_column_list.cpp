@@ -107,7 +107,7 @@ int main() {
                 "each selected column must have a name");
 
   static_assert(
-      cannot_call_select_columns_with<decltype(dynamic(true, sqlpp::value(7)))>,
+      cannot_call_select_columns_with<decltype(sqlpp::dynamic(true, 7))>,
       "each selected column must have a name");
   static_assert(
       cannot_call_select_columns_with<decltype(bar.id),

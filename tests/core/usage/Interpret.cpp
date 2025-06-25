@@ -103,7 +103,7 @@ int Interpret(int, char*[]) {
   to_sql_string(ctx, delete_from(t));
 
   // functions
-  to_sql_string(ctx, sqlpp::value(7));
+  sqlpp::to_sql_string(ctx, 7);
   to_sql_string(ctx, sqlpp::verbatim<sqlpp::integral>("something integral"));
   to_sql_string(ctx, t.id.in(std::vector<int>({1, 2, 3, 4, 5, 6, 8})));
   to_sql_string(ctx, sqlpp::in(t.id, std::vector<int>({1, 2, 3, 4, 5, 6, 8})));

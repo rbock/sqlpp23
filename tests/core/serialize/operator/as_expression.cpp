@@ -31,18 +31,19 @@
 SQLPP_CREATE_NAME_TAG(v);
 
 int main(int, char*[]) {
+  const auto foo = test::TabFoo{};
   const auto val = sqlpp::value(17);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto expr = foo.id + 4;
 
   const auto col_id = test::TabFoo{}.id;
 
   SQLPP_COMPARE(val.as(v), "17 AS v");
-  SQLPP_COMPARE(expr.as(v), "(17 + 4) AS v");
-  SQLPP_COMPARE(count(val).as(v), "COUNT(17) AS v");
+  SQLPP_COMPARE(expr.as(v), "(tab_foo.id + 4) AS v");
+  SQLPP_COMPARE(sqlpp::count(17).as(v), "COUNT(17) AS v");
 
   SQLPP_COMPARE(select_columns(dynamic(false, val.as(v))), "NULL AS v");
   SQLPP_COMPARE(select_columns(dynamic(false, expr.as(v))), "NULL AS v");
-  SQLPP_COMPARE(select_columns(dynamic(false, count(val).as(v))), "NULL AS v");
+  SQLPP_COMPARE(select_columns(dynamic(false, sqlpp::count(17).as(v))), "NULL AS v");
   SQLPP_COMPARE(select_columns(dynamic(false, col_id.as(v))), "NULL AS v");
 
   return 0;

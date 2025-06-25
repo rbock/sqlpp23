@@ -26,66 +26,67 @@
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(1);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto foo = test::TabFoo{};
+  const auto expr = foo.id + 4;
 
   // Operands are enclosed in parenheses where required.
-  SQLPP_COMPARE(val + val, "1 + 1");
-  SQLPP_COMPARE(val - val, "1 - 1");
-  SQLPP_COMPARE(val * val, "1 * 1");
-  SQLPP_COMPARE(val / val, "1 / 1");
-  SQLPP_COMPARE(val % val, "1 % 1");
+  SQLPP_COMPARE(foo.id + 1, "tab_foo.id + 1");
+  SQLPP_COMPARE(foo.id - 1, "tab_foo.id - 1");
+  SQLPP_COMPARE(foo.id * 1, "tab_foo.id * 1");
+  SQLPP_COMPARE(foo.id / 1, "tab_foo.id / 1");
+  SQLPP_COMPARE(foo.id % 1, "tab_foo.id % 1");
 
-  SQLPP_COMPARE(val + expr, "1 + (17 + 4)");
-  SQLPP_COMPARE(val - expr, "1 - (17 + 4)");
-  SQLPP_COMPARE(val * expr, "1 * (17 + 4)");
-  SQLPP_COMPARE(val / expr, "1 / (17 + 4)");
-  SQLPP_COMPARE(val % expr, "1 % (17 + 4)");
+  SQLPP_COMPARE(1 + expr, "1 + (tab_foo.id + 4)");
+  SQLPP_COMPARE(1 - expr, "1 - (tab_foo.id + 4)");
+  SQLPP_COMPARE(1 * expr, "1 * (tab_foo.id + 4)");
+  SQLPP_COMPARE(1 / expr, "1 / (tab_foo.id + 4)");
+  SQLPP_COMPARE(1 % expr, "1 % (tab_foo.id + 4)");
 
-  SQLPP_COMPARE(expr + val, "(17 + 4) + 1");
-  SQLPP_COMPARE(expr - val, "(17 + 4) - 1");
-  SQLPP_COMPARE(expr * val, "(17 + 4) * 1");
-  SQLPP_COMPARE(expr / val, "(17 + 4) / 1");
-  SQLPP_COMPARE(expr % val, "(17 + 4) % 1");
+  SQLPP_COMPARE(expr + 1, "(tab_foo.id + 4) + 1");
+  SQLPP_COMPARE(expr - 1, "(tab_foo.id + 4) - 1");
+  SQLPP_COMPARE(expr * 1, "(tab_foo.id + 4) * 1");
+  SQLPP_COMPARE(expr / 1, "(tab_foo.id + 4) / 1");
+  SQLPP_COMPARE(expr % 1, "(tab_foo.id + 4) % 1");
 
-  SQLPP_COMPARE(expr + expr, "(17 + 4) + (17 + 4)");
-  SQLPP_COMPARE(expr - expr, "(17 + 4) - (17 + 4)");
-  SQLPP_COMPARE(expr * expr, "(17 + 4) * (17 + 4)");
-  SQLPP_COMPARE(expr / expr, "(17 + 4) / (17 + 4)");
-  SQLPP_COMPARE(expr % expr, "(17 + 4) % (17 + 4)");
+  SQLPP_COMPARE(expr + expr, "(tab_foo.id + 4) + (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr - expr, "(tab_foo.id + 4) - (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr * expr, "(tab_foo.id + 4) * (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr / expr, "(tab_foo.id + 4) / (tab_foo.id + 4)");
+  SQLPP_COMPARE(expr % expr, "(tab_foo.id + 4) % (tab_foo.id + 4)");
 
   // Same for unary expressions.
-  SQLPP_COMPARE(-val, "-1");
-  SQLPP_COMPARE(-val + val, "(-1) + 1");
-  SQLPP_COMPARE(-expr, "-(17 + 4)");
+  SQLPP_COMPARE(-1, "-1");
+  SQLPP_COMPARE(-foo.id + 1, "(-foo.id) + 1");
+  SQLPP_COMPARE(-expr, "-(tab_foo.id + 4)");
 
-  const auto text = sqlpp::value("a");
-  const auto text_expr = sqlpp::value("b") + "c";
+  const auto text = "a";
+  const auto text_expr = foo.textNnD + "c";
 
   // Same for concatenation.
-  SQLPP_COMPARE(text + text, "CONCAT('a', 'a')");
-  SQLPP_COMPARE(text + text_expr, "CONCAT('a', CONCAT('b', 'c'))");
-  SQLPP_COMPARE(text_expr + text, "CONCAT(CONCAT('b', 'c'), 'a')");
+  SQLPP_COMPARE(foo.textNnD + text, "CONCAT(tab_foo.text_nn_d, 'a')");
+  SQLPP_COMPARE(text + text_expr, "CONCAT('a', CONCAT(tab_foo.text_nn_d, 'c'))");
+  SQLPP_COMPARE(text_expr + text, "CONCAT(CONCAT(tab_foo.text_nn_d, 'c'), 'a')");
   SQLPP_COMPARE(text_expr + text_expr,
-                "CONCAT(CONCAT('b', 'c'), CONCAT('b', 'c'))");
+                "CONCAT(CONCAT(tab_foo.text_nn_d, 'c'), CONCAT(tab_foo.text_nn_d, 'c'))");
 
   // Arithmetic expressions can be named with AS
-  SQLPP_COMPARE((val + val).as(sqlpp::alias::a), "(1 + 1) AS a");
-  SQLPP_COMPARE((val - val).as(sqlpp::alias::a), "(1 - 1) AS a");
-  SQLPP_COMPARE((val * val).as(sqlpp::alias::a), "(1 * 1) AS a");
-  SQLPP_COMPARE((val / val).as(sqlpp::alias::a), "(1 / 1) AS a");
-  SQLPP_COMPARE((val % val).as(sqlpp::alias::a), "(1 % 1) AS a");
+  SQLPP_COMPARE((foo.id + 1).as(sqlpp::alias::a), "(tab_foo.id + 1) AS a");
+  SQLPP_COMPARE((foo.id - 1).as(sqlpp::alias::a), "(tab_foo.id - 1) AS a");
+  SQLPP_COMPARE((foo.id * 1).as(sqlpp::alias::a), "(tab_foo.id * 1) AS a");
+  SQLPP_COMPARE((foo.id / 1).as(sqlpp::alias::a), "(tab_foo.id / 1) AS a");
+  SQLPP_COMPARE((foo.id % 1).as(sqlpp::alias::a), "(tab_foo.id % 1) AS a");
 
   // Arithmetic expressions can be compared
-  SQLPP_COMPARE((val + val) < 17, "(1 + 1) < 17");
-  SQLPP_COMPARE((val - val) < 17, "(1 - 1) < 17");
-  SQLPP_COMPARE((val * val) < 17, "(1 * 1) < 17");
-  SQLPP_COMPARE((val / val) < 17, "(1 / 1) < 17");
-  SQLPP_COMPARE((val % val) < 17, "(1 % 1) < 17");
-  SQLPP_COMPARE(-val < 17, "(-1) < 17");
-  SQLPP_COMPARE((text + text) < "z", "CONCAT('a', 'a') < 'z'");
+  SQLPP_COMPARE((foo.id + 1) < 17, "(tab_foo.id + 1) < 17");
+  SQLPP_COMPARE((foo.id - 1) < 17, "(tab_foo.id - 1) < 17");
+  SQLPP_COMPARE((foo.id * 1) < 17, "(tab_foo.id * 1) < 17");
+  SQLPP_COMPARE((foo.id / 1) < 17, "(tab_foo.id / 1) < 17");
+  SQLPP_COMPARE((foo.id % 1) < 17, "(tab_foo.id % 1) < 17");
+  SQLPP_COMPARE(-foo.id < 17, "(-tab_foo.id) < 17");
+  SQLPP_COMPARE((foo.textNnD + text) < "z", "CONCAT(tab_foo.text_nn_d, 'a') < 'z'");
 
   return 0;
 }

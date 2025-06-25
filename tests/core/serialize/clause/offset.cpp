@@ -29,16 +29,19 @@
 #include <sqlpp23/tests/core/tables.h>
 
 int main(int, char*[]) {
-  const auto val = sqlpp::value(17);
-  const auto expr = sqlpp::value(17) + 4;
+  const auto foo = test::TabFoo{};
+
+  const auto val = foo.id;
+  const auto expr = foo.id + 4;
 
   // Without static offset.
   SQLPP_COMPARE(sqlpp::offset(17), " OFFSET 17");
-  SQLPP_COMPARE(offset(val), " OFFSET 17");
-  SQLPP_COMPARE(offset(expr), " OFFSET 17 + 4");
+  SQLPP_COMPARE(offset(val), " OFFSET tab_foo.id");
+  SQLPP_COMPARE(offset(expr), " OFFSET tab_foo.id + 4");
 
   // With dynamic offset.
-  SQLPP_COMPARE(offset(dynamic(true, val)), " OFFSET 17");
+  SQLPP_COMPARE(offset(sqlpp::dynamic(true, 17)), " OFFSET 17");
+  SQLPP_COMPARE(offset(dynamic(true, val)), " OFFSET tab_foo.id");
   SQLPP_COMPARE(offset(dynamic(false, val)), "");
 
   return 0;
