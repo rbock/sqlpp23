@@ -38,7 +38,7 @@ using is_maybe_bool =
 template <typename Value>
 void test_logical_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   // Combine non-nullable with non-nullable.
   static_assert(is_bool<decltype(v_not_null and v_not_null)>::value, "");

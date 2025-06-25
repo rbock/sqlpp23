@@ -36,7 +36,7 @@ using is_same_type = std::is_same<sqlpp::data_type_of_t<T>, V>;
 template <typename Value>
 void test_aggregate_functions(Value v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
 
@@ -115,7 +115,7 @@ void test_aggregate_functions(Value v) {
 template <typename Value>
 void test_numeric_aggregate_functions(Value v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   using DataType = typename std::conditional<std::is_same<Value, bool>::value,
                                               int, Value>::type;

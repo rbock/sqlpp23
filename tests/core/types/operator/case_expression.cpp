@@ -34,10 +34,10 @@ using is_same_type =
 template <typename Value>
 void test_case_expression(Value v) {
   auto c_not_null = sqlpp::value(true);
-  auto c_maybe_null = sqlpp::value(std::make_optional(false));
+  auto c_maybe_null = sqlpp::value(std::optional{false});
 
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = std::make_optional(sqlpp::value(v));
+  auto v_maybe_null = std::optional{sqlpp::value(v)};
 
   using DataType = decltype(v_not_null);
   using OptDataType = decltype(v_maybe_null);

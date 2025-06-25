@@ -39,7 +39,7 @@ void test_any(Value v) {
   // Selectable values.
   const auto v_not_null = sqlpp::value(v).as(r_not_null);
   const auto v_maybe_null =
-      sqlpp::value(std::make_optional(v)).as(r_maybe_null);
+      sqlpp::value(std::optional{v}).as(r_maybe_null);
 
   // ANY expression are not to be in most expressions and therefore have no
   // value defined.
