@@ -52,7 +52,7 @@ int Insert(int, char*[]) {
 
   db(insert_into(u).default_values());
   db(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
-  db(insert_into(t).set(t.boolNn = false, t.textN = std::make_optional("pie"),
+  db(insert_into(t).set(t.boolNn = false, t.textN = std::optional{"pie"},
                         t.intN = std::nullopt));
 
   to_sql_string(ctx, insert_into(t).default_values());
@@ -65,7 +65,7 @@ int Insert(int, char*[]) {
   multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
   multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
                           t.intN = sqlpp::default_value);
-  multi_insert.add_values(t.boolNn = true, t.textN = std::make_optional("pie"),
+  multi_insert.add_values(t.boolNn = true, t.textN = std::optional{"pie"},
                           t.intN = std::nullopt);
   std::cerr << to_sql_string(ctx, multi_insert) << std::endl;
 
@@ -98,7 +98,7 @@ int Insert(int, char*[]) {
   prepared_insert.parameters.intN = std::nullopt;
   prepared_insert.parameters.intN = 17;
   prepared_insert.parameters.intN = std::nullopt;
-  prepared_insert.parameters.intN = std::make_optional(17);
+  prepared_insert.parameters.intN = std::optional{17};
   db(prepared_insert);
 
   auto prepared_insert_sv = db.prepare(insert_into(t).set(

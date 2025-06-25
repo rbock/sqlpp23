@@ -54,12 +54,12 @@ void test_result_row(Value v) {
   // Selectable values.
   auto v_not_null = sqlpp::value(v).as(r_not_null);
   const auto v_maybe_null =
-      sqlpp::value(std::make_optional(v)).as(r_maybe_null);
+      sqlpp::value(std::optional{v}).as(r_maybe_null);
 
   // Dynamically selectable values.
   const auto v_opt_not_null = dynamic(true, sqlpp::value(v).as(r_opt_not_null));
   const auto v_opt_maybe_null =
-      dynamic(true, sqlpp::value(std::make_optional(v)).as(r_opt_maybe_null));
+      dynamic(true, sqlpp::value(std::optional{v}).as(r_opt_maybe_null));
 
   auto s = select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null);
   using S = decltype(s);

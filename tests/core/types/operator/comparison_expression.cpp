@@ -40,7 +40,7 @@ using is_maybe_bool =
 template <typename Value>
 void test_comparison_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(v_not_null < v_not_null)>::value, "");
@@ -140,7 +140,7 @@ void test_comparison_expression(Value v) {
 template <typename Value>
 void test_like(Value v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(like(v_not_null, v_not_null))>::value, "");

@@ -58,5 +58,5 @@ int main() {
   static_assert(cannot_call_value_with<decltype(foo.id + 7)>);
   static_assert(cannot_call_value_with<decltype((foo.id + 7).as(something))>);
   static_assert(cannot_call_value_with<decltype(sqlpp::value(7))>);
-  static_assert(cannot_call_value_with<decltype(std::make_optional(s))>);
+  static_assert(cannot_call_value_with<decltype(std::optional{s})>);
 }

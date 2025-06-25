@@ -116,7 +116,7 @@ int main() {
   // Non-nullable without default cannot be assigned null / default
   static_assert(
       not can_call_assign_with<decltype(bar.boolNn),
-                               decltype(std::make_optional(true))>::value,
+                               decltype(std::optional{true})>::value,
       "");
   static_assert(not can_call_assign_with<decltype(bar.boolNn),
                                          decltype(std::nullopt)>::value,
@@ -130,7 +130,7 @@ int main() {
       can_call_assign_with<decltype(foo.textNnD), decltype("cake")>::value, "");
   static_assert(
       not can_call_assign_with<decltype(foo.textNnD),
-                               decltype(std::make_optional("cake"))>::value,
+                               decltype(std::optional{"cake"})>::value,
       "");
   static_assert(not can_call_assign_with<decltype(foo.textNnD),
                                          decltype(std::nullopt)>::value,
@@ -145,7 +145,7 @@ int main() {
       not can_call_assign_with<decltype(const_col), decltype(7)>::value, "");
   static_assert(
       not can_call_assign_with<decltype(const_col),
-                               decltype(std::make_optional(7))>::value,
+                               decltype(std::optional{7})>::value,
       "");
   static_assert(not can_call_assign_with<decltype(const_col),
                                          decltype(std::nullopt)>::value,

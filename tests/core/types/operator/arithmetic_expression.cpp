@@ -44,8 +44,8 @@ void test_plus(Left raw_l, Right raw_r, DataType) {
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(std::make_optional(raw_l));
-  auto opt_r = sqlpp::value(std::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::optional{raw_l});
+  auto opt_r = sqlpp::value(std::optional{raw_r});
 
   static_assert(
       is_same_type<sqlpp::data_type_of_t<decltype(l + r)>, DataType>(), "");
@@ -80,8 +80,8 @@ void test_minus(Left raw_l, Right raw_r, DataType) {
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(std::make_optional(raw_l));
-  auto opt_r = sqlpp::value(std::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::optional{raw_l});
+  auto opt_r = sqlpp::value(std::optional{raw_r});
 
   static_assert(
       is_same_type<sqlpp::data_type_of_t<decltype(l - r)>, DataType>(), "");
@@ -116,8 +116,8 @@ void test_multiplies(Left raw_l, Right raw_r, DataType) {
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(std::make_optional(raw_l));
-  auto opt_r = sqlpp::value(std::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::optional{raw_l});
+  auto opt_r = sqlpp::value(std::optional{raw_r});
 
   static_assert(
       is_same_type<sqlpp::data_type_of_t<decltype(l * r)>, DataType>(), "");
@@ -151,7 +151,7 @@ void test_negate(Right raw_r, DataType) {
 
   auto r = sqlpp::value(raw_r);
 
-  auto opt_r = sqlpp::value(std::make_optional(raw_r));
+  auto opt_r = sqlpp::value(std::optional{raw_r});
 
   static_assert(is_same_type<sqlpp::data_type_of_t<decltype(-r)>, DataType>(),
                 "");
@@ -179,8 +179,8 @@ void test_divides(Left raw_l, Right raw_r, DataType) {
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(std::make_optional(raw_l));
-  auto opt_r = sqlpp::value(std::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::optional{raw_l});
+  auto opt_r = sqlpp::value(std::optional{raw_r});
 
   static_assert(
       is_same_type<sqlpp::data_type_of_t<decltype(l / r)>, DataType>(), "");
@@ -215,8 +215,8 @@ void test_modulus(Left raw_l, Right raw_r, DataType) {
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(std::make_optional(raw_l));
-  auto opt_r = sqlpp::value(std::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::optional{raw_l});
+  auto opt_r = sqlpp::value(std::optional{raw_r});
 
   static_assert(
       is_same_type<sqlpp::data_type_of_t<decltype(l % r)>, DataType>(), "");
@@ -250,7 +250,7 @@ void test_concatenation_expressions(Value v) {
   using OptDataType = std::optional<sqlpp::text>;
 
   auto value = sqlpp::value(v);
-  auto opt_value = sqlpp::value(std::make_optional(v));
+  auto opt_value = sqlpp::value(std::optional{v});
 
   // Concatenating non-optional values
   static_assert(is_same_type<sqlpp::data_type_of_t<decltype(value + value)>,

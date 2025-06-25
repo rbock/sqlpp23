@@ -40,7 +40,7 @@ void test_in_expression(Value v) {
   using OptValue = std::optional<Value>;
 
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   // Compare non-nullable with non-nullable.
   static_assert(
@@ -113,7 +113,7 @@ void test_in_expression(Value v) {
           sqlpp::detail::type_vector<L, R1>>::value,
       "");
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(
-                                 v_maybe_null, v, std::make_optional(v)))>,
+                                 v_maybe_null, v, std::optional{v}))>,
                              sqlpp::detail::type_vector<L, R1, R2>>::value,
                 "");
 }

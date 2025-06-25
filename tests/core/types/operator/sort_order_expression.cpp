@@ -29,7 +29,7 @@
 template <typename Value>
 void test_order_expression(Value v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   // Sort order expressions have no value.
   static_assert(not sqlpp::has_data_type<decltype(v_not_null.asc())>::value,

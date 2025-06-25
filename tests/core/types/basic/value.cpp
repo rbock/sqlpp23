@@ -36,7 +36,7 @@ void test_value(Value v) {
   using OptDataType = std::optional<DataType>;
 
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   static_assert(is_data_type<decltype(v_not_null), DataType>::value, "");
   static_assert(is_data_type<decltype(v_maybe_null), OptDataType>::value, "");

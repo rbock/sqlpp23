@@ -41,9 +41,9 @@ void test_dynamic(Value v) {
   using OptDataType = std::optional<DataType>;
 
   auto v_not_null = dynamic(true, sqlpp::value(v));
-  auto v_maybe_null = dynamic(true, sqlpp::value(std::make_optional(v)));
+  auto v_maybe_null = dynamic(true, sqlpp::value(std::optional{v}));
   auto v_alias = sqlpp::value(v).as(r_not_null);
-  auto v_maybe_alias = sqlpp::value(std::make_optional(v)).as(r_maybe_null);
+  auto v_maybe_alias = sqlpp::value(std::optional{v}).as(r_maybe_null);
   auto v_not_null_alias = dynamic(true, v_alias);
   auto v_maybe_null_alias = dynamic(true, v_maybe_alias);
 

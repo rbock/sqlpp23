@@ -40,7 +40,7 @@ using is_maybe_bool =
 template <typename Column, typename Value>
 void test_assign_expression(const Column& col, const Value& v) {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(std::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::optional{v});
 
   using DataType = decltype(v_not_null);
   using OptDataType = decltype(v_maybe_null);

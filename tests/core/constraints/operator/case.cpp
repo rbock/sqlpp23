@@ -64,7 +64,7 @@ int main() {
   // OK
   static_assert(can_call_case_when_with<decltype(true)>);
   static_assert(
-      can_call_case_when_with<decltype(std::make_optional(true))>);
+      can_call_case_when_with<decltype(std::optional{true})>);
   static_assert(can_call_case_when_with<decltype(foo.boolN)>);
   static_assert(can_call_case_when_with<decltype(bar.boolNn)>);
   static_assert(can_call_case_when_with<decltype(bar.boolNn == true)>);
