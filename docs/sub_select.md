@@ -33,6 +33,7 @@ for (const auto& row :
   const int x = row.id;
   const int b = row.cheese_cake;
 }
+
 ```
 # Sub-select as a value set
 

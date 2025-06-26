@@ -155,7 +155,7 @@ select((tab.id + 3).as(something))
 insert_into(tab).set(tab.name = "eight");
 ```
 
-But if member functions like `.as()` or `.in()` are needed, then such raw values need to be wrapped by the `value` function, e.g.
+But if member functions like `.as()` or comparison methods `.in()`, `not_in()`, `is_null()`, `is_not_null()`, `is_distinct_from()`, or `not_is_distinct_from()` are needed, then such raw values need to be wrapped by the `value` function, e.g.
 
 ```c++
 select(value(7).as(something), tab.id)
@@ -164,6 +164,36 @@ select(value(7).as(something), tab.id)
 ```
 
 The other use of the `value` function is to wrap a [sub select](/docs/sub_select.md) for use as a selected column.
+
+```c++
+SQLPP_ALIAS_PROVIDER(cheese_cake); // Declared outside of function
+// ...
+for (const auto& row :
+     db(select(all_of(foo),
+               value(select(bar.text).from(bar).where(bar.id == foo.id))
+                   .as(cheese_cake))
+            .from(foo))) {
+  const int x = row.id;
+  const int b = row.cheese_cake;
+}
+```
+
+Beyond that, `value` can be used to wrap raw values and thereby move them into the `sqlpp` namespace. This *might* be useful for function lookup:
+
+```c++
+auto get_seven() {
+    return 7;
+}
+
+auto get_value() {
+    return sqlpp::value(7);
+}
+
+// ...
+
+sqlpp::dynamic(true, get_seven()); // requires namespace qualification
+dynamic(true, get_value()); // namespace determined automatically
+```
 
 [**< Index**](/docs/README.md)
 
