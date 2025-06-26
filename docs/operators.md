@@ -72,7 +72,10 @@ The SQL `CAST` function is expressed as
 
 ```c++
 // CAST(expression AS type)
-cast_as(expression, type);
+cast(expression, as(type));
+
+// e.g.
+cast(tab.some_float, as(sqlpp::ingegral{}));
 ```
 
 `type` is any of

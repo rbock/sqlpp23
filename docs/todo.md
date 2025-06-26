@@ -20,16 +20,6 @@ Not new, but also not documented before: Need to document that you need to be a 
 ## Need to document?
 Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
 
-
-## implement cast?
-Implement cast, to support something like cast_as<sqlpp::date>(mt.startTime),
-see https://github.com/rbock/sqlpp11/issues/606
-
-Partial implementation in branch `cast_as`. However, mysql might return NULL upon casting a timestamp string to
-date. This might be a bug as it does not happen with other data types.\
-Should we assume that `cast_as` can return NULL in general? Or is this specific to MySQL only?
-
-
 ## EXTRACT function for date/time
 See https://github.com/rbock/sqlpp11/issues/611
 
