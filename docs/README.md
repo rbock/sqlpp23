@@ -51,6 +51,7 @@ The following pages will tell you how to use it:
 - **Advanced Topics**
   - [Thread safety](/docs/thread_safety.md)
   - [Connection pools](/docs/connection_pool.md)
+  - [Recipes](/docs/recipes.md)
 
 If you are coming from [sqlpp11](https://github.com/rbock/sqlpp11), you might be
 interested in the [differences](/docs/differences_to_sqlpp11.md).

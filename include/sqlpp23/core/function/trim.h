@@ -29,13 +29,14 @@
  */
 
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expr>
+template <typename Expression>
 struct trim_t : public enable_as {
-  trim_t(const Expr expr) : _expr(expr) {}
+  trim_t(const Expression expression) : _expression(expression) {}
 
   trim_t(const trim_t&) = default;
   trim_t(trim_t&&) = default;
@@ -43,20 +44,22 @@ struct trim_t : public enable_as {
   trim_t& operator=(trim_t&&) = default;
   ~trim_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expression _expression;
 };
 
-template <typename Expr>
-struct data_type_of<trim_t<Expr>> : public data_type_of<Expr> {};
+template <typename Expression>
+struct data_type_of<trim_t<Expression>> : public data_type_of<Expression> {};
 
-template <typename Expr>
-struct nodes_of<trim_t<Expr>> {
-  using type = detail::type_vector<Expr>;
+template <typename Expression>
+struct nodes_of<trim_t<Expression>> {
+  using type = detail::type_vector<Expression>;
 };
 
-template <typename Context, typename Expr>
-auto to_sql_string(Context& context, const trim_t<Expr>& t) -> std::string {
-  return "TRIM(" + to_sql_string(context, t._expr) + ")";
+template <typename Context, typename Expression>
+auto to_sql_string(Context& context, const trim_t<Expression>& t) -> std::string {
+  return std::format("TRIM({})", to_sql_string(context, read.expression(t)));
 }
 
 template <typename T>
