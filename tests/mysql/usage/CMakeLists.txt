@@ -29,7 +29,6 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-create_test(custom_function)
 create_test(exceptions)
 create_test(exists)
 create_test(operator)

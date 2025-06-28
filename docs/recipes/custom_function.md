@@ -1,4 +1,4 @@
-[**\< Connectors**](/docs/recipes.md)
+[**\< Recipes**](/docs/recipes.md)
 
 # Add a custom SQL function
 
@@ -149,8 +149,8 @@ for (const auto& row :
 }
 ```
 
-The complete source code can be found [here](/tests/mysql/usage/custom_function.cpp).
+The complete source code can be found [here](/tests/mysql/recipes/custom_function.cpp).
 
 
-[**\< Connectors**](/docs/recipes.md)
+[**\< Recipes**](/docs/recipes.md)
 

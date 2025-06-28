@@ -38,6 +38,9 @@ namespace sql = sqlpp::mysql;
 // TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)
 // See
 // https://dev.mysql.com/doc/refman/9.3/en/date-and-time-functions.html#function_timestampdiff
+//
+// See also
+// /docs/recipes/custom_function.md
 namespace example {
 enum class timestamp_unit { year, month, day, hour, minute, second };
 
