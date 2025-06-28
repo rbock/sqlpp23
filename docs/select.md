@@ -227,20 +227,11 @@ The following flags are currently supported:
 - sqlpp::all
 - sqlpp::distinct
 
-Flags are added via the `flags()` method:
+Flags can simply be added to the select call before the columns, e.g.
 
 ```C++
-sqlpp::select().flags(sqlpp::all).columns(foo.id, foo.name);
+sqlpp::select(sqlpp::all, foo.id, foo.name);
 ```
-
-or
-
-```C++
-select(foo.id, foo.name).flags(sqlpp::all);
-```
-
-The latter is shorter than the former, but the former is closer to SQL syntax
-and probably easier to read. Both forms will result in the same SQL.
 
 Flags can be added conditionally using [`dynamic`](/docs/dynamic.md):
 

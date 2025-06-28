@@ -2,6 +2,45 @@
 
 # Before and after: Clauses
 
+## `SELECT`
+
+<table>
+<tr>
+<th align="left">sqlpp11</th><th align="left">sqlpp23</th>
+</tr>
+</tr>
+<tr><td colspan=2>
+
+  **using flags**
+
+</td></tr>
+<tr>
+<td  valign="top">
+
+```c++
+// Either
+select()
+    .flags(sqlpp::all)
+    .columns(tab.id)
+    .from(tab);
+// Or
+select(tab.id)
+    .flags(sqlpp::all)
+    .from(tab);
+```
+
+</td>
+<td valign="top">
+
+```c++
+select(sqlpp::all, tab.id)
+    .from(tab);
+```
+
+</td>
+</tr>
+</table>
+
 ## `DELETE FROM`
 
 <table>

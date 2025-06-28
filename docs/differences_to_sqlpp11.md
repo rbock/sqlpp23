@@ -46,6 +46,7 @@ If seems a bit dry, follow the links to examples.
 | `unconditionally()`  | to explicitly omit `where` or `on` condition in joins | *dropped* |
 | | | |
 | [**Clauses**](/docs/tony_tables/clauses.md) | | |
+| `SELECT`  | select flags like `DISTINCT` require calling separate function `flags()`  | flags can be passed as parameters to the `select` function |
 | `DELETE FROM`  | `remove_from` | `delete_from` |
 | `LIMIT` & `OFFSET`  | require unsigned argument | any integer argument |
 | `TRUNCATE`  | N/A | `truncate` |
