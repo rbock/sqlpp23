@@ -188,18 +188,18 @@ struct make_returning_column_list<std::tuple<Columns...>> {
 
 template <typename... Columns>
 using make_returning_t = typename make_returning_column_list<
-    sqlpp::detail::flat_tuple_t<Columns...>>::type;
+    sqlpp::detail::flat_tuple_t<is_select_column, Columns...>>::type;
 
 struct no_returning_t {
-  template <typename Statement, typename... Columns>
+  template <typename Statement, DynamicSelectColumn... Columns>
     requires(sizeof...(Columns) > 0 and
              select_columns_have_values<Columns...>::value and
              select_columns_have_names<Columns...>::value)
   auto returning(this Statement&& self, Columns... columns) {
     return new_statement<no_returning_t>(
         std::forward<Statement>(self),
-        make_returning_t<Columns...>{
-            std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
+        make_returning_t<Columns...>{std::tuple_cat(
+            sqlpp::detail::tupelize<is_select_column>(std::move(columns))...)});
   }
 };
 

@@ -31,12 +31,12 @@ endfunction()
 
 create_test(exceptions)
 create_test(exists)
+create_test(json)
 create_test(operator)
 add_subdirectory(aggregate_function)
 add_subdirectory(statement)
 
 set(test_files
-    Json.cpp
     CustomQuery.cpp
     DateTime.cpp
     Sample.cpp

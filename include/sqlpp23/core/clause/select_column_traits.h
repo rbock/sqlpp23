@@ -87,8 +87,8 @@ struct select_column_has_name
 
 template <typename... Columns>
 struct select_columns_have_values {
-  static constexpr bool value =
-      select_columns_have_values<detail::flat_tuple_t<Columns...>>::value;
+  static constexpr bool value = select_columns_have_values<
+      detail::flat_tuple_t<is_select_column, Columns...>>::value;
 };
 
 template <typename... Columns>
@@ -99,8 +99,8 @@ struct select_columns_have_values<std::tuple<Columns...>> {
 
 template <typename... Columns>
 struct select_columns_have_names {
-  static constexpr bool value =
-      select_columns_have_names<detail::flat_tuple_t<Columns...>>::value;
+  static constexpr bool value = select_columns_have_names<
+      detail::flat_tuple_t<is_select_column, Columns...>>::value;
 };
 
 template <typename... Columns>

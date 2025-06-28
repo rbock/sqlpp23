@@ -29,6 +29,8 @@
 #include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
+#include "sqlpp23/core/clause/select_flags.h"
+#include "sqlpp23/core/clause/select_flags.h"
 
 int Interpret(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
@@ -57,8 +59,7 @@ int Interpret(int, char*[]) {
   to_sql_string(ctx, t.textN + "kaesekuchen");
 
   to_sql_string(ctx, sqlpp::select());
-  to_sql_string(ctx, sqlpp::select().flags(sqlpp::distinct));
-  to_sql_string(ctx, select(t.id, t.textN).flags(sqlpp::distinct));
+  to_sql_string(ctx, select(sqlpp::distinct, t.id, t.textN));
   to_sql_string(ctx, select(t.id, t.textN));
   to_sql_string(ctx, select(t.id, t.textN).from(t));
   to_sql_string(ctx, select(t.id, t.textN).from(t).where(t.id == 3));

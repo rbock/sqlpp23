@@ -122,8 +122,7 @@ int Select(int, char*[]) {
   }
 
   auto stat = sqlpp::select()
-                  .columns(all_of(t))
-                  .flags(sqlpp::all)
+                  .columns(sqlpp::all, all_of(t))
                   .from(t)
                   .where(t.id > 0)
                   .group_by(t.id)
@@ -134,8 +133,7 @@ int Select(int, char*[]) {
   std::cerr << to_sql_string(printer, stat) << std::endl;
 
   auto s = sqlpp::select()
-               .columns(t.id)
-               .flags(sqlpp::distinct)
+               .columns(sqlpp::distinct, t.id)
                .from(t)
                .where(t.id > 3)
                .group_by(t.id)
@@ -149,8 +147,7 @@ int Select(int, char*[]) {
   }
 
   auto s2 = sqlpp::select()
-                .columns(dynamic(maybe, t.id))
-                .flags(dynamic(maybe, sqlpp::distinct))
+                .columns(dynamic(maybe, sqlpp::distinct), dynamic(maybe, t.id))
                 .from(dynamic(maybe, t))
                 .where(dynamic(maybe, t.id > 3))
                 .group_by(dynamic(maybe, t.id))

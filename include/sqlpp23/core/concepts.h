@@ -45,6 +45,9 @@ template <typename T>
 concept DynamicSelectColumn = is_select_column_v<T>;
 
 template <typename T>
+concept DynamicSelectArg = is_select_column_v<T> or is_select_flag_v<T>;
+
+template <typename T>
 concept DynamicSortOrder = is_sort_order_v<remove_dynamic_t<T>>;
 
 template <typename T>

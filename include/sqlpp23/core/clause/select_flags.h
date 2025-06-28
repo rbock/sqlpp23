@@ -43,7 +43,7 @@ auto to_sql_string(Context&, const all_t&) -> std::string {
 static constexpr all_t all = {};
 
 template <>
-struct is_select_flag<all_t> : public std::true_type {};
+struct is_raw_select_flag<all_t> : public std::true_type {};
 
 struct distinct_t {};
 
@@ -55,7 +55,7 @@ auto to_sql_string(Context&, const distinct_t&) -> std::string {
 static constexpr distinct_t distinct = {};
 
 template <>
-struct is_select_flag<distinct_t> : public std::true_type {};
+struct is_raw_select_flag<distinct_t> : public std::true_type {};
 
 struct no_flag_t {};
 
@@ -67,6 +67,6 @@ auto to_sql_string(Context&, const no_flag_t&) -> std::string {
 static constexpr no_flag_t no_flag = {};
 
 template <>
-struct is_select_flag<no_flag_t> : public std::true_type {};
+struct is_raw_select_flag<no_flag_t> : public std::true_type {};
 
 }  // namespace sqlpp

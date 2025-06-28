@@ -99,7 +99,7 @@ struct nodes_of<dynamic_t<Expr>> {
 
 // Constructing from optional
 template <typename Expr>
-  requires((has_data_type<Expr>::value or is_select_flag<Expr>::value or
+  requires((has_data_type<Expr>::value or is_raw_select_flag<Expr>::value or
             is_as_expression<Expr>::value or is_assignment<Expr>::value or
             is_table<Expr>::value or is_sort_order<Expr>::value or
             is_statement<Expr>::value) and
@@ -110,7 +110,7 @@ auto dynamic(std::optional<Expr> t) -> dynamic_t<Expr> {
 
 // Constructing from condition and value
 template <typename Expr>
-  requires((has_data_type<Expr>::value or is_select_flag<Expr>::value or
+  requires((has_data_type<Expr>::value or is_raw_select_flag<Expr>::value or
             is_as_expression<Expr>::value or is_assignment<Expr>::value or
             is_table<Expr>::value or is_sort_order<Expr>::value or
             is_statement<Expr>::value) and

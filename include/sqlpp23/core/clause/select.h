@@ -37,7 +37,6 @@
 #include <sqlpp23/core/clause/offset.h>
 #include <sqlpp23/core/clause/order_by.h>
 #include <sqlpp23/core/clause/select_column_list.h>
-#include <sqlpp23/core/clause/select_flag_list.h>
 #include <sqlpp23/core/clause/union.h>
 #include <sqlpp23/core/clause/where.h>
 #include <sqlpp23/core/database/connection.h>
@@ -63,7 +62,6 @@ struct consistency_check<Statement, select_t> {
 };
 
 using blank_select_t = statement_t<select_t,
-                                   no_select_flag_list_t,
                                    no_select_column_list_t,
                                    no_from_t,
                                    no_where_t,
@@ -79,10 +77,10 @@ inline constexpr blank_select_t select() {
   return {};
 }
 
-template <typename... Columns>
-  requires(sizeof...(Columns) > 0)
-auto select(Columns... columns) {
-  return blank_select_t().columns(columns...);
+template <DynamicSelectArg... Args>
+  requires(detail::count_columns<Args...>() > 0 and detail::all_flags_are_before_all_columns<Args...>())
+auto select(Args... args) {
+  return blank_select_t().columns(args...);
 }
 
 }  // namespace sqlpp

@@ -58,7 +58,7 @@ SQLPP_CREATE_NAME_TAG(value);
 }
 
 namespace sql = sqlpp::mysql;
-int Json(int, char*[]) {
+int main(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();

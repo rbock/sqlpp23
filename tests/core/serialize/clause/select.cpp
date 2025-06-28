@@ -49,8 +49,11 @@ int main(int, char*[]) {
                 "SELECT tab_foo.id, tab_foo.text_nn_d FROM tab_foo");
   SQLPP_COMPARE(sqlpp::select().columns(foo.id).from(foo),
                 "SELECT tab_foo.id FROM tab_foo");
-  SQLPP_COMPARE(sqlpp::select().flags(sqlpp::all).columns(foo.id).from(foo),
+  SQLPP_COMPARE(sqlpp::select(sqlpp::all, foo.id).from(foo),
                 "SELECT ALL tab_foo.id FROM tab_foo");
+  SQLPP_COMPARE(
+      sqlpp::select(sqlpp::all, sqlpp::distinct, foo.id, foo.intN).from(foo),
+      "SELECT ALL DISTINCT tab_foo.id, tab_foo.int_n FROM tab_foo");
 
   // SELECT FROM WHERE.
   SQLPP_COMPARE(select(foo.id).from(foo), "SELECT tab_foo.id FROM tab_foo");

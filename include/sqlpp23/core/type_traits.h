@@ -371,7 +371,7 @@ template <typename T>
 using table_ref_t = typename table_ref<T>::type;
 
 template <typename T>
-struct is_select_flag : public std::false_type {};
+struct is_raw_select_flag : public std::false_type {};
 
 template <typename T>
 struct is_sort_order : public std::false_type {};
@@ -491,6 +491,12 @@ struct result_row_of {
 
 template <typename Statement, typename Clause>
 using result_row_of_t = typename result_row_of<Statement, Clause>::type;
+
+template <typename T>
+struct is_select_flag : public is_raw_select_flag<remove_dynamic_t<T>> {};
+
+template <typename T>
+static inline constexpr bool is_select_flag_v = is_select_flag<T>::value;
 
 template <typename T>
 struct is_select_column {

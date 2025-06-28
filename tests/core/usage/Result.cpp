@@ -55,7 +55,7 @@ int Result(int, char*[]) {
     db(insert_into(t).set(t.textN = row.textN.value(), t.boolNn = false));
   }
 
-  sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
+  sqlpp::select(sqlpp::all, (t.id + 1).as(t.id)).from(t);
   for (const auto& row : db(select(all_of(t)).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
@@ -66,7 +66,7 @@ int Result(int, char*[]) {
                   "row.id cannot be null");
   }
 
-  sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
+  sqlpp::select(sqlpp::all, (t.id + 1).as(t.id)).from(t);
 
   return 0;
 }

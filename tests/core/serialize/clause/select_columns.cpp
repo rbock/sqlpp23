@@ -43,6 +43,13 @@ int main(int, char*[]) {
   // -----------------------------------------
   // Single column
   SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n");
+  SQLPP_COMPARE(select(sqlpp::all, foo.doubleN), "SELECT ALL tab_foo.double_n");
+  SQLPP_COMPARE(select(sqlpp::all, sqlpp::distinct, foo.doubleN),
+                "SELECT ALL DISTINCT tab_foo.double_n");
+  SQLPP_COMPARE(select(dynamic(false, sqlpp::all), foo.doubleN), "SELECT tab_foo.double_n");
+  SQLPP_COMPARE(select(dynamic(true, sqlpp::all), foo.doubleN), "SELECT ALL tab_foo.double_n");
+  SQLPP_COMPARE(select(sqlpp::all, dynamic(false, sqlpp::distinct), foo.doubleN), "SELECT ALL tab_foo.double_n");
+  SQLPP_COMPARE(select(sqlpp::all, dynamic(true, sqlpp::distinct), foo.doubleN), "SELECT ALL DISTINCT tab_foo.double_n");
 
   // Two columns
   SQLPP_COMPARE(select(foo.doubleN, bar.id),
@@ -83,6 +90,9 @@ int main(int, char*[]) {
   SQLPP_COMPARE(select(dynamic(true, bar.id)), "SELECT tab_bar.id");
   SQLPP_COMPARE(select(dynamic(false, bar.id)), "SELECT NULL AS id");
 
+  SQLPP_COMPARE(select(sqlpp::verbatim<sqlpp::integral>("17").as(cheese)),
+                "SELECT 17 AS cheese");
+
   // -----------------------------------------
   // --  select_columns(<columns>)
   // -----------------------------------------
@@ -90,6 +100,14 @@ int main(int, char*[]) {
   SQLPP_COMPARE(select_columns(foo.id), "tab_foo.id");
   SQLPP_COMPARE(select_columns(foo.textNnD), "tab_foo.text_nn_d");
   SQLPP_COMPARE(select_columns(foo.boolN), "tab_foo.bool_n");
+
+  SQLPP_COMPARE(select_columns(sqlpp::all, foo.doubleN), "ALL tab_foo.double_n");
+  SQLPP_COMPARE(select_columns(sqlpp::all, sqlpp::distinct, foo.doubleN),
+                "ALL DISTINCT tab_foo.double_n");
+  SQLPP_COMPARE(select_columns(dynamic(false, sqlpp::all), foo.doubleN), "tab_foo.double_n");
+  SQLPP_COMPARE(select_columns(dynamic(true, sqlpp::all), foo.doubleN), "ALL tab_foo.double_n");
+  SQLPP_COMPARE(select_columns(sqlpp::all, dynamic(false, sqlpp::distinct), foo.doubleN), "ALL tab_foo.double_n");
+  SQLPP_COMPARE(select_columns(sqlpp::all, dynamic(true, sqlpp::distinct), foo.doubleN), "ALL DISTINCT tab_foo.double_n");
 
   // Multiple plain columns.
   SQLPP_COMPARE(select_columns(foo.id, foo.textNnD, foo.boolN),

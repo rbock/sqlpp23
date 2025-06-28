@@ -80,8 +80,11 @@ int main() {
   // select().columns(...)
   // -------------------------
 
-  // select_columns(<non arguments>) is inconsistent and cannot be constructed.
+  // select_columns(<no arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_select_columns_with<>);
+
+  // select_columns(<flags only>) is inconsistent and cannot be constructed.
+  static_assert(cannot_call_select_columns_with<sqlpp::all_t>);
 
   // select_columns(<arguments with no value>) cannot be called.
   static_assert(can_call_select_columns_with<decltype(bar.boolNn)>,
@@ -91,9 +94,24 @@ int main() {
       "OK, argument a column");
   static_assert(cannot_call_select_columns_with<decltype(bar.id == 7)>,
                 "not a value: comparison");
+  static_assert(cannot_call_select_columns_with<sqlpp::all_t, decltype(bar.id == 7)>,
+                "not a value: comparison (the leading flag does not change that)");
   static_assert(cannot_call_select_columns_with<decltype(bar.intN = 7),
                                                 decltype(bar.boolNn)>,
                 "not value: assignment");
+
+  // select_columns(<bad flags>) cannot be called.
+  static_assert(can_call_select_columns_with<sqlpp::all_t, decltype(bar.id)>,
+                "OK, argument a flag and a column");
+  static_assert(can_call_select_columns_with<sqlpp::all_t, decltype(all_of(bar))>,
+                "OK, argument a flag and a column");
+
+  static_assert(cannot_call_select_columns_with<decltype(bar.id), sqlpp::all_t>,
+                "Not OK, flags must not follow columns");
+  static_assert(cannot_call_select_columns_with<decltype(all_of(bar)), sqlpp::all_t>,
+                "Not OK, flags must not follow columns");
+  static_assert(cannot_call_select_columns_with<sqlpp::union_all_t, decltype(bar.id)>,
+                "Not OK, incorrect flag");
 
   // select_columns(<at least one unnamed column>) is inconsistent and cannot be
   // constructed.

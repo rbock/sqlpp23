@@ -250,7 +250,7 @@ int SelectType(int, char*[]) {
     to_sql_string(printer, s);
   }
 
-  static_assert(sqlpp::is_select_flag<
+  static_assert(sqlpp::is_raw_select_flag<
                     typename std::decay<decltype(sqlpp::all)>::type>::value,
                 "sqlpp::all has to be a select_flag");
   static_assert(sqlpp::is_numeric<decltype(t.id)>::value,
@@ -274,8 +274,7 @@ int SelectType(int, char*[]) {
   static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r))>::value,
                 "select(bool) has to be a bool");
   [[maybe_unused]] auto s1 = sqlpp::select()
-                                 .flags(sqlpp::distinct)
-                                 .columns(l.boolNn, r.a)
+                                 .columns(sqlpp::distinct, l.boolNn, r.a)
                                  .from(r.cross_join(t).cross_join(l))
                                  .where(t.textN == "hello world" and
                                         select(t.boolNn).from(t).where(

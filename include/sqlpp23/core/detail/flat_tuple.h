@@ -31,21 +31,35 @@
 #include <utility>
 
 namespace sqlpp::detail {
-template <typename T>
+template <template<typename> typename Predicate, typename T>
+  requires(Predicate<T>::value)
 auto tupelize(T t) -> std::tuple<T> {
   return std::make_tuple(std::move(t));
 }
 
-template <typename... Args>
+template <template<typename> typename Predicate, typename... Args>
+  requires((Predicate<Args>::value && ...))
 auto tupelize(std::tuple<Args...> t) -> std::tuple<Args...> {
   return t;
 }
 
-template <typename... Args>
+template <template<typename> typename Predicate, typename T>
+  requires(not Predicate<T>::value)
+auto tupelize(T) -> std::tuple<> {
+  return {};
+}
+
+template <template<typename> typename Predicate, typename... Args>
+  requires(not (Predicate<Args>::value && ...))
+auto tupelize(std::tuple<Args...>) -> std::tuple<> {
+  return {};
+}
+
+template <template<typename> typename Predicate, typename... Args>
 struct flat_tuple {
-  using type = decltype(std::tuple_cat(tupelize(std::declval<Args>())...));
+  using type = decltype(std::tuple_cat(tupelize<Predicate>(std::declval<Args>())...));
 };
 
-template <typename... Args>
-using flat_tuple_t = typename flat_tuple<Args...>::type;
+template <template<typename> typename Predicate, typename... Args>
+using flat_tuple_t = typename flat_tuple<Predicate, Args...>::type;
 }  // namespace sqlpp::detail

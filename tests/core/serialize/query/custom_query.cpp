@@ -35,14 +35,13 @@ int main() {
   const auto bar = test::TabBar{};
 
   // Unconditionally
-  SQLPP_COMPARE(sqlpp::select() << select_flags(sqlpp::distinct)
-                                << select_columns(foo.doubleN) << from(foo),
+  SQLPP_COMPARE(sqlpp::select() << select_columns(sqlpp::distinct, foo.doubleN)
+                                << from(foo),
                 "SELECT DISTINCT tab_foo.double_n FROM tab_foo");
 
   // A full select statement made individual clauses
   SQLPP_COMPARE(sqlpp::select()
-                    << select_flags(sqlpp::distinct)
-                    << select_columns(foo.doubleN)
+                    << select_columns(sqlpp::distinct, foo.doubleN)
                     << from(foo.join(bar).on(foo.doubleN == bar.id))
                     << where(bar.id > 17) << group_by(foo.doubleN)
                     << having(avg(bar.id) > 19) << order_by(foo.doubleN.asc())
@@ -55,8 +54,7 @@ int main() {
 
   // A full select statement made of individual clauses
   SQLPP_COMPARE(sqlpp::select()
-                    << select_flags(sqlpp::distinct)
-                    << select_columns(foo.doubleN)
+                    << select_columns(sqlpp::distinct, foo.doubleN)
                     << from(foo.join(bar).on(foo.doubleN == bar.id))
                     << where(bar.id > 17) << group_by(foo.doubleN)
                     << having(avg(bar.id) > 19)
