@@ -73,7 +73,7 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
   }
 
   auto _as_tuple() const {
-    return std::make_tuple(result_field<Is, FieldSpecs>::operator()()...);
+    return std::tie(result_field<Is, FieldSpecs>::operator()()...);
   }
 };
 

@@ -82,6 +82,11 @@ int main(int, char*[]) {
                        std::ranges::to<std::vector>();
     }
 
+    for ([[maybe_unused]] const auto& [index, row] :
+         db(select(foo.id).from(foo)) | std::ranges::views::enumerate) {
+      // do something with index and row
+    }
+
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;

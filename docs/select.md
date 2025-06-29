@@ -168,6 +168,7 @@ db(select(
      foo.id,      // non-aggregate
      max(foo.id)) // aggregate
     .from(foo));
+```
 
 If `group_by` is specified in the select, then all columns have to be aggregate expressions.
 
@@ -258,7 +259,7 @@ select(
   .from(dynamic(maybe, foo));      // `FROM` clause only present if `maybe == true`
 ```
 
-References to the table(s) of a dynamic `from` arg must also be dynamic.
+References to the table(s) of a dynamic `from` arg must also be dynamic like shown in the example above: `foo.id` is selected dynamically.
 
 ### Where
 
@@ -376,7 +377,7 @@ for (const auto& row : db(select(all_of(foo)).from(foo)).unconditionally())
 ```
 
 Lovely, isn't it? The row objects have types specifically tailored for the
-select query you wrote. You can access their member by name, and these members
+select query you wrote. You can access their members by name, and these members
 have the expected type.
 
 ### Function-based access
@@ -391,6 +392,27 @@ while(!result.empty())
    std::cerr << row.id << std::endl;
    std::cerr << row.name << std::endl;
    result.pop_front();
+}
+```
+
+### Rows as tuples
+
+You can also interpret result rows as tuples. `result_row_t::as_tuple()` uses `std::tie` to create a tuple of references to the the result fields:
+
+```c++
+for (const auto& row : db(select(t.id, t.name).from(t))) {
+    auto name = std::get<1>(row.as_tuple());
+}
+```
+
+### Ranges
+
+Results can be interpreted as input ranges, e.g.
+
+```c++
+for (const auto& [index, row] :
+     db(select(foo.id).from(foo)) | std::ranges::views::enumerate) {
+    // do something with index and row
 }
 ```
 
