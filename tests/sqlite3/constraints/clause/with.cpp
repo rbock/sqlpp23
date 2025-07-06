@@ -54,7 +54,7 @@ int main() {
   const auto foo = test::TabFoo{};
 
   {
-    const auto c = cte(something).as(select(foo.id).from(foo));
+    const auto c = sqlpp::cte(something).as(select(foo.id).from(foo));
     const auto w = with(c);
 
     static_assert(std::is_same<decltype(check_compatibility<CTX>(c)),

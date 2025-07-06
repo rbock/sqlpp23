@@ -39,7 +39,7 @@ Non-recursive CTEs are constructed like this:
 
 ```c++
 const auto x =
-    cte(sqlpp::alias::x)             // Call `sqlpp::cte` with a name
+    sqlpp::cte(sqlpp::alias::x)      // Call `sqlpp::cte` with a name
       .as(select(foo.id).from(foo)); // Give is it a meaning via as operator.
                                      // The argument has to provide a result
                                      // like a select statement.
@@ -50,7 +50,7 @@ Recursive CTEs are constructed in two steps:
 ```c++
 // First, you construct the base, e.g.
 const auto x_base =
-    cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+    sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
 
 // Then, you union with the recursion statement, e.g.
 const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a))

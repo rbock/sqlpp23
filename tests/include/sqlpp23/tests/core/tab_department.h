@@ -11,18 +11,18 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace model {
-  struct TabDepartment_ : public ::sqlpp::name_tag_base {
-    struct Id : public ::sqlpp::name_tag_base {
+  struct TabDepartment_ {
+    struct Id {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
       using data_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
-    struct Name : public ::sqlpp::name_tag_base {
+    struct Name {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(name, name);
       using data_type = std::optional<::sqlpp::text>;
       using has_default = std::true_type;
     };
-    struct Division : public ::sqlpp::name_tag_base {
+    struct Division {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(division, division);
       using data_type = ::sqlpp::text;
       using has_default = std::true_type;

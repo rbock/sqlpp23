@@ -54,7 +54,7 @@ int main() {
   const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
-  const auto c = cte(something).as(select(foo.id).from(foo));
+  const auto c = sqlpp::cte(something).as(select(foo.id).from(foo));
 
   // using_(<non arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_using_with<>, "");
