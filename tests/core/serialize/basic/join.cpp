@@ -148,7 +148,7 @@ int main(int, char*[]) {
                 s_string + " CROSS JOIN tab_foo");
 
   // Joining sub ctes
-  const auto c_ref = cte(something);
+  const auto c_ref = sqlpp::cte(something);
   const auto c = c_ref.as(select(all_of(foo)).from(foo));
   const auto c_string = to_sql_string(ctx, c_ref);
 

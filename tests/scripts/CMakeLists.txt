@@ -79,6 +79,7 @@ if (${Python3_Interpreter_FOUND})
                         "${sqlpp.scripts.generated.sample.include}"
                         test
                 DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                        "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                 VERBATIM)
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
@@ -111,6 +112,7 @@ if (${Python3_Interpreter_FOUND})
                     "${sqlpp.scripts.generated.custom_type_sql.include}"
                     test
             DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
+                    "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
             VERBATIM)
         add_executable(sqlpp.scripts.compiled.${custom_type_sql} ${custom_type_sql}.cpp
             "${sqlpp.scripts.generated.custom_type_sql.include}.h")

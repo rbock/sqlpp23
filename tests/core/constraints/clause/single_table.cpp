@@ -54,7 +54,7 @@ int main() {
   const auto maybe = true;
   const auto bar = test::TabBar{};
   const auto foo = test::TabFoo{};
-  const auto c = cte(something).as(select(bar.id).from(bar));
+  const auto c = sqlpp::cte(something).as(select(bar.id).from(bar));
 
   // OK
   static_assert(can_call_single_table_with<decltype(bar)>);

@@ -33,13 +33,13 @@ int main(int, char*[]) {
   const auto bar = test::TabBar{};
 
   // No expression (not super useful).
-  SQLPP_COMPARE(cte(sqlpp::alias::x), "x");
+  SQLPP_COMPARE(sqlpp::cte(sqlpp::alias::x), "x");
 
   // Simple CTE: X AS SELECT
   {
     using S = decltype(select(foo.id).from(foo));
     static_assert(sqlpp::has_result_row<S>::value, "");
-    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
+    const auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
     const auto a = x.as(sqlpp::alias::a);
     SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo)");
     SQLPP_COMPARE(make_table_ref(x), "x");
@@ -53,7 +53,7 @@ int main(int, char*[]) {
   // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
   {
     const auto x =
-        cte(sqlpp::alias::x)
+        sqlpp::cte(sqlpp::alias::x)
             .as(select(foo.id).from(foo).union_all(select(bar.id).from(bar)));
     const auto a = x.as(sqlpp::alias::a);
     SQLPP_COMPARE(x,
@@ -70,7 +70,7 @@ int main(int, char*[]) {
   // Recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     const auto x_base =
-        cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+        sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
     const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a))
                                         .from(x_base)
                                         .where(x_base.a < 10));
@@ -88,9 +88,9 @@ int main(int, char*[]) {
 
   // A CTE depending on another CTE
   {
-    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo));
+    const auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
     const auto y =
-        cte(sqlpp::alias::y)
+        sqlpp::cte(sqlpp::alias::y)
             .as(select(x.id, sqlpp::value(7).as(sqlpp::alias::a)).from(x));
     const auto z = y.as(sqlpp::alias::z);
     SQLPP_COMPARE(y, "y AS (SELECT x.id, 7 AS a FROM x)");
@@ -105,7 +105,7 @@ int main(int, char*[]) {
   // Dynamically recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     const auto x_base =
-        cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+        sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
     auto x = x_base.union_all(
         dynamic(true, select((x_base.a + 1).as(sqlpp::alias::a))
                           .from(x_base)
@@ -126,7 +126,7 @@ int main(int, char*[]) {
   // ...
   {
     const auto x_base =
-        cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+        sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
     auto x = x_base.union_distinct(
         dynamic(true, select((x_base.a + 1).as(sqlpp::alias::a))
                           .from(x_base)

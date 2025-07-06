@@ -40,22 +40,20 @@ struct no_name_t {
   };
 };
 
-struct name_tag_base {};  // Used by SQLPP_CREATE_NAME_TAG and ddl2cpp
-
-template <typename T, bool IsNameTag>
-struct name_tag_of_impl {
-  using type = no_name_t;
-};
 template <typename T>
-struct name_tag_of_impl<T, true> {
-  using type = typename T::_sqlpp_name_tag;
+concept HasOwnNameTag = requires {
+  typename T::_sqlpp_name_tag;  // required nested name tag
 };
 
 template <typename T>
 struct name_tag_of {
-  using type =
-      typename name_tag_of_impl<T,
-                                std::is_base_of<name_tag_base, T>::value>::type;
+  using type = no_name_t;
+};
+
+template <typename T>
+requires(HasOwnNameTag<T>)
+struct name_tag_of<T> {
+  using type = typename T::_sqlpp_name_tag;
 };
 
 template <typename T>
@@ -63,10 +61,9 @@ using name_tag_of_t = typename name_tag_of<T>::type;
 
 // Override this for other classes like columns or tables.
 template <typename T>
-struct has_name_tag
-    : public std::integral_constant<
-          bool,
-          not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
+struct has_name_tag : public std::integral_constant<
+                          bool,
+                          not std::is_same_v<name_tag_of_t<T>, no_name_t>> {};
 
 template <typename T>
 static inline constexpr bool has_name_tag_v = has_name_tag<T>::value;

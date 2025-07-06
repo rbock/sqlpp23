@@ -714,7 +714,7 @@ def createHeader():
           print("    db(R\"+++(" + parsedContent[table.locn_start:table.locn_end] + ")+++\");", file=header)
           print("  }", file=header)
           print("", file=header)
-        print("  struct " + tableSpec + " : public ::sqlpp::name_tag_base {", file=header)
+        print("  struct " + tableSpec + " {", file=header)
         for column in create.columns:
             if column.isConstraint:
                 continue
@@ -739,7 +739,7 @@ def createHeader():
                 )
                 print("You can disable this warning using -no-timestamp-warning")
                 noTimestampWarning = True
-            print("    struct " + columnClass + " : public ::sqlpp::name_tag_base {", file=header)
+            print("    struct " + columnClass + " {", file=header)
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
                 + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
                 , file=header)

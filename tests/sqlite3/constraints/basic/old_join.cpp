@@ -59,7 +59,7 @@ int main() {
     auto j = foo.full_outer_join(bar).on(foo.id == bar.id);
     auto f = from(j);
     auto s = select(foo.id, bar.intN) << f;
-    auto w = with(cte(sqlpp::alias::a).as(s));
+    auto w = with(sqlpp::cte(sqlpp::alias::a).as(s));
 
     static_assert(
         std::is_same<decltype(check_compatibility<CTX>(j)),
@@ -80,7 +80,7 @@ int main() {
     auto j = foo.right_outer_join(bar).on(foo.id == bar.id);
     auto f = from(j);
     auto s = select(foo.id, bar.intN) << f;
-    auto w = with(cte(sqlpp::alias::a).as(s));
+    auto w = with(sqlpp::cte(sqlpp::alias::a).as(s));
 
     static_assert(
         std::is_same<decltype(check_compatibility<CTX>(j)),
