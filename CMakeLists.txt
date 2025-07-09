@@ -76,6 +76,20 @@ target_include_directories(sqlpp23 INTERFACE
 )
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
+add_library(sqlpp23_core)
+target_sources(sqlpp23_core
+  PUBLIC
+    FILE_SET CXX_MODULES
+    FILES
+        ${PROJECT_SOURCE_DIR}/import/sqlpp23.cpp)
+target_link_libraries(sqlpp23_core PRIVATE sqlpp23)
+target_compile_features(sqlpp23_core INTERFACE cxx_std_23)
+
+add_executable(test-core test.cpp)
+target_link_libraries(test-core PRIVATE sqlpp23_core)
+target_compile_features(test-core PRIVATE cxx_std_23)
+set_target_properties(test-core PROPERTIES CXX_SCAN_FOR_MODULES ON)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
