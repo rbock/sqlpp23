@@ -34,6 +34,9 @@
 #include <sqlpp23/core/clause/truncate.h>
 #include <sqlpp23/core/clause/update.h>
 #include <sqlpp23/core/clause/with.h>
+#include <sqlpp23/core/clause/returning.h>
+#include <sqlpp23/core/clause/on_conflict.h>
+#include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/database/transaction.h>
 #include <sqlpp23/core/function.h>
 #include <sqlpp23/core/name/create_name_tag.h>
