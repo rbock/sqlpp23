@@ -35,19 +35,6 @@ using ::sqlpp::date;
 using ::sqlpp::timestamp;
 using ::sqlpp::time;
 
-// operators:misc
-using ::sqlpp::any;
-using ::sqlpp::between;
-using ::sqlpp::case_when;
-using ::sqlpp::cast;
-using ::sqlpp::exists;
-using ::sqlpp::in;
-using ::sqlpp::not_in;
-using ::sqlpp::asc;
-using ::sqlpp::desc;
-using ::sqlpp::sort_type; // enum
-using ::sqlpp::order;
-
 // operators:arithmetic
 using ::sqlpp::operator+;
 using ::sqlpp::operator-;
@@ -89,6 +76,19 @@ using ::sqlpp::operator&&;
 using ::sqlpp::operator||;
 using ::sqlpp::operator!;
 
+// operators:misc
+using ::sqlpp::any;
+using ::sqlpp::between;
+using ::sqlpp::case_when;
+using ::sqlpp::cast;
+using ::sqlpp::exists;
+using ::sqlpp::in;
+using ::sqlpp::not_in;
+using ::sqlpp::asc;
+using ::sqlpp::desc;
+using ::sqlpp::sort_type; // enum
+using ::sqlpp::order;
+
 // clauses:
 using ::sqlpp::delete_from;
 using ::sqlpp::insert;
@@ -119,6 +119,18 @@ using ::sqlpp::update_set;
 using ::sqlpp::using_;
 using ::sqlpp::where;
 using ::sqlpp::with;
+
+// functions
+using sqlpp::coalesce;
+using sqlpp::concat;
+// TODO: How to handle these?
+//using sqlpp::current_date;
+//using sqlpp::current_time;
+//using sqlpp::current_timestamp;
+using sqlpp::lower;
+using sqlpp::trim;
+using sqlpp::upper;
+
 }
 
 export namespace sqlpp::detail {
