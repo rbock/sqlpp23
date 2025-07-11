@@ -39,5 +39,5 @@ auto to_sql_string(Context&, const current_time_t&) -> std::string {
   return "CURRENT_TIME";
 }
 
-constexpr auto current_time = current_time_t{};
+inline constexpr auto current_time = current_time_t{};
 }  // namespace sqlpp

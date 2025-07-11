@@ -40,5 +40,5 @@ auto to_sql_string(Context&, const current_date_t&) -> std::string {
   return "CURRENT_DATE";
 }
 
-constexpr auto current_date = current_date_t{};
+inline constexpr auto current_date = current_date_t{};
 }  // namespace sqlpp
