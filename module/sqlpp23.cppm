@@ -123,10 +123,9 @@ using ::sqlpp::with;
 // functions
 using sqlpp::coalesce;
 using sqlpp::concat;
-// TODO: How to handle these?
-//using sqlpp::current_date;
-//using sqlpp::current_time;
-//using sqlpp::current_timestamp;
+using sqlpp::current_date;
+using sqlpp::current_time;
+using sqlpp::current_timestamp;
 using sqlpp::lower;
 using sqlpp::trim;
 using sqlpp::upper;
