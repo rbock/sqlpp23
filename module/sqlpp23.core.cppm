@@ -2,7 +2,7 @@ module;
 
 #include <sqlpp23/sqlpp23.h>
 
-export module sqlpp23;
+export module sqlpp23.core;
 
 export namespace sqlpp {
 // basics:
@@ -120,6 +120,19 @@ using ::sqlpp::using_;
 using ::sqlpp::where;
 using ::sqlpp::with;
 
+// select flags
+using sqlpp::all;
+using sqlpp::distinct;
+
+// aggregate functions
+using sqlpp::star;
+using sqlpp::avg;
+using sqlpp::count;
+using sqlpp::max;
+using sqlpp::min;
+using sqlpp::sum;
+using sqlpp::over;
+
 // functions
 using sqlpp::coalesce;
 using sqlpp::concat;
@@ -129,6 +142,16 @@ using sqlpp::current_timestamp;
 using sqlpp::lower;
 using sqlpp::trim;
 using sqlpp::upper;
+
+// database
+using sqlpp::isolation_level;
+using sqlpp::start_transaction;
+
+// query
+using sqlpp::dynamic;
+
+// serialization
+using sqlpp::to_sql_string;
 
 }
 

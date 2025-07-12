@@ -24,11 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
+import sqlpp23.mock_db;
+
+#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
 #include <algorithm>
 #include <iostream>
 

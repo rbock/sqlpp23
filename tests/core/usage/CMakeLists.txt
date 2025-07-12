@@ -42,7 +42,7 @@ set(test_files
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp23_core_tests ${test_sources})
-target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
+target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23.core)
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)

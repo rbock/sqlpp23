@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### Preamble
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.28)
 project(sqlpp23 VERSION 0.1 LANGUAGES CXX)
 
 ### Project Wide Setup
@@ -76,20 +76,6 @@ target_include_directories(sqlpp23 INTERFACE
 )
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
-add_library(sqlpp23_core)
-target_sources(sqlpp23_core
-  PUBLIC
-    FILE_SET CXX_MODULES
-    FILES
-        ${PROJECT_SOURCE_DIR}/import/sqlpp23.cpp)
-target_link_libraries(sqlpp23_core PRIVATE sqlpp23)
-target_compile_features(sqlpp23_core INTERFACE cxx_std_23)
-
-add_executable(test-core test.cpp)
-target_link_libraries(test-core PRIVATE sqlpp23_core)
-target_compile_features(test-core PRIVATE cxx_std_23)
-set_target_properties(test-core PROPERTIES CXX_SCAN_FOR_MODULES ON)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
@@ -122,6 +108,26 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
+
+
+add_library(sqlpp23.core)
+target_sources(sqlpp23.core
+  PUBLIC
+    FILE_SET all_my_modules TYPE CXX_MODULES FILES
+    module/sqlpp23.core.cppm
+    module/sqlpp23.mock_db.cppm
+)
+target_link_libraries(sqlpp23.core PUBLIC sqlpp23)
+
+add_executable(demo)
+target_sources(demo
+    PUBLIC
+    tests/core/modules/test.cpp
+)
+target_include_directories(demo PUBLIC tests/include)
+target_link_libraries(demo
+  PRIVATE
+    sqlpp23.core)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}

@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
+import sqlpp23.core;
 #include <iostream>
 
 template <typename T>

@@ -1,4 +1,4 @@
-import sqlpp23;
+import sqlpp23.core;
 
 #include <sqlpp23/tests/core/tables.h>
 

@@ -40,7 +40,7 @@ auto to_sql_string(Context&, const all_t&) -> std::string {
   return "ALL ";
 }
 
-static constexpr all_t all = {};
+inline constexpr all_t all = {};
 
 template <>
 struct is_raw_select_flag<all_t> : public std::true_type {};
@@ -52,7 +52,7 @@ auto to_sql_string(Context&, const distinct_t&) -> std::string {
   return "DISTINCT ";
 }
 
-static constexpr distinct_t distinct = {};
+inline constexpr distinct_t distinct = {};
 
 template <>
 struct is_raw_select_flag<distinct_t> : public std::true_type {};
@@ -64,7 +64,7 @@ auto to_sql_string(Context&, const no_flag_t&) -> std::string {
   return "";
 }
 
-static constexpr no_flag_t no_flag = {};
+inline constexpr no_flag_t no_flag = {};
 
 template <>
 struct is_raw_select_flag<no_flag_t> : public std::true_type {};
