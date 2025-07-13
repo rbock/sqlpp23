@@ -24,17 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+import sqlpp23.postgresql;
+
 #include <cassert>
 #include <chrono>
 #include <iostream>
 #include <vector>
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-
 #include <sqlpp23/tests/postgresql/tables.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include "sqlpp23/tests/core/result_helpers.h"
+#include <sqlpp23/tests/core/result_helpers.h>
 
 namespace sql = sqlpp::postgresql;
 test::TabFoo tab = {};

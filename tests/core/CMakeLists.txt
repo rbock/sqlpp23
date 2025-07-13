@@ -22,6 +22,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+add_library(sqlpp23_core_testing INTERFACE)
+target_include_directories(sqlpp23_core_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(sqlpp23_core_testing INTERFACE sqlpp23_testing sqlpp23.mock_db.module)
+
 add_subdirectory(asserts)
 add_subdirectory(constraints)
 add_subdirectory(helpers)

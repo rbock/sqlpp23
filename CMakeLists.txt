@@ -76,6 +76,21 @@ target_include_directories(sqlpp23 INTERFACE
 )
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
+add_library(sqlpp23.core.module)
+target_sources(sqlpp23.core.module
+  PUBLIC
+    FILE_SET all_my_modules TYPE CXX_MODULES FILES
+    module/sqlpp23.core.cppm
+)
+target_link_libraries(sqlpp23.core.module PUBLIC sqlpp23)
+
+add_library(sqlpp23.mock_db.module)
+target_sources(sqlpp23.mock_db.module
+  PUBLIC
+    FILE_SET all_my_modules TYPE CXX_MODULES FILES
+    module/sqlpp23.mock_db.cppm
+)
+target_link_libraries(sqlpp23.mock_db.module PUBLIC sqlpp23.core.module)
 
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
@@ -96,6 +111,14 @@ endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
     add_component(NAME postgresql DEPENDENCIES PostgreSQL::PostgreSQL)
+
+    add_library(sqlpp23.postgresql.module)
+    target_sources(sqlpp23.postgresql.module
+      PUBLIC
+        FILE_SET all_my_modules TYPE CXX_MODULES FILES
+        module/sqlpp23.postgresql.cppm
+    )
+    target_link_libraries(sqlpp23.postgresql.module PUBLIC sqlpp23.core.module sqlpp23::postgresql)
 endif()
 
 ### Packaging
@@ -109,25 +132,6 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
     ARCH_INDEPENDENT
 )
 
-
-add_library(sqlpp23.core)
-target_sources(sqlpp23.core
-  PUBLIC
-    FILE_SET all_my_modules TYPE CXX_MODULES FILES
-    module/sqlpp23.core.cppm
-    module/sqlpp23.mock_db.cppm
-)
-target_link_libraries(sqlpp23.core PUBLIC sqlpp23)
-
-add_executable(demo)
-target_sources(demo
-    PUBLIC
-    tests/core/modules/test.cpp
-)
-target_include_directories(demo PUBLIC tests/include)
-target_link_libraries(demo
-  PRIVATE
-    sqlpp23.core)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}

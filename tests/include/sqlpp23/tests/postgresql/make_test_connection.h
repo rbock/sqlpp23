@@ -26,10 +26,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+import sqlpp23.postgresql;
+
 #include <iostream>
 
 #include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/postgresql/postgresql.h>
 
 namespace sqlpp::postgresql {
 // Get configuration for test connection

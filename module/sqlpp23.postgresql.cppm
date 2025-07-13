@@ -4,7 +4,7 @@ module;
 
 export module sqlpp23.postgresql;
 
-export import sqlpp23;
+export import sqlpp23.core;
 
 export namespace sqlpp::postgresql {
   using sqlpp::postgresql::connection_config;

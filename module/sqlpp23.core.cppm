@@ -146,6 +146,7 @@ using sqlpp::upper;
 // database
 using sqlpp::isolation_level;
 using sqlpp::start_transaction;
+using sqlpp::exception;
 
 // query
 using sqlpp::dynamic;
