@@ -26,12 +26,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#if SQLPP23_USE_MODULES
 import sqlpp23.mock_db;
 
 #include <iostream>
 #include <memory>
 
 #include <sqlpp23/core/debug_logger.h>
+#else
+#include <iostream>
+
+#include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/mock_db/mock_db.h>
+#endif
 
 namespace sqlpp::mock_db {
 // Get configuration for test connection

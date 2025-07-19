@@ -39,6 +39,7 @@ option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
 option(BUILD_POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
 option(BUILD_SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
 option(BUILD_SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
+option(BUILD_WITH_MODULES "Build tests with sqlpp23 modules" OFF)
 
 option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON)
 

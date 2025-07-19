@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2021, Roland Bock
+# Copyright (c) 2021, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,

@@ -26,8 +26,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#if SQLPP23_USE_MODULES
 import sqlpp23.core;
 #include <iostream>
+#else
+#include <sqlpp23/sqlpp23.h>
+#include <iostream>
+#endif
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {

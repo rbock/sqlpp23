@@ -42,7 +42,11 @@ set(test_files
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp23_core_tests ${test_sources})
-target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::sqlpp23 sqlpp23_core_testing)
+target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23_core_testing sqlpp23.core.module sqlpp23.mock_db.module)
+if (BUILD_WITH_MODULES)
+  target_compile_definitions(sqlpp23_core_tests PRIVATE SQLPP23_USE_MODULES)
+endif()
+
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
