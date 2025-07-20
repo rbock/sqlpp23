@@ -42,7 +42,7 @@ build_script:
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /std:c++latest" %CMAKE_TOOLCHAIN_FILE% -DBUILD_MYSQL_CONNECTOR=ON -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON
+  - cmake .. -G Ninja -DCMAKE_CXX_FLAGS="/EHsc /std:c++latest" %CMAKE_TOOLCHAIN_FILE% -DBUILD_MYSQL_CONNECTOR=ON -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON
   - cmake --build . --config %configuration%
   - cd tests
   - cd core
