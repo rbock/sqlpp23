@@ -1,6 +1,7 @@
 module;
 
 #include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/core/database/connection_pool.h>
 
 export module sqlpp23.core;
 
@@ -128,70 +129,75 @@ using ::sqlpp::with_result_type_of;
 using ::sqlpp::simple_column;
 
 // select flags
-using sqlpp::all;
-using sqlpp::distinct;
+using ::sqlpp::all;
+using ::sqlpp::distinct;
 
 // aggregate functions
-using sqlpp::star;
-using sqlpp::avg;
-using sqlpp::count;
-using sqlpp::max;
-using sqlpp::min;
-using sqlpp::sum;
-using sqlpp::over;
+using ::sqlpp::star;
+using ::sqlpp::avg;
+using ::sqlpp::count;
+using ::sqlpp::max;
+using ::sqlpp::min;
+using ::sqlpp::sum;
+using ::sqlpp::over;
 
 // functions
-using sqlpp::coalesce;
-using sqlpp::concat;
-using sqlpp::current_date;
-using sqlpp::current_time;
-using sqlpp::current_timestamp;
-using sqlpp::lower;
-using sqlpp::trim;
-using sqlpp::upper;
-using sqlpp::get_sql_name;
-using sqlpp::flatten;
+using ::sqlpp::coalesce;
+using ::sqlpp::concat;
+using ::sqlpp::current_date;
+using ::sqlpp::current_time;
+using ::sqlpp::current_timestamp;
+using ::sqlpp::lower;
+using ::sqlpp::trim;
+using ::sqlpp::upper;
+using ::sqlpp::get_sql_name;
+using ::sqlpp::flatten;
 
 // database
-using sqlpp::isolation_level;
-using sqlpp::start_transaction;
-using sqlpp::exception;
+using ::sqlpp::isolation_level;
+using ::sqlpp::start_transaction;
+using ::sqlpp::exception;
+using ::sqlpp::connection_check;
 
 // query
-using sqlpp::dynamic;
+using ::sqlpp::dynamic;
 
 // serialization
-using sqlpp::to_sql_string;
+using ::sqlpp::to_sql_string;
 
 // logging
-using sqlpp::log_category;
-using sqlpp::log_function_t;
-using sqlpp::debug_logger;
+using ::sqlpp::log_category;
+using ::sqlpp::log_function_t;
+using ::sqlpp::debug_logger;
 
 // type_traits
-using sqlpp::can_be_null;
-using sqlpp::is_boolean;
-using sqlpp::is_numeric;
-using sqlpp::is_text;
-using sqlpp::is_table;
-using sqlpp::is_integral;
-using sqlpp::is_unsigned_integral;
-using sqlpp::is_floating_point;
-using sqlpp::parameter_value_t;
-using sqlpp::make_parameter_list_t;
-using sqlpp::data_type_of_t;
-using sqlpp::parameters_of_t;
-using sqlpp::is_optional;
-using sqlpp::get_result_row_t;
-using sqlpp::is_raw_select_flag;
-using sqlpp::remove_optional_t;
-using sqlpp::has_data_type;
+using ::sqlpp::can_be_null;
+using ::sqlpp::is_boolean;
+using ::sqlpp::is_numeric;
+using ::sqlpp::is_text;
+using ::sqlpp::is_table;
+using ::sqlpp::is_integral;
+using ::sqlpp::is_unsigned_integral;
+using ::sqlpp::is_floating_point;
+using ::sqlpp::parameter_value_t;
+using ::sqlpp::make_parameter_list_t;
+using ::sqlpp::data_type_of_t;
+using ::sqlpp::parameters_of_t;
+using ::sqlpp::is_optional;
+using ::sqlpp::get_result_row_t;
+using ::sqlpp::is_raw_select_flag;
+using ::sqlpp::remove_optional_t;
+using ::sqlpp::has_data_type;
 
+}
+
+export namespace sqlpp::chrono {
+using ::sqlpp::chrono::sys_microseconds;
 }
 
 export namespace sqlpp::detail {
 // detail
-using sqlpp::detail::type_set;
-using sqlpp::detail::type_vector;
+using ::sqlpp::detail::type_set;
+using ::sqlpp::detail::type_vector;
 }
 

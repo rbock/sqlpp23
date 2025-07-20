@@ -22,8 +22,20 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+add_library(sqlpp23.test.sqlite3.tables.module)
+target_sources(sqlpp23.test.sqlite3.tables.module
+  PUBLIC
+    FILE_SET all_my_modules TYPE CXX_MODULES FILES
+    module/sqlpp23.test.sqlite3.tables.cppm
+)
+target_link_libraries(sqlpp23.test.sqlite3.tables.module PUBLIC sqlpp23.core.module)
+
 add_library(sqlpp23_sqlite3_testing INTERFACE)
 target_include_directories(sqlpp23_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(sqlpp23_sqlite3_testing INTERFACE 
+  sqlpp23_testing
+  sqlpp23.mock_db.module
+  sqlpp23.test.sqlite3.tables.module)
 
 function(sqlpp_slite3_test_add_target_link_libraries name)
 target_link_libraries(${name} PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)

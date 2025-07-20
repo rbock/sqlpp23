@@ -26,7 +26,7 @@
 function(create_test name)
     set(target sqlpp23_postgresql_usage_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_postgresql_testing)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
@@ -55,7 +55,7 @@ set(test_files
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp23_postgresql_tests ${test_sources})
-target_link_libraries(sqlpp23_postgresql_tests PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
+target_link_libraries(sqlpp23_postgresql_tests PRIVATE sqlpp23::postgresql sqlpp23_postgresql_testing)
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)

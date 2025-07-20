@@ -25,13 +25,18 @@
  */
 
 #include <cassert>
+#include <chrono>
 #include <iostream>
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
 
-#include <sqlpp23/tests/postgresql/tables.h>
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
+
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
+
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::microseconds>(
@@ -40,16 +45,6 @@ const auto today = std::chrono::floor<std::chrono::days>(now);
 const auto yesterday = today - std::chrono::days{1};
 const auto current = now - today;
 
-template <typename L, typename R>
-auto require_equal(int line, const L& l, const R& r) -> void {
-  if (l != r) {
-    std::cerr << line << ": ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, l);
-    std::cerr << " != ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, r);
-    throw std::runtime_error("Unexpected result");
-  }
-}
 }  // namespace
 
 int DateTime(int, char*[]) {

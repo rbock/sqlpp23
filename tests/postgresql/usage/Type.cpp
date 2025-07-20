@@ -27,21 +27,13 @@
 
 #include <iostream>
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
 
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
-
-namespace {
-template <typename L, typename R>
-void require_equal(int line, const L& l, const R& r) {
-  if (l != r) {
-    std::cerr << line << ": --" << l << " != " << r << "--" << std::endl;
-    throw std::runtime_error("Unexpected result");
-  }
-}
-}  // namespace
 
 namespace sql = sqlpp::postgresql;
 

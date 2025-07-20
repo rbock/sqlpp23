@@ -26,11 +26,14 @@
  */
 
 #include <vector>
+#include <chrono>
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
 
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 namespace {
@@ -56,17 +59,6 @@ void save_prepared(sqlpp::postgresql::connection& db,
   prepared_update.parameters.timeNTz = tod;
   prepared_update.parameters.dateN = dp;
   db(prepared_update);
-}
-
-template <typename L, typename R>
-void require_equal(int line, const L& l, const R& r) {
-  if (l != r) {
-    std::cerr << __FILE__ << ": " << line << ": ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, l);
-    std::cerr << " != ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, r) << "\n";
-    throw std::runtime_error("Unexpected result");
-  }
 }
 
 void check_saved_values(sqlpp::postgresql::connection& db,

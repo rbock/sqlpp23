@@ -28,8 +28,13 @@
 #include <memory>
 #include <stdexcept>
 
-#include <sqlpp23/postgresql/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
+
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 namespace sql = sqlpp::postgresql;
 int BasicConstConfig(int, char*[]) {

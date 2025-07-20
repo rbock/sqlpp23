@@ -1,10 +1,11 @@
 #include <iostream>
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-#include "sqlpp23/tests/core/result_helpers.h"
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
 
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 int Returning(int, char*[]) {

@@ -33,9 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <thread>
 #include <unordered_set>
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/core/database/connection_pool.h>
-#include <sqlpp23/tests/core/tab_department.h>
+#include <sqlpp23/tests/core/tables-using-modules.h>
 
 namespace sqlpp::test {
 namespace {
@@ -141,7 +139,7 @@ void test_basic(Pool& pool, const std::string& create_table) {
     auto db = pool.get();
     db("DROP TABLE IF EXISTS tab_department");
     db(create_table);
-    model::TabDepartment tabDept = {};
+    ::test::TabDepartment tabDept = {};
     db(insert_into(tabDept).default_values());
   } catch (const std::exception& e) {
     std::cerr << "Exception in " << __func__ << "\n";
@@ -176,7 +174,7 @@ template <typename Pool>
 void test_multiple_connections(Pool& pool) {
   std::clog << __func__ << '\n';
   try {
-    model::TabDepartment tabDept = {};
+    ::test::TabDepartment tabDept = {};
     auto connections =
         std::vector<typename std::decay<decltype(pool.get())>::type>{};
     auto pointers = std::set<void*>{};
@@ -214,7 +212,7 @@ void test_multithreaded(Pool& pool) {
       auto func = __func__;
       auto call_count = uniform_dist(random_engine);
       threads.push_back(std::thread([call_count, &func, &pool]() {
-        constexpr model::TabDepartment tabDept = {};
+        constexpr ::test::TabDepartment tabDept = {};
         try {
           for (auto k = 0; k < call_count; ++k) {
             auto connection = pool.get();

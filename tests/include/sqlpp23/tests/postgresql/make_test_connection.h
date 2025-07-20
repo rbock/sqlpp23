@@ -26,18 +26,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if SQLPP23_USE_MODULES
+import sqlpp23.core;
 import sqlpp23.postgresql;
 
 #include <iostream>
+#include <memory>
 
 #include <sqlpp23/core/debug_logger.h>
-#else
-#include <iostream>
-
-#include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/postgresql/postgresql.h>
-#endif
 
 namespace sqlpp::postgresql {
 // Get configuration for test connection
