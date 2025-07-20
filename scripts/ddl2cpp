@@ -160,8 +160,8 @@ def SetContent(text, loc, token) :
   global parsedContent
   parsedContent = text
 
-# Init the DLL parser
-def createDllParser():
+# Init the DDL parser
+def createDdlParser():
     global ddl
     global ddlType
     global ddlColumn
@@ -495,7 +495,7 @@ def testPrimaryKeyAutoIncrement():
         assert column.isPrimaryKey
 
 def testParser():
-    createDllParser()
+    createDdlParser()
     testBoolean()
     testInteger()
     testSerial()
@@ -836,7 +836,7 @@ if __name__ == "__main__":
         testParser()
         sys.exit()
     else:
-        ddlParser = createDllParser()
+        ddlParser = createDdlParser()
         parsedDdls = parseDdls(ddlParser, args)
         if args.path_to_header:
             createHeader(parsedDdls, args)
