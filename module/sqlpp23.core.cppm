@@ -8,6 +8,8 @@ export namespace sqlpp {
 // basics:
 using ::sqlpp::column_t;
 using ::sqlpp::table_t;
+using ::sqlpp::verbatim_t;
+using ::sqlpp::verbatim_table;
 using ::sqlpp::table_columns;
 using ::sqlpp::all_of;
 using ::sqlpp::join;
@@ -23,6 +25,7 @@ using ::sqlpp::schema;
 using ::sqlpp::schema_qualified_table;
 using ::sqlpp::star;
 using ::sqlpp::value;
+using ::sqlpp::no_value_t;
 
 // data types
 using ::sqlpp::boolean;
@@ -90,6 +93,7 @@ using ::sqlpp::sort_type; // enum
 using ::sqlpp::order;
 
 // clauses:
+using ::sqlpp::statement_t;
 using ::sqlpp::delete_from;
 using ::sqlpp::insert;
 using ::sqlpp::insert_into;
@@ -103,6 +107,7 @@ using ::sqlpp::from;
 using ::sqlpp::group_by;
 using ::sqlpp::having;
 using ::sqlpp::insert_columns;
+using ::sqlpp::default_value;
 using ::sqlpp::insert_default_values;
 using ::sqlpp::insert_set;
 using ::sqlpp::into;
@@ -119,6 +124,8 @@ using ::sqlpp::update_set;
 using ::sqlpp::using_;
 using ::sqlpp::where;
 using ::sqlpp::with;
+using ::sqlpp::with_result_type_of;
+using ::sqlpp::simple_column;
 
 // select flags
 using sqlpp::all;
@@ -142,6 +149,8 @@ using sqlpp::current_timestamp;
 using sqlpp::lower;
 using sqlpp::trim;
 using sqlpp::upper;
+using sqlpp::get_sql_name;
+using sqlpp::flatten;
 
 // database
 using sqlpp::isolation_level;
@@ -154,10 +163,35 @@ using sqlpp::dynamic;
 // serialization
 using sqlpp::to_sql_string;
 
+// logging
+using sqlpp::log_category;
+using sqlpp::log_function_t;
+using sqlpp::debug_logger;
+
+// type_traits
+using sqlpp::can_be_null;
+using sqlpp::is_boolean;
+using sqlpp::is_numeric;
+using sqlpp::is_text;
+using sqlpp::is_table;
+using sqlpp::is_integral;
+using sqlpp::is_unsigned_integral;
+using sqlpp::is_floating_point;
+using sqlpp::parameter_value_t;
+using sqlpp::make_parameter_list_t;
+using sqlpp::data_type_of_t;
+using sqlpp::parameters_of_t;
+using sqlpp::is_optional;
+using sqlpp::get_result_row_t;
+using sqlpp::is_raw_select_flag;
+using sqlpp::remove_optional_t;
+using sqlpp::has_data_type;
+
 }
 
 export namespace sqlpp::detail {
 // detail
 using sqlpp::detail::type_set;
+using sqlpp::detail::type_vector;
 }
 

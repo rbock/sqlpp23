@@ -37,5 +37,5 @@ auto to_sql_string(Context&, const default_value_t&) -> std::string {
   return "DEFAULT";
 }
 
-constexpr default_value_t default_value = {};
+inline constexpr default_value_t default_value = {};
 }  // namespace sqlpp

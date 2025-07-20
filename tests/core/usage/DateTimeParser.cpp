@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+import sqlpp23.core;
 #include <sqlpp23/core/detail/parse_date_time.h>
-#include <sqlpp23/sqlpp23.h>
 
 #include <iostream>
 #include <vector>

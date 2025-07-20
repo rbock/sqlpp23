@@ -38,6 +38,7 @@
 #include <sqlpp23/core/clause/on_conflict.h>
 #include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/database/transaction.h>
+#include <sqlpp23/core/debug_logger.h>
 #include <sqlpp23/core/function.h>
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/core/operator.h>

@@ -24,12 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
+#include <iostream>
+#include <chrono>
+
+import sqlpp23.core;
+import sqlpp23.mock_db;
+import sqlpp23.test.core.tables;
+
+#include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/make_test_connection.h>
 #include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <iostream>
 #include "is_regular.h"
 
 int Insert(int, char*[]) {

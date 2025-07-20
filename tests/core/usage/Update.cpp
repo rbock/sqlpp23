@@ -24,10 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
+import sqlpp23.core;
+import sqlpp23.mock_db;
+import sqlpp23.test.core.tables;
+
+#include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/make_test_connection.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 #include "is_regular.h"
 
 int Update(int, char*[]) {

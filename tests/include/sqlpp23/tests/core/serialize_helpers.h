@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mock_db/database/connection.h>
+import sqlpp23.mock_db;
 #include <iostream>
 
 #define SQLPP_COMPARE(expr, expected_string)                       \

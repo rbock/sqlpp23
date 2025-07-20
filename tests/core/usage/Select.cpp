@@ -24,20 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if SQLPP23_USE_MODULES
-import sqlpp23.core;
-import sqlpp23.mock_db;
-#include <sqlpp23/tests/core/tables-using-modules.h>
-#else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/mock_db/mock_db.h>
-#include <sqlpp23/tests/core/tables.h>
-#endif
-
-#include <sqlpp23/tests/core/make_test_connection.h>
-#include <sqlpp23/tests/core/result_helpers.h>
 #include <algorithm>
 #include <iostream>
+
+import sqlpp23.core;
+import sqlpp23.mock_db;
+import sqlpp23.test.core.tables;
+
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
+#include <sqlpp23/tests/core/result_helpers.h>
 
 struct to_cerr {
   template <typename... Fields>
