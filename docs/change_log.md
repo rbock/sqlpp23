@@ -5,6 +5,8 @@
 ## 0.67
 - `core/name/create_name_tag.h` is now a stand-alone header
 - Instead of `cte(sqlpp::alias::a)`, you now have to call `sqlpp::cte(sqlpp::alias::a)`
+- Support comparison member functions for comparison expressions, e.g. you can now order by comparison results, #39
+- order_by allows duplicate expressions, #39
 
 ## 0.66
 
