@@ -28,14 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/operator/comparison_functions.h>
 
 namespace sqlpp {
-enum class sort_type {
-  asc,
-  desc,
-};
-
 template <typename L>
 struct sort_order_expression {
   constexpr sort_order_expression(L l, sort_type r)
@@ -70,24 +65,6 @@ template <typename Context, typename L>
 auto to_sql_string(Context& context, const sort_order_expression<L>& t)
     -> std::string {
   return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
-}
-
-template <typename L>
-requires(values_are_comparable<L, L>::value)
-constexpr auto asc(L l) -> sort_order_expression<L> {
-  return {l, sort_type::asc};
-}
-
-template <typename L>
-requires(values_are_comparable<L, L>::value)
-constexpr auto desc(L l) -> sort_order_expression<L> {
-  return {l, sort_type::desc};
-}
-
-template <typename L>
-requires(values_are_comparable<L, L>::value)
-constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
-  return {l, order};
 }
 
 }  // namespace sqlpp

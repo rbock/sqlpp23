@@ -26,13 +26,13 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename L, typename R1, typename R2>
-struct between_expression : public enable_as {
+struct between_expression : public enable_as, public enable_comparison {
   constexpr between_expression(L l, R1 r1, R2 r2)
       : _l(std::move(l)), _r1(std::move(r1)), _r2(std::move(r2)) {}
   between_expression(const between_expression&) = default;
@@ -71,13 +71,6 @@ auto to_sql_string(Context& context, const between_expression<L, R1, R2>& t)
   auto ret_val = operand_to_sql_string(context, t._l) + " BETWEEN ";
   ret_val += operand_to_sql_string(context, t._r1) + " AND ";
   return ret_val + operand_to_sql_string(context, t._r2);
-}
-
-template <typename L, typename R1, typename R2>
-  requires(values_are_comparable<L, R1>::value and
-           values_are_comparable<L, R2>::value)
-constexpr auto between(L l, R1 r1, R2 r2) -> between_expression<L, R1, R2> {
-  return {std::move(l), std::move(r1), std::move(r2)};
 }
 
 }  // namespace sqlpp

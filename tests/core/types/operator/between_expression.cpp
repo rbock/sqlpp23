@@ -73,8 +73,8 @@ void test_between_expression(Value v) {
                                                        v_not_null))>::value,
                 "");
 
-  // Between expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(between(
+  // Between expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(between(
                     v_not_null, v_not_null, v_not_null))>::value,
                 "");
 
@@ -125,8 +125,8 @@ void test_between_member_function() {
                     v_not_null, v_not_null))>::value,
                 "");
 
-  // Between expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.between(
+  // Between expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(v_not_null.between(
                     v_not_null, v_not_null))>::value,
                 "");
 

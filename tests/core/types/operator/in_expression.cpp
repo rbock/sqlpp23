@@ -98,8 +98,8 @@ void test_in_expression(Value v) {
                     v_maybe_null, std::vector<OptValue>{}))>::value,
                 "");
 
-  // IN expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(in(
+  // IN expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(in(
                     v_maybe_null, std::vector<OptValue>{}))>::value,
                 "");
 
