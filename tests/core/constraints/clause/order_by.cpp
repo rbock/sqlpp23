@@ -75,16 +75,15 @@ int main() {
       cannot_call_order_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,
       "not sort order: tuple");
 
-  // order_by(<duplicate sort order expressions>) is inconsistent and cannot be
-  // constructed.
+  // order_by(<duplicate sort order expressions>) is allowed, see #39
   static_assert(
         can_call_order_by_with<decltype((bar.id < 7).asc()), decltype(bar.id.asc())>);
   static_assert(
-        cannot_call_order_by_with<decltype(bar.id.asc()), decltype(bar.id.asc())>);
+        can_call_order_by_with<decltype(bar.id.asc()), decltype(bar.id.asc())>);
   static_assert(
-        cannot_call_order_by_with<decltype(bar.id.asc()), decltype(bar.id.desc())>);
+        can_call_order_by_with<decltype(bar.id.asc()), decltype(bar.id.desc())>);
   static_assert(
-        cannot_call_order_by_with<decltype(dynamic(false, bar.id.asc())), decltype(bar.id.asc())>);
+        can_call_order_by_with<decltype(dynamic(false, bar.id.asc())), decltype(bar.id.asc())>);
 
   // order_by is not required
   {
