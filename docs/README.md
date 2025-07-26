@@ -38,7 +38,8 @@ The following pages will tell you how to use it:
   - [Update](/docs/update.md)
   - [Delete](/docs/delete.md)
   - [NULL](/docs/null.md)
-  - [Static vs. Dynamic](/docs/dynamic.md)
+  - [Dynamic statements](/docs/dynamic.md)
+  - [Custom statements](/docs/custom_statements.md)
   - [Exceptions](exception.md)
 - **Building Blocks**
   - [Tables, joins, and CTEs](/docs/tables.md)

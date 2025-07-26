@@ -2,6 +2,8 @@
 
 # From static to dynamic statements
 
+See also [custom statements](/docs/custom_statements.md)
+
 ## Fully static
 
 The most straight forward use of sqlpp23 is by constructing and running static
