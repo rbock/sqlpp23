@@ -33,6 +33,7 @@ int main(int, char*[]) {
 
   SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
   SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
+  SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id).asc(), "tab_foo.id ASC");
 
   return 0;
 }

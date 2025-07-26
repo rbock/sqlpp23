@@ -37,4 +37,5 @@ int main() {
                 "");
   static_assert(not sqlpp::has_name_tag<Verb>::value, "");
   static_assert(sqlpp::has_enabled_as<Verb>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<Verb>::value, "");
 }

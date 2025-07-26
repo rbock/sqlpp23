@@ -30,12 +30,13 @@
 #include <utility>
 
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename DataType>
-struct verbatim_t : public enable_as {
+struct verbatim_t : public enable_as, enable_comparison {
   verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim)) {}
   verbatim_t(const verbatim_t&) = default;
   verbatim_t(verbatim_t&&) = default;
