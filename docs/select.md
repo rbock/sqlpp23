@@ -316,6 +316,15 @@ expression adorned with `.asc()` or `.desc()`, e.g.
 select(all_of(foo)).from(foo).order_by(foo.name.asc());
 ```
 
+You can also choose the order at runtime like this:
+
+```C++
+select(all_of(foo))
+    .from(foo)
+    .order_by(foo.name.order(wantAsc ? sqlpp::sort_type::asc
+                                     : sqlpp::sort_type::desc));
+```
+
 `order_by` arguments can be [`dynamic`](/docs/dynamic.md). `dynamic` arguments will
 not be serialized if their conditions are false. If all arguments are dynamic
 and all conditions are false, the `ORDER BY` clause will not be serialized at
