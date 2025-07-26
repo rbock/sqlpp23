@@ -31,12 +31,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/noop.h>
 #include <sqlpp23/core/operator/any.h>
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename L, typename Operator, typename R>
 struct comparison_expression
-    : public enable_as {
+    : public enable_as, enable_comparison{
   constexpr comparison_expression(L l, R r)
       : _l(std::move(l)), _r(std::move(r)) {}
   comparison_expression(const comparison_expression&) = default;
@@ -56,11 +57,6 @@ struct data_type_of<comparison_expression<L, Operator, R>>
               sqlpp::is_optional<data_type_of_t<remove_any_t<R>>>::value,
           std::optional<boolean>,
           boolean> {};
-
-struct op_is_null;
-struct op_is_not_null;
-struct op_is_distinct_from;
-struct op_is_not_distinct_from;
 
 template <typename L>
 struct data_type_of<comparison_expression<L, op_is_null, std::nullopt_t>> {
@@ -162,62 +158,6 @@ struct greater {
 template <typename L, typename R>
   requires(values_are_comparable<L, remove_any_t<R>>::value)
 constexpr auto operator>(L l, R r) -> comparison_expression<L, greater, R> {
-  return {std::move(l), std::move(r)};
-}
-
-struct op_is_null {
-  static constexpr auto symbol = " IS ";
-};
-
-template <typename L>
-constexpr auto is_null(L l)
-    -> comparison_expression<L, op_is_null, std::nullopt_t> {
-  return {l, std::nullopt};
-}
-
-struct op_is_not_null {
-  static constexpr auto symbol = " IS NOT ";
-};
-
-template <typename L>
-constexpr auto is_not_null(L l)
-    -> comparison_expression<L, op_is_not_null, std::nullopt_t> {
-  return {l, std::nullopt};
-}
-
-struct op_is_distinct_from {
-  static constexpr auto symbol = " IS DISTINCT FROM ";  // sql standard
-  // mysql has NULL-safe equal `<=>` which is_null equivalent to `IS NOT
-  // DISTINCT FROM` sqlite3 has `IS NOT`
-};
-
-template <typename L, typename R>
-  requires(values_are_comparable<L, R>::value)
-constexpr auto is_distinct_from(L l, R r)
-    -> comparison_expression<L, op_is_distinct_from, R> {
-  return {l, r};
-}
-
-struct op_is_not_distinct_from {
-  static constexpr auto symbol = " IS NOT DISTINCT FROM ";  // sql standard
-  // mysql has NULL-safe equal `<=>`
-  // sqlite3 has `IS`
-};
-
-template <typename L, typename R>
-  requires(values_are_comparable<L, R>::value)
-constexpr auto is_not_distinct_from(L l, R r)
-    -> comparison_expression<L, op_is_not_distinct_from, R> {
-  return {l, r};
-}
-
-struct op_like {
-  static constexpr auto symbol = " LIKE ";
-};
-
-template <typename L, typename R>
-  requires(is_text<L>::value and is_text<R>::value)
-constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R> {
   return {std::move(l), std::move(r)};
 }
 

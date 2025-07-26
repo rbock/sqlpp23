@@ -27,12 +27,70 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <sqlpp23/core/operator/between_expression.h>
-#include <sqlpp23/core/operator/comparison_expression.h>
 #include <sqlpp23/core/operator/in_expression.h>
 #include <sqlpp23/core/operator/sort_order_expression.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
+template <typename L, typename Operator, typename R>
+struct comparison_expression;
+
+struct op_is_null {
+  static constexpr auto symbol = " IS ";
+};
+
+template <typename L>
+constexpr auto is_null(L l)
+    -> comparison_expression<L, op_is_null, std::nullopt_t> {
+  return {l, std::nullopt};
+}
+
+struct op_is_not_null {
+  static constexpr auto symbol = " IS NOT ";
+};
+
+template <typename L>
+constexpr auto is_not_null(L l)
+    -> comparison_expression<L, op_is_not_null, std::nullopt_t> {
+  return {l, std::nullopt};
+}
+
+struct op_is_distinct_from {
+  static constexpr auto symbol = " IS DISTINCT FROM ";  // sql standard
+  // mysql has NULL-safe equal `<=>` which is_null equivalent to `IS NOT
+  // DISTINCT FROM` sqlite3 has `IS NOT`
+};
+
+template <typename L, typename R>
+  requires(values_are_comparable<L, R>::value)
+constexpr auto is_distinct_from(L l, R r)
+    -> comparison_expression<L, op_is_distinct_from, R> {
+  return {l, r};
+}
+
+struct op_is_not_distinct_from {
+  static constexpr auto symbol = " IS NOT DISTINCT FROM ";  // sql standard
+  // mysql has NULL-safe equal `<=>`
+  // sqlite3 has `IS`
+};
+
+template <typename L, typename R>
+  requires(values_are_comparable<L, R>::value)
+constexpr auto is_not_distinct_from(L l, R r)
+    -> comparison_expression<L, op_is_not_distinct_from, R> {
+  return {l, r};
+}
+
+struct op_like {
+  static constexpr auto symbol = " LIKE ";
+};
+
+template <typename L, typename R>
+  requires(is_text<L>::value and is_text<R>::value)
+constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R> {
+  return {std::move(l), std::move(r)};
+}
+
 // To be used as CRTP base for expressions that should offer the comparison
 // member functions. This also enables sort order member functions
 class enable_comparison {

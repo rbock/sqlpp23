@@ -98,11 +98,10 @@ void test_logical_expression(Value v) {
                                      dynamic(true, v_maybe_null))>::value,
       "");
 
-  // Logical expressions do not enable comparison member functions.
-  static_assert(
-      not sqlpp::has_enabled_comparison<decltype(v_not_null ==
-                                                 v_maybe_null)>::value,
-      "");
+  // Logical expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(v_not_null ==
+                                                       v_maybe_null)>::value,
+                "");
   static_assert(
       not sqlpp::has_enabled_comparison<
           decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value,

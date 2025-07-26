@@ -118,11 +118,10 @@ void test_comparison_expression(Value v) {
   static_assert(sqlpp::has_enabled_as<decltype(is_null(v_not_null))>::value,
                 "");
 
-  // Comparison expressions do not enable comparison member functions.
-  static_assert(
-      not sqlpp::has_enabled_comparison<decltype(v_not_null ==
-                                                 v_maybe_null)>::value,
-      "");
+  // Comparison expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(v_not_null ==
+                                                       v_maybe_null)>::value,
+                "");
 
   // Comparison expressions have their arguments as nodes.
   using L = typename std::decay<decltype(v_not_null)>::type;
