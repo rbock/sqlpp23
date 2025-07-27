@@ -77,21 +77,23 @@ target_include_directories(sqlpp23 INTERFACE
 )
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
-add_library(sqlpp23.core.module)
-target_sources(sqlpp23.core.module
-  PUBLIC
-    FILE_SET all_my_modules TYPE CXX_MODULES FILES
-    module/sqlpp23.core.cppm
-)
-target_link_libraries(sqlpp23.core.module PUBLIC sqlpp23)
+if(BUILD_WITH_MODULES)
+    add_library(sqlpp23.core.module)
+    target_sources(sqlpp23.core.module
+      PUBLIC
+        FILE_SET all_my_modules TYPE CXX_MODULES FILES
+        module/sqlpp23.core.cppm
+    )
+    target_link_libraries(sqlpp23.core.module PUBLIC sqlpp23)
 
-add_library(sqlpp23.mock_db.module)
-target_sources(sqlpp23.mock_db.module
-  PUBLIC
-    FILE_SET all_my_modules TYPE CXX_MODULES FILES
-    module/sqlpp23.mock_db.cppm
-)
-target_link_libraries(sqlpp23.mock_db.module PUBLIC sqlpp23.core.module)
+    add_library(sqlpp23.mock_db.module)
+    target_sources(sqlpp23.mock_db.module
+      PUBLIC
+        FILE_SET all_my_modules TYPE CXX_MODULES FILES
+        module/sqlpp23.mock_db.cppm
+    )
+    target_link_libraries(sqlpp23.mock_db.module PUBLIC sqlpp23.core.module)
+endif()
 
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)

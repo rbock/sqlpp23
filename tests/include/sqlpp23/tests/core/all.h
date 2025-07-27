@@ -24,20 +24,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/all.h>
+#ifdef BUILD_WITH_MODULES
+#include <chrono>
 
-int main(int, char*[]) {
-  try {
-    auto db = sqlpp::mock_db::make_test_connection();
+import sqlpp23.core;
+import sqlpp23.mock_db;
+import sqlpp23.test.core.tables;
 
-    // Execute SQL string
-    auto result = db("SELECT NULL");
-    static_assert(
-        std::is_same_v<sqlpp::mock_db::command_result, decltype(result)>);
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/core/serialize_helpers.h>
 
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
-  }
-  return 0;
-}
+#else
+#include <sqlpp23/mock_db/mock_db.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/make_test_connection.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/core/serialize_helpers.h>
+#include <sqlpp23/tests/core/tables.h>
+#endif
+

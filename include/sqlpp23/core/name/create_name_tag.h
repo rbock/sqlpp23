@@ -47,7 +47,7 @@
   struct NAME##_t {                                    \
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
   };                                                   \
-  constexpr auto NAME = NAME##_t {}
+  inline constexpr auto NAME = NAME##_t {}
 
 #define SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME) \
   static constexpr bool require_quotes = true;         \
@@ -69,7 +69,7 @@
   struct NAME##_t {                                           \
     SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
   };                                                          \
-  constexpr auto NAME = NAME##_t {}
+  inline constexpr auto NAME = NAME##_t {}
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(a);

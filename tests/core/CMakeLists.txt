@@ -22,6 +22,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if(BUILD_WITH_MODULES)
 add_library(sqlpp23.test.core.tables.module)
 target_sources(sqlpp23.test.core.tables.module
   PUBLIC
@@ -29,13 +30,20 @@ target_sources(sqlpp23.test.core.tables.module
     module/sqlpp23.test.core.tables.cppm
 )
 target_link_libraries(sqlpp23.test.core.tables.module PUBLIC sqlpp23.core.module)
+endif()
 
 add_library(sqlpp23_core_testing INTERFACE)
 target_include_directories(sqlpp23_core_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(sqlpp23_core_testing INTERFACE 
-  sqlpp23_testing
-  sqlpp23.mock_db.module
-  sqlpp23.test.core.tables.module)
+
+if(BUILD_WITH_MODULES)
+    target_link_libraries(sqlpp23_core_testing INTERFACE
+      sqlpp23_testing
+      sqlpp23.mock_db.module
+      sqlpp23.test.core.tables.module)
+else()
+    target_link_libraries(sqlpp23_core_testing INTERFACE
+      sqlpp23_testing)
+endif()
 
 add_subdirectory(asserts)
 add_subdirectory(constraints)

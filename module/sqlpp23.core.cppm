@@ -2,7 +2,7 @@ module;
 
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/core/database/connection_pool.h>
-
+#include <sqlpp23/core/detail/parse_date_time.h>
 export module sqlpp23.core;
 
 export namespace sqlpp {
@@ -172,23 +172,35 @@ using ::sqlpp::debug_logger;
 
 // type_traits
 using ::sqlpp::can_be_null;
-using ::sqlpp::is_boolean;
-using ::sqlpp::is_numeric;
-using ::sqlpp::is_text;
-using ::sqlpp::is_table;
-using ::sqlpp::is_integral;
-using ::sqlpp::is_unsigned_integral;
-using ::sqlpp::is_floating_point;
-using ::sqlpp::parameter_value_t;
-using ::sqlpp::make_parameter_list_t;
 using ::sqlpp::data_type_of_t;
-using ::sqlpp::parameters_of_t;
-using ::sqlpp::is_optional;
 using ::sqlpp::get_result_row_t;
-using ::sqlpp::is_raw_select_flag;
-using ::sqlpp::remove_optional_t;
 using ::sqlpp::has_data_type;
+using ::sqlpp::is_boolean;
+using ::sqlpp::is_floating_point;
+using ::sqlpp::is_integral;
+using ::sqlpp::is_numeric;
+using ::sqlpp::is_optional;
+using ::sqlpp::is_raw_select_flag;
+using ::sqlpp::is_table;
+using ::sqlpp::is_text;
+using ::sqlpp::is_unsigned_integral;
+using ::sqlpp::make_parameter_list_t;
+using ::sqlpp::parameter_value_t;
+using ::sqlpp::parameters_of_t;
+using ::sqlpp::remove_optional_t;
+}
 
+export namespace sqlpp::alias {
+using ::sqlpp::alias::avg_;
+using ::sqlpp::alias::count_;
+using ::sqlpp::alias::distinct_avg_;
+using ::sqlpp::alias::distinct_count_;
+using ::sqlpp::alias::distinct_max_;
+using ::sqlpp::alias::distinct_min_;
+using ::sqlpp::alias::distinct_sum_;
+using ::sqlpp::alias::max_;
+using ::sqlpp::alias::min_;
+using ::sqlpp::alias::sum_;
 }
 
 export namespace sqlpp::chrono {
@@ -197,6 +209,9 @@ using ::sqlpp::chrono::sys_microseconds;
 
 export namespace sqlpp::detail {
 // detail
+using ::sqlpp::detail::parse_date;
+using ::sqlpp::detail::parse_time;
+using ::sqlpp::detail::parse_timestamp;
 using ::sqlpp::detail::type_set;
 using ::sqlpp::detail::type_vector;
 }

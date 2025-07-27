@@ -24,11 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import sqlpp23.core;
-#include <sqlpp23/core/detail/parse_date_time.h>
+#include <chrono>
 
-#include <iostream>
-#include <vector>
+#include <sqlpp23/tests/core/all.h>
 
 namespace {
 std::chrono::microseconds build_tod(int hour = 0,

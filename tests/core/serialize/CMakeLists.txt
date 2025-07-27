@@ -34,7 +34,7 @@ set(test_files
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})
 add_executable(sqlpp23_core_serialize ${test_sources})
-target_link_libraries(sqlpp23_core_serialize PRIVATE sqlpp23::sqlpp23 sqlpp23_testing)
+target_link_libraries(sqlpp23_core_serialize PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23_core_testing)
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)

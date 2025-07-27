@@ -24,15 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
-#include <tuple>
 #include <ranges>
+#include <tuple>
 
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/make_test_connection.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/all.h>
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
