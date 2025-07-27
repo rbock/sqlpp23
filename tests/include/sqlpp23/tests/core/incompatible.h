@@ -27,9 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef BUILD_WITH_MODULES
+import sqlpp23.core;
+#else
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
 #include <sqlpp23/core/type_traits.h>
+#endif
 
 // Connections need to fail preparing / executing statements that don't pass the
 // compatibility check. `sqlpp::test::incompatible(<some value>)` provides a

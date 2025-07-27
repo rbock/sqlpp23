@@ -24,8 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/all.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
@@ -150,7 +149,7 @@ template <>
 struct is_table<weird_table> : public std::true_type {};
 template <>
 struct required_tables_of<weird_table> {
-  using type = detail::type_vector<test::TabBar>;
+  using type = detail::type_vector<::test::TabBar>;
 };
 }  // namespace sqlpp
 

@@ -24,10 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <sqlpp23/tests/core/types_helpers.h>
-#include "sqlpp23/core/type_traits/data_type.h"
+#include <sqlpp23/tests/core/all.h>
 
 SQLPP_CREATE_NAME_TAG(something);
 

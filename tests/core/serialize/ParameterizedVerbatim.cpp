@@ -25,10 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
-
-#include <iostream>
+#include <sqlpp23/tests/core/all.h>
 
 SQLPP_CREATE_NAME_TAG(quester_player_level);
 

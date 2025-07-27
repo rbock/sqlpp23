@@ -24,9 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/detail/circular_buffer.h>
-
-#include <iostream>
+#include <sqlpp23/tests/core/all.h>
 
 namespace sqlpp {
 namespace {

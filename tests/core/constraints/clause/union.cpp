@@ -24,10 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/consistent.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <type_traits>
+#include <sqlpp23/tests/core/all.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);

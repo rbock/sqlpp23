@@ -24,9 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/all.h>
 
 int main(int, char*[]) {
   const auto val = sqlpp::value(17);

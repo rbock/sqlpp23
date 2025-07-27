@@ -24,9 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/mock_db/database/connection.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/all.h>
 
 namespace {
 template <typename T>

@@ -64,7 +64,7 @@ template <typename T>
 struct is_data_type : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool has_data_type_v = has_data_type<T>::value;
+inline constexpr bool has_data_type_v = has_data_type<T>::value;
 
 struct boolean {};
 
@@ -210,7 +210,7 @@ struct is_boolean
     : public std::is_same<remove_optional_t<data_type_of_t<T>>, boolean> {};
 
 template <typename T>
-static inline constexpr bool is_boolean_v = is_boolean<T>::value;
+inline constexpr bool is_boolean_v = is_boolean<T>::value;
 
 template <>
 struct is_boolean<std::nullopt_t> : public std::true_type {};

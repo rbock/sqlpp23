@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/all.h>
 
 template <typename Value>
 void test_order_expression(Value v) {

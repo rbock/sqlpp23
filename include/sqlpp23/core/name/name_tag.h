@@ -66,6 +66,6 @@ struct has_name_tag : public std::integral_constant<
                           not std::is_same_v<name_tag_of_t<T>, no_name_t>> {};
 
 template <typename T>
-static inline constexpr bool has_name_tag_v = has_name_tag<T>::value;
+inline constexpr bool has_name_tag_v = has_name_tag<T>::value;
 
 }  // namespace sqlpp

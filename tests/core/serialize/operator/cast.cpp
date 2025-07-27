@@ -24,10 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-
-#include <sqlpp23/tests/core/serialize_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/all.h>
 
 int main() {
   SQLPP_COMPARE(cast("7", as(sqlpp::boolean{})), "CAST('7' AS BOOLEAN)");

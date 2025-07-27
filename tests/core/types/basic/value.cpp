@@ -24,8 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
+#include <sqlpp23/tests/core/all.h>
 
 template <typename T, typename DataType>
 using is_data_type = std::is_same<sqlpp::data_type_of_t<T>, DataType>;

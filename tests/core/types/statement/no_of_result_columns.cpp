@@ -24,9 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
-#include "sqlpp23/core/type_traits.h"
+#include <sqlpp23/tests/core/all.h>
 
 void test_no_of_result_columns() {
   const auto foo = test::TabFoo{};

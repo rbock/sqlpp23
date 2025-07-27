@@ -26,7 +26,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef BUILD_WITH_MODULES
+import sqlpp23.core;
+#else
 #include <sqlpp23/sqlpp23.h>
+#endif
 
 template <typename T>
 struct is_optional : public std::false_type {};

@@ -24,11 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
-#include <sqlpp23/tests/core/tables.h>
-
-#include <iostream>
+#include <sqlpp23/tests/core/all.h>
 
 int Insert(int, char*[]) {
   const auto bar = test::TabBar{};
