@@ -55,6 +55,18 @@ for (const auto& row :
                              << with_result_type_of(select(t.id)))) {
   user_version = row.id;
 }
+
+// If you really want the statement to contain "SELECT *" instead of every
+// column explicitly (maybe you are running into size limits?), this is one
+// way to do it.
+// Not recommended, though, as it is clearly more prone to errors than the
+// canonical way.
+for (const auto& row :
+   db(sqlpp::statement_t{} << sqlpp::verbatim("SELECT *") << from(t)
+                           << where(t.id > 17)
+                           << with_result_type_of(select(all_of(t))))) {
+(void)row.id;
+}
 ```
 
 ## `parameterized_verbatim`

@@ -119,5 +119,14 @@ int CustomQuery(int, char*[]) {
     (void)row.id;
   }
 
+  // If you really want the statement to contain "SELECT *" instead of every
+  // column explicitly (maybe you are running into size limits?)
+  for (const auto& row :
+       db(sqlpp::statement_t{} << sqlpp::verbatim("SELECT *") << from(t)
+                               << where(t.id > 17)
+                               << with_result_type_of(select(all_of(t))))) {
+    (void)row.id;
+  }
+
   return 0;
 }
