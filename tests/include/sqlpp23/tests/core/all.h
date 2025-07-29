@@ -39,6 +39,7 @@ import sqlpp23.test.core.tables;
 #include <sqlpp23/tests/core/types_helpers.h>
 
 #else
+#include <sqlpp23/core/database/connection_pool.h>
 #include <sqlpp23/mock_db/mock_db.h>
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/incompatible.h>

@@ -25,21 +25,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <functional>
-#include <iostream>
 #include <random>
 
-
-import sqlpp23.core;
-import sqlpp23.postgresql;
-import sqlpp23.test.postgresql.tables;
-
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp23/tests/postgresql/all.h>
 
 namespace sql = sqlpp::postgresql;
-const auto blob = test::BlobSample{};
+const auto blob = ::test::BlobSample{};
 
 // This would be a great fuzzing target :-)
 constexpr size_t blob_size = 1000 * 1000ul;

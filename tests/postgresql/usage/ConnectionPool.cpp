@@ -25,21 +25,23 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <libpq-fe.h>
-
+#if BUILD_WITH_MODULES
 import sqlpp23.core;
 import sqlpp23.postgresql;
+#else
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/postgresql/postgresql.h>
+#endif
 
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/tests/core/connection_pool_tests.h>
-#include <sqlpp23/tests/core/result_helpers.h>
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
-
-namespace sql = ::sqlpp::postgresql;
+#include <sqlpp23/tests/core/connection_pool_tests.h>
 
 int ConnectionPool(int, char*[]) {
+  namespace sql = sqlpp::postgresql;
+  namespace test = sqlpp::test;
+
   try {
-    sqlpp::test::test_connection_pool<sql::connection_pool>(
+    test::test_connection_pool<sql::connection_pool>(
         sql::make_test_config(),
         "CREATE TABLE tab_department ("
         "id SERIAL PRIMARY KEY, "

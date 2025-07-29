@@ -26,11 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
-import sqlpp23.core;
-import sqlpp23.postgresql;
-
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                               \

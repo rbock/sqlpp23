@@ -23,13 +23,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 if(BUILD_WITH_MODULES)
-add_library(sqlpp23.test.core.tables.module)
-target_sources(sqlpp23.test.core.tables.module
-  PUBLIC
-    FILE_SET all_my_modules TYPE CXX_MODULES FILES
-    module/sqlpp23.test.core.tables.cppm
-)
-target_link_libraries(sqlpp23.test.core.tables.module PUBLIC sqlpp23.core.module)
+    add_library(sqlpp23.test.core.tables.module)
+    target_sources(sqlpp23.test.core.tables.module
+      PUBLIC
+        FILE_SET all_my_modules TYPE CXX_MODULES FILES
+        module/sqlpp23.test.core.tables.cppm
+    )
+    target_link_libraries(sqlpp23.test.core.tables.module PUBLIC sqlpp23.core.module)
 endif()
 
 add_library(sqlpp23_core_testing INTERFACE)
@@ -39,10 +39,12 @@ if(BUILD_WITH_MODULES)
     target_link_libraries(sqlpp23_core_testing INTERFACE
       sqlpp23_testing
       sqlpp23.mock_db.module
-      sqlpp23.test.core.tables.module)
+      sqlpp23.test.core.tables.module
+    )
 else()
     target_link_libraries(sqlpp23_core_testing INTERFACE
-      sqlpp23_testing)
+      sqlpp23_testing
+    )
 endif()
 
 add_subdirectory(asserts)

@@ -22,21 +22,30 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp23.test.postgresql.tables.module)
-target_sources(sqlpp23.test.postgresql.tables.module
-  PUBLIC
-    FILE_SET all_my_modules TYPE CXX_MODULES FILES
-    module/sqlpp23.test.postgresql.tables.cppm
-)
-target_link_libraries(sqlpp23.test.postgresql.tables.module PUBLIC sqlpp23.core.module)
+if(BUILD_WITH_MODULES)
+  add_library(sqlpp23.test.postgresql.tables.module)
+  target_sources(sqlpp23.test.postgresql.tables.module
+    PUBLIC
+      FILE_SET all_my_modules TYPE CXX_MODULES FILES
+      module/sqlpp23.test.postgresql.tables.cppm
+  )
+  target_link_libraries(sqlpp23.test.postgresql.tables.module PUBLIC sqlpp23.core.module)
+endif()
 
 add_library(sqlpp23_postgresql_testing INTERFACE)
 target_include_directories(sqlpp23_postgresql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(sqlpp23_postgresql_testing INTERFACE
-  sqlpp23_testing
-  sqlpp23.postgresql.module
-  sqlpp23.test.postgresql.tables.module
-)
+
+if(BUILD_WITH_MODULES)
+    target_link_libraries(sqlpp23_postgresql_testing INTERFACE
+      sqlpp23_testing
+      sqlpp23.postgresql.module
+      sqlpp23.test.postgresql.tables.module
+    )
+else()
+    target_link_libraries(sqlpp23_postgresql_testing INTERFACE
+      sqlpp23_testing
+    )
+endif()
 
 add_subdirectory(asserts)
 add_subdirectory(constraints)

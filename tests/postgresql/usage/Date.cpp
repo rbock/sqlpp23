@@ -25,16 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <chrono>
-#include <iostream>
-
-import sqlpp23.core;
-import sqlpp23.postgresql;
-import sqlpp23.test.postgresql.tables;
-
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp23/tests/postgresql/all.h>
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::microseconds>(

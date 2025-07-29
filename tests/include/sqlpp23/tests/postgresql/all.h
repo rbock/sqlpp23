@@ -24,37 +24,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/postgresql/all.h>
+#ifdef BUILD_WITH_MODULES
+#include <chrono>
+#include <print>
 
-namespace sql = sqlpp::postgresql;
-int main(int, char*[]) {
-  try {
-    const auto tab = test::TabFoo{};
-    auto db = sql::make_test_connection();
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
 
-    test::createTabFoo(db);
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp23/tests/postgresql/serialize_helpers.h>
 
-    // clear the table
-    db(truncate(tab));
+#else
+#include <sqlpp23/core/database/connection_pool.h>
+#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp23/tests/postgresql/serialize_helpers.h>
+#include <sqlpp23/tests/postgresql/tables.h>
+#endif
 
-    // insert
-    db(insert_into(tab).set(tab.intN = 7));
-
-    // select exists
-    for (const auto& row :
-         db(select(exists(select(tab.id).from(tab).where(tab.intN == 7))
-                       .as(sqlpp::alias::exists_)))) {
-      assert(row.exists_ == true);
-    }
-
-    // select exists
-    for (const auto& row : db(select(exists(
-              select(tab.id).from(tab).where(tab.intN == 8)).as(sqlpp::alias::exists_)))) {
-      assert(row.exists_ == false);
-    }
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
-  }
-  return 0;
-}
