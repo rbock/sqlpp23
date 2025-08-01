@@ -24,13 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "sqlpp23/core/aggregate_function/avg.h"
-#include <cassert>
-
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/tests/postgresql/all.h>
 
 auto require_close(int line, double l, double r) -> void
 {

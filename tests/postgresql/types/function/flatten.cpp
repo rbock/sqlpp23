@@ -24,10 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/tests/postgresql/serialize_helpers.h>
+#include <sqlpp23/tests/postgresql/all.h>
 
 void test_flatten() {
   auto db = sqlpp::postgresql::make_test_connection();

@@ -30,14 +30,12 @@
 //
 // For details on the actual pattern see /docs/recipes/optimistic_concurrency_control.md
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/tests/postgresql/tables.h>
-
-#include <iostream>
 #include <thread>
 #include <vector>
+
+#include <libpq-fe.h>
+
+#include <sqlpp23/tests/postgresql/all.h>
 
 namespace sql = ::sqlpp::postgresql;
 

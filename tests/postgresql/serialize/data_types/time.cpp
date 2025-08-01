@@ -24,10 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-
-#include <sqlpp23/tests/postgresql/serialize_helpers.h>
+#include <sqlpp23/tests/postgresql/all.h>
 
 int main() {
   std::chrono::microseconds ms =

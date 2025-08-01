@@ -24,12 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/database/connection.h>
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/postgresql/all.h>
 #include <sqlpp23/tests/core/incompatible.h>
-#include <sqlpp23/tests/postgresql/tables.h>
 
 int main() {
   using CTX = sqlpp::postgresql::context_t;

@@ -32,6 +32,7 @@
 #include <sqlpp23/postgresql/database/serializer_context.h>
 
 namespace sqlpp {
+namespace postgresql {
 // Serialize parameters
 template <typename DataType, typename NameType>
 auto to_sql_string(postgresql::context_t& context,
@@ -39,7 +40,6 @@ auto to_sql_string(postgresql::context_t& context,
   return std::string("$") + std::to_string(++context._count);
 }
 
-namespace postgresql {
 // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode
 // hexadecimal literals
 inline auto to_sql_string(postgresql::context_t&,

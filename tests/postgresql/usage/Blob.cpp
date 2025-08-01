@@ -25,6 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <functional>
 #include <random>
 
 #include <sqlpp23/tests/postgresql/all.h>

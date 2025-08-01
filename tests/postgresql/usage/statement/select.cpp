@@ -25,12 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp23/tests/postgresql/all.h>
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
