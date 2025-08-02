@@ -26,9 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
-#include <sqlpp23/mysql/mysql.h>
 #include <sqlpp23/tests/mysql/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                       \

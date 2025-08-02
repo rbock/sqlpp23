@@ -112,6 +112,16 @@ if(BUILD_MARIADB_CONNECTOR)
     add_component(NAME mariadb DEPENDENCIES MariaDB::MariaDB)
 endif()
 
+if(BUILD_MYSQL_CONNECTOR OR BUILD_MARIADB_CONNECTOR)
+    add_library(sqlpp23.mysql.module)
+    target_sources(sqlpp23.mysql.module
+      PUBLIC
+        FILE_SET all_my_modules TYPE CXX_MODULES FILES
+        module/sqlpp23.mysql.cppm
+    )
+    target_link_libraries(sqlpp23.mysql.module PUBLIC sqlpp23.core.module sqlpp23::mysql)
+endif()
+
 if(BUILD_POSTGRESQL_CONNECTOR)
     add_component(NAME postgresql DEPENDENCIES PostgreSQL::PostgreSQL)
 

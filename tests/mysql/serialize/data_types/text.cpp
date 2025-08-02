@@ -24,9 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/mysql/serialize_helpers.h>
+#include <sqlpp23/tests/mysql/all.h>
 
 int main() {
   SQLPP_COMPARE(R"(a)", R"('a')");

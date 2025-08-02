@@ -25,10 +25,18 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/mysql/mysql.h>
+#include <mysql.h>
+
+#if BUILD_WITH_MODULES
+import sqlpp23.core;
+import sqlpp23.mysql;
+#else
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/connection_pool_tests.h>
+#include <sqlpp23/mysql/mysql.h>
+#endif
+
 #include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/core/connection_pool_tests.h>
 
 namespace sql = ::sqlpp::mysql;
 

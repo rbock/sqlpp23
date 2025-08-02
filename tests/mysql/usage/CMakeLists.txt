@@ -54,8 +54,7 @@ set(test_files
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp23_mysql_tests ${test_sources})
-target_link_libraries(sqlpp23_mysql_tests PRIVATE sqlpp23::mysql sqlpp23_testing sqlpp23_mysql_testing)
-target_link_libraries(sqlpp23_mysql_tests PRIVATE Threads::Threads)
+target_link_libraries(sqlpp23_mysql_tests PRIVATE sqlpp23::mysql sqlpp23_mysql_testing Threads::Threads)
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)

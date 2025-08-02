@@ -24,16 +24,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/mysql/all.h>
+#ifdef BUILD_WITH_MODULES
+#include <cassert>
+#include <chrono>
+#include <print>
 
-int main() {
-  // Testing data type serialization
-  SQLPP_COMPARE(cast("7", as(sqlpp::integral{})), "CAST('7' AS SIGNED INTEGER)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::unsigned_integral{})), "CAST('7' AS UNSIGNED INTEGER)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::floating_point{})), "CAST('7' AS DOUBLE)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::text{})), "CAST('7' AS CHAR)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::blob{})), "CAST('7' AS BINARY)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::timestamp{})), "CAST('7' AS DATETIME)");
+import sqlpp23.core;
+import sqlpp23.mysql;
+import sqlpp23.test.mysql.tables;
 
-  return 0;
-}
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/assert_throw.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/mysql/serialize_helpers.h>
+
+#else
+#include <cassert>
+
+#include <sqlpp23/core/database/connection_pool.h>
+#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/assert_throw.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/mysql/serialize_helpers.h>
+#include <sqlpp23/tests/mysql/tables.h>
+#endif
+

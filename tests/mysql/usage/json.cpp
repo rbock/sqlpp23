@@ -24,34 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
-#include <mysql.h>
-
-#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/mysql/all.h>
 
 // JSON support only in MYSQL 5.7.8 and later
 #if !USE_MARIADB && (LIBMYSQL_VERSION_ID < 50708)
-int Json(int, char*[]) {
+int main(int, char*[]) {
   std::cerr << "Warning: not testing Json, because the MySQL version id is "
                "less than 50708"
             << std::endl;
   return 0;
 }
-#else
 // JSON support only in MariaDB 10.2.7 and later
-#if USE_MARIADB && (MARIADB_VERSION_ID < 100207)
-int Json(int, char*[]) {
+#elif USE_MARIADB && (MARIADB_VERSION_ID < 100207)
+int main(int, char*[]) {
   std::cerr << "Warning: not testing Json, because the MariaDB version id is "
                "less than 100207"
             << std::endl;
   return 0;
 }
 #else
-
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/mysql/tables.h>
 
 namespace test {
 SQLPP_CREATE_NAME_TAG(value);
@@ -88,5 +79,4 @@ int main(int, char*[]) {
   }
   return 0;
 }
-#endif
 #endif

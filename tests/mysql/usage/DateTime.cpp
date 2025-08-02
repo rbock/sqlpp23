@@ -24,14 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
-
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/mysql/make_test_connection.h>
-#include <sqlpp23/tests/mysql/tables.h>
+#include <sqlpp23/tests/mysql/all.h>
 
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
@@ -69,7 +62,7 @@ int DateTime(int, char*[]) {
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.dateN.has_value(), false);
       require_equal(__LINE__, row.timestampN.has_value(), false);
-      require_close(__LINE__, row.dateTimePointND.value(), now);
+      require_close(__LINE__, row.dateTimestampND.value(), now);
       require_equal(__LINE__, row.timeN.has_value(), false);
     }
 
@@ -86,7 +79,7 @@ int DateTime(int, char*[]) {
 
     auto statement = db.prepare(select(all_of(tab)).from(tab).where(true));
     for (const auto& row : db(statement)) {
-      require_close(__LINE__, row.dateTimePointND.value(), now);
+      require_close(__LINE__, row.dateTimestampND.value(), now);
       require_equal(__LINE__, row.dateN.value(), today);
       require_equal(__LINE__, row.timestampN.value(), now);
       require_close(__LINE__, row.timeN.value(), current);

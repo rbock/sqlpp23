@@ -24,13 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
-
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/mysql/make_test_connection.h>
-#include <sqlpp23/tests/mysql/tables.h>
+#include <sqlpp23/tests/mysql/all.h>
+#include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/logic.h>
 
 namespace sql = sqlpp::mysql;
 

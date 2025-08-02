@@ -24,12 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/database/connection.h>
-#include <sqlpp23/mysql/mysql.h>
-#include <sqlpp23/tests/mysql/make_test_connection.h>
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/mysql/all.h>
 #include <sqlpp23/tests/core/incompatible.h>
-#include <sqlpp23/tests/mysql/tables.h>
 
 int main() {
   using CTX = sqlpp::mysql::context_t;
