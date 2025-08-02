@@ -30,5 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(join)
+if(NOT BUILD_WITH_MODULES)
 create_test(old_join)
+endif()
 

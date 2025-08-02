@@ -26,9 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
-#include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                       \

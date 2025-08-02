@@ -104,6 +104,16 @@ if(BUILD_SQLCIPHER_CONNECTOR)
     target_compile_definitions(sqlpp23_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
 endif()
 
+if(BUILD_SQLITE3_CONNECTOR OR BUILD_SQLCIPHER_CONNECTOR)
+    add_library(sqlpp23.sqlite3.module)
+    target_sources(sqlpp23.sqlite3.module
+      PUBLIC
+        FILE_SET all_my_modules TYPE CXX_MODULES FILES
+        module/sqlpp23.sqlite3.cppm
+    )
+    target_link_libraries(sqlpp23.sqlite3.module PUBLIC sqlpp23.core.module sqlpp23::sqlite3)
+endif()
+
 if(BUILD_MYSQL_CONNECTOR)
     add_component(NAME mysql DEPENDENCIES MySQL::MySQL)
 endif()

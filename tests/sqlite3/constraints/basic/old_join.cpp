@@ -24,9 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef BUILD_WITH_MODULES
+#error This test should not be compiled with modules
+#endif
+
 // We need to include this here to change the sqlite3 version number for this
 // test (if necessary)
-#include "sqlpp23/core/type_traits.h"
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -37,10 +40,7 @@
 #define SQLITE_VERSION_NUMBER 3038999
 #endif
 
-#include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include <sqlpp23/tests/sqlite3/all.h>
 
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();

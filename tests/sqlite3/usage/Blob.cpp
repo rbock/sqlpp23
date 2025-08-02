@@ -25,19 +25,9 @@
  */
 
 #include <functional>
-#include <iostream>
 #include <random>
 
-#include <sqlpp23/sqlite3/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/tests/sqlite3/tables.h>
-
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
+#include <sqlpp23/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabFoo{};

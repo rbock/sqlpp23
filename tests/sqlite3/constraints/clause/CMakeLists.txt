@@ -31,9 +31,11 @@ endfunction()
 
 create_test(on_conflict)
 create_test(returning)
+
+if(NOT BUILD_WITH_MODULES)
 create_test(using)
 create_test(with)
-
 create_test(old_on_conflict)
 create_test(old_returning)
+endif()
 

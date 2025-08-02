@@ -24,13 +24,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/sqlite3/all.h>
+#ifdef BUILD_WITH_MODULES
+#include <cassert>
+#include <chrono>
+#include <print>
 
-int main() {
-  SQLPP_COMPARE(10.0000114, "10.0000114");
-  SQLPP_COMPARE(std::numeric_limits<double>::quiet_NaN(), "'NaN'");
-  SQLPP_COMPARE(std::numeric_limits<double>::infinity(), "'Inf'");
-  SQLPP_COMPARE(-std::numeric_limits<double>::infinity(), "'-Inf'");
+import sqlpp23.core;
+import sqlpp23.sqlite3;
+import sqlpp23.test.sqlite3.tables;
 
-  return 0;
-}
+#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/tests/core/assert_throw.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include <sqlpp23/tests/sqlite3/serialize_helpers.h>
+
+#else
+#include <cassert>
+
+#include <sqlpp23/core/database/connection_pool.h>
+#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp23/sqlpp23.h>
+#include <sqlpp23/tests/core/assert_throw.h>
+#include <sqlpp23/tests/core/result_helpers.h>
+#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include <sqlpp23/tests/sqlite3/serialize_helpers.h>
+#include <sqlpp23/tests/sqlite3/tables.h>
+#endif
+

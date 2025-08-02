@@ -25,24 +25,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
-#include <vector>
-
-#include <sqlpp23/sqlite3/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/tests/sqlite3/tables.h>
+#include <sqlpp23/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabFoo{};
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
-  if (not t)
-    return os << "NULL";
-  return os << t.value();
-}
 
 void testSelectAll(sql::connection& db, size_t expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;

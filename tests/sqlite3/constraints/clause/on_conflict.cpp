@@ -24,12 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/tests/core/tables.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include "sqlpp23/core/consistent.h"
-#include "sqlpp23/sqlite3/database/connection.h"
+#include <sqlpp23/tests/sqlite3/all.h>
 
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();

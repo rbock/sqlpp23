@@ -24,19 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
-#include <iostream>
-
-#include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/sqlite3/tables.h>
-
-#ifdef SQLPP_USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#else
-#include <sqlite3.h>
-#endif
+#include <sqlpp23/tests/sqlite3/all.h>
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::milliseconds>(
@@ -44,17 +32,6 @@ const auto now = std::chrono::floor<::std::chrono::milliseconds>(
 const auto today = std::chrono::floor<std::chrono::days>(now);
 const auto time_of_day = std::chrono::microseconds{now - today};
 const auto yesterday = today - std::chrono::days{1};
-
-template <typename L, typename R>
-auto require_equal(int line, const L& l, const R& r) -> void {
-  if (l != r) {
-    std::cerr << line << ": ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, l);
-    std::cerr << " != ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, r);
-    throw std::runtime_error("Unexpected result");
-  }
-}
 }  // namespace
 
 namespace sql = sqlpp::sqlite3;

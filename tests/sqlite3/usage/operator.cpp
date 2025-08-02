@@ -24,15 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <chrono>
-
-#include <sqlpp23/sqlite3/sqlite3.h>
-#include <sqlpp23/sqlpp23.h>
-
-#include <sqlpp23/tests/core/assert_throw.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/tests/sqlite3/tables.h>
+#include <sqlpp23/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
 

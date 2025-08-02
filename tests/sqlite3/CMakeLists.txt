@@ -38,7 +38,7 @@ target_include_directories(sqlpp23_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOU
 if(BUILD_WITH_MODULES)
     target_link_libraries(sqlpp23_sqlite3_testing INTERFACE
       sqlpp23_testing
-      sqlpp23.mock_db.module
+      sqlpp23.sqlite3.module
       sqlpp23.test.sqlite3.tables.module
     )
 else()
