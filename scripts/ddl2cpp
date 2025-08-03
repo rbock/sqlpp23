@@ -685,9 +685,8 @@ def parseDdls(ddlParser, args):
             ddls.append(ddlParser.parseFile(path))
         return ddls
     except pp.ParseException as e:
-        print("ERROR: failed to parse " + pathToDdl)
-        print(e)
-        print(pp.parseError)
+        print("ERROR: failed to parse " + path)
+        print(e.explain(1))
         sys.exit(ERROR_STRANGE_PARSING)
 
 def toClassName(name, args):
@@ -744,7 +743,7 @@ def writeTable(table, header, args):
             print(
                 "Warning: If you are using types WITH timezones, your code has to deal with that."
             )
-            print("You can disable this warning using -no-timestamp-warning")
+            print("You can disable this warning using --suppress-timestamp-warning")
         print("    struct " + columnClass + " {", file=header)
         print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
             + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
@@ -829,13 +828,14 @@ def createModule(parsedDdl, args):
 
 if __name__ == "__main__":
     args = parseCommandlineArgs()
-    print(args)
 
     if args.self_test:
         print("Running self test")
         testParser()
         sys.exit()
     else:
+        if args.path_to_datatype_file:
+            loadExtendedTypesFile(args.path_to_datatype_file)
         ddlParser = createDdlParser()
         parsedDdls = parseDdls(ddlParser, args)
         if args.path_to_header:

@@ -39,45 +39,48 @@ if (${Python3_Interpreter_FOUND})
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.parser
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                    "--test"
-                    test)
+                    "--self-test"
+                    )
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.bad_will_fail
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
-                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                    test)
+                    "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
+                    "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
+                    "--namespace" "test")
         set_tests_properties(sqlpp23.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.bad_has_parse_error
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
-                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                    test)
+                    "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
+                    "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
+                    "--namespace" "test")
         set_tests_properties(sqlpp23.scripts.ddl2cpp.bad_has_parse_error PROPERTIES
-            PASS_REGULAR_EXPRESSION "ERROR: Could not parse.*")
+          PASS_REGULAR_EXPRESSION "ERROR: failed to parse.*")
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.good_succeeds
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                    test)
+                    "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                    "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/good.h"
+                    "--namespace" "test")
 
         include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
         foreach(sample_name sample sample_identity_naming)
-            set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}")
+            set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}.h")
             set(use_identity_naming)
             if(sample_name STREQUAL "sample_identity_naming")
-                set(use_identity_naming -identity-naming)
+                set(naming_style identity)
+            else()
+                set(naming_style camel-case)
             endif()
             add_custom_command(
                 OUTPUT "${sqlpp.scripts.generated.sample.include}.h"
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                        ${use_identity_naming}
-                        "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                        "${sqlpp.scripts.generated.sample.include}"
-                        test
+                        "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                        "--path-to-header" "${sqlpp.scripts.generated.sample.include}"
+                        "--naming-style" "${naming_style}"
+                        "--namespace" "test"
+                        "--suppress-timestamp-warning"
                 DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                         "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                 VERBATIM)
@@ -88,15 +91,14 @@ if (${Python3_Interpreter_FOUND})
         endforeach()
 
         # Invalid .types names
-        # TODO: Read the types from a text file and generate the input .sql files in the build directory
         foreach(bad_type "booltype" "invalid" "serial5" "typeint")
-#            message(STATUS "${bad_type}")
             set(bad_type_test_name "sqlpp23.scripts.ddl2cpp.bad_type.${bad_type}")
             add_test(NAME "${bad_type_test_name}"
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                        "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad_type_${bad_type}.sql"
-                        "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                        test)
+                        "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad_type_${bad_type}.sql"
+                        "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
+                        "--namespace" "test"
+                        "--suppress-timestamp-warning")
             set_tests_properties("${bad_type_test_name}" PROPERTIES
                 PASS_REGULAR_EXPRESSION "Error: unsupported datatypes.")
         endforeach()
@@ -107,10 +109,11 @@ if (${Python3_Interpreter_FOUND})
         add_custom_command(
             OUTPUT "${sqlpp.scripts.generated.custom_type_sql.include}.h"
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                    "--datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
-                    "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
-                    "${sqlpp.scripts.generated.custom_type_sql.include}"
-                    test
+                    "--path-to-datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
+                    "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
+                    "--path-to-header" "${sqlpp.scripts.generated.custom_type_sql.include}.h"
+                    "--namespace" "test"
+                    "--suppress-timestamp-warning"
             DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
                     "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
             VERBATIM)
