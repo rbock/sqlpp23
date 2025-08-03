@@ -3,7 +3,7 @@
 # Code generation
 
 sqlpp23 requires C++ representations for the database tables you want interact
-with. You can generate these table representations using the `ddl2cpp` script.
+with. You can generate these table representations using the `sqlpp23-ddl2cpp` script.
 
 ## Generate ddl files
 
@@ -23,17 +23,25 @@ For detailed instructions refer to the documentation of your database.
 
 ## Generate C++ headers
 
-Once you have the DDL files, you can create C++ headers for them with provided
-Python script, e.g.
+Once you have the DDL files, you can create C++ headers or modules for them with provided
+[sqlpp23-ddl2cpp](/scripts) script, e.g.
 
 ```
-%sqlpp23_dir%/scripts/ddl2cpp ~/temp/MyTable.ddl  ~/temp/MyTable <namespace>
+# generate header from ddl file(s)
+scripts/sqlpp23-ddl2cpp \
+    --path-to-ddl my_project/tables.ddl
+    --namespace my_project
+    --path-to-header my_project/tables.h
 ```
 
-More details can be learned from `scripts/ddl2cpp --help`.
+```
+# generate module from ddl file(s)
+scripts/sqlpp23-ddl2cpp \
+    --path-to-ddl my_project/tables.ddl
+    --namespace my_project
+    --path-to-module my_project/tables.cppm
+```
 
-## Include generated headers
-
-No surprise here.
+More details can be learned from `scripts/sqlpp23-ddl2cpp --help`.
 
 [**\< Index**](/docs/README.md)

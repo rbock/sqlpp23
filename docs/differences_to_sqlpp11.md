@@ -2,7 +2,7 @@
 
 # Differences between sqlpp11 and sqlpp23
 
-This is a (probably incomplete) list of differences as of June 2025.
+Below is a (probably incomplete) list of differences as of June 2025. For additional changes, see [change log](/docs/change_log.md).
 
 If seems a bit dry, follow the links to examples.
 
@@ -80,7 +80,7 @@ If seems a bit dry, follow the links to examples.
 | prepared statement parameters | `.params` | `.parameters` |
 | `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
 | `ppgen` | Pre-processor code generation for tables | *dropped* |
-| sqlite2cpp.py | ddl2cpp variant for sqlite3 | *dropped* |
+| sqlite2cpp.py | sqlpp23-ddl2cpp variant for sqlite3 | *dropped* |
 | dynamic loading | Ability to load connector library dynamically | *dropped* (was unmaintained) |
 | memory allocation | Multiple cases of double pointer indirections (wrapping a smart pointer with yet another smart pointer) | Removed all known double pointer indirections |
 

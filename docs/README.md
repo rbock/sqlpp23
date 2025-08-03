@@ -50,6 +50,7 @@ The following pages will tell you how to use it:
   - [Statement execution](/docs/statement_execution.md)
   - [Transaction](/docs/transaction.md)
 - **Advanced Topics**
+  - [C++ Modules](/docs/modules.md)
   - [Thread safety](/docs/thread_safety.md)
   - [Connection pools](/docs/connection_pool.md)
   - [Recipes](/docs/recipes.md)

@@ -103,8 +103,7 @@ if(BUILD_WITH_MODULES)
 endif()
 
 ### Packaging
-install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/ddl2cpp
-    RENAME sqlpp23-ddl2cpp
+install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 

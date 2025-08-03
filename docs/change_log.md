@@ -3,7 +3,9 @@
 # Change log
 
 ## 0.67
-- `core/name/create_name_tag.h` is now a stand-alone header
+- Basic support for modules, see [docs](/docs/modules.md), #30
+- `core/name/create_name_tag.h` is now a stand-alone header, #30
+- Revamped commandline switches for `sqlpp23-ddl2cpp`, see [docs](/docs/ddl2cpp.md)
 - Instead of `cte(sqlpp::alias::a)`, you now have to call `sqlpp::cte(sqlpp::alias::a)`
 - Support comparison member functions for comparison expressions, e.g. you can now order by comparison results, #39
 - order_by allows duplicate expressions, #39
