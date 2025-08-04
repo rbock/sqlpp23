@@ -82,7 +82,7 @@ if (${Python3_Interpreter_FOUND})
                         "--namespace" "test"
                         "--suppress-timestamp-warning"
                 DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                        "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                        "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
                 VERBATIM)
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
