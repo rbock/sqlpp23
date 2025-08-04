@@ -35,7 +35,7 @@
 #include <sqlpp23/core/database/exception.h>
 
 namespace sqlpp::postgresql {
-static constexpr char fallback[] = "no message";
+inline constexpr char fallback[] = "no message";
 class connection_exception : public sqlpp::exception {
  public:
   connection_exception(const std::string& what_arg)

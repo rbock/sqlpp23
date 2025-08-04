@@ -30,7 +30,7 @@
 #include <sqlpp23/core/database/exception.h>
 
 namespace sqlpp::sqlite3 {
-static constexpr char fallback[] = "no message";
+inline constexpr char fallback[] = "no message";
 class exception : public sqlpp::exception {
   int _error_code;
  public:

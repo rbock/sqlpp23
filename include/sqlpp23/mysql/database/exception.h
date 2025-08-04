@@ -32,7 +32,7 @@
 #include <sqlpp23/core/database/exception.h>
 
 namespace sqlpp::mysql {
-static constexpr char fallback[] = "no message";
+inline constexpr char fallback[] = "no message";
 class exception : public sqlpp::exception {
   unsigned int _error_code;
  public:

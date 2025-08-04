@@ -78,7 +78,7 @@ class are_names_disjoint<detail::type_set<LhsElements...>,
 };
 
 template<StaticTable Lhs, DynamicTable Rhs>
-static inline constexpr bool can_be_joined_v = required_tables_of_t<Lhs>::empty() and
+inline constexpr bool can_be_joined_v = required_tables_of_t<Lhs>::empty() and
              required_tables_of_t<Rhs>::empty() and
              are_names_disjoint<provided_tables_of_t<Lhs>,
                                 provided_tables_of_t<Rhs>>::value;

@@ -245,7 +245,7 @@ template <typename T>
 struct is_assignment : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_assignment_v = is_assignment<T>::value;
+inline constexpr bool is_assignment_v = is_assignment<T>::value;
 
 template <typename T>
 struct lhs {
@@ -291,20 +291,20 @@ template <typename T>
 struct is_table : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_table_v = is_table<T>::value;
+inline constexpr bool is_table_v = is_table<T>::value;
 
 // Really a table, not a `table AS ...`, `JOIN` or `CTE` or `SELECT ... AS`
 template <typename T>
 struct is_raw_table : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
+inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 
 template <typename T>
 struct is_column : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_column_v = is_column<T>::value;
+inline constexpr bool is_column_v = is_column<T>::value;
 
 template <typename NameTagProvider, typename Member>
 using member_t =
@@ -337,7 +337,7 @@ template <typename T>
 struct is_statement : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_statement_v =  is_statement<T>::value;
+inline constexpr bool is_statement_v =  is_statement<T>::value;
 
 template <typename T>
 struct is_prepared_statement : public std::false_type {};
@@ -377,7 +377,7 @@ template <typename T>
 struct is_sort_order : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_sort_order_v = is_sort_order<T>::value;
+inline constexpr bool is_sort_order_v = is_sort_order<T>::value;
 
 template <typename T>
 struct is_result_clause : public std::false_type {};
@@ -386,7 +386,7 @@ template <typename T>
 struct is_cte : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_cte_v = is_cte<T>::value;
+inline constexpr bool is_cte_v = is_cte<T>::value;
 
 template <typename T>
 struct is_as_expression : public std::false_type {};
@@ -496,7 +496,7 @@ template <typename T>
 struct is_select_flag : public is_raw_select_flag<remove_dynamic_t<T>> {};
 
 template <typename T>
-static inline constexpr bool is_select_flag_v = is_select_flag<T>::value;
+inline constexpr bool is_select_flag_v = is_select_flag<T>::value;
 
 template <typename T>
 struct is_select_column {
@@ -506,7 +506,7 @@ struct is_select_column {
 };
 
 template <typename T>
-static inline constexpr bool is_select_column_v = is_select_column<T>::value;
+inline constexpr bool is_select_column_v = is_select_column<T>::value;
 
 template <typename... T>
 struct is_select_column<std::tuple<T...>> {
