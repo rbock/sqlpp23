@@ -124,6 +124,8 @@ auto to_sql_string(Context&, example::timestamp_unit unit) {
       return "MINUTE";
     case example::timestamp_unit::second:
       return "SECOND";
+    default:
+      std::unreachable();
   };
 }
 
