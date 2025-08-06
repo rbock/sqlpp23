@@ -24,7 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Note: To work around a GCC bug, make sure that for any standard header that
+// is both included and imported from a module, the #include directive comes
+// before the import declaration. For details see
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114795#c3
+
 #include <chrono>
+#include <memory>
 
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/incompatible.h>
