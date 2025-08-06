@@ -24,12 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef BUILD_WITH_MODULES
 #include <chrono>
-
-import sqlpp23.core;
-import sqlpp23.mock_db;
-import sqlpp23.test.core.tables;
 
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/incompatible.h>
@@ -38,15 +33,14 @@ import sqlpp23.test.core.tables;
 #include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/types_helpers.h>
 
+#ifdef BUILD_WITH_MODULES
+import sqlpp23.core;
+import sqlpp23.mock_db;
+import sqlpp23.test.core.tables;
 #else
 #include <sqlpp23/core/database/connection_pool.h>
 #include <sqlpp23/mock_db/mock_db.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/incompatible.h>
-#include <sqlpp23/tests/core/make_test_connection.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/core/serialize_helpers.h>
 #include <sqlpp23/tests/core/tables.h>
-#include <sqlpp23/tests/core/types_helpers.h>
 #endif
 

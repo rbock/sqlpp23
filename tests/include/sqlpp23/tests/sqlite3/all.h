@@ -24,14 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef BUILD_WITH_MODULES
 #include <cassert>
 #include <chrono>
 #include <print>
-
-import sqlpp23.core;
-import sqlpp23.sqlite3;
-import sqlpp23.test.sqlite3.tables;
 
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/assert_throw.h>
@@ -39,16 +34,13 @@ import sqlpp23.test.sqlite3.tables;
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 #include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 
+#ifdef BUILD_WITH_MODULES
+import sqlpp23.core;
+import sqlpp23.sqlite3;
+import sqlpp23.test.sqlite3.tables;
 #else
-#include <cassert>
-
 #include <sqlpp23/core/database/connection_pool.h>
 #include <sqlpp23/sqlite3/sqlite3.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/assert_throw.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
-#include <sqlpp23/tests/sqlite3/serialize_helpers.h>
 #include <sqlpp23/tests/sqlite3/tables.h>
 #endif
-

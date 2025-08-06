@@ -26,6 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+#include <memory>
+#include <vector>
+
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -33,17 +37,9 @@
 #endif
 
 #if BUILD_WITH_MODULES
-#include <iostream>
-#include <memory>
-#include <vector>
-
 import sqlpp23.core;
 import sqlpp23.sqlite3;
 #else
-#include <iostream>
-#include <memory>
-#include <vector>
-
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/sqlite3/sqlite3.h>
 #endif

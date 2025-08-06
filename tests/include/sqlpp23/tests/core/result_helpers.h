@@ -26,13 +26,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef BUILD_WITH_MODULES
 #include <iostream>
 
+#ifdef BUILD_WITH_MODULES
 import sqlpp23.core;
 #else
-#include <iostream>
-
 #include <sqlpp23/sqlpp23.h>
 #endif
 
