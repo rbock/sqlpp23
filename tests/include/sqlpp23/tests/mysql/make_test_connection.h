@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <vector>
 
-#if BUILD_WITH_MODULES
+#ifdef BUILD_WITH_MODULES
 import sqlpp23.core;
 import sqlpp23.mysql;
 #else

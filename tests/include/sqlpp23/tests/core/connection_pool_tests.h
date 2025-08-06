@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <thread>
 #include <unordered_set>
 
-#if BUILD_WITH_MODULES
+#ifdef BUILD_WITH_MODULES
 #include <sqlpp23/tests/core/tables-using-modules.h>
 #else
 #include <sqlpp23/tests/core/tables.h>

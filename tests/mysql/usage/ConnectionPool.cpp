@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/tests/mysql/make_test_connection.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
 
-#if BUILD_WITH_MODULES
+#ifdef BUILD_WITH_MODULES
 import sqlpp23.core;
 import sqlpp23.mysql;
 #else

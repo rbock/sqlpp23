@@ -36,7 +36,7 @@
 #include <sqlite3.h>
 #endif
 
-#if BUILD_WITH_MODULES
+#ifdef BUILD_WITH_MODULES
 import sqlpp23.core;
 import sqlpp23.sqlite3;
 #else

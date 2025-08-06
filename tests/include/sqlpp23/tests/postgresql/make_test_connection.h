@@ -30,7 +30,7 @@
 #include <memory>
 #include <vector>
 
-#if BUILD_WITH_MODULES
+#ifdef BUILD_WITH_MODULES
 import sqlpp23.core;
 import sqlpp23.postgresql;
 #else
