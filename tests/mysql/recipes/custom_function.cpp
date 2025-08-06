@@ -158,7 +158,7 @@ int main(int, char*[]) {
     auto a = cast("2001-01-01T00:00:00", as(sqlpp::timestamp{}));
     auto b = cast("2002-01-01T00:00:00", as(sqlpp::timestamp{}));
 
-    for (const auto [unit, expected_diff] : {
+    for (const auto& [unit, expected_diff] : {
              std::pair{example::timestamp_unit::year, 1},
              std::pair{example::timestamp_unit::month, 12},
              std::pair{example::timestamp_unit::day, 365},
