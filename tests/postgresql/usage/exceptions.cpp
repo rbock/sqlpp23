@@ -24,6 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <libpq-fe.h>
+
 #include <sqlpp23/tests/postgresql/all.h>
 
 namespace sql = sqlpp::postgresql;

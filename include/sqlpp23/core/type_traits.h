@@ -343,7 +343,7 @@ template <typename T>
 struct is_prepared_statement : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_prepared_statement_v =  is_prepared_statement<T>::value;
+inline constexpr bool is_prepared_statement_v =  is_prepared_statement<T>::value;
 
 // Checks whether a statement has a result row (i.e. select or union).
 // Note: It does not check if the statement is actually consistent, preparable,

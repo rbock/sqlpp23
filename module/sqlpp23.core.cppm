@@ -195,6 +195,8 @@ using ::sqlpp::isolation_level;
 using ::sqlpp::start_transaction;
 using ::sqlpp::exception;
 using ::sqlpp::connection_check;
+using ::sqlpp::normal_connection;
+using ::sqlpp::pooled_connection;
 
 // query
 using ::sqlpp::dynamic;
@@ -226,6 +228,8 @@ using ::sqlpp::is_integral;
 using ::sqlpp::provided_ctes_of_t;
 using ::sqlpp::is_numeric;
 using ::sqlpp::is_optional;
+using ::sqlpp::is_prepared_statement;
+using ::sqlpp::is_prepared_statement_v;
 using ::sqlpp::is_raw_select_flag;
 using ::sqlpp::is_table;
 using ::sqlpp::is_text;
