@@ -39,11 +39,6 @@ int ConnectionPool(int, char*[]) {
     config->debug = sqlpp::sqlite3::get_debug_logger();
     sqlpp::test::test_connection_pool<sql::connection_pool>(
         config,
-        "CREATE TABLE tab_department ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "name CHAR(100), "
-        "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
-        ")",
         sqlite3_threadsafe());
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

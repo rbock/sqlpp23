@@ -31,3 +31,10 @@ CREATE TABLE tab_date_time (
   time_n time(3)
 );
 
+DROP TABLE IF EXISTS tab_department;
+
+CREATE TABLE tab_department (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name CHAR(100),
+  division VARCHAR(255) NOT NULL DEFAULT 'engineering'
+);

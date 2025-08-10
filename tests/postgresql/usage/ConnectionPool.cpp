@@ -35,11 +35,6 @@ int ConnectionPool(int, char*[]) {
   try {
     test::test_connection_pool<sql::connection_pool>(
         sql::make_test_config(),
-        "CREATE TABLE tab_department ("
-        "id SERIAL PRIMARY KEY, "
-        "name CHAR(100), "
-        "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
-        ")",
         PQisthreadsafe());
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

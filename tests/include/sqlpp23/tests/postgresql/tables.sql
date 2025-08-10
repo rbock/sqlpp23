@@ -46,3 +46,11 @@ CREATE TABLE tab_except (
   int_small_n_u smallint UNIQUE,
   text_short_n text CHECK( length(text_short_n) < 5 )
 )
+
+DROP TABLE IF EXISTS tab_department;
+
+CREATE TABLE tab_department (
+  id SERIAL PRIMARY KEY,
+  name CHAR(100),
+  division VARCHAR(255) NOT NULL DEFAULT 'engineering'
+);
