@@ -22,6 +22,8 @@ CREATE TABLE tab_bar
   int_n int
 );
 
+DROP TABLE IF EXISTS tab_date_time;
+
 CREATE TABLE tab_date_time
 (
   date_n date,
@@ -37,6 +39,8 @@ CREATE TABLE blob_sample (
   id bigserial PRIMARY KEY,
   data bytea
 );
+
+DROP TABLE IF EXISTS tab_except;
 
 CREATE TABLE tab_except (
   int_small_n_u smallint UNIQUE,

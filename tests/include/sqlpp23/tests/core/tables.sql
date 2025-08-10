@@ -48,6 +48,8 @@ CREATE TABLE tab_bar
 	int_n int
 );
 
+DROP TABLE IF EXISTS tab_date_time;
+
 CREATE TABLE tab_date_time
 (
 	id bigint AUTO_INCREMENT PRIMARY KEY,
@@ -55,4 +57,3 @@ CREATE TABLE tab_date_time
 	timestamp_n datetime,
 	time_n time
 );
-
