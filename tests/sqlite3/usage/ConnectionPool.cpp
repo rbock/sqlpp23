@@ -25,15 +25,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.sqlite3;
-#else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/sqlite3/sqlite3.h>
-#endif
-
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include <sqlpp23/tests/sqlite3/all.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
 
 namespace sql = ::sqlpp::sqlite3;

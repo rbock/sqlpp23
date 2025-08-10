@@ -27,16 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <mysql.h>
 
-#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/mysql/all.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
-
-#ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.mysql;
-#else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/mysql/mysql.h>
-#endif
 
 namespace sql = ::sqlpp::mysql;
 

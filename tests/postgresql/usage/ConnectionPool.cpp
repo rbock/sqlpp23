@@ -27,16 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <libpq-fe.h>
 
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp23/tests/postgresql/all.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
-
-#ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.postgresql;
-#else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/postgresql/postgresql.h>
-#endif
 
 int ConnectionPool(int, char*[]) {
   namespace sql = sqlpp::postgresql;
