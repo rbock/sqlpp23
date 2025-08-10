@@ -24,4 +24,7 @@ using ::sqlpp::sqlite3::assert_no_cast_to_date_time;
 using ::sqlpp::sqlite3::assert_no_any_t;
 
 using ::sqlpp::sqlite3::to_sql_string;
+using ::sqlpp::sqlite3::nan_to_sql_string;
+using ::sqlpp::sqlite3::inf_to_sql_string;
+using ::sqlpp::sqlite3::neg_inf_to_sql_string;
 }

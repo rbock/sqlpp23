@@ -24,4 +24,6 @@ using ::sqlpp::mysql::assert_no_bool_cast;
 using ::sqlpp::mysql::assert_no_full_outer_join_t;
 
 using ::sqlpp::mysql::to_sql_string;
+using ::sqlpp::mysql::quoted_name_to_sql_string;
+using ::sqlpp::mysql::data_type_to_sql_string;
 }

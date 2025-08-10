@@ -24,4 +24,5 @@ using ::sqlpp::postgresql::assert_no_cast_bool_to_numeric;
 using ::sqlpp::postgresql::assert_no_unsigned;
 
 using ::sqlpp::postgresql::to_sql_string;
+using ::sqlpp::postgresql::data_type_to_sql_string;
 }
