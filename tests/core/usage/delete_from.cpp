@@ -25,8 +25,7 @@
  */
 
 #include <sqlpp23/tests/core/all.h>
-
-#include "is_regular.h"
+#include <sqlpp23/tests/core/is_regular.h>
 
 int delete_from(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();

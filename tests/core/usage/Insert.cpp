@@ -25,7 +25,7 @@
  */
 
 #include <sqlpp23/tests/core/all.h>
-#include "is_regular.h"
+#include <sqlpp23/tests/core/is_regular.h>
 
 int Insert(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
