@@ -29,8 +29,8 @@
 
 #include <sqlpp23/mysql/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
-#include "sqlpp23/core/operator/comparison_expression.h"
-#include "sqlpp23/core/type_traits/data_type.h"
+#include <sqlpp23/core/operator/comparison_expression.h>
+#include <sqlpp23/core/type_traits/data_type.h>
 
 namespace sqlpp::mysql {
 template <typename L, typename R>

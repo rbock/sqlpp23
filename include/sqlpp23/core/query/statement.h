@@ -42,7 +42,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/wrapped_static_assert.h>
 #include <type_traits>
-#include "sqlpp23/core/detail/type_vector.h"
+#include <sqlpp23/core/detail/type_vector.h>
 
 namespace sqlpp {
 class assert_no_unknown_ctes_t : public wrapped_static_assert {
