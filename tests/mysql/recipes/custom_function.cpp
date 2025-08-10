@@ -27,8 +27,6 @@
 #include <utility>
 
 #include <sqlpp23/tests/mysql/all.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/logic.h>
 
 namespace sql = sqlpp::mysql;
 
