@@ -10,5 +10,3 @@ export namespace sqlpp::mock_db {
   using sqlpp::mock_db::connection_config;
   using sqlpp::mock_db::context_t;
 }
-
-

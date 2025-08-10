@@ -25,5 +25,3 @@ using ::sqlpp::mysql::assert_no_full_outer_join_t;
 
 using ::sqlpp::mysql::to_sql_string;
 }
-
-

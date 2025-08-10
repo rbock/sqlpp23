@@ -25,5 +25,3 @@ using ::sqlpp::postgresql::assert_no_unsigned;
 
 using ::sqlpp::postgresql::to_sql_string;
 }
-
-

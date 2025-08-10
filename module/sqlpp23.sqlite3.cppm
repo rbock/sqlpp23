@@ -25,5 +25,3 @@ using ::sqlpp::sqlite3::assert_no_any_t;
 
 using ::sqlpp::sqlite3::to_sql_string;
 }
-
-

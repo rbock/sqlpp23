@@ -49,4 +49,3 @@ import sqlpp23.test.core.tables;
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/tests/core/tables.h>
 #endif
-
