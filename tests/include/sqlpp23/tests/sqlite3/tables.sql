@@ -29,5 +29,5 @@ CREATE TABLE tab_date_time (
   timestamp_n datetime(3),
   date_timestamp_n_d datetime DEFAULT CURRENT_TIMESTAMP,
   time_n time(3)
-)
+);
 
