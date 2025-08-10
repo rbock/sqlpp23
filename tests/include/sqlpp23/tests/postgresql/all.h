@@ -34,6 +34,8 @@
 #include <memory>
 #include <print>
 
+#include <libpq-fe.h>
+
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/assert_throw.h>
 #include <sqlpp23/tests/core/result_helpers.h>
