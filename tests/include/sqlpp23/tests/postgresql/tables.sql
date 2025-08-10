@@ -30,6 +30,7 @@ CREATE TABLE tab_date_time
   timestamp_n_tz timestamp with time zone,
   time_n_tz time with time zone
 );
+
 DROP TABLE IF EXISTS blob_sample;
 
 CREATE TABLE blob_sample (
