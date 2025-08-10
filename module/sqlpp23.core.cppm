@@ -370,3 +370,10 @@ using ::sqlpp::detail::type_set;
 using ::sqlpp::detail::type_vector;
 using ::sqlpp::detail::get_last_if_t;
 }
+
+export namespace sqlpp::logic {
+using ::sqlpp::logic::logic_helper;
+using ::sqlpp::logic::all;
+using ::sqlpp::logic::any;
+using ::sqlpp::logic::none;
+}
