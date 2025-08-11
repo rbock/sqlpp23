@@ -92,7 +92,7 @@ using ::sqlpp::any;
 using ::sqlpp::between;
 using ::sqlpp::case_when;
 using ::sqlpp::cast;
-using ::sqlpp::cast_as_t; // TODO: Remove? 
+using ::sqlpp::cast_as_t; // TODO: Remove?
 using ::sqlpp::exists;
 using ::sqlpp::in;
 using ::sqlpp::not_in;
@@ -371,3 +371,9 @@ using ::sqlpp::detail::type_vector;
 using ::sqlpp::detail::get_last_if_t;
 }
 
+export namespace sqlpp::logic {
+using ::sqlpp::logic::logic_helper;
+using ::sqlpp::logic::all;
+using ::sqlpp::logic::any;
+using ::sqlpp::logic::none;
+}

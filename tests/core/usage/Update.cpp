@@ -25,7 +25,7 @@
  */
 
 #include <sqlpp23/tests/core/all.h>
-#include "is_regular.h"
+#include <sqlpp23/tests/core/is_regular.h>
 
 int Update(int, char*[]) {
   const auto maybe = true;

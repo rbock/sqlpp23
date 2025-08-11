@@ -26,18 +26,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if BUILD_WITH_MODULES
 #include <iostream>
 #include <memory>
 #include <vector>
 
+#ifdef BUILD_WITH_MODULES
 import sqlpp23.core;
 import sqlpp23.postgresql;
 #else
-#include <iostream>
-#include <memory>
-#include <vector>
-
 #include <sqlpp23/sqlpp23.h>
 #include <sqlpp23/postgresql/postgresql.h>
 #endif

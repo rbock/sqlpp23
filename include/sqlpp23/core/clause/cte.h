@@ -184,7 +184,7 @@ struct required_static_ctes_of<
           cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> {};
 
 template <typename Lhs, typename Rhs>
-static inline constexpr bool are_valid_cte_union_args =
+inline constexpr bool are_valid_cte_union_args =
     (is_statement<Lhs>::value and is_statement<Rhs>::value and
      required_tables_of_t<Lhs>::empty() and
      required_tables_of_t<Rhs>::empty() and
@@ -192,7 +192,7 @@ static inline constexpr bool are_valid_cte_union_args =
      is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);
 
 template <typename Lhs, typename Rhs>
-static inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
+inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
     are_valid_cte_union_args<Lhs, Rhs>;
 
 template <typename NameTagProvider, typename Statement, typename... FieldSpecs>

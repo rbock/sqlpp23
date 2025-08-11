@@ -24,14 +24,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef BUILD_WITH_MODULES
+// Note: To work around a GCC bug, make sure that for any standard header that
+// is both included and imported from a module, the #include directive comes
+// before the import declaration. For details see
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114795#c3
+
 #include <cassert>
 #include <chrono>
+#include <memory>
 #include <print>
 
-import sqlpp23.core;
-import sqlpp23.postgresql;
-import sqlpp23.test.postgresql.tables;
+#include <libpq-fe.h>
 
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/assert_throw.h>
@@ -39,16 +42,13 @@ import sqlpp23.test.postgresql.tables;
 #include <sqlpp23/tests/postgresql/make_test_connection.h>
 #include <sqlpp23/tests/postgresql/serialize_helpers.h>
 
+#ifdef BUILD_WITH_MODULES
+import sqlpp23.core;
+import sqlpp23.postgresql;
+import sqlpp23.test.postgresql.tables;
 #else
-#include <cassert>
-
 #include <sqlpp23/core/database/connection_pool.h>
 #include <sqlpp23/postgresql/postgresql.h>
 #include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/core/assert_throw.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/tests/postgresql/serialize_helpers.h>
 #include <sqlpp23/tests/postgresql/tables.h>
 #endif
-

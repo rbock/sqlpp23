@@ -200,4 +200,40 @@ namespace test {
   };
   using TabJson = ::sqlpp::table_t<TabJson_>;
 
+  template<typename Db>
+  void createTabDepartment(Db& db) {
+    db(R"+++(DROP TABLE IF EXISTS tab_department)+++");
+    db(R"+++(CREATE TABLE tab_department (
+  id INTEGER PRIMARY KEY AUTO_INCREMENT,
+  name CHAR(100),
+  division VARCHAR(255) NOT NULL DEFAULT 'engineering'
+))+++");
+  }
+
+  struct TabDepartment_ {
+    struct Id {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
+      using data_type = ::sqlpp::integral;
+      using has_default = std::true_type;
+    };
+    struct Name {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(name, name);
+      using data_type = std::optional<::sqlpp::text>;
+      using has_default = std::true_type;
+    };
+    struct Division {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(division, division);
+      using data_type = ::sqlpp::text;
+      using has_default = std::true_type;
+    };
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_department, tabDepartment);
+    template<typename T>
+    using _table_columns = sqlpp::table_columns<T,
+               Id,
+               Name,
+               Division>;
+    using _required_insert_columns = sqlpp::detail::type_set<>;
+  };
+  using TabDepartment = ::sqlpp::table_t<TabDepartment_>;
+
 } // namespace test

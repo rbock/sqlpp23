@@ -35,7 +35,7 @@
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
-#include "sqlpp23/core/detail/type_vector.h"
+#include <sqlpp23/core/detail/type_vector.h>
 
 namespace sqlpp {
 struct no_with_t;

@@ -29,8 +29,8 @@
  */
 
 #include <memory>
-#include "sqlpp23/core/query/statement.h"
-#include "sqlpp23/core/type_traits.h"
+#include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/type_traits.h>
 
 #include <sqlpp23/core/database/connection.h>
 #include <sqlpp23/core/database/exception.h>

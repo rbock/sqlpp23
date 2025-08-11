@@ -33,12 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <thread>
 #include <unordered_set>
 
-#if BUILD_WITH_MODULES
-#include <sqlpp23/tests/core/tables-using-modules.h>
-#else
-#include <sqlpp23/tests/core/tables.h>
-#endif
-
 namespace sqlpp::test {
 namespace {
 template <typename Pool>
@@ -137,12 +131,11 @@ void test_conn_check(Pool& pool) {
 }
 
 template <typename Pool>
-void test_basic(Pool& pool, const std::string& create_table) {
+void test_basic(Pool& pool) {
   std::clog << __func__ << '\n';
   try {
     auto db = pool.get();
-    db("DROP TABLE IF EXISTS tab_department");
-    db(create_table);
+    ::test::createTabDepartment(db);
     ::test::TabDepartment tabDept = {};
     db(insert_into(tabDept).default_values());
   } catch (const std::exception& e) {
@@ -251,11 +244,10 @@ void test_destruction_order(typename Pool::_config_ptr_t config) {
 
 template <typename Pool>
 void test_connection_pool(typename Pool::_config_ptr_t config,
-                          const std::string& create_table,
                           bool test_mt) {
   auto pool = Pool{config, 5};
   test_conn_move(pool);
-  test_basic(pool, create_table);
+  test_basic(pool);
   test_conn_check(pool);
   test_single_connection(pool);
   test_multiple_connections(pool);

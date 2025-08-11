@@ -29,7 +29,7 @@ CREATE TABLE tab_date_time (
   timestamp_n datetime(3),
   date_timestamp_n_d datetime DEFAULT CURRENT_TIMESTAMP,
   time_n time(3)
-)
+);
 
 DROP TABLE IF EXISTS tab_json;
 
@@ -37,3 +37,11 @@ CREATE TABLE tab_json (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   data JSON NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS tab_department;
+
+CREATE TABLE tab_department (
+  id INTEGER PRIMARY KEY AUTO_INCREMENT,
+  name CHAR(100),
+  division VARCHAR(255) NOT NULL DEFAULT 'engineering'
+);

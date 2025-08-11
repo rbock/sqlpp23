@@ -34,7 +34,7 @@
 #include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
-#include "sqlpp23/core/query/dynamic_fwd.h"
+#include <sqlpp23/core/query/dynamic_fwd.h>
 
 namespace sqlpp {
 // There is no order by or limit or offset in union, use it as a pseudo table to
@@ -130,7 +130,7 @@ template <typename Flag, typename Lhs, typename Rhs>
 struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
 
 template <typename Lhs, typename Rhs>
-static inline constexpr bool are_valid_union_args = 
+inline constexpr bool are_valid_union_args =
     (is_statement<Lhs>::value and is_statement<Rhs>::value and
      has_result_row<Lhs>::value and has_result_row<Rhs>::value and
      is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);

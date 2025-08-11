@@ -88,7 +88,7 @@ struct nodes_of<update_set_list_t<Assignments...>> {
 };
 
 template <DynamicAssignment... Assignments>
-static inline constexpr bool are_valid_update_assignments =
+inline constexpr bool are_valid_update_assignments =
     (sizeof...(Assignments) > 0 and
      // unique assignment columns
      not detail::has_duplicates<

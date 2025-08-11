@@ -33,8 +33,6 @@
 #include <thread>
 #include <vector>
 
-#include <libpq-fe.h>
-
 #include <sqlpp23/tests/postgresql/all.h>
 
 namespace sql = ::sqlpp::postgresql;

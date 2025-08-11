@@ -25,15 +25,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#if BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.sqlite3;
-#else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/sqlite3/sqlite3.h>
-#endif
-
-#include <sqlpp23/tests/sqlite3/make_test_connection.h>
+#include <sqlpp23/tests/sqlite3/all.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
 
 namespace sql = ::sqlpp::sqlite3;
@@ -47,11 +39,6 @@ int ConnectionPool(int, char*[]) {
     config->debug = sqlpp::sqlite3::get_debug_logger();
     sqlpp::test::test_connection_pool<sql::connection_pool>(
         config,
-        "CREATE TABLE tab_department ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "name CHAR(100), "
-        "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
-        ")",
         sqlite3_threadsafe());
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

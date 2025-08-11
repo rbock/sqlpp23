@@ -31,7 +31,7 @@
 #include <string>
 #include <tuple>
 #include <utility>
-#include "sqlpp23/core/type_traits/optional.h"
+#include <sqlpp23/core/type_traits/optional.h>
 
 #include <sqlpp23/core/concepts.h>
 #include <sqlpp23/core/detail/type_set.h>

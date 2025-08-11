@@ -27,15 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <mysql.h>
 
-#if BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.mysql;
-#else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/mysql/mysql.h>
-#endif
-
-#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp23/tests/mysql/all.h>
 #include <sqlpp23/tests/core/connection_pool_tests.h>
 
 namespace sql = ::sqlpp::mysql;
@@ -44,11 +36,6 @@ int ConnectionPool(int, char*[]) {
   try {
     sqlpp::test::test_connection_pool<sql::connection_pool>(
         sql::make_test_config(),
-        "CREATE TABLE tab_department ("
-        "id INTEGER PRIMARY KEY AUTO_INCREMENT, "
-        "name CHAR(100), "
-        "division VARCHAR(255) NOT NULL DEFAULT 'engineering'"
-        ")",
         mysql_thread_safe());
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

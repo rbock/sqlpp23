@@ -22,6 +22,8 @@ CREATE TABLE tab_bar
   int_n int
 );
 
+DROP TABLE IF EXISTS tab_date_time;
+
 CREATE TABLE tab_date_time
 (
   date_n date,
@@ -30,6 +32,7 @@ CREATE TABLE tab_date_time
   timestamp_n_tz timestamp with time zone,
   time_n_tz time with time zone
 );
+
 DROP TABLE IF EXISTS blob_sample;
 
 CREATE TABLE blob_sample (
@@ -37,7 +40,17 @@ CREATE TABLE blob_sample (
   data bytea
 );
 
+DROP TABLE IF EXISTS tab_except;
+
 CREATE TABLE tab_except (
   int_small_n_u smallint UNIQUE,
   text_short_n text CHECK( length(text_short_n) < 5 )
 )
+
+DROP TABLE IF EXISTS tab_department;
+
+CREATE TABLE tab_department (
+  id SERIAL PRIMARY KEY,
+  name CHAR(100),
+  division VARCHAR(255) NOT NULL DEFAULT 'engineering'
+);
