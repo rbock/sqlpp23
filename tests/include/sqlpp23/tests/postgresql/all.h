@@ -31,8 +31,10 @@
 
 #include <cassert>
 #include <chrono>
+#include <cmath>
 #include <memory>
 #include <print>
+#include <unordered_set>
 
 #include <libpq-fe.h>
 
