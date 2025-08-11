@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 #include <random>
-#include <set>
 #include <thread>
 #include <unordered_set>
 
@@ -174,7 +173,7 @@ void test_multiple_connections(Pool& pool) {
     ::test::TabDepartment tabDept = {};
     auto connections =
         std::vector<typename std::decay<decltype(pool.get())>::type>{};
-    auto pointers = std::set<void*>{};
+    auto pointers = std::unordered_set<void*>{};
     for (auto i = 0; i < 50; ++i) {
       connections.push_back(pool.get());
       if (pointers.count(connections.back().native_handle())) {
