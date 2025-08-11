@@ -176,12 +176,12 @@ void test_multiple_connections(Pool& pool) {
     auto pointers = std::unordered_set<void*>{};
     for (auto i = 0; i < 50; ++i) {
       connections.push_back(pool.get());
-      if (pointers.count(connections.back().native_handle())) {
+      auto ir = pointers.insert(connections.back().native_handle());
+      if (!ir.second) {
         throw std::logic_error{
             "Pool yielded connection twice (without getting "
             "it back in between)"};
       }
-      pointers.insert(connections.back().native_handle());
       connections.back()(insert_into(tabDept).default_values());
     }
   } catch (const std::exception& e) {
