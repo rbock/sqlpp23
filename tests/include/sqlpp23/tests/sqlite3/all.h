@@ -31,8 +31,10 @@
 
 #include <cassert>
 #include <chrono>
+#include <cmath>
 #include <memory>
 #include <print>
+#include <unordered_set>
 
 #include <sqlpp23/core/name/create_name_tag.h>
 #include <sqlpp23/tests/core/assert_throw.h>
