@@ -335,7 +335,7 @@ all.
 The methods `limit` and `offset` take a `size_t` argument, for instance:
 
 ```C++
-select(all_of(foo)).from(foo).unconditionally().limit(10u).offset(20u);
+select(all_of(foo)).from(foo).limit(10u).offset(20u);
 ```
 
 `limit` and `offset` can also be called with [`dynamic`](/docs/dynamic.md) arguments.
@@ -364,7 +364,7 @@ This call returns a result object of a pretty complex type. Thus, you would
 normally want to use `auto`:
 
 ```C++
-auto result = db(select(all_of(foo)).from(foo).unconditionally());
+auto result = db(select(all_of(foo)).from(foo));
 ```
 
 ## Accessing the results
@@ -378,7 +378,7 @@ Not surprisingly, you can iterate over the rows using a range-based for-loop
 like this:
 
 ```C++
-for (const auto& row : db(select(all_of(foo)).from(foo)).unconditionally())
+for (const auto& row : db(select(all_of(foo)).from(foo)))
 {
    std::cerr << row.id << std::endl;
    std::cerr << row.name << std::endl;
