@@ -11,7 +11,7 @@ longer compile/link/startup times, I believe). There are ways to suppress this
 in most compilers, afaik.
 
 ## Need to document: select_as
-select_ref_t is not fully type safe (but should offer reasonable protection).
+select_ref_t is not fully type-safe (but should offer reasonable protection).
 The reason for this is to reduce the sheer size of the serialized type, e.g. in error messages.
 
 ## Need to document: cte_ref and friends

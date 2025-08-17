@@ -1,6 +1,6 @@
 # sqlpp23
 
-sqlpp23 is a type safe embedded domain specific language for SQL queries and results in C++.
+sqlpp23 is a type-safe embedded domain specific language for SQL queries and results in C++.
 It allows you to write SQL in the form of C++ expressions:
 
   * Tables, columns, result fields are represented as structs or data members
