@@ -14,7 +14,7 @@ As of August 2025, this is still evolving, but all tests build and pass with mod
 * clang++-20.1.2
 * g++-15.2
 
-If you want to build tests with modules, call cmake with generator `ninja` and `--BUILD_WITH_MODULES=ON`, e.g.
+If you want to build tests with modules, call cmake with generator `ninja` and `-DBUILD_WITH_MODULES=ON`, e.g.
 
 ```bash
 cmake ../ \
