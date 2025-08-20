@@ -76,6 +76,16 @@ If seems a bit dry, follow the links to examples.
 | `NOT IN` | `x.not_in(sqlpp::value_list(vector{}))` interpreted as `true` | *no magic*: `x NOT IN ()` |
 | `operator+=` etc | `x += y` was translated into `x = x + y` | *no magic*  |
 | aggregate functions | auto-named in `select` but not otherwise | require explicit names, e.g. max(id).as(sqlpp::alias::max_) |
+| | | |
+| **ddl2cpp** | | |
+| auto id columns | -auto-id | --assume-auto-id |
+| column naming | -identity-naming | --naming-style {camel-case,identity} |
+| modules support | N/A | --path-to-module, --module-name, --use-import-sqlpp23, --use-import-std |
+| self-test | -test | --self-test |
+| single or multiple headers | -split-tables | --path-to-header or --path-to-header-directory |
+| table creation helper | N/A | --generate-table-creation-helper |
+| timestamp warning | -no-timestamp-warning | --suppress-timestamp-warning |
+| | | |
 | **Misc** | | |
 | prepared statement parameters | `.params` | `.parameters` |
 | `eval(db, expr)` | Convenience wrapper around `db(select(expr.as(a))).front().a` | *dropped* (could lead to dangling references, see `TEXT` and `BLOB`) |
