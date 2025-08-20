@@ -80,7 +80,9 @@ If seems a bit dry, follow the links to examples.
 | **ddl2cpp** | | |
 | auto id columns | -auto-id | --assume-auto-id |
 | column naming | -identity-naming | --naming-style {camel-case,identity} |
+| ddl source file | positional parameter | --path-to-ddl |
 | modules support | N/A | --path-to-module, --module-name, --use-import-sqlpp23, --use-import-std |
+| definitions namespace | positional parameter | --namespace |
 | self-test | -test | --self-test |
 | single or multiple headers | -split-tables | --path-to-header or --path-to-header-directory |
 | table creation helper | N/A | --generate-table-creation-helper |
