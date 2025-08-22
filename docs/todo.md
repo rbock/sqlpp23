@@ -28,6 +28,6 @@ See https://github.com/rbock/sqlpp11/issues/553
 
 ## Async support
 
-Obtain results in an asynchronous fashion, see #35, for instance.
+Obtain results in an asynchronous fashion, see https://github.com/rbock/sqlpp11/issues/35, for instance.
 
 [**< Index**](/docs/README.md)
