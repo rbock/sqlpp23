@@ -99,7 +99,7 @@ if(BUILD_POSTGRESQL_CONNECTOR)
 endif()
 
 if(BUILD_WITH_MODULES)
-    add_subdirectory(module)
+    add_subdirectory(modules)
 endif()
 
 ### Packaging

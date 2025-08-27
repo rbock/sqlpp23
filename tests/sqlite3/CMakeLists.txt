@@ -27,7 +27,7 @@ if(BUILD_WITH_MODULES)
     target_sources(sqlpp23.test.sqlite3.tables.module
       PUBLIC
         FILE_SET all_my_modules TYPE CXX_MODULES FILES
-        module/sqlpp23.test.sqlite3.tables.cppm
+        modules/sqlpp23.test.sqlite3.tables.cppm
     )
     target_link_libraries(sqlpp23.test.sqlite3.tables.module PUBLIC sqlpp23.core.module)
 endif()
