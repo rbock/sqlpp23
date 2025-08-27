@@ -68,5 +68,3 @@ if(BUILD_POSTGRESQL_CONNECTOR)
     )
     target_link_libraries(sqlpp23.postgresql.module PUBLIC sqlpp23.core.module sqlpp23::postgresql)
 endif()
-
-
