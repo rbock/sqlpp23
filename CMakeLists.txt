@@ -99,7 +99,7 @@ if(BUILD_POSTGRESQL_CONNECTOR)
 endif()
 
 if(BUILD_WITH_MODULES)
-    add_subdirectory(module)
+    add_subdirectory(modules)
 endif()
 
 ### Packaging
@@ -111,7 +111,6 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
-
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
@@ -150,7 +149,6 @@ endif()
 if(BUILD_POSTGRESQL_CONNECTOR)
     install_component(NAME Sqlpp23PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
 endif()
-
 
 ### Tests
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)

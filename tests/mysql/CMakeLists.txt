@@ -27,7 +27,7 @@ if(BUILD_WITH_MODULES)
     target_sources(sqlpp23.test.mysql.tables.module
       PUBLIC
         FILE_SET all_my_modules TYPE CXX_MODULES FILES
-        module/sqlpp23.test.mysql.tables.cppm
+        modules/sqlpp23.test.mysql.tables.cppm
     )
     target_link_libraries(sqlpp23.test.mysql.tables.module PUBLIC sqlpp23.core.module)
 endif()
