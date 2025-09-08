@@ -9,7 +9,7 @@ import sqlpp23.core;
 import sqlpp23.postgresql;
 ```
 
-As of August 2025, this is still evolving, but all tests build and pass with modules using either
+As of September 2025 (version 0.67), this is still evolving, but all tests build and pass with modules using either
 
 * clang++-20.1.2
 * g++-15.2
@@ -29,6 +29,7 @@ cmake ../ \
     --fresh
 ```
 
-The module sources can be found in the [module directory](/module).
+The module sources can be found in the [modules directory](/modules). They get installed into `<prefix>/modules/sqlpp23`.
+
 
 [**\< Index**](/docs/README.md)
