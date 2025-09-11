@@ -647,9 +647,9 @@ def parseCommandlineArgs():
     options.add_argument('--assume-auto-id', action='store_true', help='assume column \'id\' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)')
     options.add_argument('--naming-style', choices=['camel-case', 'identity'], default='camel-case', help='naming style for generated tables and columns.\n\n\n\n \'camel-case\' (default): interprets \'_\' as word separator and translates table names to UpperCamelCase and column names to lowerCamelCase, e.g. \'my_cool_table.important_column\' will be represented as \'MyCoolTable{}.importantColumn\' in generated code.\n \'identity\' uses table and column names as is in generated code (default: \'camel-case\')')
     options.add_argument('--generate-table-creation-helper', action='store_true', help='create a helper function for each table that drops and creates the table')
-    options.add_argument('--use-import-sqlpp23', action='store_true', help='import sqlpp23 as module (instead of including the header file (default: False)')
-    options.add_argument('--use-import-std', action='store_true', help='import std as module (instead of including the irespective standard header files (default: False)')
-    options.add_argument('--self-test', action='store_true', help='run parser self test (this ignores all other arguments)')
+    options.add_argument('--use-import-sqlpp23', action='store_true', help='import sqlpp23 as module instead of including the header file (default: False)')
+    options.add_argument('--use-import-std', action='store_true', help='import std as module instead of including the respective standard header files (default: False)')
+    options.add_argument('--self-test', action='store_true', help='run parser self-test (this ignores all other arguments)')
 
     args = argParser.parse_args()
 
@@ -830,7 +830,7 @@ if __name__ == "__main__":
     args = parseCommandlineArgs()
 
     if args.self_test:
-        print("Running self test")
+        print("Running self-test")
         testParser()
         sys.exit()
     else:
