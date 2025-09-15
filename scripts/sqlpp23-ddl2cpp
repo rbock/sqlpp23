@@ -277,7 +277,7 @@ def createDdlParser():
         + pp.ZeroOrMore(
             ddlUnsigned
             | ddlNotNull
-            | pp.CaselessKeyword("null")
+            | pp.Suppress(pp.CaselessKeyword("null"))
             | ddlAutoValue
             | ddlDefaultValue
             | ddlGeneratedValue
@@ -290,9 +290,9 @@ def createDdlParser():
     # CREATE TABLE parser
     ddlCreateTable = (
         pp.Group(
-            pp.CaselessKeyword("CREATE")
+            pp.Suppress(pp.CaselessKeyword("CREATE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
-            + pp.CaselessKeyword("TABLE")
+            + pp.Suppress(pp.CaselessKeyword("TABLE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
             + ddlName.setResultsName("tableName")
             + ddlLeft
