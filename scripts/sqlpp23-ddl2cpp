@@ -270,8 +270,8 @@ def createDdlParser():
     ).setResultsName("isConstraint")
 
     ddlColumn = pp.Group(
-        ddlName("name")
-        + ddlType("type")
+        ddlName.setResultsName("name")
+        + ddlType.setResultsName("type")
         + pp.Suppress(pp.Optional(ddlWidth))
         + pp.Suppress(pp.Optional(ddlTimezone))
         + pp.ZeroOrMore(
