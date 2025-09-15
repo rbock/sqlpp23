@@ -154,11 +154,10 @@ ddlTimeTypes = [
     "time with time zone",  # PostgreSQL
 ]
 
-parsedContent = ""
 
-def SetContent(text, loc, token) :
-  global parsedContent
-  parsedContent = text
+def addCreateSql(text, loc, parsed):
+    parsed.create["createSql"] = text
+
 
 # Init the DDL parser
 def createDdlParser():
@@ -295,21 +294,25 @@ def createDdlParser():
     ddlOrReplace = pp.Group(
         pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")
     ).setResultsName("orReplace")
-    ddlCreateTable = pp.Group(
-        pp.CaselessKeyword("CREATE")
-        + pp.Suppress(pp.Optional(ddlOrReplace))
-        + pp.CaselessKeyword("TABLE")
-        + pp.Suppress(pp.Optional(ddlIfNotExists))
-        + ddlName.setResultsName("tableName")
-        + ddlLeft
-        + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
-            "columns"
+    ddlCreateTable = (
+        pp.Group(
+            pp.CaselessKeyword("CREATE")
+            + pp.Suppress(pp.Optional(ddlOrReplace))
+            + pp.CaselessKeyword("TABLE")
+            + pp.Suppress(pp.Optional(ddlIfNotExists))
+            + ddlName.setResultsName("tableName")
+            + ddlLeft
+            + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
+                "columns"
+            )
+            + ddlRight
         )
-        + ddlRight
-    ).setResultsName("create")
+        .setParseAction(addCreateSql)
+        .setResultsName("create")
+    )
     # ddlString.setDebug(True) #uncomment to debug pyparsing
 
-    ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + pp.Located(ddlCreateTable))).setResultsName("tables").setParseAction(SetContent)
+    ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + ddlCreateTable)).setResultsName("tables")
 
     ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
     ddl.ignore(ddlComment)
@@ -493,6 +496,7 @@ def testPrimaryKeyAutoIncrement():
         assert column.notNull
         assert column.hasAutoValue
         assert column.isPrimaryKey
+        assert table.createSql == text
 
 def testParser():
     createDdlParser()
@@ -705,7 +709,7 @@ def writeTable(table, header, args):
     export = "export " if args.path_to_module else ""
 
     DataTypeError = False
-    create = table.value.create
+    create = table.create
     sqlTableName = create.tableName
     tableClass = toClassName(sqlTableName, args)
     tableMember = toMemberName(sqlTableName, args)
@@ -716,7 +720,7 @@ def writeTable(table, header, args):
       print("  " + export + "template<typename Db>", file=header)
       print("  void create" + tableClass + "(Db& db) {", file=header)
       print("    db(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
-      print("    db(R\"+++(" + parsedContent[table.locn_start:table.locn_end] + ")+++\");", file=header)
+      print("    db(R\"+++(" + create.createSql + ")+++\");", file=header)
       print("  }", file=header)
       print("", file=header)
     print("  " + export + "struct " + tableSpec + " {", file=header)
