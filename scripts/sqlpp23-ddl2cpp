@@ -288,18 +288,12 @@ def createDdlParser():
     )
 
     # CREATE TABLE parser
-    ddlIfNotExists = pp.Group(
-        pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")
-    ).setResultsName("ifNotExists")
-    ddlOrReplace = pp.Group(
-        pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")
-    ).setResultsName("orReplace")
     ddlCreateTable = (
         pp.Group(
             pp.CaselessKeyword("CREATE")
-            + pp.Suppress(pp.Optional(ddlOrReplace))
+            + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
             + pp.CaselessKeyword("TABLE")
-            + pp.Suppress(pp.Optional(ddlIfNotExists))
+            + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
             + ddlName.setResultsName("tableName")
             + ddlLeft
             + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
