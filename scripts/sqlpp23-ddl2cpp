@@ -70,7 +70,7 @@ ddlExpression = pp.OneOrMore(
 ddlBracedArguments << ddlLeft + pp.delimitedList(ddlExpression) + ddlRight
 ddlBracedExpression << ddlLeft + ddlExpression + ddlRight
 
-ddlArguments = pp.Suppress(pp.Group(pp.delimitedList(ddlExpression)))
+ddlArguments = pp.Suppress(pp.delimitedList(ddlExpression))
 ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
 
 # Data types
@@ -234,7 +234,7 @@ def createDdlParser():
         + pp.CaselessKeyword("zone")
     )
 
-    ddlNotNull = pp.Group(pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
+    ddlNotNull = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
     ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
 
     ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
@@ -245,7 +245,7 @@ def createDdlParser():
     ]
     ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
 
-    ddlPrimaryKey = pp.Group(pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
+    ddlPrimaryKey = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
 
     ddlIgnoredKeywords = [
         "CONSTRAINT",
@@ -257,7 +257,7 @@ def createDdlParser():
         "CHECK",
         "PERIOD",
     ]
-    ddlConstraint = pp.Group(
+    ddlConstraint = (
         pp.Or(map(
             pp.CaselessKeyword,
             sorted(ddlIgnoredKeywords + ["PRIMARY"], reverse=True)
