@@ -155,10 +155,6 @@ ddlTimeTypes = [
 ]
 
 
-def addCreateSql(text, loc, parsed):
-    parsed.create["createSql"] = text
-
-
 # Init the DDL parser
 def createDdlParser():
     global ddl
@@ -284,6 +280,8 @@ def createDdlParser():
     )
 
     # CREATE TABLE parser
+    def addCreateSql(text, loc, parsed):
+        parsed.create["createSql"] = text
     ddlCreateTable = (
         pp.Group(
             pp.Suppress(pp.CaselessKeyword("CREATE"))
