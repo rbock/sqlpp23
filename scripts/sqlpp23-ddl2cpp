@@ -70,7 +70,7 @@ ddlExpression = pp.OneOrMore(
 ddlBracedArguments << ddlLeft + pp.delimitedList(ddlExpression) + ddlRight
 ddlBracedExpression << ddlLeft + ddlExpression + ddlRight
 
-ddlArguments = pp.Suppress(pp.Group(pp.delimitedList(ddlExpression)))
+ddlArguments = pp.Suppress(pp.delimitedList(ddlExpression))
 ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
 
 # Data types
@@ -155,10 +155,6 @@ ddlTimeTypes = [
 ]
 
 
-def addCreateSql(text, loc, parsed):
-    parsed.create["createSql"] = text
-
-
 # Init the DDL parser
 def createDdlParser():
     global ddl
@@ -234,9 +230,7 @@ def createDdlParser():
         + pp.CaselessKeyword("zone")
     )
 
-    ddlNotNull = pp.Group(
-        pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")
-    ).setResultsName("notNull")
+    ddlNotNull = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
     ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
 
     ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
@@ -247,9 +241,7 @@ def createDdlParser():
     ]
     ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
 
-    ddlPrimaryKey = pp.Group(
-        pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")
-    ).setResultsName("isPrimaryKey")
+    ddlPrimaryKey = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
 
     ddlIgnoredKeywords = [
         "CONSTRAINT",
@@ -261,7 +253,7 @@ def createDdlParser():
         "CHECK",
         "PERIOD",
     ]
-    ddlConstraint = pp.Group(
+    ddlConstraint = (
         pp.Or(map(
             pp.CaselessKeyword,
             sorted(ddlIgnoredKeywords + ["PRIMARY"], reverse=True)
@@ -270,14 +262,14 @@ def createDdlParser():
     ).setResultsName("isConstraint")
 
     ddlColumn = pp.Group(
-        ddlName("name")
-        + ddlType("type")
+        ddlName.setResultsName("name")
+        + ddlType.setResultsName("type")
         + pp.Suppress(pp.Optional(ddlWidth))
         + pp.Suppress(pp.Optional(ddlTimezone))
         + pp.ZeroOrMore(
             ddlUnsigned
             | ddlNotNull
-            | pp.CaselessKeyword("null")
+            | pp.Suppress(pp.CaselessKeyword("NULL"))
             | ddlAutoValue
             | ddlDefaultValue
             | ddlGeneratedValue
@@ -288,23 +280,17 @@ def createDdlParser():
     )
 
     # CREATE TABLE parser
-    ddlIfNotExists = pp.Group(
-        pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")
-    ).setResultsName("ifNotExists")
-    ddlOrReplace = pp.Group(
-        pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")
-    ).setResultsName("orReplace")
+    def addCreateSql(text, loc, parsed):
+        parsed.create["createSql"] = text
     ddlCreateTable = (
         pp.Group(
-            pp.CaselessKeyword("CREATE")
-            + pp.Suppress(pp.Optional(ddlOrReplace))
-            + pp.CaselessKeyword("TABLE")
-            + pp.Suppress(pp.Optional(ddlIfNotExists))
+            pp.Suppress(pp.CaselessKeyword("CREATE"))
+            + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
+            + pp.Suppress(pp.CaselessKeyword("TABLE"))
+            + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
             + ddlName.setResultsName("tableName")
             + ddlLeft
-            + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
-                "columns"
-            )
+            + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName("columns")
             + ddlRight
         )
         .setParseAction(addCreateSql)
