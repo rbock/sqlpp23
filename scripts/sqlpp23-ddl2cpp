@@ -703,8 +703,9 @@ def writeTable(table, header, args):
     tableTemplateParameters = ""
     tableRequiredInsertColumns = ""
     if args.generate_table_creation_helper:
+        creationHelperFunc = "create" + ("" if args.naming_style == "camel-case" else "_") + tableClass
         print("  " + export + "template<typename Db>", file=header)
-        print("  void create" + tableClass + "(Db& db) {", file=header)
+        print("  void " + creationHelperFunc + "(Db& db) {", file=header)
         print("    db(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
         print("    db(R\"+++(" + create.createSql + ")+++\");", file=header)
         print("  }", file=header)
