@@ -77,10 +77,14 @@ int main(int, char*[]) {
                        std::ranges::to<std::vector>();
     }
 
+    // As of now libc++ does not support std::ranges::views::enumerate
+    // For details see: https://libcxx.llvm.org/Status/Cxx23.html
+#ifndef _LIBCPP_VERSION
     for ([[maybe_unused]] const auto& [index, row] :
          db(select(foo.id).from(foo)) | std::ranges::views::enumerate) {
       // do something with index and row
     }
+#endif
 
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
