@@ -703,12 +703,12 @@ def writeTable(table, header, args):
     tableTemplateParameters = ""
     tableRequiredInsertColumns = ""
     if args.generate_table_creation_helper:
-      print("  " + export + "template<typename Db>", file=header)
-      print("  void create" + tableClass + "(Db& db) {", file=header)
-      print("    db(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
-      print("    db(R\"+++(" + create.createSql + ")+++\");", file=header)
-      print("  }", file=header)
-      print("", file=header)
+        print("  " + export + "template<typename Db>", file=header)
+        print("  void create" + tableClass + "(Db& db) {", file=header)
+        print("    db(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
+        print("    db(R\"+++(" + create.createSql + ")+++\");", file=header)
+        print("  }", file=header)
+        print("", file=header)
     print("  " + export + "struct " + tableSpec + " {", file=header)
     for column in create.columns:
         if column.isConstraint:
