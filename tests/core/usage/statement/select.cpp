@@ -77,7 +77,7 @@ int main(int, char*[]) {
                        std::ranges::to<std::vector>();
     }
 
-    // As of now libc++ does not support std::ranges::views::enumerate
+    // As of v21 libc++ does not support std::ranges::views::enumerate
     // For details see: https://libcxx.llvm.org/Status/Cxx23.html
 #ifndef _LIBCPP_VERSION
     for ([[maybe_unused]] const auto& [index, row] :
