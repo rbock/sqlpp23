@@ -24,6 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+
 #include <sqlpp23/tests/core/all.h>
 
 struct to_cerr {
