@@ -74,7 +74,7 @@ if (${Python3_Interpreter_FOUND})
                 set(naming_style camel-case)
             endif()
             add_custom_command(
-                OUTPUT "${sqlpp.scripts.generated.sample.include}.h"
+                OUTPUT "${sqlpp.scripts.generated.sample.include}"
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
                         "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                         "--path-to-header" "${sqlpp.scripts.generated.sample.include}"
@@ -86,7 +86,7 @@ if (${Python3_Interpreter_FOUND})
                 VERBATIM)
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
-                "${sqlpp.scripts.generated.sample.include}.h")
+                "${sqlpp.scripts.generated.sample.include}")
             target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp23)
         endforeach()
 
@@ -105,20 +105,20 @@ if (${Python3_Interpreter_FOUND})
 
         # Custom types defined in a CSV file
         set(custom_type_sql "ddl2cpp_sample_good_custom_type")
-        set(sqlpp.scripts.generated.custom_type_sql.include "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_sql}")
+        set(sqlpp.scripts.generated.custom_type_sql.include "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_sql}.h")
         add_custom_command(
-            OUTPUT "${sqlpp.scripts.generated.custom_type_sql.include}.h"
+            OUTPUT "${sqlpp.scripts.generated.custom_type_sql.include}"
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
                     "--path-to-datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
                     "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
-                    "--path-to-header" "${sqlpp.scripts.generated.custom_type_sql.include}.h"
+                    "--path-to-header" "${sqlpp.scripts.generated.custom_type_sql.include}"
                     "--namespace" "test"
                     "--suppress-timestamp-warning"
             DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
                     "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
             VERBATIM)
         add_executable(sqlpp.scripts.compiled.${custom_type_sql} ${custom_type_sql}.cpp
-            "${sqlpp.scripts.generated.custom_type_sql.include}.h")
+            "${sqlpp.scripts.generated.custom_type_sql.include}")
         target_link_libraries(sqlpp.scripts.compiled.${custom_type_sql} PRIVATE sqlpp23)
     endif()
 endif()
