@@ -74,7 +74,7 @@ if (${Python3_Interpreter_FOUND})
                 set(naming_style camel-case)
             endif()
             add_custom_command(
-                OUTPUT "${sqlpp.scripts.generated.sample.include}.h"
+                OUTPUT "${sqlpp.scripts.generated.sample.include}"
                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
                         "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                         "--path-to-header" "${sqlpp.scripts.generated.sample.include}"
@@ -86,7 +86,7 @@ if (${Python3_Interpreter_FOUND})
                 VERBATIM)
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
-                "${sqlpp.scripts.generated.sample.include}.h")
+                "${sqlpp.scripts.generated.sample.include}")
             target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp23)
         endforeach()
 
