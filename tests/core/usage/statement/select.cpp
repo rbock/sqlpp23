@@ -85,6 +85,11 @@ int main(int, char*[]) {
       // do something with index and row
     }
 #endif
+    // We can use zip with iota to create enumerate-like functionality
+    for ([[maybe_unused]] const auto& [index, row] :
+         std::ranges::views::zip(std::views::iota(0uz), db(select(foo.id).from(foo)))) {
+      // do something with index and row
+    }
 
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
