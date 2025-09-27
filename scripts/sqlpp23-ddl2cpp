@@ -31,10 +31,12 @@ import sys
 import re
 import os
 
-# error codes, we should refactor this later
-ERROR_BAD_ARGS = 1
-ERROR_DATA_TYPE = 10
-ERROR_STRANGE_PARSING = 20
+
+class ExitCode:
+    BAD_ARGS = 1
+    BAD_DATA_TYPE = 10
+    STRANGE_PARSING = 20
+
 
 # Rather crude SQL expression parser.
 # This is not geared at correctly interpreting SQL, but at identifying (and ignoring) expressions for instance in DEFAULT expressions
@@ -677,7 +679,7 @@ def parseDdls(ddlParser, args):
     except pp.ParseException as e:
         print("ERROR: failed to parse " + path)
         print(e.explain(1))
-        sys.exit(ERROR_STRANGE_PARSING)
+        sys.exit(ExitCode.STRANGE_PARSING)
 
 def toClassName(name, args):
     if args.naming_style == "camel-case":
@@ -786,7 +788,7 @@ def writeTable(table, header, args):
         print("B) Use the '{dataTypeFileArg}' command line argument to map the type to a known type (example: README)")
         print("C) Extend/upgrade sqlpp23-ddl2cpp (edit types map)")
         print("D) Raise an issue on github")
-        sys.exit(ERROR_DATA_TYPE)  # return non-zero error code, we might need it for automation
+        sys.exit(ExitCode.BAD_DATA_TYPE)  # return non-zero error code, we might need it for automation
 
 def createHeader(parsedDdls, args):
     header = beginHeader(args.path_to_header, args)
