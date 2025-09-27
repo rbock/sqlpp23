@@ -509,15 +509,6 @@ def testParser():
 
 
 # HELPERS
-def get_include_guard_name(namespace, inputfile):
-    val = re.sub("[^A-Za-z0-9]+", "_", namespace + "_" + os.path.basename(inputfile))
-    return val.upper()
-
-
-def identity_naming_func(s):
-    return s
-
-
 def repl_camel_case_func(m):
     if m.group(1) == "_":
         return m.group(2).upper()
@@ -533,13 +524,6 @@ def class_name_naming_func(s):
 def member_name_naming_func(s):
     s = s.replace(".", "_")
     return re.sub(r"(\s|_|[0-9])(\S)", repl_camel_case_func, s)
-
-
-def repl_func_for_args(m):
-    if m.group(1) == "-":
-        return m.group(2).upper()
-    else:
-        return m.group(1) + m.group(2).upper()
 
 
 def loadExtendedTypesFile(filename):
