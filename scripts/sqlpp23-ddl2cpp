@@ -516,16 +516,6 @@ def repl_camel_case_func(m):
         return m.group(1) + m.group(2).upper()
 
 
-def class_name_naming_func(s):
-    s = s.replace(".", "_")
-    return re.sub(r"(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
-
-
-def member_name_naming_func(s):
-    s = s.replace(".", "_")
-    return re.sub(r"(\s|_|[0-9])(\S)", repl_camel_case_func, s)
-
-
 def loadExtendedTypesFile(filename):
     import csv
     with open(filename, newline="") as csvfile:
@@ -668,13 +658,15 @@ def parseDdls(ddlParser, args):
 
 def toClassName(name, args):
     if args.naming_style == "camel-case":
-        return class_name_naming_func(name)
+        name = name.replace(".", "_")
+        return re.sub(r"(^|\s|[_0-9])(\S)", repl_camel_case_func, name)
     # otherwise return identity
     return name
 
 def toMemberName(name, args):
     if args.naming_style == "camel-case":
-        return member_name_naming_func(name)
+        name = name.replace(".", "_")
+        return re.sub(r"(\s|_|[0-9])(\S)", repl_camel_case_func, name)
     # otherwise return identity
     return name
 
