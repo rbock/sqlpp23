@@ -648,10 +648,7 @@ def parseCommandlineArgs():
 
 def parseDdls(args):
     try:
-        ddls = []
-        for path in args.path_to_ddl:
-            ddls.append(DdlParser.ddlMain.parseFile(path))
-        return ddls
+        return [DdlParser.ddlMain.parseFile(path) for path in args.path_to_ddl]
     except pp.ParseException as e:
         print("ERROR: failed to parse " + path)
         print(e.explain(1))
