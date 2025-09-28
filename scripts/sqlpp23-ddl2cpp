@@ -39,279 +39,275 @@ class ExitCode:
     STRANGE_PARSING = 20
 
 
-# Rather crude SQL expression parser.
-# This is not geared at correctly interpreting SQL, but at identifying (and ignoring) expressions for instance in DEFAULT expressions
-ddlLeft, ddlRight = map(pp.Suppress, "()")
-ddlNumber = pp.Word(pp.nums + "+-.", pp.nums + "+-.Ee")
-ddlString = (
-    pp.QuotedString("'") | pp.QuotedString('"', escQuote='""') | pp.QuotedString("`")
-)
-ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
-ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString), pp.Combine(ddlTerm + ddlString)])
-ddlOperator = pp.Or(
-    map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%"]),
-    pp.CaselessKeyword("DIV")
-)
-
-ddlBracedExpression = pp.Forward()
-ddlFunctionCall = pp.Forward()
-ddlCastEnd = "::" + ddlTerm
-ddlCast = ddlString + ddlCastEnd
-ddlBracedArguments = pp.Forward()
-ddlExpression = pp.OneOrMore(
-    ddlBracedExpression
-    | ddlFunctionCall
-    | ddlCastEnd
-    | ddlCast
-    | ddlOperator
-    | ddlString
-    | ddlTerm
-    | ddlNumber
-    | ddlBracedArguments
-)
-
-ddlBracedArguments << ddlLeft + pp.delimitedList(ddlExpression) + ddlRight
-ddlBracedExpression << ddlLeft + ddlExpression + ddlRight
-
-ddlArguments = pp.Suppress(pp.delimitedList(ddlExpression))
-ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
-
-# Data types
-ddlBooleanTypes = [
-    "bool",
-    "boolean",
-]
-
-ddlIntegerTypes = [
-    "bigint",
-    "int",
-    "int2",  # PostgreSQL
-    "int4",  # PostgreSQL
-    "int8",  # PostgreSQL
-    "integer",
-    "mediumint",
-    "smallint",
-    "tinyint",
-]
-
-ddlSerialTypes = [
-    "bigserial",  # PostgreSQL
-    "serial",  # PostgreSQL
-    "serial2",  # PostgreSQL
-    "serial4",  # PostgreSQL
-    "serial8",  # PostgreSQL
-    "smallserial",  # PostgreSQL
-]
-
-ddlFloatingPointTypes = [
-    "decimal",  # MYSQL
-    "double",
-    "float8",  # PostgreSQL
-    "float",
-    "float4",  # PostgreSQL
-    "numeric",  # PostgreSQL
-    "real",
-]
-
-ddlTextTypes = [
-    "char",
-    "varchar",
-    "character varying",  # PostgreSQL
-    "text",
-    "clob",
-    "enum",  # MYSQL
-    "set",
-    "longtext",  # MYSQL
-    "jsonb",  # PostgreSQL
-    "json",  # PostgreSQL
-    "tinytext",  # MYSQL
-    "mediumtext",  # MYSQL
-    "rational", # PostgreSQL pg_rationale extension
-]
-
-ddlBlobTypes = [
-    "bytea",
-    "tinyblob",
-    "blob",
-    "mediumblob",
-    "longblob",
-    "binary",  # MYSQL
-    "varbinary",  # MYSQL
-]
-
-ddlDateTypes = [
-    "date",
-]
-
-ddlDateTimeTypes = [
-    "datetime",
-    "timestamp",
-    "timestamp without time zone",  # PostgreSQL
-    "timestamp with time zone",  # PostgreSQL
-    "timestamptz",  # PostgreSQL
-]
-
-ddlTimeTypes = [
-    "time",
-    "time without time zone",  # PostgreSQL
-    "time with time zone",  # PostgreSQL
-]
+def static_init(cls):
+    """Class decorator that calls the static_init method for a class if it is available"""
+    if getattr(cls, "static_init", None):
+        cls.static_init()
+    return cls
 
 
-# Init the DDL parser
-def createDdlParser():
-    global ddl
-    global ddlType
-    global ddlColumn
-    global ddlConstraint
-    global ddlCreateTable
-    # Column and constraint parsers
-
-    ddlBoolean = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlBooleanTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("boolean"))
-
-    ddlInteger = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlIntegerTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("integral"))
-
-    ddlSerial = (
-        pp.Or(map(pp.CaselessKeyword, sorted(ddlSerialTypes, reverse=True)))
-        .setParseAction(pp.replaceWith("integral"))
-        .setResultsName("hasSerialValue")
+@static_init
+class DdlParser:
+    """Rather crude SQL expression parser. This is not geared at correctly interpreting SQL, but at identifying
+    (and ignoring) expressions for instance in DEFAULT expressions
+    """
+    ddlLeft = pp.Suppress("(")
+    ddlRight = pp.Suppress(")")
+    ddlNumber = pp.Word(pp.nums + "+-.", pp.nums + "+-.Ee")
+    ddlString = (pp.QuotedString("'") | pp.QuotedString('"', escQuote='""') | pp.QuotedString("`"))#.setDebug(True) # Uncomment to debug pyparsing
+    ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
+    ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString), pp.Combine(ddlTerm + ddlString)])
+    ddlOperator = pp.Or(
+        map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%"]),
+        pp.CaselessKeyword("DIV")
     )
-
-    ddlFloatingPoint = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlFloatingPointTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("floating_point"))
-
-    ddlText = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlTextTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("text"))
-
-
-    ddlBlob = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlBlobTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("blob"))
-
-    ddlDate = (
-        pp.Or(map(pp.CaselessKeyword, sorted(ddlDateTypes, reverse=True)))
-        .setParseAction(pp.replaceWith("date"))
-        .setResultsName("warnTimezone")
+    ddlBracedExpression = pp.Forward()
+    ddlFunctionCall = pp.Forward()
+    ddlCastEnd = "::" + ddlTerm
+    ddlCast = ddlString + ddlCastEnd
+    ddlBracedArguments = pp.Forward()
+    ddlExpression = pp.OneOrMore(
+        ddlBracedExpression
+        | ddlFunctionCall
+        | ddlCastEnd
+        | ddlCast
+        | ddlOperator
+        | ddlString
+        | ddlTerm
+        | ddlNumber
+        | ddlBracedArguments
     )
+    ddlBracedArguments << ddlLeft + pp.delimitedList(ddlExpression) + ddlRight
+    ddlBracedExpression << ddlLeft + ddlExpression + ddlRight
+    ddlArguments = pp.Suppress(pp.delimitedList(ddlExpression))
+    ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
 
-    ddlDateTime = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlDateTimeTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("timestamp"))
-
-    ddlTime = pp.Or(
-        map(pp.CaselessKeyword, sorted(ddlTimeTypes, reverse=True))
-    ).setParseAction(pp.replaceWith("time"))
-
-    ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
-
-    ddlType = (
-        ddlBoolean
-        | ddlInteger
-        | ddlSerial
-        | ddlFloatingPoint
-        | ddlText
-        | ddlBlob
-        | ddlDateTime
-        | ddlDate
-        | ddlTime
-        | ddlUnknown
-    )
-
-    ddlUnsigned = pp.CaselessKeyword("UNSIGNED").setResultsName("isUnsigned")
-    ddlDigits = "," + pp.Word(pp.nums)
-    ddlWidth = ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + ddlRight
-    ddlTimezone = (
-        (pp.CaselessKeyword("with") | pp.CaselessKeyword("without"))
-        + pp.CaselessKeyword("time")
-        + pp.CaselessKeyword("zone")
-    )
-
-    ddlNotNull = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
-    ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
-
-    ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
-
-    ddlAutoKeywords = [
-        "AUTO_INCREMENT",
-        "AUTOINCREMENT"
+    # Data type names
+    ddlBooleanTypes = [
+        "bool",
+        "boolean",
     ]
-    ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
-
-    ddlPrimaryKey = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
-
-    ddlIgnoredKeywords = [
-        "CONSTRAINT",
-        "FOREIGN",
-        "KEY",
-        "FULLTEXT",
-        "INDEX",
-        "UNIQUE",
-        "CHECK",
-        "PERIOD",
+    ddlIntegerTypes = [
+        "bigint",
+        "int",
+        "int2",  # PostgreSQL
+        "int4",  # PostgreSQL
+        "int8",  # PostgreSQL
+        "integer",
+        "mediumint",
+        "smallint",
+        "tinyint",
     ]
-    ddlConstraint = (
-        pp.Or(map(
-            pp.CaselessKeyword,
-            sorted(ddlIgnoredKeywords + ["PRIMARY"], reverse=True)
-        ))
-        + ddlExpression
-    ).setResultsName("isConstraint")
+    ddlSerialTypes = [
+        "bigserial",  # PostgreSQL
+        "serial",  # PostgreSQL
+        "serial2",  # PostgreSQL
+        "serial4",  # PostgreSQL
+        "serial8",  # PostgreSQL
+        "smallserial",  # PostgreSQL
+    ]
+    ddlFloatingPointTypes = [
+        "decimal",  # MYSQL
+        "double",
+        "float8",  # PostgreSQL
+        "float",
+        "float4",  # PostgreSQL
+        "numeric",  # PostgreSQL
+        "real",
+    ]
+    ddlTextTypes = [
+        "char",
+        "varchar",
+        "character varying",  # PostgreSQL
+        "text",
+        "clob",
+        "enum",  # MYSQL
+        "set",
+        "longtext",  # MYSQL
+        "jsonb",  # PostgreSQL
+        "json",  # PostgreSQL
+        "tinytext",  # MYSQL
+        "mediumtext",  # MYSQL
+        "rational", # PostgreSQL pg_rationale extension
+    ]
+    ddlBlobTypes = [
+        "bytea",
+        "tinyblob",
+        "blob",
+        "mediumblob",
+        "longblob",
+        "binary",  # MYSQL
+        "varbinary",  # MYSQL
+    ]
+    ddlDateTypes = [
+        "date",
+    ]
+    ddlDateTimeTypes = [
+        "datetime",
+        "timestamp",
+        "timestamp without time zone",  # PostgreSQL
+        "timestamp with time zone",  # PostgreSQL
+        "timestamptz",  # PostgreSQL
+    ]
+    ddlTimeTypes = [
+        "time",
+        "time without time zone",  # PostgreSQL
+        "time with time zone",  # PostgreSQL
+    ]
 
-    ddlColumn = pp.Group(
-        ddlName.setResultsName("name")
-        + ddlType.setResultsName("type")
-        + pp.Suppress(pp.Optional(ddlWidth))
-        + pp.Suppress(pp.Optional(ddlTimezone))
-        + pp.ZeroOrMore(
-            ddlUnsigned
-            | ddlNotNull
-            | pp.Suppress(pp.CaselessKeyword("NULL"))
-            | ddlAutoValue
-            | ddlDefaultValue
-            | ddlGeneratedValue
-            | ddlPrimaryKey
-            | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
-            | pp.Suppress(ddlExpression)
+    ddlType = None
+    ddlColumn = None
+    ddlConstraint = None
+    ddlCreateTable = None
+    ddlMain = None
+
+    @classmethod
+    def static_init(cls):
+        cls.ddlType = cls.get_ddl_type();
+        cls.ddlColumn = cls.get_ddl_column()
+        cls.ddlConstraint = cls.get_ddl_constraint()
+        cls.ddlCreateTable = cls.get_ddl_create_table()
+        cls.ddlMain = cls.get_ddl_main()
+
+    @classmethod
+    def get_ddl_type(cls):
+        ddlBoolean = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlBooleanTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("boolean"))
+        ddlInteger = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlIntegerTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("integral"))
+        ddlSerial = (
+            pp.Or(map(pp.CaselessKeyword, sorted(cls.ddlSerialTypes, reverse=True)))
+            .setParseAction(pp.replaceWith("integral"))
+            .setResultsName("hasSerialValue")
         )
-    )
-
-    # CREATE TABLE parser
-    def addCreateSql(text, loc, parsed):
-        parsed.create["createSql"] = text
-    ddlCreateTable = (
-        pp.Group(
-            pp.Suppress(pp.CaselessKeyword("CREATE"))
-            + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
-            + pp.Suppress(pp.CaselessKeyword("TABLE"))
-            + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
-            + ddlName.setResultsName("tableName")
-            + ddlLeft
-            + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName("columns")
-            + ddlRight
+        ddlFloatingPoint = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlFloatingPointTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("floating_point"))
+        ddlText = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlTextTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("text"))
+        ddlBlob = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlBlobTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("blob"))
+        ddlDate = (
+            pp.Or(map(pp.CaselessKeyword, sorted(cls.ddlDateTypes, reverse=True)))
+            .setParseAction(pp.replaceWith("date"))
+            .setResultsName("warnTimezone")
         )
-        .setParseAction(addCreateSql)
-        .setResultsName("create")
-    )
-    # ddlString.setDebug(True) #uncomment to debug pyparsing
+        ddlDateTime = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlDateTimeTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("timestamp"))
+        ddlTime = pp.Or(
+            map(pp.CaselessKeyword, sorted(cls.ddlTimeTypes, reverse=True))
+        ).setParseAction(pp.replaceWith("time"))
+        ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
+        return (
+            ddlBoolean
+            | ddlInteger
+            | ddlSerial
+            | ddlFloatingPoint
+            | ddlText
+            | ddlBlob
+            | ddlDateTime
+            | ddlDate
+            | ddlTime
+            | ddlUnknown
+        )
 
-    ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + ddlCreateTable)).setResultsName("tables")
+    @classmethod
+    def get_ddl_column(cls):
+        ddlUnsigned = pp.CaselessKeyword("UNSIGNED").setResultsName("isUnsigned")
+        ddlDigits = "," + pp.Word(pp.nums)
+        ddlWidth = cls.ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + cls.ddlRight
+        ddlTimezone = (
+            (pp.CaselessKeyword("with") | pp.CaselessKeyword("without"))
+            + pp.CaselessKeyword("time")
+            + pp.CaselessKeyword("zone")
+        )
+        ddlNotNull = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
+        ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
+        ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
+        ddlAutoKeywords = [
+            "AUTO_INCREMENT",
+            "AUTOINCREMENT"
+        ]
+        ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
+        ddlPrimaryKey = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
+        return pp.Group(
+            cls.ddlName.setResultsName("name")
+            + cls.ddlType.setResultsName("type")
+            + pp.Suppress(pp.Optional(ddlWidth))
+            + pp.Suppress(pp.Optional(ddlTimezone))
+            + pp.ZeroOrMore(
+                ddlUnsigned
+                | ddlNotNull
+                | pp.Suppress(pp.CaselessKeyword("NULL"))
+                | ddlAutoValue
+                | ddlDefaultValue
+                | ddlGeneratedValue
+                | ddlPrimaryKey
+                | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(cls.get_ignored_keywords(), reverse=True)))))
+                | pp.Suppress(cls.ddlExpression)
+            )
+        )
 
-    ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
-    ddl.ignore(ddlComment)
-    return ddl
+    @classmethod
+    def get_ddl_constraint(cls):
+        return (
+            pp.Or(map(
+                pp.CaselessKeyword,
+                sorted(cls.get_ignored_keywords() + ["PRIMARY"], reverse=True)
+            ))
+            + cls.ddlExpression
+        ).setResultsName("isConstraint")
+
+    @classmethod
+    def get_ddl_create_table(cls):
+        def addCreateSql(text, loc, parsed):
+            parsed.create["createSql"] = text
+        return (
+            pp.Group(
+                pp.Suppress(pp.CaselessKeyword("CREATE"))
+                + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
+                + pp.Suppress(pp.CaselessKeyword("TABLE"))
+                + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
+                + cls.ddlName.setResultsName("tableName")
+                + cls.ddlLeft
+                + pp.Group(pp.delimitedList(pp.Suppress(cls.ddlConstraint) | cls.ddlColumn)).setResultsName("columns")
+                + cls.ddlRight
+            )
+            .setParseAction(addCreateSql)
+            .setResultsName("create")
+        )
+
+    @classmethod
+    def get_ddl_main(cls):
+        return (
+            pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(cls.ddlCreateTable, False)) + cls.ddlCreateTable))
+            .setResultsName("tables")
+            .ignore(pp.oneOf(["--", "#"]) + pp.restOfLine)
+        )
+
+    @staticmethod
+    def get_ignored_keywords():
+        return [
+            "CONSTRAINT",
+            "FOREIGN",
+            "KEY",
+            "FULLTEXT",
+            "INDEX",
+            "UNIQUE",
+            "CHECK",
+            "PERIOD",
+        ]
 
 
 class SelfTest:
     @classmethod
     def run(cls):
         print("Running self-test")
-        createDdlParser()
         cls.testBoolean()
         cls.testInteger()
         cls.testSerial()
@@ -331,63 +327,63 @@ class SelfTest:
 
     @staticmethod
     def testBoolean():
-        for t in ddlBooleanTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlBooleanTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "boolean"
 
     @staticmethod
     def testInteger():
-        for t in ddlIntegerTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlIntegerTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "integral"
 
     @staticmethod
     def testSerial():
-        for t in ddlSerialTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlSerialTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "integral"
             assert result.hasSerialValue
 
     @staticmethod
     def testFloatingPoint():
-        for t in ddlFloatingPointTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlFloatingPointTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "floating_point"
 
     @staticmethod
     def testText():
-        for t in ddlTextTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlTextTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "text"
 
     @staticmethod
     def testBlob():
-        for t in ddlBlobTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlBlobTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "blob"
 
     @staticmethod
     def testDate():
-        for t in ddlDateTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlDateTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "date"
 
     @staticmethod
     def testDateTime():
-        for t in ddlDateTimeTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlDateTimeTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "timestamp"
 
     @staticmethod
     def testTime():
-        for t in ddlTimeTypes:
-            result = ddlType.parseString(t, parseAll=True)
+        for t in DdlParser.ddlTimeTypes:
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "time"
 
     @staticmethod
     def testUnknown():
         for t in ["cheesecake", "blueberry"]:
-            result = ddlType.parseString(t, parseAll=True)
+            result = DdlParser.ddlType.parseString(t, parseAll=True)
             assert result[0] == "UNKNOWN"
 
     @staticmethod
@@ -437,7 +433,7 @@ class SelfTest:
             }
         ]
         for td in testData:
-            result = ddlColumn.parseString(td["text"], parseAll=True)[0]
+            result = DdlParser.ddlColumn.parseString(td["text"], parseAll=True)[0]
             expected = td["expected"]
             assert result.name == expected["name"]
             assert result.type == expected["type"]
@@ -456,13 +452,13 @@ class SelfTest:
             "UNIQUE (id)",
             "UNIQUE (first_name,last_name)"
         ]:
-            result = ddlConstraint.parseString(text, parseAll=True)
+            result = DdlParser.ddlConstraint.parseString(text, parseAll=True)
             assert result.isConstraint
 
     @staticmethod
     def testMathExpression():
             text = "2 DIV 2"
-            result = ddlExpression.parseString(text, parseAll=True)
+            result = DdlParser.ddlExpression.parseString(text, parseAll=True)
             assert len(result) == 3
             assert result[0] == "2"
             assert result[1] == "DIV"
@@ -473,7 +469,7 @@ class SelfTest:
         for text in [
             "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
         ]:
-            result = ddlColumn.parseString(text, parseAll=True)
+            result = DdlParser.ddlColumn.parseString(text, parseAll=True)
             column = result[0]
             assert column.name == "pos"
             assert column.type == "text"
@@ -489,7 +485,7 @@ class SelfTest:
         PRIMARY KEY (id)
         )
         """
-        result = ddlCreateTable.parseString(text, parseAll=True)
+        result = DdlParser.ddlCreateTable.parseString(text, parseAll=True)
 
     @staticmethod
     def testPrimaryKeyAutoIncrement():
@@ -498,7 +494,7 @@ class SelfTest:
             "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
             "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
         ]:
-            result = ddlCreateTable.parseString(text, parseAll=True)
+            result = DdlParser.ddlCreateTable.parseString(text, parseAll=True)
             assert len(result) == 1
             table = result[0]
             assert table.tableName == "tab"
@@ -650,11 +646,11 @@ def parseCommandlineArgs():
 
     return args
 
-def parseDdls(ddlParser, args):
+def parseDdls(args):
     try:
         ddls = []
         for path in args.path_to_ddl:
-            ddls.append(ddlParser.parseFile(path))
+            ddls.append(DdlParser.ddlMain.parseFile(path))
         return ddls
     except pp.ParseException as e:
         print("ERROR: failed to parse " + path)
@@ -809,8 +805,7 @@ if __name__ == "__main__":
     else:
         if args.path_to_datatype_file:
             loadExtendedTypesFile(args.path_to_datatype_file)
-        ddlParser = createDdlParser()
-        parsedDdls = parseDdls(ddlParser, args)
+        parsedDdls = parseDdls(args)
         if args.path_to_header:
             createHeader(parsedDdls, args)
         if args.path_to_header_directory:
