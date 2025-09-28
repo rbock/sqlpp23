@@ -651,22 +651,22 @@ def parseCommandlineArgs():
     if not args.path_to_ddl or not len(args.path_to_ddl):
         print("Missing argument --path-to-ddl")
         argParser.print_help()
-        sys.exit()
+        sys.exit(ExitCode.BAD_ARGS)
 
     if not args.namespace:
         print("Missing argument --namespace")
         argParser.print_help()
-        sys.exit()
+        sys.exit(ExitCode.BAD_ARGS)
 
     if not args.path_to_module and not args.path_to_header and not args.path_to_header_directory:
         print("Missing argument(s): at least one path for code generation")
         argParser.print_help()
-        sys.exit()
+        sys.exit(ExitCode.BAD_ARGS)
 
     if args.path_to_module and not args.module_name:
         print("Missing argument --module-name")
         argParser.print_help()
-        sys.exit()
+        sys.exit(ExitCode.BAD_ARGS)
 
     return args
 
