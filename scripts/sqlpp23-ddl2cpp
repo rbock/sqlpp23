@@ -532,8 +532,7 @@ class ModelWriter:
     def createSplitHeaders(cls, parsedDdl, args):
         for parsedDdl in parsedDdls:
             for table in parsedDdl.tables:
-                create = table.value.create
-                sqlTableName = create.tableName
+                sqlTableName = table.create.tableName
                 header = cls.beginHeader(os.path.join(args.path_to_header_directory, cls.toClassName(sqlTableName, args) + ".h"), args)
                 cls.writeTable(table, header, args)
                 cls.endHeader(header, args)
