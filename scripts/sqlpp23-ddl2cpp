@@ -33,6 +33,7 @@ import os
 
 
 class ExitCode:
+    SUCCESS = 0
     BAD_ARGS = 1
     BAD_DATA_TYPE = 10
     STRANGE_PARSING = 20
@@ -825,7 +826,6 @@ if __name__ == "__main__":
     if args.self_test:
         print("Running self-test")
         testParser()
-        sys.exit()
     else:
         if args.path_to_datatype_file:
             loadExtendedTypesFile(args.path_to_datatype_file)
@@ -837,3 +837,4 @@ if __name__ == "__main__":
             createSplitHeaders(parsedDdls, args)
         if args.path_to_module:
             createModule(parsedDdls, args)
+    sys.exit(ExitCode.SUCCESS)
