@@ -46,6 +46,15 @@ def static_init(cls):
     return cls
 
 
+# The DdlParser, SelfTest and ModelWriter classes group together related functions and variables and
+# limit the global namespace.pollution by moving the corresponding identifiers from global to class
+# scope.
+#
+# One alternative would be to move these functions and variables to modules, but this would imply
+# splitting the program code into multiple files, something we want to avoid because it would complicate
+# program installation and updates.
+
+
 @static_init
 class DdlParser:
     """Rather crude SQL expression parser. This is not geared at correctly interpreting SQL, but at identifying
