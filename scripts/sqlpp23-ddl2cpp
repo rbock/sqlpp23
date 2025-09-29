@@ -297,7 +297,7 @@ class DdlParser:
             pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(cls.ddlCreateTable, False)) + cls.ddlCreateTable))
             .setResultsName("tables")
             .ignore(pp.oneOf(["--", "#"]) + pp.restOfLine)
-        )
+        ).parseWithTabs()
 
     @staticmethod
     def get_ignored_keywords():
