@@ -778,8 +778,7 @@ def createHeader(parsedDdls, args):
 def createSplitHeaders(parsedDdl, args):
     for parsedDdl in parsedDdls:
         for table in parsedDdl.tables:
-            create = table.value.create
-            sqlTableName = create.tableName
+            sqlTableName = table.create.tableName
             header = beginHeader(os.path.join(args.path_to_header_directory, toClassName(sqlTableName, args) + ".h"), args)
 
             writeTable(table, header, args)
