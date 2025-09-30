@@ -274,30 +274,32 @@ class DdlParser:
 
     @classmethod
     def get_ddl_create_table(cls):
-        def addCreateSql(text, loc, parsed):
-            parsed.create["createSql"] = text
-        return (
-            pp.Group(
-                pp.Suppress(pp.CaselessKeyword("CREATE"))
-                + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
-                + pp.Suppress(pp.CaselessKeyword("TABLE"))
-                + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
-                + cls.ddlName.setResultsName("tableName")
-                + cls.ddlLeft
-                + pp.Group(pp.delimitedList(pp.Suppress(cls.ddlConstraint) | cls.ddlColumn)).setResultsName("columns")
-                + cls.ddlRight
-            )
-            .setParseAction(addCreateSql)
-            .setResultsName("create")
+        ddlBasic = (
+            pp.Suppress(pp.CaselessKeyword("CREATE"))
+            + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
+            + pp.Suppress(pp.CaselessKeyword("TABLE"))
+            + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
+            + cls.ddlName.setResultsName("tableName")
+            + cls.ddlLeft
+            + pp.Group(pp.delimitedList(pp.Suppress(cls.ddlConstraint) | cls.ddlColumn)).setResultsName("columns")
+            + cls.ddlRight
+        )
+        def addCreateSql(text, loc, tokens):
+            create = tokens.create
+            create.value["createSql"] = text[create.locn_start:create.locn_end]
+        return pp.Group(
+            pp.Suppress(pp.SkipTo(ddlBasic, False))
+            + pp.Located(ddlBasic).setResultsName("create").setParseAction(addCreateSql)
         )
 
     @classmethod
     def get_ddl_main(cls):
         return (
-            pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(cls.ddlCreateTable, False)) + cls.ddlCreateTable))
+            pp.OneOrMore(cls.ddlCreateTable)
             .setResultsName("tables")
             .ignore(pp.oneOf(["--", "#"]) + pp.restOfLine)
-        ).parseWithTabs()
+            .parseWithTabs()
+        )
 
     @staticmethod
     def get_ignored_keywords():
@@ -505,7 +507,7 @@ class SelfTest:
         ]:
             result = DdlParser.ddlCreateTable.parseString(text, parseAll=True)
             assert len(result) == 1
-            table = result[0]
+            table = result[0].create.value
             assert table.tableName == "tab"
             assert len(table.columns) == 1
             column = table.columns[0]
@@ -541,7 +543,7 @@ class ModelWriter:
     def createSplitHeaders(cls, parsedDdl, args):
         for parsedDdl in parsedDdls:
             for table in parsedDdl.tables:
-                sqlTableName = table.create.tableName
+                sqlTableName = table.create.value.tableName
                 header = cls.beginHeader(os.path.join(args.path_to_header_directory, cls.toClassName(sqlTableName, args) + ".h"), args)
                 cls.writeTable(table, header, args)
                 cls.endHeader(header, args)
@@ -616,7 +618,7 @@ class ModelWriter:
     def writeTable(cls, table, header, args):
         export = "export " if args.path_to_module else ""
         DataTypeError = False
-        create = table.create
+        create = table.create.value
         sqlTableName = create.tableName
         tableClass = cls.toClassName(sqlTableName, args)
         tableMember = cls.toMemberName(sqlTableName, args)
