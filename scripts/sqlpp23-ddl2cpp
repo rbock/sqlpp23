@@ -301,6 +301,7 @@ def createDdlParser():
 
     ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
     ddl.ignore(ddlComment)
+    ddl.parseWithTabs()
     return ddl
 
 def testBoolean():
