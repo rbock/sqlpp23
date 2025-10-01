@@ -46,6 +46,7 @@ ddlNumber = pp.Word(pp.nums + "+-.", pp.nums + "+-.Ee")
 ddlString = (
     pp.QuotedString("'") | pp.QuotedString('"', escQuote='""') | pp.QuotedString("`")
 )
+# ddlString.setDebug(True) #uncomment to debug pyparsing
 ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
 ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString), pp.Combine(ddlTerm + ddlString)])
 ddlOperator = pp.Or(
@@ -164,7 +165,7 @@ def createDdlParser():
     global ddlType
     global ddlColumn
     global ddlConstraint
-    global ddlCreateTable
+    global ddlCtWithSql
     # Column and constraint parsers
 
     ddlBoolean = pp.Or(
@@ -282,25 +283,21 @@ def createDdlParser():
     )
 
     # CREATE TABLE parser
-    def addCreateSql(text, loc, parsed):
-        parsed.create["createSql"] = text
-    ddlCreateTable = (
-        pp.Group(
-            pp.Suppress(pp.CaselessKeyword("CREATE"))
-            + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
-            + pp.Suppress(pp.CaselessKeyword("TABLE"))
-            + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
-            + ddlName.setResultsName("tableName")
-            + ddlLeft
-            + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName("columns")
-            + ddlRight
-        )
-        .setParseAction(addCreateSql)
-        .setResultsName("create")
+    ddlCtBasic = (
+        pp.Suppress(pp.CaselessKeyword("CREATE"))
+        + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
+        + pp.Suppress(pp.CaselessKeyword("TABLE"))
+        + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
+        + ddlName.setResultsName("tableName")
+        + ddlLeft
+        + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName("columns")
+        + ddlRight
     )
-    # ddlString.setDebug(True) #uncomment to debug pyparsing
-
-    ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + ddlCreateTable)).setResultsName("tables")
+    def addCreateSql(text, loc, tokens):
+        create = tokens.create
+        create.value["createSql"] = text[create.locn_start:create.locn_end]
+    ddlCtWithSql = pp.Located(ddlCtBasic).setResultsName("create").setParseAction(addCreateSql)
+    ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCtBasic, False)) + ddlCtWithSql)).setResultsName("tables")
 
     ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
     ddl.ignore(ddlComment)
@@ -464,7 +461,7 @@ def testTable():
    PRIMARY KEY (id)
 )
 """
-    result = ddlCreateTable.parseString(text, parseAll=True)
+    result = ddlCtWithSql.parseString(text, parseAll=True)
 
 def testPrimaryKeyAutoIncrement():
     for text in [
@@ -472,9 +469,9 @@ def testPrimaryKeyAutoIncrement():
         "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
         "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
     ]:
-        result = ddlCreateTable.parseString(text, parseAll=True)
+        result = ddlCtWithSql.parseString(text, parseAll=True)
         assert len(result) == 1
-        table = result[0]
+        table = result.create.value
         assert table.tableName == "tab"
         assert len(table.columns) == 1
         column = table.columns[0]
@@ -673,7 +670,7 @@ def writeTable(table, header, args):
     export = "export " if args.path_to_module else ""
 
     DataTypeError = False
-    create = table.create
+    create = table.create.value
     sqlTableName = create.tableName
     tableClass = toClassName(sqlTableName, args)
     tableMember = toMemberName(sqlTableName, args)
@@ -778,7 +775,7 @@ def createHeader(parsedDdls, args):
 def createSplitHeaders(parsedDdl, args):
     for parsedDdl in parsedDdls:
         for table in parsedDdl.tables:
-            sqlTableName = table.create.tableName
+            sqlTableName = table.create.value.tableName
             header = beginHeader(os.path.join(args.path_to_header_directory, toClassName(sqlTableName, args) + ".h"), args)
 
             writeTable(table, header, args)
