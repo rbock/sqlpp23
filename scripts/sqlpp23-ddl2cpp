@@ -304,205 +304,213 @@ def createDdlParser():
     ddl.parseWithTabs()
     return ddl
 
-def testBoolean():
-    for t in ddlBooleanTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "boolean"
 
+class SelfTest:
+    """Runs a self-test of the parser"""
 
-def testInteger():
-    for t in ddlIntegerTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "integral"
+    @classmethod
+    def run(cls):
+        print("Running self-test")
+        createDdlParser()
+        cls.testBoolean()
+        cls.testInteger()
+        cls.testSerial()
+        cls.testFloatingPoint()
+        cls.testText()
+        cls.testBlob()
+        cls.testDate()
+        cls.testTime()
+        cls.testUnknown()
+        cls.testDateTime()
+        cls.testColumn()
+        cls.testConstraint()
+        cls.testMathExpression()
+        cls.testRational()
+        cls.testTable()
+        cls.testPrimaryKeyAutoIncrement()
 
+    @staticmethod
+    def testBoolean():
+        for t in ddlBooleanTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "boolean"
 
-def testSerial():
-    for t in ddlSerialTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "integral"
-        assert result.hasSerialValue
+    @staticmethod
+    def testInteger():
+        for t in ddlIntegerTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "integral"
 
+    @staticmethod
+    def testSerial():
+        for t in ddlSerialTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "integral"
+            assert result.hasSerialValue
 
-def testFloatingPoint():
-    for t in ddlFloatingPointTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "floating_point"
+    @staticmethod
+    def testFloatingPoint():
+        for t in ddlFloatingPointTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "floating_point"
 
+    @staticmethod
+    def testText():
+        for t in ddlTextTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "text"
 
-def testText():
-    for t in ddlTextTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "text"
+    @staticmethod
+    def testBlob():
+        for t in ddlBlobTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "blob"
 
+    @staticmethod
+    def testDate():
+        for t in ddlDateTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "date"
 
-def testBlob():
-    for t in ddlBlobTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "blob"
+    @staticmethod
+    def testDateTime():
+        for t in ddlDateTimeTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "timestamp"
 
+    @staticmethod
+    def testTime():
+        for t in ddlTimeTypes:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "time"
 
-def testDate():
-    for t in ddlDateTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "date"
+    @staticmethod
+    def testUnknown():
+        for t in ["cheesecake", "blueberry"]:
+            result = ddlType.parseString(t, parseAll=True)
+            assert result[0] == "UNKNOWN"
 
-
-def testDateTime():
-    for t in ddlDateTimeTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "timestamp"
-
-
-def testTime():
-    for t in ddlTimeTypes:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "time"
-
-
-def testUnknown():
-    for t in ["cheesecake", "blueberry"]:
-        result = ddlType.parseString(t, parseAll=True)
-        assert result[0] == "UNKNOWN"
-
-
-def testColumn():
-    testData = [
-        {
-            "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
-            "expected": {
-                "name": "id",
-                "type": "integral",
-                "isUnsigned": True,
-                "notNull": True,
-                "hasAutoValue": False,
-                "hasDefaultValue": True,
-                "hasGeneratedValue": False,
-                "hasSerialValue": False,
-                "isPrimaryKey": False
+    @staticmethod
+    def testColumn():
+        testData = [
+            {
+                "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
+                "expected": {
+                    "name": "id",
+                    "type": "integral",
+                    "isUnsigned": True,
+                    "notNull": True,
+                    "hasAutoValue": False,
+                    "hasDefaultValue": True,
+                    "hasGeneratedValue": False,
+                    "hasSerialValue": False,
+                    "isPrimaryKey": False
+                }
+            },
+            {
+                "text": "\"fld\" int AUTO_INCREMENT",
+                "expected": {
+                    "name": "fld",
+                    "type": "integral",
+                    "isUnsigned": False,
+                    "notNull": False,
+                    "hasAutoValue": True,
+                    "hasDefaultValue": False,
+                    "hasGeneratedValue": False,
+                    "hasSerialValue": False,
+                    "isPrimaryKey": False
+                }
+            },
+            {
+                "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
+                "expected": {
+                    "name": "fld2",
+                    "type": "integral",
+                    "isUnsigned": False,
+                    "notNull": True,
+                    "hasAutoValue": False,
+                    "hasDefaultValue": False,
+                    "hasGeneratedValue": True,
+                    "hasSerialValue": False,
+                    "isPrimaryKey": False
+                }
             }
-        },
-        {
-            "text": "\"fld\" int AUTO_INCREMENT",
-            "expected": {
-                "name": "fld",
-                "type": "integral",
-                "isUnsigned": False,
-                "notNull": False,
-                "hasAutoValue": True,
-                "hasDefaultValue": False,
-                "hasGeneratedValue": False,
-                "hasSerialValue": False,
-                "isPrimaryKey": False
-            }
-        },
-        {
-            "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
-            "expected": {
-                "name": "fld2",
-                "type": "integral",
-                "isUnsigned": False,
-                "notNull": True,
-                "hasAutoValue": False,
-                "hasDefaultValue": False,
-                "hasGeneratedValue": True,
-                "hasSerialValue": False,
-                "isPrimaryKey": False
-            }
-        }
-    ]
-    for td in testData:
-        result = ddlColumn.parseString(td["text"], parseAll=True)[0]
-        expected = td["expected"]
-        assert result.name == expected["name"]
-        assert result.type == expected["type"]
-        assert bool(result.isUnsigned) == expected["isUnsigned"]
-        assert bool(result.notNull) == expected["notNull"]
-        assert bool(result.hasAutoValue) == expected["hasAutoValue"]
-        assert bool(result.hasDefaultValue) == expected["hasDefaultValue"]
-        assert bool(result.hasGeneratedValue) == expected["hasGeneratedValue"]
-        assert bool(result.hasSerialValue) == expected["hasSerialValue"]
-        assert bool(result.isPrimaryKey) == expected["isPrimaryKey"]
+        ]
+        for td in testData:
+            result = ddlColumn.parseString(td["text"], parseAll=True)[0]
+            expected = td["expected"]
+            assert result.name == expected["name"]
+            assert result.type == expected["type"]
+            assert bool(result.isUnsigned) == expected["isUnsigned"]
+            assert bool(result.notNull) == expected["notNull"]
+            assert bool(result.hasAutoValue) == expected["hasAutoValue"]
+            assert bool(result.hasDefaultValue) == expected["hasDefaultValue"]
+            assert bool(result.hasGeneratedValue) == expected["hasGeneratedValue"]
+            assert bool(result.hasSerialValue) == expected["hasSerialValue"]
+            assert bool(result.isPrimaryKey) == expected["isPrimaryKey"]
 
+    @staticmethod
+    def testConstraint():
+        for text in [
+            "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
+            "UNIQUE (id)",
+            "UNIQUE (first_name,last_name)"
+        ]:
+            result = ddlConstraint.parseString(text, parseAll=True)
+            assert result.isConstraint
 
-def testConstraint():
-    for text in [
-        "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
-        "UNIQUE (id)",
-        "UNIQUE (first_name,last_name)"
-    ]:
-        result = ddlConstraint.parseString(text, parseAll=True)
-        assert result.isConstraint
+    @staticmethod
+    def testMathExpression():
+            text = "2 DIV 2"
+            result = ddlExpression.parseString(text, parseAll=True)
+            assert len(result) == 3
+            assert result[0] == "2"
+            assert result[1] == "DIV"
+            assert result[2] == "2"
 
-def testMathExpression():
-        text = "2 DIV 2"
-        result = ddlExpression.parseString(text, parseAll=True)
-        assert len(result) == 3
-        assert result[0] == "2"
-        assert result[1] == "DIV"
-        assert result[2] == "2"
+    @staticmethod
+    def testRational():
+        for text in [
+            "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
+        ]:
+            result = ddlColumn.parseString(text, parseAll=True)
+            column = result[0]
+            assert column.name == "pos"
+            assert column.type == "text"
+            assert column.notNull
 
-
-def testRational():
-    for text in [
-        "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
-     ]:
-        result = ddlColumn.parseString(text, parseAll=True)
-        column = result[0]
-        assert column.name == "pos"
-        assert column.type == "text"
-        assert column.notNull
-
-
-def testTable():
-    text = """
-  CREATE TABLE "public"."dk" (
-  "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
-  "strange" NUMERIC(314, 15),
-  "last_update" timestamp(6) DEFAULT now(),
-   PRIMARY KEY (id)
-)
-"""
-    result = ddlCtWithSql.parseString(text, parseAll=True)
-
-def testPrimaryKeyAutoIncrement():
-    for text in [
-        "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
-        "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
-        "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
-    ]:
+    @staticmethod
+    def testTable():
+        text = """
+    CREATE TABLE "public"."dk" (
+    "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
+    "strange" NUMERIC(314, 15),
+    "last_update" timestamp(6) DEFAULT now(),
+    PRIMARY KEY (id)
+    )
+    """
         result = ddlCtWithSql.parseString(text, parseAll=True)
-        assert len(result) == 1
-        table = result.create.value
-        assert table.tableName == "tab"
-        assert len(table.columns) == 1
-        column = table.columns[0]
-        assert not column.isConstraint
-        assert column.name == "col"
-        assert column.type == "integral"
-        assert column.notNull
-        assert column.hasAutoValue
-        assert column.isPrimaryKey
-        assert table.createSql == text
 
-def testParser():
-    createDdlParser()
-    testBoolean()
-    testInteger()
-    testSerial()
-    testFloatingPoint()
-    testText()
-    testBlob()
-    testDate()
-    testTime()
-    testUnknown()
-    testDateTime()
-    testColumn()
-    testConstraint()
-    testMathExpression()
-    testRational()
-    testTable()
-    testPrimaryKeyAutoIncrement()
-
+    @staticmethod
+    def testPrimaryKeyAutoIncrement():
+        for text in [
+            "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
+            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
+            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
+        ]:
+            result = ddlCtWithSql.parseString(text, parseAll=True)
+            assert len(result) == 1
+            table = result.create.value
+            assert table.tableName == "tab"
+            assert len(table.columns) == 1
+            column = table.columns[0]
+            assert not column.isConstraint
+            assert column.name == "col"
+            assert column.type == "integral"
+            assert column.notNull
+            assert column.hasAutoValue
+            assert column.isPrimaryKey
+            assert table.createSql == text
 
 
 # HELPERS
@@ -796,8 +804,7 @@ if __name__ == "__main__":
     args = parseCommandlineArgs()
 
     if args.self_test:
-        print("Running self-test")
-        testParser()
+        SelfTest.run()
     else:
         if args.path_to_datatype_file:
             loadExtendedTypesFile(args.path_to_datatype_file)
