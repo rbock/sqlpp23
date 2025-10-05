@@ -737,17 +737,17 @@ def writeTable(table, header, args):
                            (args.assume_auto_id and sqlColumnName == "id") or \
                            columnCanBeNull
         if columnHasDefault:
-          print("      using has_default = std::true_type;", file=header)
+            print("      using has_default = std::true_type;", file=header)
         else:
-          print("      using has_default = std::false_type;", file=header)
+            print("      using has_default = std::false_type;", file=header)
         print("    };", file=header)
         if tableTemplateParameters:
-          tableTemplateParameters += ","
+            tableTemplateParameters += ","
         tableTemplateParameters += "\n               " + columnClass
         if not columnHasDefault:
-          if tableRequiredInsertColumns:
-            tableRequiredInsertColumns += ","
-          tableRequiredInsertColumns += "\n               sqlpp::column_t<sqlpp::table_t<" + tableSpec + ">, " + columnClass + ">";
+            if tableRequiredInsertColumns:
+                tableRequiredInsertColumns += ","
+            tableRequiredInsertColumns += "\n               sqlpp::column_t<sqlpp::table_t<" + tableSpec + ">, " + columnClass + ">";
     print("    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
         + escape_if_reserved(sqlTableName) + ", " + tableMember + ");"
         , file=header)
