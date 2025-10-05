@@ -723,18 +723,6 @@ class ModelWriter:
         return name
 
 
-# HELPERS
-def loadExtendedTypesFile(filename):
-    import csv
-    with open(filename, newline="") as csvfile:
-        reader = csv.DictReader(csvfile, fieldnames=["baseType"], restkey="extendedTypes", delimiter=",")
-        for row in reader:
-            var_values = [clean_val for value in row["extendedTypes"] if (clean_val := value.strip(" \"'"))]
-            if var_values:
-                var_name = f"ddl{row['baseType']}Types"
-                getattr(DdlParser, var_name).extend(var_values)
-
-
 def parseCommandlineArgs():
     argParser = argparse.ArgumentParser(prog="sqlpp23-ddl2cpp")
     required = argParser.add_argument_group("Required parameters for code generation")
@@ -783,6 +771,18 @@ def parseCommandlineArgs():
         sys.exit(ExitCode.BAD_ARGS)
 
     return args
+
+
+def loadExtendedTypesFile(filename):
+    import csv
+    with open(filename, newline="") as csvfile:
+        reader = csv.DictReader(csvfile, fieldnames=["baseType"], restkey="extendedTypes", delimiter=",")
+        for row in reader:
+            var_values = [clean_val for value in row["extendedTypes"] if (clean_val := value.strip(" \"'"))]
+            if var_values:
+                var_name = f"ddl{row['baseType']}Types"
+                getattr(DdlParser, var_name).extend(var_values)
+
 
 def parseDdls(args):
     try:
