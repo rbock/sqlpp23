@@ -679,12 +679,11 @@ class ModelWriter:
             "  " + export + "using " + tableClass + " = ::sqlpp::table_t<" + tableSpec + ">;", file=header)
         print("", file=header)
         if DataTypeError:
-            print("Error: unsupported datatypes.")
+            print("Error: unsupported SQL data type(s).")
             print("Possible solutions:")
-            print("A) Implement this datatype (examples: sqlpp23/data_types)")
-            print("B) Use the '{dataTypeFileArg}' command line argument to map the type to a known type (example: README)")
-            print("C) Extend/upgrade sqlpp23-ddl2cpp (edit types map)")
-            print("D) Raise an issue on github")
+            print("A) Use the '--path-to-datatype-file' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
+            print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
+            print("C) Raise an issue on github")
             sys.exit(ExitCode.BAD_DATA_TYPE)  # return non-zero error code, we might need it for automation
 
     @classmethod
