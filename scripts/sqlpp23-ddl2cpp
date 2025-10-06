@@ -273,6 +273,15 @@ class DdlParser:
         cls.ddl.ignore(ddlComment)
         cls.ddl.parseWithTabs()
 
+    @classmethod
+    def parse_ddls(cls, ddl_paths):
+        try:
+            return [cls.ddl.parseFile(path) for path in ddl_paths]
+        except pp.ParseException as e:
+            print("ERROR: failed to parse " + path)
+            print(e.explain(1))
+            sys.exit(ExitCode.STRANGE_PARSING)
+
 
 class SelfTest:
     """Runs a self-test of the parser"""
@@ -773,15 +782,6 @@ def get_extended_types(filename):
         return types
 
 
-def parseDdls(args):
-    try:
-        return [DdlParser.ddl.parseFile(path) for path in args.path_to_ddl]
-    except pp.ParseException as e:
-        print("ERROR: failed to parse " + path)
-        print(e.explain(1))
-        sys.exit(ExitCode.STRANGE_PARSING)
-
-
 if __name__ == "__main__":
     args = parseCommandlineArgs()
 
@@ -790,6 +790,6 @@ if __name__ == "__main__":
     else:
         customTypes = get_extended_types(args.path_to_datatype_file)
         DdlParser.initialize(customTypes)
-        parsedDdls = parseDdls(args)
+        parsedDdls = DdlParser.parse_ddls(args.path_to_ddl)
         ModelWriter.write(parsedDdls, args)
     sys.exit(ExitCode.SUCCESS)
