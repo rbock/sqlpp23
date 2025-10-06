@@ -126,7 +126,7 @@ class DdlParser:
     ddl = None
 
     @classmethod
-    def initialize(cls):
+    def initialize(cls, customTypes=None):
         """Initialize the DDL parser"""
 
         # Basic parsers
@@ -165,37 +165,23 @@ class DdlParser:
         ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
 
         # Data type parsers
-        ddlBoolean = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlBooleanTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("boolean"))
-        ddlInteger = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlIntegerTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("integral"))
-        ddlSerial = (
-            pp.Or(map(pp.CaselessKeyword, sorted(cls.ddlSerialTypes, reverse=True)))
-            .setParseAction(pp.replaceWith("integral"))
-            .setResultsName("hasSerialValue")
-        )
-        ddlFloatingPoint = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlFloatingPointTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("floating_point"))
-        ddlText = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlTextTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("text"))
-        ddlBlob = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlBlobTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("blob"))
-        ddlDate = (
-            pp.Or(map(pp.CaselessKeyword, sorted(cls.ddlDateTypes, reverse=True)))
-            .setParseAction(pp.replaceWith("date"))
-            .setResultsName("warnTimezone")
-        )
-        ddlDateTime = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlDateTimeTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("timestamp"))
-        ddlTime = pp.Or(
-            map(pp.CaselessKeyword, sorted(cls.ddlTimeTypes, reverse=True))
-        ).setParseAction(pp.replaceWith("time"))
+        def get_type_parser(key, data_type):
+            type_names = getattr(cls, f"ddl{key}Types")
+            if customTypes and (key in customTypes):
+                type_names.extend(customTypes[key])
+            return pp.Or(
+                map(pp.CaselessKeyword, sorted(type_names, reverse=True))
+            ).setParseAction(pp.replaceWith(data_type))
+
+        ddlBoolean = get_type_parser("Boolean", "boolean")
+        ddlInteger = get_type_parser("Integer", "integral")
+        ddlSerial = get_type_parser("Serial", "integral").setResultsName("hasSerialValue")
+        ddlFloatingPoint = get_type_parser("FloatingPoint", "floating_point")
+        ddlText = get_type_parser("Text", "text")
+        ddlBlob = get_type_parser("Blob", "blob")
+        ddlDate = get_type_parser("Date", "date").setResultsName("warnTimezone")
+        ddlDateTime = get_type_parser("DateTime", "timestamp")
+        ddlTime = get_type_parser("Time", "time")
         ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
         cls.ddlType = (
             ddlBoolean
@@ -773,15 +759,18 @@ def parseCommandlineArgs():
     return args
 
 
-def loadExtendedTypesFile(filename):
+def get_extended_types(filename):
+    if not filename:
+        return None
     import csv
     with open(filename, newline="") as csvfile:
-        reader = csv.DictReader(csvfile, fieldnames=["baseType"], restkey="extendedTypes", delimiter=",")
+        reader = csv.DictReader(csvfile, fieldnames=["baseType"], restkey="customTypes", delimiter=",")
+        types = {}
         for row in reader:
-            var_values = [clean_val for value in row["extendedTypes"] if (clean_val := value.strip(" \"'"))]
+            var_values = [clean_val for value in row["customTypes"] if (clean_val := value.strip(" \"'").lower())]
             if var_values:
-                var_name = f"ddl{row['baseType']}Types"
-                getattr(DdlParser, var_name).extend(var_values)
+                types[row["baseType"]] = var_values
+        return types
 
 
 def parseDdls(args):
@@ -799,9 +788,8 @@ if __name__ == "__main__":
     if args.self_test:
         SelfTest.run()
     else:
-        if args.path_to_datatype_file:
-            loadExtendedTypesFile(args.path_to_datatype_file)
-        DdlParser.initialize()
+        customTypes = get_extended_types(args.path_to_datatype_file)
+        DdlParser.initialize(customTypes)
         parsedDdls = parseDdls(args)
         ModelWriter.write(parsedDdls, args)
     sys.exit(ExitCode.SUCCESS)
