@@ -39,6 +39,11 @@ class ExitCode:
     STRANGE_PARSING = 20
 
 
+# DdlParser, SelfTest and ModelWriter could be modules instead of classes. However, using
+# modules implies that the program code would be split into several files and we want to avoid that
+# because it would complicate program installation. That is why we use classes.
+
+
 class DdlParser:
     """Rather crude SQL expression parser.
     This is not geared at correctly interpreting SQL, but at identifying (and ignoring) expressions for instance in DEFAULT expressions
