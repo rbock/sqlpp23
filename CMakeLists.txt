@@ -34,6 +34,16 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(GNUInstallDirs)
 include(CTest)
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(_default_install ON)
+else()
+    set(_default_install OFF)
+endif()
+
+option(${PROJECT_NAME}_INSTALL
+    "Enable install rules for ${PROJECT_NAME} (default: ${_default_install})"
+    ${_default_install})
+
 option(BUILD_MYSQL_CONNECTOR "Build MySQL Connector" OFF)
 option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
 option(BUILD_POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
@@ -105,51 +115,53 @@ else()
 endif()
 
 ### Packaging
-install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if(${PROJECT_NAME}_INSTALL)
+    install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
 
-write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
-    COMPATIBILITY SameMajorVersion
-    ARCH_INDEPENDENT
-)
+    write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
+        COMPATIBILITY SameMajorVersion
+        ARCH_INDEPENDENT
+    )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
-    DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-)
-
-install_component(NAME Sqlpp23 TARGETS sqlpp23 DIRECTORY)
-
-if(BUILD_SQLITE3_CONNECTOR)
-    install_component(NAME Sqlpp23SQLite3 TARGETS sqlpp23_sqlite3 DIRECTORY sqlite3)
-endif()
-
-if(BUILD_SQLCIPHER_CONNECTOR)
-    install_component(NAME Sqlpp23SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3)
-
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindSQLCipher.cmake
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
         DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     )
-endif()
 
-if(BUILD_MYSQL_CONNECTOR)
-    install_component(NAME Sqlpp23MySQL TARGETS sqlpp23_mysql DIRECTORY mysql)
+    install_component(NAME Sqlpp23 TARGETS sqlpp23 DIRECTORY)
 
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMySQL.cmake
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    )
-endif()
+    if(BUILD_SQLITE3_CONNECTOR)
+        install_component(NAME Sqlpp23SQLite3 TARGETS sqlpp23_sqlite3 DIRECTORY sqlite3)
+    endif()
 
-if(BUILD_MARIADB_CONNECTOR)
-    install_component(NAME Sqlpp23MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql)
+    if(BUILD_SQLCIPHER_CONNECTOR)
+        install_component(NAME Sqlpp23SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3)
 
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMariaDB.cmake
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    )
-endif()
+        install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindSQLCipher.cmake
+            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+        )
+    endif()
 
-if(BUILD_POSTGRESQL_CONNECTOR)
-    install_component(NAME Sqlpp23PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
+    if(BUILD_MYSQL_CONNECTOR)
+        install_component(NAME Sqlpp23MySQL TARGETS sqlpp23_mysql DIRECTORY mysql)
+
+        install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMySQL.cmake
+            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+        )
+    endif()
+
+    if(BUILD_MARIADB_CONNECTOR)
+        install_component(NAME Sqlpp23MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql)
+
+        install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMariaDB.cmake
+            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+        )
+    endif()
+
+    if(BUILD_POSTGRESQL_CONNECTOR)
+        install_component(NAME Sqlpp23PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
+    endif()
 endif()
 
 ### Tests
