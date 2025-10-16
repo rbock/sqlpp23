@@ -75,6 +75,11 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
   auto _as_tuple() const {
     return std::tie(result_field<Is, FieldSpecs>::operator()()...);
   }
+
+  static constexpr auto _get_name_tuple() {
+    return std::make_tuple(
+        std::string_view{name_tag_of_t<FieldSpecs>::name}...);
+  }
 };
 
 class result_row_bridge;
@@ -93,6 +98,10 @@ struct result_row_t : public detail::result_row_impl<
 
   auto as_tuple() const {
     return _impl::_as_tuple();
+  }
+
+  static constexpr auto get_name_tuple() {
+    return _impl::_get_name_tuple();
   }
 
   bool operator==(const result_row_t& rhs) const {

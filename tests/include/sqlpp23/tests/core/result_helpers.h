@@ -34,6 +34,10 @@ import sqlpp23.core;
 #include <sqlpp23/sqlpp23.h>
 #endif
 
+inline std::ostream& operator<<(std::ostream& os,
+                                const std::span<const unsigned char>&) {
+  return os << "BLOB";
+}
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {

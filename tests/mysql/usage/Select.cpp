@@ -24,6 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <utility>
+
 #include <sqlpp23/tests/mysql/all.h>
 
 namespace {
@@ -37,11 +39,28 @@ SQLPP_CREATE_NAME_TAG(something);
 SQLPP_CREATE_NAME_TAG(max_int_n);
 }  // namespace
 
+template <typename... Names, typename... Values, size_t... Idx>
+void printRowWithNamesImpl(const std::tuple<Names...>& names,
+                           const std::tuple<Values...>& values,
+                           std::index_sequence<Idx...>) {
+  ((std::cerr << std::get<Idx>(names) << ": " << std::get<Idx>(values) << " "),
+   ...);
+  std::cerr << "\n";
+}
+
+template <typename... Names, typename... Values>
+void printRowWithNames(const std::tuple<Names...>& names,
+                       const std::tuple<Values...>& values) {
+  printRowWithNamesImpl(names, values,
+                        std::make_index_sequence<sizeof...(Values)>());
+}
+
 void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
+    printRowWithNames(row.get_name_tuple(), row.as_tuple());
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
