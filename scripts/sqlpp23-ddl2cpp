@@ -773,7 +773,7 @@ def parse_commandline_args():
     return args
 
 
-def get_extended_types(filename):
+def get_custom_types(filename):
     if not filename:
         return None
     import csv
@@ -793,7 +793,7 @@ if __name__ == "__main__":
     if args.self_test:
         SelfTest.run()
     else:
-        custom_types = get_extended_types(args.path_to_custom_types)
+        custom_types = get_custom_types(args.path_to_custom_types)
         DdlParser.initialize(custom_types)
         parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
         ModelWriter.write(parsed_ddls, args)
