@@ -30,9 +30,10 @@ import pyparsing as pp
 import sys
 import re
 import os
+from enum import IntEnum
 
 
-class ExitCode:
+class ExitCode(IntEnum):
     SUCCESS = 0
     BAD_ARGS = 1
     BAD_DATA_TYPE = 10
