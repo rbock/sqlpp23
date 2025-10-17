@@ -51,11 +51,11 @@ class DdlParser:
     """
 
     # Names of data types that can be updated by the custom data types
-    ddlBooleanTypes = [
+    ddl_boolean_types = [
         "bool",
         "boolean",
     ]
-    ddlIntegerTypes = [
+    ddl_integer_types = [
         "bigint",
         "int",
         "int2",  # PostgreSQL
@@ -66,7 +66,7 @@ class DdlParser:
         "smallint",
         "tinyint",
     ]
-    ddlSerialTypes = [
+    ddl_serial_types = [
         "bigserial",  # PostgreSQL
         "serial",  # PostgreSQL
         "serial2",  # PostgreSQL
@@ -74,7 +74,7 @@ class DdlParser:
         "serial8",  # PostgreSQL
         "smallserial",  # PostgreSQL
     ]
-    ddlFloatingPointTypes = [
+    ddl_floating_point_types = [
         "decimal",  # MYSQL
         "double",
         "float8",  # PostgreSQL
@@ -83,7 +83,7 @@ class DdlParser:
         "numeric",  # PostgreSQL
         "real",
     ]
-    ddlTextTypes = [
+    ddl_text_types = [
         "char",
         "varchar",
         "character varying",  # PostgreSQL
@@ -98,7 +98,7 @@ class DdlParser:
         "mediumtext",  # MYSQL
         "rational", # PostgreSQL pg_rationale extension
     ]
-    ddlBlobTypes = [
+    ddl_blob_types = [
         "bytea",
         "tinyblob",
         "blob",
@@ -107,120 +107,120 @@ class DdlParser:
         "binary",  # MYSQL
         "varbinary",  # MYSQL
     ]
-    ddlDateTypes = [
+    ddl_date_types = [
         "date",
     ]
-    ddlDateTimeTypes = [
+    ddl_date_time_types = [
         "datetime",
         "timestamp",
         "timestamp without time zone",  # PostgreSQL
         "timestamp with time zone",  # PostgreSQL
         "timestamptz",  # PostgreSQL
     ]
-    ddlTimeTypes = [
+    ddl_time_types = [
         "time",
         "time without time zone",  # PostgreSQL
         "time with time zone",  # PostgreSQL
     ]
 
     # Parsers that are initialized later
-    ddlExpression = None
-    ddlType = None
-    ddlColumn = None
-    ddlConstraint = None
-    ddlCtWithSql = None
+    ddl_expression = None
+    ddl_type = None
+    ddl_column = None
+    ddl_constraint = None
+    ddl_ct_with_sql = None
     ddl = None
 
     @classmethod
-    def initialize(cls, customTypes=None):
+    def initialize(cls, custom_types=None):
         """Initialize the DDL parser"""
 
         # Basic parsers
-        ddlLeft = pp.Suppress("(")
-        ddlRight = pp.Suppress(")")
-        ddlNumber = pp.Word(pp.nums + "+-.", pp.nums + "+-.Ee")
-        ddlString = (
+        ddl_left = pp.Suppress("(")
+        ddl_right = pp.Suppress(")")
+        ddl_number = pp.Word(pp.nums + "+-.", pp.nums + "+-.Ee")
+        ddl_string = (
             pp.QuotedString("'") | pp.QuotedString('"', escQuote='""') | pp.QuotedString("`")
         )
-        # ddlString.setDebug(True) #uncomment to debug pyparsing
-        ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
-        ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString), pp.Combine(ddlTerm + ddlString)])
-        ddlOperator = pp.Or(
+        # ddl_string.setDebug(True) #uncomment to debug pyparsing
+        ddl_term = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
+        ddl_name = pp.Or([ddl_term, ddl_string, pp.Combine(ddl_string + "." + ddl_string), pp.Combine(ddl_term + ddl_string)])
+        ddl_operator = pp.Or(
             map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%"]),
             pp.CaselessKeyword("DIV")
         )
-        ddlBracedExpression = pp.Forward()
-        ddlFunctionCall = pp.Forward()
-        ddlCastEnd = "::" + ddlTerm
-        ddlCast = ddlString + ddlCastEnd
-        ddlBracedArguments = pp.Forward()
-        cls.ddlExpression = pp.OneOrMore(
-            ddlBracedExpression
-            | ddlFunctionCall
-            | ddlCastEnd
-            | ddlCast
-            | ddlOperator
-            | ddlString
-            | ddlTerm
-            | ddlNumber
-            | ddlBracedArguments
+        ddl_braced_expression = pp.Forward()
+        ddl_function_call = pp.Forward()
+        ddl_cast_end = "::" + ddl_term
+        ddl_cast = ddl_string + ddl_cast_end
+        ddl_braced_arguments = pp.Forward()
+        cls.ddl_expression = pp.OneOrMore(
+            ddl_braced_expression
+            | ddl_function_call
+            | ddl_cast_end
+            | ddl_cast
+            | ddl_operator
+            | ddl_string
+            | ddl_term
+            | ddl_number
+            | ddl_braced_arguments
         )
-        ddlBracedArguments << ddlLeft + pp.delimitedList(cls.ddlExpression) + ddlRight
-        ddlBracedExpression << ddlLeft + cls.ddlExpression + ddlRight
-        ddlArguments = pp.Suppress(pp.delimitedList(cls.ddlExpression))
-        ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
+        ddl_braced_arguments << ddl_left + pp.delimitedList(cls.ddl_expression) + ddl_right
+        ddl_braced_expression << ddl_left + cls.ddl_expression + ddl_right
+        ddl_arguments = pp.Suppress(pp.delimitedList(cls.ddl_expression))
+        ddl_function_call << ddl_name + ddl_left + pp.Optional(ddl_arguments) + ddl_right
 
         # Data type parsers
         def get_type_parser(key, data_type):
-            type_names = getattr(cls, f"ddl{key}Types")
-            if customTypes and (key in customTypes):
-                type_names.extend(customTypes[key])
+            type_names = getattr(cls, f"ddl_{key}_types")
+            if custom_types and (key in custom_types):
+                type_names.extend(custom_types[key])
             return pp.Or(
                 map(pp.CaselessKeyword, sorted(type_names, reverse=True))
             ).setParseAction(pp.replaceWith(data_type))
 
-        ddlBoolean = get_type_parser("Boolean", "boolean")
-        ddlInteger = get_type_parser("Integer", "integral")
-        ddlSerial = get_type_parser("Serial", "integral").setResultsName("hasSerialValue")
-        ddlFloatingPoint = get_type_parser("FloatingPoint", "floating_point")
-        ddlText = get_type_parser("Text", "text")
-        ddlBlob = get_type_parser("Blob", "blob")
-        ddlDate = get_type_parser("Date", "date")
-        ddlDateTime = get_type_parser("DateTime", "timestamp")
-        ddlTime = get_type_parser("Time", "time")
-        ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
-        cls.ddlType = (
-            ddlBoolean
-            | ddlInteger
-            | ddlSerial
-            | ddlFloatingPoint
-            | ddlText
-            | ddlBlob
-            | ddlDateTime
-            | ddlDate
-            | ddlTime
-            | ddlUnknown
+        ddl_boolean = get_type_parser("boolean", "boolean")
+        ddl_integer = get_type_parser("integer", "integral")
+        ddl_serial = get_type_parser("serial", "integral").setResultsName("hasSerialValue")
+        ddl_floating_point = get_type_parser("floating_point", "floating_point")
+        ddl_text = get_type_parser("text", "text")
+        ddl_blob = get_type_parser("blob", "blob")
+        ddl_date = get_type_parser("date", "date")
+        ddl_date_time = get_type_parser("date_time", "timestamp")
+        ddl_time = get_type_parser("time", "time")
+        ddl_unknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
+        cls.ddl_type = (
+            ddl_boolean
+            | ddl_integer
+            | ddl_serial
+            | ddl_floating_point
+            | ddl_text
+            | ddl_blob
+            | ddl_date_time
+            | ddl_date
+            | ddl_time
+            | ddl_unknown
         )
 
         # Constraints parser
-        ddlUnsigned = pp.CaselessKeyword("UNSIGNED").setResultsName("isUnsigned")
-        ddlDigits = "," + pp.Word(pp.nums)
-        ddlWidth = ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + ddlRight
-        ddlTimezone = (
+        ddl_unsigned = pp.CaselessKeyword("UNSIGNED").setResultsName("isUnsigned")
+        ddl_digits = "," + pp.Word(pp.nums)
+        ddl_width = ddl_left + pp.Word(pp.nums) + pp.Optional(ddl_digits) + ddl_right
+        ddl_timezone = (
             (pp.CaselessKeyword("with") | pp.CaselessKeyword("without"))
             + pp.CaselessKeyword("time")
             + pp.CaselessKeyword("zone")
         )
-        ddlNotNull = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
-        ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
-        ddlGeneratedValue = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
-        ddlAutoKeywords = [
+        ddl_not_null = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).setResultsName("notNull")
+        ddl_default_value = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
+        ddl_generated_value = pp.CaselessKeyword("GENERATED").setResultsName("hasGeneratedValue")
+        ddl_auto_keywords = [
             "AUTO_INCREMENT",
             "AUTOINCREMENT"
         ]
-        ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True))).setResultsName("hasAutoValue")
-        ddlPrimaryKey = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
-        ddlIgnoredKeywords = [
+        ddl_auto_value = pp.Or(map(pp.CaselessKeyword, sorted(ddl_auto_keywords, reverse=True))).setResultsName("hasAutoValue")
+        ddl_primary_key = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).setResultsName("isPrimaryKey")
+        ddl_ignored_keywords = [
             "CONSTRAINT",
             "FOREIGN",
             "KEY",
@@ -230,53 +230,53 @@ class DdlParser:
             "CHECK",
             "PERIOD",
         ]
-        cls.ddlConstraint = (
+        cls.ddl_constraint = (
             pp.Or(map(
                 pp.CaselessKeyword,
-                sorted(ddlIgnoredKeywords + ["PRIMARY"], reverse=True)
+                sorted(ddl_ignored_keywords + ["PRIMARY"], reverse=True)
             ))
-            + cls.ddlExpression
+            + cls.ddl_expression
         ).setResultsName("isConstraint")
 
         # Column parser
-        cls.ddlColumn = pp.Group(
-            ddlName.setResultsName("name")
-            + cls.ddlType.setResultsName("type")
-            + pp.Suppress(pp.Optional(ddlWidth))
-            + pp.Suppress(pp.Optional(ddlTimezone))
+        cls.ddl_column = pp.Group(
+            ddl_name.setResultsName("name")
+            + cls.ddl_type.setResultsName("type")
+            + pp.Suppress(pp.Optional(ddl_width))
+            + pp.Suppress(pp.Optional(ddl_timezone))
             + pp.ZeroOrMore(
-                ddlUnsigned
-                | ddlNotNull
+                ddl_unsigned
+                | ddl_not_null
                 | pp.Suppress(pp.CaselessKeyword("NULL"))
-                | ddlAutoValue
-                | ddlDefaultValue
-                | ddlGeneratedValue
-                | ddlPrimaryKey
-                | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
-                | pp.Suppress(cls.ddlExpression)
+                | ddl_auto_value
+                | ddl_default_value
+                | ddl_generated_value
+                | ddl_primary_key
+                | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
+                | pp.Suppress(cls.ddl_expression)
             )
         )
 
         # CREATE TABLE parser
-        ddlCtBasic = (
+        ddl_ct_basic = (
             pp.Suppress(pp.CaselessKeyword("CREATE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
             + pp.Suppress(pp.CaselessKeyword("TABLE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
-            + ddlName.setResultsName("tableName")
-            + ddlLeft
-            + pp.Group(pp.delimitedList(pp.Suppress(cls.ddlConstraint) | cls.ddlColumn)).setResultsName("columns")
-            + ddlRight
+            + ddl_name.setResultsName("tableName")
+            + ddl_left
+            + pp.Group(pp.delimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).setResultsName("columns")
+            + ddl_right
         )
-        def addCreateSql(text, loc, tokens):
+        def add_create_sql(text, loc, tokens):
             create = tokens.create
             create.value["createSql"] = text[create.locn_start:create.locn_end]
-        cls.ddlCtWithSql = pp.Located(ddlCtBasic).setResultsName("create").setParseAction(addCreateSql)
+        cls.ddl_ct_with_sql = pp.Located(ddl_ct_basic).setResultsName("create").setParseAction(add_create_sql)
 
         # Main DDL parser
-        cls.ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCtBasic, False)) + cls.ddlCtWithSql)).setResultsName("tables")
-        ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
-        cls.ddl.ignore(ddlComment)
+        cls.ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddl_ct_basic, False)) + cls.ddl_ct_with_sql)).setResultsName("tables")
+        ddl_comment = pp.oneOf(["--", "#"]) + pp.restOfLine
+        cls.ddl.ignore(ddl_comment)
         cls.ddl.parseWithTabs()
 
     @classmethod
@@ -296,87 +296,87 @@ class SelfTest:
     def run(cls):
         print("Running self-test")
         DdlParser.initialize()
-        cls.testBoolean()
-        cls.testInteger()
-        cls.testSerial()
-        cls.testFloatingPoint()
-        cls.testText()
-        cls.testBlob()
-        cls.testDate()
-        cls.testTime()
-        cls.testUnknown()
-        cls.testDateTime()
-        cls.testColumn()
-        cls.testConstraint()
-        cls.testMathExpression()
-        cls.testRational()
-        cls.testTable()
-        cls.testPrimaryKeyAutoIncrement()
+        cls._test_boolean()
+        cls._test_integer()
+        cls._test_serial()
+        cls._test_floating_point()
+        cls._test_text()
+        cls._test_blob()
+        cls._test_date()
+        cls._test_time()
+        cls._test_unknown()
+        cls._test_date_time()
+        cls._test_column()
+        cls._test_constraint()
+        cls._test_math_expression()
+        cls._test_rational()
+        cls._test_table()
+        cls._test_primary_key_auto_increment()
 
     @staticmethod
-    def testBoolean():
-        for t in DdlParser.ddlBooleanTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_boolean():
+        for t in DdlParser.ddl_boolean_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "boolean"
 
     @staticmethod
-    def testInteger():
-        for t in DdlParser.ddlIntegerTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_integer():
+        for t in DdlParser.ddl_integer_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "integral"
 
     @staticmethod
-    def testSerial():
-        for t in DdlParser.ddlSerialTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_serial():
+        for t in DdlParser.ddl_serial_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "integral"
             assert result.hasSerialValue
 
     @staticmethod
-    def testFloatingPoint():
-        for t in DdlParser.ddlFloatingPointTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_floating_point():
+        for t in DdlParser.ddl_floating_point_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "floating_point"
 
     @staticmethod
-    def testText():
-        for t in DdlParser.ddlTextTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_text():
+        for t in DdlParser.ddl_text_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "text"
 
     @staticmethod
-    def testBlob():
-        for t in DdlParser.ddlBlobTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_blob():
+        for t in DdlParser.ddl_blob_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "blob"
 
     @staticmethod
-    def testDate():
-        for t in DdlParser.ddlDateTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_date():
+        for t in DdlParser.ddl_date_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "date"
 
     @staticmethod
-    def testDateTime():
-        for t in DdlParser.ddlDateTimeTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_date_time():
+        for t in DdlParser.ddl_date_time_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "timestamp"
 
     @staticmethod
-    def testTime():
-        for t in DdlParser.ddlTimeTypes:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+    def _test_time():
+        for t in DdlParser.ddl_time_types:
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "time"
 
     @staticmethod
-    def testUnknown():
+    def _test_unknown():
         for t in ["cheesecake", "blueberry"]:
-            result = DdlParser.ddlType.parseString(t, parseAll=True)
+            result = DdlParser.ddl_type.parseString(t, parseAll=True)
             assert result[0] == "UNKNOWN"
 
     @staticmethod
-    def testColumn():
-        testData = [
+    def _test_column():
+        test_data = [
             {
                 "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
                 "expected": {
@@ -420,8 +420,8 @@ class SelfTest:
                 }
             }
         ]
-        for td in testData:
-            result = DdlParser.ddlColumn.parseString(td["text"], parseAll=True)[0]
+        for td in test_data:
+            result = DdlParser.ddl_column.parseString(td["text"], parseAll=True)[0]
             expected = td["expected"]
             assert result.name == expected["name"]
             assert result.type == expected["type"]
@@ -434,37 +434,37 @@ class SelfTest:
             assert bool(result.isPrimaryKey) == expected["isPrimaryKey"]
 
     @staticmethod
-    def testConstraint():
+    def _test_constraint():
         for text in [
             "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
             "UNIQUE (id)",
             "UNIQUE (first_name,last_name)"
         ]:
-            result = DdlParser.ddlConstraint.parseString(text, parseAll=True)
+            result = DdlParser.ddl_constraint.parseString(text, parseAll=True)
             assert result.isConstraint
 
     @staticmethod
-    def testMathExpression():
+    def _test_math_expression():
             text = "2 DIV 2"
-            result = DdlParser.ddlExpression.parseString(text, parseAll=True)
+            result = DdlParser.ddl_expression.parseString(text, parseAll=True)
             assert len(result) == 3
             assert result[0] == "2"
             assert result[1] == "DIV"
             assert result[2] == "2"
 
     @staticmethod
-    def testRational():
+    def _test_rational():
         for text in [
             "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
         ]:
-            result = DdlParser.ddlColumn.parseString(text, parseAll=True)
+            result = DdlParser.ddl_column.parseString(text, parseAll=True)
             column = result[0]
             assert column.name == "pos"
             assert column.type == "text"
             assert column.notNull
 
     @staticmethod
-    def testTable():
+    def _test_table():
         text = """
     CREATE TABLE "public"."dk" (
     "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
@@ -473,16 +473,16 @@ class SelfTest:
     PRIMARY KEY (id)
     )
     """
-        result = DdlParser.ddlCtWithSql.parseString(text, parseAll=True)
+        result = DdlParser.ddl_ct_with_sql.parseString(text, parseAll=True)
 
     @staticmethod
-    def testPrimaryKeyAutoIncrement():
+    def _test_primary_key_auto_increment():
         for text in [
             "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
             "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
             "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
         ]:
-            result = DdlParser.ddlCtWithSql.parseString(text, parseAll=True)
+            result = DdlParser.ddl_ct_with_sql.parseString(text, parseAll=True)
             assert len(result) == 1
             table = result.create.value
             assert table.tableName == "tab"
@@ -501,34 +501,34 @@ class ModelWriter:
     """This class uses the parsed DDL definitions to generate and write the C++ database model file(s)"""
 
     @classmethod
-    def write(cls, parsedDdls, args):
+    def write(cls, parsed_ddls, args):
         if args.path_to_header:
-            cls.createHeader(parsedDdls, args)
+            cls._create_header(parsed_ddls, args)
         if args.path_to_header_directory:
-            cls.createSplitHeaders(parsedDdls, args)
+            cls._create_split_headers(parsed_ddls, args)
         if args.path_to_module:
-            cls.createModule(parsedDdls, args)
+            cls._create_module(parsed_ddls, args)
 
     @classmethod
-    def createHeader(cls, parsedDdls, args):
-        header = cls.beginHeader(args.path_to_header, args)
-        for pd in parsedDdls:
+    def _create_header(cls, parsed_ddls, args):
+        header = cls._begin_header(args.path_to_header, args)
+        for pd in parsed_ddls:
             for table in pd.tables:
-                cls.writeTable(table, header, args)
-        cls.endHeader(header, args)
+                cls._write_table(table, header, args)
+        cls._end_header(header, args)
 
     @classmethod
-    def createSplitHeaders(cls, parsedDdls, args):
-        for pd in parsedDdls:
+    def _create_split_headers(cls, parsed_ddls, args):
+        for pd in parsed_ddls:
             for table in pd.tables:
-                sqlTableName = table.create.value.tableName
-                header = cls.beginHeader(os.path.join(args.path_to_header_directory, cls.toClassName(sqlTableName, args) + ".h"), args)
-                cls.writeTable(table, header, args)
-                cls.endHeader(header, args)
+                sql_table_name = table.create.value.tableName
+                header = cls._begin_header(os.path.join(args.path_to_header_directory, cls._to_class_name(sql_table_name, args) + ".h"), args)
+                cls._write_table(table, header, args)
+                cls._end_header(header, args)
 
     @staticmethod
-    def beginHeader(pathToHeader, args):
-        header = open(pathToHeader, "w")
+    def _begin_header(path_to_header, args):
+        header = open(path_to_header, "w")
         print("#pragma once", file=header)
         print("", file=header)
         print("// clang-format off", file=header)
@@ -553,21 +553,21 @@ class ModelWriter:
         return header
 
     @staticmethod
-    def endHeader(header, args):
+    def _end_header(header, args):
         print("} // namespace " + args.namespace, file=header)
         header.close()
 
     @classmethod
-    def createModule(cls, parsedDdls, args):
-        module = cls.beginModule(args.path_to_module, args)
-        for pd in parsedDdls:
+    def _create_module(cls, parsed_ddls, args):
+        module = cls._begin_module(args.path_to_module, args)
+        for pd in parsed_ddls:
             for table in pd.tables:
-                cls.writeTable(table, module, args)
-        cls.endModule(module, args)
+                cls._write_table(table, module, args)
+        cls._end_module(module, args)
 
     @staticmethod
-    def beginModule(pathToModule, args):
-        module = open(pathToModule, "w")
+    def _begin_module(path_to_module, args):
+        module = open(path_to_module, "w")
         print("module;", file=module)
         print("", file=module)
         print("// clang-format off", file=module)
@@ -588,46 +588,46 @@ class ModelWriter:
         return module
 
     @staticmethod
-    def endModule(module, args):
+    def _end_module(module, args):
         print("} // namespace " + args.namespace, file=module)
         module.close()
 
     @classmethod
-    def writeTable(cls, table, header, args):
+    def _write_table(cls, table, header, args):
         export = "export " if args.path_to_module else ""
-        DataTypeError = False
+        data_type_error = False
         create = table.create.value
-        sqlTableName = create.tableName
-        tableClass = cls.toClassName(sqlTableName, args)
-        tableMember = cls.toMemberName(sqlTableName, args)
-        tableSpec = tableClass + "_"
-        tableTemplateParameters = ""
-        tableRequiredInsertColumns = ""
+        sql_table_name = create.tableName
+        table_class = cls._to_class_name(sql_table_name, args)
+        table_member = cls._to_member_name(sql_table_name, args)
+        table_spec = table_class + "_"
+        table_template_parameters = ""
+        table_required_insert_columns = ""
         if args.generate_table_creation_helper:
-            creationHelperFunc = "create" + ("" if args.naming_style == "camel-case" else "_") + tableClass
+            creation_helper_func = "create" + ("" if args.naming_style == "camel-case" else "_") + table_class
             print("  " + export + "template<typename Db>", file=header)
-            print("  void " + creationHelperFunc + "(Db& db) {", file=header)
-            print("    db(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
+            print("  void " + creation_helper_func + "(Db& db) {", file=header)
+            print("    db(R\"+++(DROP TABLE IF EXISTS " + sql_table_name + ")+++\");", file=header)
             print("    db(R\"+++(" + create.createSql + ")+++\");", file=header)
             print("  }", file=header)
             print("", file=header)
-        print("  " + export + "struct " + tableSpec + " {", file=header)
+        print("  " + export + "struct " + table_spec + " {", file=header)
         for column in create.columns:
             if column.isConstraint:
                 continue
-            sqlColumnName = column.name
-            columnClass = cls.toClassName(sqlColumnName, args)
-            columnMember = cls.toMemberName(sqlColumnName, args)
-            columnType = column.type
-            if columnType == "UNKNOWN":
+            sql_column_name = column.name
+            column_class = cls._to_class_name(sql_column_name, args)
+            column_member = cls._to_member_name(sql_column_name, args)
+            column_type = column.type
+            if column_type == "UNKNOWN":
                 print(
                     "Error: datatype of %s.%s is not supported."
-                    % (sqlTableName, sqlColumnName)
+                    % (sql_table_name, sql_column_name)
                 )
-                DataTypeError = True
-            if columnType == "integral" and column.isUnsigned:
-                columnType = "unsigned_" + columnType
-            if columnType == "timestamp" and not args.suppress_timestamp_warning:
+                data_type_error = True
+            if column_type == "integral" and column.isUnsigned:
+                column_type = "unsigned_" + column_type
+            if column_type == "timestamp" and not args.suppress_timestamp_warning:
                 args.suppress_timestamp_warning = True
                 print(
                     "Warning: date and time values are assumed to be without timezone."
@@ -636,50 +636,50 @@ class ModelWriter:
                     "Warning: If you are using types WITH timezones, your code has to deal with that."
                 )
                 print("You can disable this warning using --suppress-timestamp-warning")
-            print("    struct " + columnClass + " {", file=header)
+            print("    struct " + column_class + " {", file=header)
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
-                + cls.escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
+                + cls._escape_if_reserved(sql_column_name) + ", " + column_member + ");"
                 , file=header)
-            columnIsConst = column.hasGeneratedValue
-            constPrefix = "const " if columnIsConst else ""
-            columnCanBeNull = not column.notNull and not column.isPrimaryKey and not column.hasSerialValue
-            if columnCanBeNull:
-                print("      using data_type = " + constPrefix + "std::optional<::sqlpp::" + columnType + ">;", file=header)
+            column_is_const = column.hasGeneratedValue
+            const_prefix = "const " if column_is_const else ""
+            column_can_be_null = not column.notNull and not column.isPrimaryKey and not column.hasSerialValue
+            if column_can_be_null:
+                print("      using data_type = " + const_prefix + "std::optional<::sqlpp::" + column_type + ">;", file=header)
             else:
-                print("      using data_type = " + constPrefix + "::sqlpp::" + columnType + ";", file=header)
-            columnHasDefault = column.hasDefaultValue or \
+                print("      using data_type = " + const_prefix + "::sqlpp::" + column_type + ";", file=header)
+            column_has_default = column.hasDefaultValue or \
                             column.hasSerialValue or \
                             column.hasAutoValue or \
                             column.hasGeneratedValue or \
-                            (args.assume_auto_id and sqlColumnName == "id") or \
-                            columnCanBeNull
-            if columnHasDefault:
+                            (args.assume_auto_id and sql_column_name == "id") or \
+                            column_can_be_null
+            if column_has_default:
                 print("      using has_default = std::true_type;", file=header)
             else:
                 print("      using has_default = std::false_type;", file=header)
             print("    };", file=header)
-            if tableTemplateParameters:
-                tableTemplateParameters += ","
-            tableTemplateParameters += "\n               " + columnClass
-            if not columnHasDefault:
-                if tableRequiredInsertColumns:
-                    tableRequiredInsertColumns += ","
-                tableRequiredInsertColumns += "\n               sqlpp::column_t<sqlpp::table_t<" + tableSpec + ">, " + columnClass + ">";
+            if table_template_parameters:
+                table_template_parameters += ","
+            table_template_parameters += "\n               " + column_class
+            if not column_has_default:
+                if table_required_insert_columns:
+                    table_required_insert_columns += ","
+                table_required_insert_columns += "\n               sqlpp::column_t<sqlpp::table_t<" + table_spec + ">, " + column_class + ">";
         print("    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
-            + cls.escape_if_reserved(sqlTableName) + ", " + tableMember + ");"
+            + cls._escape_if_reserved(sql_table_name) + ", " + table_member + ");"
             , file=header)
         print("    template<typename T>", file=header)
         print("    using _table_columns = sqlpp::table_columns<T,"
-            + tableTemplateParameters
+            + table_template_parameters
             + ">;", file=header)
         print("    using _required_insert_columns = sqlpp::detail::type_set<"
-            + tableRequiredInsertColumns
+            + table_required_insert_columns
             + ">;", file=header)
         print("  };", file=header)
         print(
-            "  " + export + "using " + tableClass + " = ::sqlpp::table_t<" + tableSpec + ">;", file=header)
+            "  " + export + "using " + table_class + " = ::sqlpp::table_t<" + table_spec + ">;", file=header)
         print("", file=header)
-        if DataTypeError:
+        if data_type_error:
             print("Error: unsupported SQL data type(s).")
             print("Possible solutions:")
             print("A) Use the '--path-to-datatype-file' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
@@ -688,30 +688,30 @@ class ModelWriter:
             sys.exit(ExitCode.BAD_DATA_TYPE)  # return non-zero error code, we might need it for automation
 
     @classmethod
-    def toClassName(cls, name, args):
+    def _to_class_name(cls, name, args):
         if args.naming_style == "camel-case":
             name = name.replace(".", "_")
-            return re.sub(r"(^|\s|[_0-9])(\S)", cls.repl_camel_case_func, name)
+            return re.sub(r"(^|\s|[_0-9])(\S)", cls._repl_camel_case_func, name)
         # otherwise return identity
         return name
 
     @classmethod
-    def toMemberName(cls, name, args):
+    def _to_member_name(cls, name, args):
         if args.naming_style == "camel-case":
             name = name.replace(".", "_")
-            return re.sub(r"(\s|_|[0-9])(\S)", cls.repl_camel_case_func, name)
+            return re.sub(r"(\s|_|[0-9])(\S)", cls._repl_camel_case_func, name)
         # otherwise return identity
         return name
 
     @staticmethod
-    def repl_camel_case_func(m):
+    def _repl_camel_case_func(m):
         if m.group(1) == "_":
             return m.group(2).upper()
         else:
             return m.group(1) + m.group(2).upper()
 
     @staticmethod
-    def escape_if_reserved(name):
+    def _escape_if_reserved(name):
         reserved_names = [
             "BEGIN",
             "END",
@@ -723,19 +723,19 @@ class ModelWriter:
         return name
 
 
-def parseCommandlineArgs():
-    argParser = argparse.ArgumentParser(prog="sqlpp23-ddl2cpp")
-    required = argParser.add_argument_group("Required parameters for code generation")
+def parse_commandline_args():
+    arg_parser = argparse.ArgumentParser(prog="sqlpp23-ddl2cpp")
+    required = arg_parser.add_argument_group("Required parameters for code generation")
     required.add_argument("--path-to-ddl", nargs="*", help="one or more path(s) to DDL input file(s)")
     required.add_argument("--namespace", help="namespace for generated table classes")
 
-    paths = argParser.add_argument_group("Paths", "Choose one or more paths for code generation:")
+    paths = arg_parser.add_argument_group("Paths", "Choose one or more paths for code generation:")
     paths.add_argument("--path-to-module", help="path to generated module file (also requires --module-name)")
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
     paths.add_argument("--path-to-datatype-file", help="path to csv file containing additional sql2cpp file type mappings")
 
-    options = argParser.add_argument_group("Additional options")
+    options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
     options.add_argument("--assume-auto-id", action="store_true", help="assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)")
@@ -745,29 +745,29 @@ def parseCommandlineArgs():
     options.add_argument("--use-import-std", action="store_true", help="import std as module instead of including the respective standard header files (default: False)")
     options.add_argument("--self-test", action="store_true", help="run parser self-test (this ignores all other arguments)")
 
-    args = argParser.parse_args()
+    args = arg_parser.parse_args()
 
     if args.self_test:
         return args
 
     if not args.path_to_ddl or not len(args.path_to_ddl):
         print("Missing argument --path-to-ddl")
-        argParser.print_help()
+        arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     if not args.namespace:
         print("Missing argument --namespace")
-        argParser.print_help()
+        arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     if not args.path_to_module and not args.path_to_header and not args.path_to_header_directory:
         print("Missing argument(s): at least one path for code generation")
-        argParser.print_help()
+        arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     if args.path_to_module and not args.module_name:
         print("Missing argument --module-name")
-        argParser.print_help()
+        arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     return args
@@ -777,8 +777,8 @@ def get_extended_types(filename):
     if not filename:
         return None
     import csv
-    with open(filename, newline="") as csvfile:
-        reader = csv.DictReader(csvfile, fieldnames=["baseType"], restkey="customTypes", delimiter=",")
+    with open(filename, newline="") as csv_file:
+        reader = csv.DictReader(csv_file, fieldnames=["baseType"], restkey="customTypes", delimiter=",")
         types = {}
         for row in reader:
             var_values = [clean_val for value in row["customTypes"] if (clean_val := value.strip(" \"'").lower())]
@@ -788,13 +788,13 @@ def get_extended_types(filename):
 
 
 if __name__ == "__main__":
-    args = parseCommandlineArgs()
+    args = parse_commandline_args()
 
     if args.self_test:
         SelfTest.run()
     else:
-        customTypes = get_extended_types(args.path_to_datatype_file)
-        DdlParser.initialize(customTypes)
-        parsedDdls = DdlParser.parse_ddls(args.path_to_ddl)
-        ModelWriter.write(parsedDdls, args)
+        custom_types = get_extended_types(args.path_to_datatype_file)
+        DdlParser.initialize(custom_types)
+        parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
+        ModelWriter.write(parsed_ddls, args)
     sys.exit(ExitCode.SUCCESS)
