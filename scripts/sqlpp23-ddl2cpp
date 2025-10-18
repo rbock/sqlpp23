@@ -621,7 +621,7 @@ class ModelWriter:
             column_type = column.type
             if column_type == "UNKNOWN":
                 print(
-                    "Error: datatype of %s.%s is not supported."
+                    "Error: SQL data type of %s.%s is not supported."
                     % (sql_table_name, sql_column_name)
                 )
                 data_type_error = True
