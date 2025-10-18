@@ -109,7 +109,7 @@ if (${Python3_Interpreter_FOUND})
         add_custom_command(
             OUTPUT "${sqlpp.scripts.generated.custom_type_sql.include}"
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
-                    "--path-to-datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
+                    "--path-to-custom-types=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
                     "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
                     "--path-to-header" "${sqlpp.scripts.generated.custom_type_sql.include}"
                     "--namespace" "test"

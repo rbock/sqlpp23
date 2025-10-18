@@ -40,7 +40,7 @@ For detailed instructions refer to the documentation of your database.
 | --path-to-header PATH_TO_HEADER | No[^3] | | Output pathname of the generated C++ header. | Second command-line argument |
 | --path-to-header-directory PATH_TO_HEADER_DIRECTORY | No[^3] | | Output Directory for the generated C++ headers | Second command-line argument + -split-tables. |
 | --path-to-module PATH_TO_MODULE | No[^2][^3] | | Output pathname of the generated C++ module. | N/A |
-| --path-to-datatype-file PATH_TO_DATATYPE_FILE | No | | Input pathname of a CSV file defining aliases of existing data types. | Same |
+| --path-to-custom-types PATH_TO_CUSTOM_TYPES | No | | Input pathname of a CSV file defining aliases of existing data types. | Same |
 
 **Additional options**
 | Option | Required | Default | Description | Before v0.67 |

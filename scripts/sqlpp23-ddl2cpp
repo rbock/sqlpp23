@@ -682,7 +682,7 @@ class ModelWriter:
         if data_type_error:
             print("Error: unsupported SQL data type(s).")
             print("Possible solutions:")
-            print("A) Use the '--path-to-datatype-file' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
+            print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
             print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
             print("C) Raise an issue on github")
             sys.exit(ExitCode.BAD_DATA_TYPE)  # return non-zero error code, we might need it for automation
@@ -733,7 +733,7 @@ def parse_commandline_args():
     paths.add_argument("--path-to-module", help="path to generated module file (also requires --module-name)")
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
-    paths.add_argument("--path-to-datatype-file", help="path to csv file containing additional sql2cpp file type mappings")
+    paths.add_argument("--path-to-custom-types", help="path to csv file defining aliases of existing SQL data types")
 
     options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
@@ -793,7 +793,7 @@ if __name__ == "__main__":
     if args.self_test:
         SelfTest.run()
     else:
-        custom_types = get_extended_types(args.path_to_datatype_file)
+        custom_types = get_extended_types(args.path_to_custom_types)
         DdlParser.initialize(custom_types)
         parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
         ModelWriter.write(parsed_ddls, args)
