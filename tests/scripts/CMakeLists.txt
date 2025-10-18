@@ -100,7 +100,7 @@ if (${Python3_Interpreter_FOUND})
                         "--namespace" "test"
                         "--suppress-timestamp-warning")
             set_tests_properties("${bad_type_test_name}" PROPERTIES
-                PASS_REGULAR_EXPRESSION "Error: unsupported datatypes.")
+                PASS_REGULAR_EXPRESSION "Error: unsupported SQL data type\\(s\\).")
         endforeach()
 
         # Custom types defined in a CSV file
