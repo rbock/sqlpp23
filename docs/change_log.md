@@ -7,6 +7,7 @@
 - deprecate result_row_t::as_tuple
 - new as_tuple(const result_row_t&)
 - new get_sql_name_tuple(const result_row_t&), #72
+- sqlpp23-ddl2cpp: command-line option `--path-to-datatype-file` was renamed to `--path-to-custom-types`
 
 ## 0.67
 
