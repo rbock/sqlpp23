@@ -128,58 +128,58 @@ struct values_are_assignable
               (is_time<L>::value and is_time<R>::value)> {};
 
 template <typename T>
-struct result_value {};
+struct result_data_type_of {};
 
 template <typename T>
-struct result_value<std::optional<T>> {
-  using type = std::optional<typename result_value<T>::type>;
+struct result_data_type_of<std::optional<T>> {
+  using type = std::optional<typename result_data_type_of<T>::type>;
 };
 
 template <typename T>
-using result_value_t = typename result_value<T>::type;
+using result_data_type_of_t = typename result_data_type_of<T>::type;
 
 template <>
-struct result_value<blob> {
+struct result_data_type_of<blob> {
   using type = std::span<const uint8_t>;
 };
 
 template <>
-struct result_value<boolean> {
+struct result_data_type_of<boolean> {
   using type = bool;
 };
 
 template <>
-struct result_value<integral> {
+struct result_data_type_of<integral> {
   using type = int64_t;
 };
 
 template <>
-struct result_value<unsigned_integral> {
+struct result_data_type_of<unsigned_integral> {
   using type = uint64_t;
 };
 
 template <>
-struct result_value<floating_point> {
+struct result_data_type_of<floating_point> {
   using type = double;
 };
 
 template <>
-struct result_value<text> {
+struct result_data_type_of<text> {
   using type = std::string_view;
 };
 
 template <>
-struct result_value<date> {
+struct result_data_type_of<date> {
   using type =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
 };
 template <>
-struct result_value<time> {
+struct result_data_type_of<time> {
   using type = std::chrono::microseconds;
 };
 
 template <>
-struct result_value<timestamp> {
+struct result_data_type_of<timestamp> {
   using type = std::chrono::time_point<std::chrono::system_clock,
                                        std::chrono::microseconds>;
 };

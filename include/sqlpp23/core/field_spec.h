@@ -35,7 +35,7 @@
 namespace sqlpp {
 template <typename NameTag, typename DataType>
 struct field_spec_t {
-  using result_data_type = result_value_t<DataType>;  // Used in result_row_t.
+  using result_data_type = result_data_type_of_t<DataType>;  // Used in result_row_t.
   using data_type = DataType;  // This is used by column_t.
 };
 
