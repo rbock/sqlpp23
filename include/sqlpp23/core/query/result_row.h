@@ -76,7 +76,7 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
     return std::tie(result_field<Is, FieldSpecs>::operator()()...);
   }
 
-  static constexpr auto _get_name_tuple() {
+  static constexpr auto _get_sql_name_tuple() {
     return std::make_tuple(
         std::string_view{name_tag_of_t<FieldSpecs>::name}...);
   }
@@ -96,12 +96,17 @@ struct result_row_t : public detail::result_row_impl<
   result_row_t& operator=(const result_row_t&) = delete;
   result_row_t& operator=(result_row_t&&) = default;
 
-  auto as_tuple() const {
+  // Can be removed in October 2026
+  [[deprecated("use free function as_tuple(row) instead")]] auto as_tuple() const {
     return _impl::_as_tuple();
   }
 
-  static constexpr auto get_name_tuple() {
-    return _impl::_get_name_tuple();
+  friend auto as_tuple(const result_row_t& row) {
+    return row._as_tuple();
+  }
+
+  friend constexpr auto get_sql_name_tuple(const result_row_t&) {
+    return _impl::_get_sql_name_tuple();
   }
 
   bool operator==(const result_row_t& rhs) const {
@@ -130,6 +135,7 @@ struct result_row_t : public detail::result_row_impl<
   }
 
   bool _is_valid{false};
+
 };
 
 namespace detail {

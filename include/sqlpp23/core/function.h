@@ -56,12 +56,12 @@ auto flatten(Context& context, const Expression& exp)
 }
 
 template <typename T>
-constexpr const char* get_sql_name(const T& /*unused*/) {
+constexpr std::string_view get_sql_name(const T& /*unused*/) {
   return name_tag_of_t<T>::name;
 }
 
 template <typename T>
-constexpr const char* get_sql_name() {
+constexpr std::string_view get_sql_name() {
   return name_tag_of_t<T>::name;
 }
 }  // namespace sqlpp

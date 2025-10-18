@@ -169,7 +169,7 @@ int Select(int, char*[]) {
   }
 
   for (const auto& row : db(select(all_of(t)).from(t))) {
-    std::apply(to_cerr{}, row.as_tuple());
+    std::apply(to_cerr{}, as_tuple(row));
   }
 
   {

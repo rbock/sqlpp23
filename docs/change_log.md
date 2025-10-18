@@ -2,6 +2,12 @@
 
 # Change log
 
+## 0.68
+
+- deprecate result_row_t::as_tuple
+- new as_tuple(const result_row_t&)
+- new get_sql_name_tuple(const result_row_t&), #72
+
 ## 0.67
 
 Module support

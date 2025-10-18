@@ -59,6 +59,11 @@ struct name_tag_of<T> {
 template <typename T>
 using name_tag_of_t = typename name_tag_of<T>::type;
 
+template <typename T>
+constexpr auto get_name_of(const T&) {
+  return name_tag_of_t<T>::name;
+}
+
 // Override this for other classes like columns or tables.
 template <typename T>
 struct has_name_tag : public std::integral_constant<

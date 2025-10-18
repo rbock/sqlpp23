@@ -32,6 +32,8 @@ void test_table() {
   static_assert(std::is_same<sqlpp::name_tag_of_t<test::TabFoo>,
                              test::TabFoo_::_sqlpp_name_tag>::value,
                 "");
+  static_assert(sqlpp::get_sql_name<test::TabFoo>() == "tab_foo");
+  static_assert(sqlpp::get_sql_name(test::TabFoo{}) == "tab_foo");
   static_assert(std::is_same<sqlpp::provided_tables_of_t<test::TabFoo>,
                              sqlpp::detail::type_set<test::TabFoo>>::value,
                 "");

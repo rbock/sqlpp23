@@ -60,7 +60,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   int i = 0;
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
-    printRowWithNames(row.get_name_tuple(), row.as_tuple());
+    printRowWithNames(get_sql_name_tuple(row), as_tuple(row));
     std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;

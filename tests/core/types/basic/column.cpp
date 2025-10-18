@@ -76,6 +76,7 @@ void test_column() {
     static_assert(std::is_same<sqlpp::name_tag_of_t<Cheese>,
                                cheese_t::_sqlpp_name_tag>::value,
                   "");
+    static_assert(sqlpp::get_sql_name<Cheese>() == "cheese");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<Cheese>,
                                sqlpp::detail::type_set<>>::value,
                   "");
@@ -103,6 +104,7 @@ void test_column() {
     static_assert(std::is_same<sqlpp::name_tag_of_t<BarId>,
                                test::TabFoo_::Id::_sqlpp_name_tag>::value,
                   "");
+    static_assert(get_sql_name(BarId{}) == "id");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<BarId>,
                                sqlpp::detail::type_set<>>::value,
                   "");
