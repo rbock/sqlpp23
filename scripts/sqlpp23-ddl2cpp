@@ -780,8 +780,10 @@ def get_custom_types(filename):
     with open(filename, newline="") as csv_file:
         reader = csv.DictReader(csv_file, fieldnames=["base_type"], restkey="custom_types", delimiter=",")
         types = {}
+        def clean_custom_type(name):
+            return value.strip(" \"'").lower()
         for row in reader:
-            var_values = [clean_val for value in row["custom_types"] if (clean_val := value.strip(" \"'").lower())]
+            var_values = [clean_val for value in row["custom_types"] if (clean_val := clean_custom_type(value)) != ""]
             if var_values:
                 types[row["base_type"]] = var_values
         return types
