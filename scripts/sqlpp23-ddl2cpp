@@ -184,7 +184,7 @@ class DdlParser:
         ddlFloatingPoint = get_type_parser("FloatingPoint", "floating_point")
         ddlText = get_type_parser("Text", "text")
         ddlBlob = get_type_parser("Blob", "blob")
-        ddlDate = get_type_parser("Date", "date").setResultsName("warnTimezone")
+        ddlDate = get_type_parser("Date", "date")
         ddlDateTime = get_type_parser("DateTime", "timestamp")
         ddlTime = get_type_parser("Time", "time")
         ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
