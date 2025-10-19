@@ -55,7 +55,7 @@ if (${Python3_Interpreter_FOUND})
                     "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
                     "--namespace" "test")
         set_tests_properties(sqlpp23.scripts.ddl2cpp.bad_has_parse_error PROPERTIES
-          PASS_REGULAR_EXPRESSION "ERROR: failed to parse.*")
+          PASS_REGULAR_EXPRESSION "ERROR: Failed to parse.*")
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.good_succeeds
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
@@ -100,7 +100,7 @@ if (${Python3_Interpreter_FOUND})
                         "--namespace" "test"
                         "--suppress-timestamp-warning")
             set_tests_properties("${bad_type_test_name}" PROPERTIES
-                PASS_REGULAR_EXPRESSION "Error: unsupported SQL data type\\(s\\).")
+                PASS_REGULAR_EXPRESSION "ERROR: Unsupported SQL data type\\(s\\).")
         endforeach()
 
         # Custom types defined in a CSV file
