@@ -36,6 +36,7 @@ from enum import IntEnum
 class ExitCode(IntEnum):
     SUCCESS = 0
     BAD_ARGS = 1
+    BAD_CUSTOM_TYPES = 30
     BAD_DATA_TYPE = 10
     STRANGE_PARSING = 20
 
@@ -278,6 +279,10 @@ class DdlParser:
         ddl_comment = pp.one_of(["--", "#"]) + pp.rest_of_line
         cls.ddl.ignore(ddl_comment)
         cls.ddl.parse_with_tabs()
+
+    @classmethod
+    def is_base_type(cls, name):
+        return hasattr(cls, f"ddl_{name}_types")
 
     @classmethod
     def parse_ddls(cls, ddl_paths):
@@ -780,12 +785,21 @@ def get_custom_types(filename):
     with open(filename, newline="") as csv_file:
         reader = csv.DictReader(csv_file, fieldnames=["base_type"], restkey="custom_types", delimiter=",")
         types = {}
+        def strip_garbage(name):
+            return name.strip(" \"'")
         def clean_custom_type(name):
-            return value.strip(" \"'").lower()
+            return strip_garbage(name).lower()
+        def clean_base_type(name):
+            name_ident = strip_garbage(name)
+            if DdlParser.is_base_type(name_ident):
+                return name_ident
+            print(f"ERROR: Custom types file uses an unknown base type {name_ident}")
+            sys.exit(ExitCode.BAD_CUSTOM_TYPES)
         for row in reader:
-            var_values = [clean_val for value in row["custom_types"] if (clean_val := clean_custom_type(value)) != ""]
-            if var_values:
-                types[row["base_type"]] = var_values
+            values = [cleaned for value in row["custom_types"] if (cleaned := clean_custom_type(value)) != ""]
+            if values:
+                key = clean_base_type(row["base_type"])
+                types[key] = values
         return types
 
 
