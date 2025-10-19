@@ -793,6 +793,9 @@ def get_custom_types(filename):
             name_ident = strip_garbage(name)
             if DdlParser.is_base_type(name_ident):
                 return name_ident
+            name_from_camel = re.sub(r"[A-Z]", lambda m : ("_" if m.start() else "") + m[0].lower(), name_ident)
+            if DdlParser.is_base_type(name_from_camel):
+                return name_from_camel
             print(f"ERROR: Custom types file uses an unknown base type {name_ident}")
             sys.exit(ExitCode.BAD_CUSTOM_TYPES)
         for row in reader:
