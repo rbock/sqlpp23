@@ -511,15 +511,15 @@ class ModelWriter:
     @classmethod
     def createHeader(cls, parsedDdls, args):
         header = cls.beginHeader(args.path_to_header, args)
-        for parsedDdl in parsedDdls:
-            for table in parsedDdl.tables:
+        for pd in parsedDdls:
+            for table in pd.tables:
                 cls.writeTable(table, header, args)
         cls.endHeader(header, args)
 
     @classmethod
-    def createSplitHeaders(cls, parsedDdl, args):
-        for parsedDdl in parsedDdls:
-            for table in parsedDdl.tables:
+    def createSplitHeaders(cls, parsedDdls, args):
+        for pd in parsedDdls:
+            for table in pd.tables:
                 sqlTableName = table.create.value.tableName
                 header = cls.beginHeader(os.path.join(args.path_to_header_directory, cls.toClassName(sqlTableName, args) + ".h"), args)
                 cls.writeTable(table, header, args)
@@ -557,10 +557,10 @@ class ModelWriter:
         header.close()
 
     @classmethod
-    def createModule(cls, parsedDdl, args):
+    def createModule(cls, parsedDdls, args):
         module = cls.beginModule(args.path_to_module, args)
-        for parsedDdl in parsedDdls:
-            for table in parsedDdl.tables:
+        for pd in parsedDdls:
+            for table in pd.tables:
                 cls.writeTable(table, module, args)
         cls.endModule(module, args)
 
