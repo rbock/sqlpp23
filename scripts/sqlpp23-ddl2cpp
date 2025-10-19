@@ -172,10 +172,10 @@ class DdlParser:
         ddl_function_call << ddl_name + ddl_left + pp.Optional(ddl_arguments) + ddl_right
 
         # Data type parsers
-        def get_type_parser(key, data_type):
-            type_names = getattr(cls, f"ddl_{key}_types")
-            if custom_types and (key in custom_types):
-                type_names.extend(custom_types[key])
+        def get_type_parser(base_type, data_type):
+            type_names = getattr(cls, f"ddl_{base_type}_types")
+            if custom_types and (base_type in custom_types):
+                type_names.extend(custom_types[base_type])
             return pp.Or(
                 map(pp.CaselessKeyword, sorted(type_names, reverse=True))
             ).set_parse_action(pp.replace_with(data_type))
