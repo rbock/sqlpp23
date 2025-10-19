@@ -181,7 +181,7 @@ class DdlParser:
 
         ddl_boolean = get_type_parser("boolean", "boolean")
         ddl_integer = get_type_parser("integer", "integral")
-        ddl_serial = get_type_parser("serial", "integral").set_results_name("hasSerialValue")
+        ddl_serial = get_type_parser("serial", "integral").set_results_name("has_serial_value")
         ddl_floating_point = get_type_parser("floating_point", "floating_point")
         ddl_text = get_type_parser("text", "text")
         ddl_blob = get_type_parser("blob", "blob")
@@ -203,7 +203,7 @@ class DdlParser:
         )
 
         # Constraints parser
-        ddl_unsigned = pp.CaselessKeyword("UNSIGNED").set_results_name("isUnsigned")
+        ddl_unsigned = pp.CaselessKeyword("UNSIGNED").set_results_name("is_unsigned")
         ddl_digits = "," + pp.Word(pp.nums)
         ddl_width = ddl_left + pp.Word(pp.nums) + pp.Optional(ddl_digits) + ddl_right
         ddl_timezone = (
@@ -211,15 +211,15 @@ class DdlParser:
             + pp.CaselessKeyword("time")
             + pp.CaselessKeyword("zone")
         )
-        ddl_not_null = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).set_results_name("notNull")
-        ddl_default_value = pp.CaselessKeyword("DEFAULT").set_results_name("hasDefaultValue")
-        ddl_generated_value = pp.CaselessKeyword("GENERATED").set_results_name("hasGeneratedValue")
+        ddl_not_null = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).set_results_name("not_null")
+        ddl_default_value = pp.CaselessKeyword("DEFAULT").set_results_name("has_default_value")
+        ddl_generated_value = pp.CaselessKeyword("GENERATED").set_results_name("has_generated_value")
         ddl_auto_keywords = [
             "AUTO_INCREMENT",
             "AUTOINCREMENT"
         ]
-        ddl_auto_value = pp.Or(map(pp.CaselessKeyword, sorted(ddl_auto_keywords, reverse=True))).set_results_name("hasAutoValue")
-        ddl_primary_key = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).set_results_name("isPrimaryKey")
+        ddl_auto_value = pp.Or(map(pp.CaselessKeyword, sorted(ddl_auto_keywords, reverse=True))).set_results_name("has_auto_value")
+        ddl_primary_key = (pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")).set_results_name("is_primary_key")
         ddl_ignored_keywords = [
             "CONSTRAINT",
             "FOREIGN",
@@ -236,7 +236,7 @@ class DdlParser:
                 sorted(ddl_ignored_keywords + ["PRIMARY"], reverse=True)
             ))
             + cls.ddl_expression
-        ).set_results_name("isConstraint")
+        ).set_results_name("is_constraint")
 
         # Column parser
         cls.ddl_column = pp.Group(
@@ -263,14 +263,14 @@ class DdlParser:
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
             + pp.Suppress(pp.CaselessKeyword("TABLE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
-            + ddl_name.set_results_name("tableName")
+            + ddl_name.set_results_name("table_name")
             + ddl_left
             + pp.Group(pp.DelimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).set_results_name("columns")
             + ddl_right
         )
         def add_create_sql(text, loc, tokens):
             create = tokens.create
-            create.value["createSql"] = text[create.locn_start:create.locn_end]
+            create.value["create_sql"] = text[create.locn_start:create.locn_end]
         cls.ddl_ct_with_sql = pp.Located(ddl_ct_basic).set_results_name("create").set_parse_action(add_create_sql)
 
         # Main DDL parser
@@ -330,7 +330,7 @@ class SelfTest:
         for t in DdlParser.ddl_serial_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "integral"
-            assert result.hasSerialValue
+            assert result.has_serial_value
 
     @staticmethod
     def _test_floating_point():
@@ -382,13 +382,13 @@ class SelfTest:
                 "expected": {
                     "name": "id",
                     "type": "integral",
-                    "isUnsigned": True,
-                    "notNull": True,
-                    "hasAutoValue": False,
-                    "hasDefaultValue": True,
-                    "hasGeneratedValue": False,
-                    "hasSerialValue": False,
-                    "isPrimaryKey": False
+                    "is_unsigned": True,
+                    "not_null": True,
+                    "has_auto_value": False,
+                    "has_default_value": True,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": False
                 }
             },
             {
@@ -396,13 +396,13 @@ class SelfTest:
                 "expected": {
                     "name": "fld",
                     "type": "integral",
-                    "isUnsigned": False,
-                    "notNull": False,
-                    "hasAutoValue": True,
-                    "hasDefaultValue": False,
-                    "hasGeneratedValue": False,
-                    "hasSerialValue": False,
-                    "isPrimaryKey": False
+                    "is_unsigned": False,
+                    "not_null": False,
+                    "has_auto_value": True,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": False
                 }
             },
             {
@@ -410,13 +410,13 @@ class SelfTest:
                 "expected": {
                     "name": "fld2",
                     "type": "integral",
-                    "isUnsigned": False,
-                    "notNull": True,
-                    "hasAutoValue": False,
-                    "hasDefaultValue": False,
-                    "hasGeneratedValue": True,
-                    "hasSerialValue": False,
-                    "isPrimaryKey": False
+                    "is_unsigned": False,
+                    "not_null": True,
+                    "has_auto_value": False,
+                    "has_default_value": False,
+                    "has_generated_value": True,
+                    "has_serial_value": False,
+                    "is_primary_key": False
                 }
             }
         ]
@@ -425,13 +425,13 @@ class SelfTest:
             expected = td["expected"]
             assert result.name == expected["name"]
             assert result.type == expected["type"]
-            assert bool(result.isUnsigned) == expected["isUnsigned"]
-            assert bool(result.notNull) == expected["notNull"]
-            assert bool(result.hasAutoValue) == expected["hasAutoValue"]
-            assert bool(result.hasDefaultValue) == expected["hasDefaultValue"]
-            assert bool(result.hasGeneratedValue) == expected["hasGeneratedValue"]
-            assert bool(result.hasSerialValue) == expected["hasSerialValue"]
-            assert bool(result.isPrimaryKey) == expected["isPrimaryKey"]
+            assert bool(result.is_unsigned) == expected["is_unsigned"]
+            assert bool(result.not_null) == expected["not_null"]
+            assert bool(result.has_auto_value) == expected["has_auto_value"]
+            assert bool(result.has_default_value) == expected["has_default_value"]
+            assert bool(result.has_generated_value) == expected["has_generated_value"]
+            assert bool(result.has_serial_value) == expected["has_serial_value"]
+            assert bool(result.is_primary_key) == expected["is_primary_key"]
 
     @staticmethod
     def _test_constraint():
@@ -441,7 +441,7 @@ class SelfTest:
             "UNIQUE (first_name,last_name)"
         ]:
             result = DdlParser.ddl_constraint.parse_string(text, parse_all=True)
-            assert result.isConstraint
+            assert result.is_constraint
 
     @staticmethod
     def _test_math_expression():
@@ -461,7 +461,7 @@ class SelfTest:
             column = result[0]
             assert column.name == "pos"
             assert column.type == "text"
-            assert column.notNull
+            assert column.not_null
 
     @staticmethod
     def _test_table():
@@ -485,16 +485,16 @@ class SelfTest:
             result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
             assert len(result) == 1
             table = result.create.value
-            assert table.tableName == "tab"
+            assert table.table_name == "tab"
             assert len(table.columns) == 1
             column = table.columns[0]
-            assert not column.isConstraint
+            assert not column.is_constraint
             assert column.name == "col"
             assert column.type == "integral"
-            assert column.notNull
-            assert column.hasAutoValue
-            assert column.isPrimaryKey
-            assert table.createSql == text
+            assert column.not_null
+            assert column.has_auto_value
+            assert column.is_primary_key
+            assert table.create_sql == text
 
 
 class ModelWriter:
@@ -521,7 +521,7 @@ class ModelWriter:
     def _create_split_headers(cls, parsed_ddls, args):
         for pd in parsed_ddls:
             for table in pd.tables:
-                sql_table_name = table.create.value.tableName
+                sql_table_name = table.create.value.table_name
                 header = cls._begin_header(os.path.join(args.path_to_header_directory, cls._to_class_name(sql_table_name, args) + ".h"), args)
                 cls._write_table(table, header, args)
                 cls._end_header(header, args)
@@ -597,7 +597,7 @@ class ModelWriter:
         export = "export " if args.path_to_module else ""
         data_type_error = False
         create = table.create.value
-        sql_table_name = create.tableName
+        sql_table_name = create.table_name
         table_class = cls._to_class_name(sql_table_name, args)
         table_member = cls._to_member_name(sql_table_name, args)
         table_spec = table_class + "_"
@@ -608,12 +608,12 @@ class ModelWriter:
             print("  " + export + "template<typename Db>", file=header)
             print("  void " + creation_helper_func + "(Db& db) {", file=header)
             print("    db(R\"+++(DROP TABLE IF EXISTS " + sql_table_name + ")+++\");", file=header)
-            print("    db(R\"+++(" + create.createSql + ")+++\");", file=header)
+            print("    db(R\"+++(" + create.create_sql + ")+++\");", file=header)
             print("  }", file=header)
             print("", file=header)
         print("  " + export + "struct " + table_spec + " {", file=header)
         for column in create.columns:
-            if column.isConstraint:
+            if column.is_constraint:
                 continue
             sql_column_name = column.name
             column_class = cls._to_class_name(sql_column_name, args)
@@ -625,7 +625,7 @@ class ModelWriter:
                     % (sql_table_name, sql_column_name)
                 )
                 data_type_error = True
-            if column_type == "integral" and column.isUnsigned:
+            if column_type == "integral" and column.is_unsigned:
                 column_type = "unsigned_" + column_type
             if column_type == "timestamp" and not args.suppress_timestamp_warning:
                 args.suppress_timestamp_warning = True
@@ -640,17 +640,17 @@ class ModelWriter:
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
                 + cls._escape_if_reserved(sql_column_name) + ", " + column_member + ");"
                 , file=header)
-            column_is_const = column.hasGeneratedValue
+            column_is_const = column.has_generated_value
             const_prefix = "const " if column_is_const else ""
-            column_can_be_null = not column.notNull and not column.isPrimaryKey and not column.hasSerialValue
+            column_can_be_null = not column.not_null and not column.is_primary_key and not column.has_serial_value
             if column_can_be_null:
                 print("      using data_type = " + const_prefix + "std::optional<::sqlpp::" + column_type + ">;", file=header)
             else:
                 print("      using data_type = " + const_prefix + "::sqlpp::" + column_type + ";", file=header)
-            column_has_default = column.hasDefaultValue or \
-                            column.hasSerialValue or \
-                            column.hasAutoValue or \
-                            column.hasGeneratedValue or \
+            column_has_default = column.has_default_value or \
+                            column.has_serial_value or \
+                            column.has_auto_value or \
+                            column.has_generated_value or \
                             (args.assume_auto_id and sql_column_name == "id") or \
                             column_can_be_null
             if column_has_default:
@@ -778,12 +778,12 @@ def get_extended_types(filename):
         return None
     import csv
     with open(filename, newline="") as csv_file:
-        reader = csv.DictReader(csv_file, fieldnames=["baseType"], restkey="customTypes", delimiter=",")
+        reader = csv.DictReader(csv_file, fieldnames=["base_type"], restkey="custom_types", delimiter=",")
         types = {}
         for row in reader:
-            var_values = [clean_val for value in row["customTypes"] if (clean_val := value.strip(" \"'").lower())]
+            var_values = [clean_val for value in row["custom_types"] if (clean_val := value.strip(" \"'").lower())]
             if var_values:
-                types[row["baseType"]] = var_values
+                types[row["base_type"]] = var_values
         return types
 
 
