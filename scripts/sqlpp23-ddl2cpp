@@ -289,7 +289,7 @@ class DdlParser:
         try:
             return [cls.ddl.parse_file(path) for path in ddl_paths]
         except pp.ParseException as e:
-            print("ERROR: failed to parse " + path)
+            print(f"ERROR: Failed to parse {path}")
             print(e.explain(1))
             sys.exit(ExitCode.STRANGE_PARSING)
 
@@ -625,21 +625,14 @@ class ModelWriter:
             column_member = cls._to_member_name(sql_column_name, args)
             column_type = column.type
             if column_type == "UNKNOWN":
-                print(
-                    "Error: SQL data type of %s.%s is not supported."
-                    % (sql_table_name, sql_column_name)
-                )
+                print(f"ERROR: SQL data type of {sql_table_name}.{sql_column_name} is not supported.")
                 data_type_error = True
             if column_type == "integral" and column.is_unsigned:
                 column_type = "unsigned_" + column_type
             if column_type == "timestamp" and not args.suppress_timestamp_warning:
                 args.suppress_timestamp_warning = True
-                print(
-                    "Warning: date and time values are assumed to be without timezone."
-                )
-                print(
-                    "Warning: If you are using types WITH timezones, your code has to deal with that."
-                )
+                print("WARNING: date and time values are assumed to be without timezone.")
+                print("WARNING: If you are using types WITH timezones, your code has to deal with that.")
                 print("You can disable this warning using --suppress-timestamp-warning")
             print("    struct " + column_class + " {", file=header)
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
@@ -685,7 +678,7 @@ class ModelWriter:
             "  " + export + "using " + table_class + " = ::sqlpp::table_t<" + table_spec + ">;", file=header)
         print("", file=header)
         if data_type_error:
-            print("Error: unsupported SQL data type(s).")
+            print("ERROR: Unsupported SQL data type(s).")
             print("Possible solutions:")
             print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
             print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
