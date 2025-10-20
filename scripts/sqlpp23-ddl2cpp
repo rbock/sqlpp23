@@ -38,7 +38,7 @@ class ExitCode(IntEnum):
     BAD_ARGS = 1
     BAD_CUSTOM_TYPES = 30
     BAD_DATA_TYPE = 10
-    STRANGE_PARSING = 20
+    BAD_DDL_PARSING = 20
 
 
 # DdlParser, SelfTest and ModelWriter could be modules instead of classes. However, using
@@ -291,7 +291,7 @@ class DdlParser:
         except pp.ParseException as e:
             print(f"ERROR: Failed to parse {path}")
             print(e.explain(1))
-            sys.exit(ExitCode.STRANGE_PARSING)
+            sys.exit(ExitCode.BAD_DDL_PARSING)
 
 
 class SelfTest:
