@@ -57,7 +57,7 @@ class DdlParser:
         "BOOL",
         "BOOLEAN",
     ]
-    ddl_integer_types = [
+    ddl_integral_types = [
         "BIGINT",
         "INT",
         "INT2",  # PostgreSQL
@@ -112,7 +112,7 @@ class DdlParser:
     ddl_date_types = [
         "DATE",
     ]
-    ddl_date_time_types = [
+    ddl_timestamp_types = [
         "DATETIME",
         "TIMESTAMP",
         "TIMESTAMP WITHOUT TIME ZONE",  # PostgreSQL
@@ -182,23 +182,23 @@ class DdlParser:
             ).set_parse_action(pp.replace_with(data_type))
 
         ddl_boolean = get_type_parser("boolean", "boolean")
-        ddl_integer = get_type_parser("integer", "integral")
+        ddl_integral = get_type_parser("integral", "integral")
         ddl_serial = get_type_parser("serial", "integral").set_results_name("has_serial_value")
         ddl_floating_point = get_type_parser("floating_point", "floating_point")
         ddl_text = get_type_parser("text", "text")
         ddl_blob = get_type_parser("blob", "blob")
         ddl_date = get_type_parser("date", "date")
-        ddl_date_time = get_type_parser("date_time", "timestamp")
+        ddl_timestamp = get_type_parser("timestamp", "timestamp")
         ddl_time = get_type_parser("time", "time")
         ddl_unknown = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN"))
         cls.ddl_type = (
             ddl_boolean
-            | ddl_integer
+            | ddl_integral
             | ddl_serial
             | ddl_floating_point
             | ddl_text
             | ddl_blob
-            | ddl_date_time
+            | ddl_timestamp
             | ddl_date
             | ddl_time
             | ddl_unknown
@@ -327,7 +327,7 @@ class SelfTest:
 
     @staticmethod
     def _test_integer():
-        for t in DdlParser.ddl_integer_types:
+        for t in DdlParser.ddl_integral_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "integral"
 
@@ -364,7 +364,7 @@ class SelfTest:
 
     @staticmethod
     def _test_date_time():
-        for t in DdlParser.ddl_date_time_types:
+        for t in DdlParser.ddl_timestamp_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "timestamp"
 
