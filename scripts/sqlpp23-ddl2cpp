@@ -54,75 +54,75 @@ class DdlParser:
 
     # Names of data types that can be updated by the custom data types
     ddl_boolean_types = [
-        "bool",
-        "boolean",
+        "BOOL",
+        "BOOLEAN",
     ]
     ddl_integer_types = [
-        "bigint",
-        "int",
-        "int2",  # PostgreSQL
-        "int4",  # PostgreSQL
-        "int8",  # PostgreSQL
-        "integer",
-        "mediumint",
-        "smallint",
-        "tinyint",
+        "BIGINT",
+        "INT",
+        "INT2",  # PostgreSQL
+        "INT4",  # PostgreSQL
+        "INT8",  # PostgreSQL
+        "INTEGER",
+        "MEDIUMINT",
+        "SMALLINT",
+        "TINYINT",
     ]
     ddl_serial_types = [
-        "bigserial",  # PostgreSQL
-        "serial",  # PostgreSQL
-        "serial2",  # PostgreSQL
-        "serial4",  # PostgreSQL
-        "serial8",  # PostgreSQL
-        "smallserial",  # PostgreSQL
+        "BIGSERIAL",  # PostgreSQL
+        "SERIAL",  # PostgreSQL
+        "SERIAL2",  # PostgreSQL
+        "SERIAL4",  # PostgreSQL
+        "SERIAL8",  # PostgreSQL
+        "SMALLSERIAL",  # PostgreSQL
     ]
     ddl_floating_point_types = [
-        "decimal",  # MYSQL
-        "double",
-        "float8",  # PostgreSQL
-        "float",
-        "float4",  # PostgreSQL
-        "numeric",  # PostgreSQL
-        "real",
+        "DECIMAL",  # MYSQL
+        "DOUBLE",
+        "FLOAT8",  # PostgreSQL
+        "FLOAT",
+        "FLOAT4",  # PostgreSQL
+        "NUMERIC",  # PostgreSQL
+        "REAL",
     ]
     ddl_text_types = [
-        "char",
-        "varchar",
-        "character varying",  # PostgreSQL
-        "text",
-        "clob",
-        "enum",  # MYSQL
-        "set",
-        "longtext",  # MYSQL
-        "jsonb",  # PostgreSQL
-        "json",  # PostgreSQL
-        "tinytext",  # MYSQL
-        "mediumtext",  # MYSQL
-        "rational", # PostgreSQL pg_rationale extension
+        "CHAR",
+        "VARCHAR",
+        "CHARACTER VARYING",  # PostgreSQL
+        "TEXT",
+        "CLOB",
+        "ENUM",  # MYSQL
+        "SET",
+        "LONGTEXT",  # MYSQL
+        "JSONB",  # PostgreSQL
+        "JSON",  # PostgreSQL
+        "TINYTEXT",  # MYSQL
+        "MEDIUMTEXT",  # MYSQL
+        "RATIONAL", # PostgreSQL pg_rationale extension
     ]
     ddl_blob_types = [
-        "bytea",
-        "tinyblob",
-        "blob",
-        "mediumblob",
-        "longblob",
-        "binary",  # MYSQL
-        "varbinary",  # MYSQL
+        "BYTEA",
+        "TINYBLOB",
+        "BLOB",
+        "MEDIUMBLOB",
+        "LONGBLOB",
+        "BINARY",  # MYSQL
+        "VARBINARY",  # MYSQL
     ]
     ddl_date_types = [
-        "date",
+        "DATE",
     ]
     ddl_date_time_types = [
-        "datetime",
-        "timestamp",
-        "timestamp without time zone",  # PostgreSQL
-        "timestamp with time zone",  # PostgreSQL
-        "timestamptz",  # PostgreSQL
+        "DATETIME",
+        "TIMESTAMP",
+        "TIMESTAMP WITHOUT TIME ZONE",  # PostgreSQL
+        "TIMESTAMP WITH TIME ZONE",  # PostgreSQL
+        "TIMESTAMPTZ",  # PostgreSQL
     ]
     ddl_time_types = [
-        "time",
-        "time without time zone",  # PostgreSQL
-        "time with time zone",  # PostgreSQL
+        "TIME",
+        "TIME WITHOUT TIME ZONE",  # PostgreSQL
+        "TIME WITH TIME ZONE",  # PostgreSQL
     ]
 
     # Parsers that are initialized later
@@ -782,7 +782,7 @@ def get_custom_types(filename):
         def strip_garbage(name):
             return name.strip(" \"'")
         def clean_custom_type(name):
-            return strip_garbage(name).lower()
+            return strip_garbage(name).upper()
         def clean_base_type(name):
             name_ident = strip_garbage(name)
             if DdlParser.is_base_type(name_ident):
