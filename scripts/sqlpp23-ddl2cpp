@@ -209,9 +209,9 @@ class DdlParser:
         ddl_digits = "," + pp.Word(pp.nums)
         ddl_width = ddl_left + pp.Word(pp.nums) + pp.Optional(ddl_digits) + ddl_right
         ddl_timezone = (
-            (pp.CaselessKeyword("with") | pp.CaselessKeyword("without"))
-            + pp.CaselessKeyword("time")
-            + pp.CaselessKeyword("zone")
+            (pp.CaselessKeyword("WITH") | pp.CaselessKeyword("WITHOUT"))
+            + pp.CaselessKeyword("TIME")
+            + pp.CaselessKeyword("ZONE")
         )
         ddl_not_null = (pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")).set_results_name("not_null")
         ddl_default_value = pp.CaselessKeyword("DEFAULT").set_results_name("has_default_value")
