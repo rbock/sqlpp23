@@ -7,12 +7,13 @@
 - deprecate result_row_t::as_tuple
 - new as_tuple(const result_row_t&)
 - new get_sql_name_tuple(const result_row_t&), #72
-- sqlpp23-ddl2cpp: command-line option `--path-to-datatype-file` was renamed to `--path-to-custom-types`
-- sqlpp23-ddl2cpp: if an error is found in the custom types file, the program exits with error code 30
-- sqlpp23-ddl2cpp: base types in the custom types file should use `snake_case`, although the old `CamelCase` is still supported for backwards compatibility
-- sqlpp23-ddl2cpp: renamed some base types in custom types file to match the corresponding sqlpp23 data types:
-  - integer -> integral
-  - date_time -> timestamp
+- sqlpp23-ddl2cpp changes:
+  - command-line option `--path-to-datatype-file` was renamed to `--path-to-custom-types`
+  - if an error is found in the custom types file, the program exits with error code 30
+  - base types in the custom types file should use `snake_case`, although the old `CamelCase` is still supported for backwards compatibility
+  - renamed some base types in custom types file to match the corresponding sqlpp23 data types:
+    - integer -> integral
+    - date_time -> timestamp
 
 ## 0.67
 
