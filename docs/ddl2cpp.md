@@ -21,6 +21,32 @@ mysqldump --no-data MyDatabase > MyDatabase.sql
 
 For detailed instructions refer to the documentation of your database.
 
+## Custom data types
+
+`sqlpp23-ddl2cpp` allows you to define aliases of existing data types, which can be useful if your DDL files use
+SQL data types that are not supported natively by sqlpp23. In this case you can create a file mapping each of the
+unsupported SQL data types to one of the natively supported base types and tell `sqlpp23-ddl2cpp` to use that
+file through the `--path-to-custom-types` command-line option (see [Command-line options](#command-line-options)).
+
+The custom types file is a CSV file in which fields can be optionally single or double-quoted. Each line
+starts with a base type, followed by one or more custom types that are mapped to that base type. For example:
+```
+integral, MYINT, another_int, type2
+floating_point, double, "my float", fpvalue, fp_too
+```
+The base type names follow closely the data types supported by sqlpp23:
+- blob: Blob (binary large object).
+- boolean: Boolean.
+- date: Date (year + month + day of month).
+- floating_point: Floating-point.
+- integral: Integral (integer) data type. Booleans are not considered an integral type.
+- serial: Integral (integer) value with auto-increment. Always has a default value, so it cannot be NULL.
+- text: Text.
+- time: Time of day.
+- timestamp: Tmestamp (date + time).
+
+The custom type names are case-insensitive just like the native SQL types.
+
 ## Command-line options
 
 **Help**

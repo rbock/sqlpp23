@@ -14,6 +14,7 @@
   - renamed some base types in custom types file to match the corresponding sqlpp23 data types:
     - integer -> integral
     - date_time -> timestamp
+  - documented the format of the custom types file
 
 ## 0.67
 
