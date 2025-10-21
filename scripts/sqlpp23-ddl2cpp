@@ -295,214 +295,6 @@ class DdlParser:
             sys.exit(ExitCode.BAD_DDL_PARSING)
 
 
-class SelfTest:
-    """Runs a self-test of the parser"""
-
-    @classmethod
-    def run(cls):
-        print("Running self-test")
-        DdlParser.initialize()
-        cls._test_boolean()
-        cls._test_integer()
-        cls._test_serial()
-        cls._test_floating_point()
-        cls._test_text()
-        cls._test_blob()
-        cls._test_date()
-        cls._test_time()
-        cls._test_unknown()
-        cls._test_date_time()
-        cls._test_column()
-        cls._test_constraint()
-        cls._test_math_expression()
-        cls._test_rational()
-        cls._test_table()
-        cls._test_primary_key_auto_increment()
-
-    @staticmethod
-    def _test_boolean():
-        for t in DdlParser.ddl_boolean_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "boolean"
-
-    @staticmethod
-    def _test_integer():
-        for t in DdlParser.ddl_integral_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "integral"
-
-    @staticmethod
-    def _test_serial():
-        for t in DdlParser.ddl_serial_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "integral"
-            assert result.has_serial_value
-
-    @staticmethod
-    def _test_floating_point():
-        for t in DdlParser.ddl_floating_point_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "floating_point"
-
-    @staticmethod
-    def _test_text():
-        for t in DdlParser.ddl_text_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "text"
-
-    @staticmethod
-    def _test_blob():
-        for t in DdlParser.ddl_blob_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "blob"
-
-    @staticmethod
-    def _test_date():
-        for t in DdlParser.ddl_date_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "date"
-
-    @staticmethod
-    def _test_date_time():
-        for t in DdlParser.ddl_timestamp_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "timestamp"
-
-    @staticmethod
-    def _test_time():
-        for t in DdlParser.ddl_time_types:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "time"
-
-    @staticmethod
-    def _test_unknown():
-        for t in ["cheesecake", "blueberry"]:
-            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "UNKNOWN"
-
-    @staticmethod
-    def _test_column():
-        test_data = [
-            {
-                "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
-                "expected": {
-                    "name": "id",
-                    "type": "integral",
-                    "is_unsigned": True,
-                    "not_null": True,
-                    "has_auto_value": False,
-                    "has_default_value": True,
-                    "has_generated_value": False,
-                    "has_serial_value": False,
-                    "is_primary_key": False
-                }
-            },
-            {
-                "text": "\"fld\" int AUTO_INCREMENT",
-                "expected": {
-                    "name": "fld",
-                    "type": "integral",
-                    "is_unsigned": False,
-                    "not_null": False,
-                    "has_auto_value": True,
-                    "has_default_value": False,
-                    "has_generated_value": False,
-                    "has_serial_value": False,
-                    "is_primary_key": False
-                }
-            },
-            {
-                "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
-                "expected": {
-                    "name": "fld2",
-                    "type": "integral",
-                    "is_unsigned": False,
-                    "not_null": True,
-                    "has_auto_value": False,
-                    "has_default_value": False,
-                    "has_generated_value": True,
-                    "has_serial_value": False,
-                    "is_primary_key": False
-                }
-            }
-        ]
-        for td in test_data:
-            result = DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
-            expected = td["expected"]
-            assert result.name == expected["name"]
-            assert result.type == expected["type"]
-            assert bool(result.is_unsigned) == expected["is_unsigned"]
-            assert bool(result.not_null) == expected["not_null"]
-            assert bool(result.has_auto_value) == expected["has_auto_value"]
-            assert bool(result.has_default_value) == expected["has_default_value"]
-            assert bool(result.has_generated_value) == expected["has_generated_value"]
-            assert bool(result.has_serial_value) == expected["has_serial_value"]
-            assert bool(result.is_primary_key) == expected["is_primary_key"]
-
-    @staticmethod
-    def _test_constraint():
-        for text in [
-            "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
-            "UNIQUE (id)",
-            "UNIQUE (first_name,last_name)"
-        ]:
-            result = DdlParser.ddl_constraint.parse_string(text, parse_all=True)
-            assert result.is_constraint
-
-    @staticmethod
-    def _test_math_expression():
-            text = "2 DIV 2"
-            result = DdlParser.ddl_expression.parse_string(text, parse_all=True)
-            assert len(result) == 3
-            assert result[0] == "2"
-            assert result[1] == "DIV"
-            assert result[2] == "2"
-
-    @staticmethod
-    def _test_rational():
-        for text in [
-            "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
-        ]:
-            result = DdlParser.ddl_column.parse_string(text, parse_all=True)
-            column = result[0]
-            assert column.name == "pos"
-            assert column.type == "text"
-            assert column.not_null
-
-    @staticmethod
-    def _test_table():
-        text = """
-    CREATE TABLE "public"."dk" (
-    "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
-    "strange" NUMERIC(314, 15),
-    "last_update" timestamp(6) DEFAULT now(),
-    PRIMARY KEY (id)
-    )
-    """
-        result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
-
-    @staticmethod
-    def _test_primary_key_auto_increment():
-        for text in [
-            "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
-            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
-            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
-        ]:
-            result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
-            assert len(result) == 1
-            table = result.create.value
-            assert table.table_name == "tab"
-            assert len(table.columns) == 1
-            column = table.columns[0]
-            assert not column.is_constraint
-            assert column.name == "col"
-            assert column.type == "integral"
-            assert column.not_null
-            assert column.has_auto_value
-            assert column.is_primary_key
-            assert table.create_sql == text
-
-
 class ModelWriter:
     """This class uses the parsed DDL definitions to generate and write the C++ database model file(s)"""
 
@@ -720,6 +512,214 @@ class ModelWriter:
         if name.upper() in reserved_names:
             return "!{}".format(name)
         return name
+
+
+class SelfTest:
+    """Runs a self-test of the parser"""
+
+    @classmethod
+    def run(cls):
+        print("Running self-test")
+        DdlParser.initialize()
+        cls._test_boolean()
+        cls._test_integer()
+        cls._test_serial()
+        cls._test_floating_point()
+        cls._test_text()
+        cls._test_blob()
+        cls._test_date()
+        cls._test_time()
+        cls._test_unknown()
+        cls._test_date_time()
+        cls._test_column()
+        cls._test_constraint()
+        cls._test_math_expression()
+        cls._test_rational()
+        cls._test_table()
+        cls._test_primary_key_auto_increment()
+
+    @staticmethod
+    def _test_boolean():
+        for t in DdlParser.ddl_boolean_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "boolean"
+
+    @staticmethod
+    def _test_integer():
+        for t in DdlParser.ddl_integral_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "integral"
+
+    @staticmethod
+    def _test_serial():
+        for t in DdlParser.ddl_serial_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "integral"
+            assert result.has_serial_value
+
+    @staticmethod
+    def _test_floating_point():
+        for t in DdlParser.ddl_floating_point_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "floating_point"
+
+    @staticmethod
+    def _test_text():
+        for t in DdlParser.ddl_text_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "text"
+
+    @staticmethod
+    def _test_blob():
+        for t in DdlParser.ddl_blob_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "blob"
+
+    @staticmethod
+    def _test_date():
+        for t in DdlParser.ddl_date_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "date"
+
+    @staticmethod
+    def _test_date_time():
+        for t in DdlParser.ddl_timestamp_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "timestamp"
+
+    @staticmethod
+    def _test_time():
+        for t in DdlParser.ddl_time_types:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "time"
+
+    @staticmethod
+    def _test_unknown():
+        for t in ["cheesecake", "blueberry"]:
+            result = DdlParser.ddl_type.parse_string(t, parse_all=True)
+            assert result[0] == "UNKNOWN"
+
+    @staticmethod
+    def _test_column():
+        test_data = [
+            {
+                "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
+                "expected": {
+                    "name": "id",
+                    "type": "integral",
+                    "is_unsigned": True,
+                    "not_null": True,
+                    "has_auto_value": False,
+                    "has_default_value": True,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": False
+                }
+            },
+            {
+                "text": "\"fld\" int AUTO_INCREMENT",
+                "expected": {
+                    "name": "fld",
+                    "type": "integral",
+                    "is_unsigned": False,
+                    "not_null": False,
+                    "has_auto_value": True,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": False
+                }
+            },
+            {
+                "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
+                "expected": {
+                    "name": "fld2",
+                    "type": "integral",
+                    "is_unsigned": False,
+                    "not_null": True,
+                    "has_auto_value": False,
+                    "has_default_value": False,
+                    "has_generated_value": True,
+                    "has_serial_value": False,
+                    "is_primary_key": False
+                }
+            }
+        ]
+        for td in test_data:
+            result = DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
+            expected = td["expected"]
+            assert result.name == expected["name"]
+            assert result.type == expected["type"]
+            assert bool(result.is_unsigned) == expected["is_unsigned"]
+            assert bool(result.not_null) == expected["not_null"]
+            assert bool(result.has_auto_value) == expected["has_auto_value"]
+            assert bool(result.has_default_value) == expected["has_default_value"]
+            assert bool(result.has_generated_value) == expected["has_generated_value"]
+            assert bool(result.has_serial_value) == expected["has_serial_value"]
+            assert bool(result.is_primary_key) == expected["is_primary_key"]
+
+    @staticmethod
+    def _test_constraint():
+        for text in [
+            "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
+            "UNIQUE (id)",
+            "UNIQUE (first_name,last_name)"
+        ]:
+            result = DdlParser.ddl_constraint.parse_string(text, parse_all=True)
+            assert result.is_constraint
+
+    @staticmethod
+    def _test_math_expression():
+            text = "2 DIV 2"
+            result = DdlParser.ddl_expression.parse_string(text, parse_all=True)
+            assert len(result) == 3
+            assert result[0] == "2"
+            assert result[1] == "DIV"
+            assert result[2] == "2"
+
+    @staticmethod
+    def _test_rational():
+        for text in [
+            "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
+        ]:
+            result = DdlParser.ddl_column.parse_string(text, parse_all=True)
+            column = result[0]
+            assert column.name == "pos"
+            assert column.type == "text"
+            assert column.not_null
+
+    @staticmethod
+    def _test_table():
+        text = """
+    CREATE TABLE "public"."dk" (
+    "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
+    "strange" NUMERIC(314, 15),
+    "last_update" timestamp(6) DEFAULT now(),
+    PRIMARY KEY (id)
+    )
+    """
+        result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
+
+    @staticmethod
+    def _test_primary_key_auto_increment():
+        for text in [
+            "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
+            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
+            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
+        ]:
+            result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
+            assert len(result) == 1
+            table = result.create.value
+            assert table.table_name == "tab"
+            assert len(table.columns) == 1
+            column = table.columns[0]
+            assert not column.is_constraint
+            assert column.name == "col"
+            assert column.type == "integral"
+            assert column.not_null
+            assert column.has_auto_value
+            assert column.is_primary_key
+            assert table.create_sql == text
 
 
 def parse_commandline_args():
