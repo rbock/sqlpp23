@@ -26,12 +26,10 @@ set(test_files
     CustomQuery.cpp
     DateTime.cpp
     DateTimeParser.cpp
-    Interpret.cpp
     Insert.cpp
     delete_from.cpp
     Update.cpp
     Select.cpp
-    SelectType.cpp
     Function.cpp
     Prepared.cpp
     Minimalistic.cpp
