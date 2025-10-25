@@ -26,6 +26,7 @@
 ##
 
 import argparse
+import collections
 import pyparsing as pp
 import sys
 import re
@@ -37,7 +38,7 @@ class ExitCode(IntEnum):
     SUCCESS = 0
     BAD_ARGS = 1
     BAD_CUSTOM_TYPES = 30
-    BAD_DATA_TYPE = 10
+    BAD_DDL_COMMAND = 10
     BAD_DDL_PARSING = 20
 
 
@@ -295,34 +296,132 @@ class DdlParser:
             sys.exit(ExitCode.BAD_DDL_PARSING)
 
 
-class ModelWriter:
-    """This class uses the parsed DDL definitions to generate and write the C++ database model file(s)"""
+class DdlExecutor:
+    """Executes the parsed DDL commands and builds the database model"""
+
+    _TableDef = collections.namedtuple ("TableDef", ["name", "create_sql", "columns"])
+    _ColumnDef = collections.namedtuple ("ColumnDef", ["name", "data_type", "is_const", "is_nullable", "has_default"])
+
+    _assume_auto_id = None
+    _warn_on_timestamp = None
+    _has_error = None
+    _has_unknown_type = None
+    _tables = None
 
     @classmethod
-    def write(cls, parsed_ddls, args):
-        if args.path_to_header:
-            cls._create_header(parsed_ddls, args)
-        if args.path_to_header_directory:
-            cls._create_split_headers(parsed_ddls, args)
-        if args.path_to_module:
-            cls._create_module(parsed_ddls, args)
-
-    @classmethod
-    def _create_header(cls, parsed_ddls, args):
-        header = cls._begin_header(args.path_to_header, args)
+    def execute(cls, parsed_ddls, args):
+        cls._assume_auto_id = args.assume_auto_id
+        cls._warn_on_timestamp = not args.suppress_timestamp_warning
+        cls._has_error = False
+        cls._has_unknown_type = False
+        cls._tables = {}
         for pd in parsed_ddls:
-            for table in pd.tables:
-                cls._write_table(table, header, args)
+            for command in pd.tables:
+                cls._execute_create_table(command)
+        if cls._has_error:
+            if cls._has_unknown_type:
+                print("ERROR: Unsupported SQL data type(s).")
+                print("Possible solutions:")
+                print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
+                print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
+                print("C) Raise an issue on github")
+            sys.exit(ExitCode.BAD_DDL_COMMAND)
+        return cls._tables.values()
+
+    @classmethod
+    def _execute_create_table(cls, command):
+        table_expr = command.create.value
+        table_name = table_expr.table_name
+        if table_name in cls._tables:
+            print(f"ERROR: Duplicate table name {table_name}")
+            cls._has_error = True
+            return
+        else:
+            cls._tables[table_name] = cls._TableDef(
+                name = table_name,
+                create_sql = table_expr.create_sql,
+                # We return the columns as a dictionary. Later, when we iterate the columns dictionary,
+                # we rely on the column iteration order being the same as the same as the column
+                # insertion order. This is only guaranteed in Python 3.7+
+                columns = cls._get_create_table_columns(table_name, table_expr.columns)
+            )
+
+    @classmethod
+    def _get_create_table_columns(cls, table_name, cols_expr):
+        columns = {}
+        for ce in cols_expr:
+            cls._get_create_table_column(columns, table_name, ce)
+        return columns.values()
+
+    @classmethod
+    def _get_create_table_column(cls, columns, table_name, col_expr):
+        if col_expr.is_constraint:
+            return
+        col_name = col_expr.name
+        if col_name in columns:
+            print(f"ERROR: Duplicate column name {table_name}.{col_name}")
+            cls._has_error = True
+            return
+        if col_expr.type == "timestamp":
+            if cls._warn_on_timestamp:
+                print("WARNING: date and time values are assumed to be without timezone.")
+                print("WARNING: If you are using types WITH timezones, your code has to deal with that.")
+                print("WARNING: You can disable this warning using --suppress-timestamp-warning")
+                cls._warn_on_timestamp = False
+        elif col_expr.type == "UNKNOWN":
+            print(f"ERROR: SQL data type of {table_name}.{col_name} is not supported.")
+            cls._has_error = True
+            cls._has_unknown_type = True
+            return
+        data_type = col_expr.type
+        if data_type == "integral" and col_expr.is_unsigned:
+            data_type = "unsigned_" + data_type
+        is_nullable = (
+            not col_expr.not_null and
+            not col_expr.is_primary_key and
+            not col_expr.has_serial_value
+        )
+        columns[col_name] = cls._ColumnDef(
+            name = col_name,
+            data_type = data_type,
+            is_const = col_expr.has_generated_value,
+            is_nullable = is_nullable,
+            has_default = (
+                col_expr.has_default_value or
+                col_expr.has_serial_value or
+                col_expr.has_auto_value or
+                (cls._assume_auto_id and col_name == "id") or
+                col_expr.has_generated_value or
+                is_nullable
+            )
+        )
+
+
+class ModelWriter:
+    """This class writes the database model as C++ headers and/or a module file"""
+
+    @classmethod
+    def write(cls, tables, args):
+        if args.path_to_header:
+            cls._create_header(tables, args)
+        if args.path_to_header_directory:
+            cls._create_split_headers(tables, args)
+        if args.path_to_module:
+            cls._create_module(tables, args)
+
+    @classmethod
+    def _create_header(cls, tables, args):
+        header = cls._begin_header(args.path_to_header, args)
+        for t in tables:
+            cls._write_table(t, header, args)
         cls._end_header(header, args)
 
     @classmethod
-    def _create_split_headers(cls, parsed_ddls, args):
-        for pd in parsed_ddls:
-            for table in pd.tables:
-                sql_table_name = table.create.value.table_name
-                header = cls._begin_header(os.path.join(args.path_to_header_directory, cls._to_class_name(sql_table_name, args) + ".h"), args)
-                cls._write_table(table, header, args)
-                cls._end_header(header, args)
+    def _create_split_headers(cls, tables, args):
+        for t in tables:
+            header = cls._begin_header(os.path.join(args.path_to_header_directory, cls._to_class_name(t.name, args) + ".h"), args)
+            cls._write_table(t, header, args)
+            cls._end_header(header, args)
 
     @staticmethod
     def _begin_header(path_to_header, args):
@@ -356,11 +455,10 @@ class ModelWriter:
         header.close()
 
     @classmethod
-    def _create_module(cls, parsed_ddls, args):
+    def _create_module(cls, tables, args):
         module = cls._begin_module(args.path_to_module, args)
-        for pd in parsed_ddls:
-            for table in pd.tables:
-                cls._write_table(table, module, args)
+        for t in tables:
+            cls._write_table(t, module, args)
         cls._end_module(module, args)
 
     @staticmethod
@@ -393,11 +491,8 @@ class ModelWriter:
     @classmethod
     def _write_table(cls, table, header, args):
         export = "export " if args.path_to_module else ""
-        data_type_error = False
-        create = table.create.value
-        sql_table_name = create.table_name
-        table_class = cls._to_class_name(sql_table_name, args)
-        table_member = cls._to_member_name(sql_table_name, args)
+        table_class = cls._to_class_name(table.name, args)
+        table_member = cls._to_member_name(table.name, args)
         table_spec = table_class + "_"
         table_template_parameters = ""
         table_required_insert_columns = ""
@@ -405,46 +500,24 @@ class ModelWriter:
             creation_helper_func = "create" + ("" if args.naming_style == "camel-case" else "_") + table_class
             print("  " + export + "template<typename Db>", file=header)
             print("  void " + creation_helper_func + "(Db& db) {", file=header)
-            print("    db(R\"+++(DROP TABLE IF EXISTS " + sql_table_name + ")+++\");", file=header)
-            print("    db(R\"+++(" + create.create_sql + ")+++\");", file=header)
+            print("    db(R\"+++(DROP TABLE IF EXISTS " + table.name + ")+++\");", file=header)
+            print("    db(R\"+++(" + table.create_sql + ")+++\");", file=header)
             print("  }", file=header)
             print("", file=header)
         print("  " + export + "struct " + table_spec + " {", file=header)
-        for column in create.columns:
-            if column.is_constraint:
-                continue
-            sql_column_name = column.name
-            column_class = cls._to_class_name(sql_column_name, args)
-            column_member = cls._to_member_name(sql_column_name, args)
-            column_type = column.type
-            if column_type == "UNKNOWN":
-                print(f"ERROR: SQL data type of {sql_table_name}.{sql_column_name} is not supported.")
-                data_type_error = True
-            if column_type == "integral" and column.is_unsigned:
-                column_type = "unsigned_" + column_type
-            if column_type == "timestamp" and not args.suppress_timestamp_warning:
-                args.suppress_timestamp_warning = True
-                print("WARNING: date and time values are assumed to be without timezone.")
-                print("WARNING: If you are using types WITH timezones, your code has to deal with that.")
-                print("You can disable this warning using --suppress-timestamp-warning")
+        for column in table.columns:
+            column_class = cls._to_class_name(column.name, args)
+            column_member = cls._to_member_name(column.name, args)
             print("    struct " + column_class + " {", file=header)
             print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
-                + cls._escape_if_reserved(sql_column_name) + ", " + column_member + ");"
+                + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
-            column_is_const = column.has_generated_value
-            const_prefix = "const " if column_is_const else ""
-            column_can_be_null = not column.not_null and not column.is_primary_key and not column.has_serial_value
-            if column_can_be_null:
-                print("      using data_type = " + const_prefix + "std::optional<::sqlpp::" + column_type + ">;", file=header)
+            const_prefix = "const " if column.is_const else ""
+            if column.is_nullable:
+                print("      using data_type = " + const_prefix + "std::optional<::sqlpp::" + column.data_type + ">;", file=header)
             else:
-                print("      using data_type = " + const_prefix + "::sqlpp::" + column_type + ";", file=header)
-            column_has_default = column.has_default_value or \
-                            column.has_serial_value or \
-                            column.has_auto_value or \
-                            column.has_generated_value or \
-                            (args.assume_auto_id and sql_column_name == "id") or \
-                            column_can_be_null
-            if column_has_default:
+                print("      using data_type = " + const_prefix + "::sqlpp::" + column.data_type + ";", file=header)
+            if column.has_default:
                 print("      using has_default = std::true_type;", file=header)
             else:
                 print("      using has_default = std::false_type;", file=header)
@@ -452,12 +525,12 @@ class ModelWriter:
             if table_template_parameters:
                 table_template_parameters += ","
             table_template_parameters += "\n               " + column_class
-            if not column_has_default:
+            if not column.has_default:
                 if table_required_insert_columns:
                     table_required_insert_columns += ","
                 table_required_insert_columns += "\n               sqlpp::column_t<sqlpp::table_t<" + table_spec + ">, " + column_class + ">";
         print("    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
-            + cls._escape_if_reserved(sql_table_name) + ", " + table_member + ");"
+            + cls._escape_if_reserved(table.name) + ", " + table_member + ");"
             , file=header)
         print("    template<typename T>", file=header)
         print("    using _table_columns = sqlpp::table_columns<T,"
@@ -470,13 +543,6 @@ class ModelWriter:
         print(
             "  " + export + "using " + table_class + " = ::sqlpp::table_t<" + table_spec + ">;", file=header)
         print("", file=header)
-        if data_type_error:
-            print("ERROR: Unsupported SQL data type(s).")
-            print("Possible solutions:")
-            print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
-            print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
-            print("C) Raise an issue on github")
-            sys.exit(ExitCode.BAD_DATA_TYPE)  # return non-zero error code, we might need it for automation
 
     @classmethod
     def _to_class_name(cls, name, args):
@@ -809,5 +875,6 @@ if __name__ == "__main__":
         custom_types = get_custom_types(args.path_to_custom_types)
         DdlParser.initialize(custom_types)
         parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
-        ModelWriter.write(parsed_ddls, args)
+        tables = DdlExecutor.execute(parsed_ddls, args)
+        ModelWriter.write(tables, args)
     sys.exit(ExitCode.SUCCESS)
