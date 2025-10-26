@@ -300,7 +300,7 @@ class DdlParser:
 class DdlExecutor:
     """Executes the parsed DDL commands and builds the database model"""
 
-    _TableDef = collections.namedtuple ("TableDef", ["name", "columns", "command"])
+    _TableDef = collections.namedtuple ("TableDef", ["name", "columns", "commands"])
     _ColumnDef = collections.namedtuple ("ColumnDef", ["name", "data_type", "is_const", "is_nullable", "has_default"])
 
     _assume_auto_id = None
@@ -344,7 +344,7 @@ class DdlExecutor:
                 # we rely on the column iteration order being the same as the same as the column
                 # insertion order. This is only guaranteed in Python 3.7+
                 columns = cls._get_create_table_columns(table_name, table_expr.columns),
-                command = table_expr.command_text
+                commands = [table_expr.command_text]
             )
 
     @classmethod
@@ -502,7 +502,8 @@ class ModelWriter:
             print("  " + export + "template<typename Db>", file=header)
             print("  void " + creation_helper_func + "(Db& db) {", file=header)
             print("    db(R\"+++(DROP TABLE IF EXISTS " + table.name + ")+++\");", file=header)
-            print("    db(R\"+++(" + table.command + ")+++\");", file=header)
+            for command in table.commands:
+                print("    db(R\"+++(" + command + ")+++\");", file=header)
             print("  }", file=header)
             print("", file=header)
         print("  " + export + "struct " + table_spec + " {", file=header)
