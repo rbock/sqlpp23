@@ -275,10 +275,13 @@ class DdlParser:
         cls.ddl_ct_with_sql = pp.Located(ddl_ct_basic).set_results_name("create").set_parse_action(add_create_sql)
 
         # Main DDL parser
-        cls.ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddl_ct_basic, False)) + cls.ddl_ct_with_sql)).set_results_name("tables")
         ddl_comment = pp.one_of(["--", "#"]) + pp.rest_of_line
-        cls.ddl.ignore(ddl_comment)
-        cls.ddl.parse_with_tabs()
+        cls.ddl = (
+            pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddl_ct_basic, False)) + cls.ddl_ct_with_sql))
+            .set_results_name("tables")
+            .ignore(ddl_comment)
+            .parse_with_tabs()
+        )
 
     @classmethod
     def is_base_type(cls, name):
