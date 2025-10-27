@@ -269,10 +269,10 @@ class DdlParser:
             + pp.Group(pp.DelimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).set_results_name("columns")
             + ddl_right
         )
-        def add_create_sql(text, loc, tokens):
+        def add_command_text(text, loc, tokens):
             create = tokens.create
-            create.value["create_sql"] = text[create.locn_start:create.locn_end]
-        cls.ddl_ct_with_sql = pp.Located(ddl_ct_basic).set_results_name("create").set_parse_action(add_create_sql)
+            create.value["command_text"] = text[create.locn_start:create.locn_end]
+        cls.ddl_ct_with_sql = pp.Located(ddl_ct_basic).set_results_name("create").set_parse_action(add_command_text)
 
         # Main DDL parser
         ddl_comment = pp.one_of(["--", "#"]) + pp.rest_of_line
@@ -344,7 +344,7 @@ class DdlExecutor:
                 # we rely on the column iteration order being the same as the same as the column
                 # insertion order. This is only guaranteed in Python 3.7+
                 columns = cls._get_create_table_columns(table_name, table_expr.columns),
-                create_sql = table_expr.create_sql
+                create_sql = table_expr.command_text
             )
 
     @classmethod
@@ -786,7 +786,7 @@ class SelfTest:
             assert column.not_null
             assert column.has_auto_value
             assert column.is_primary_key
-            assert table.create_sql == text
+            assert table.command_text == text
 
 
 def parse_commandline_args():
