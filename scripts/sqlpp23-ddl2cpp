@@ -142,9 +142,7 @@ class DdlParser:
         ddl_left = pp.Suppress("(")
         ddl_right = pp.Suppress(")")
         ddl_number = pp.Word(pp.nums + "+-.", pp.nums + "+-.Ee")
-        ddl_string = (
-            pp.QuotedString("'") | pp.QuotedString('"', esc_quote='""') | pp.QuotedString("`")
-        )
+        ddl_string = pp.QuotedString("'") | pp.QuotedString('"', esc_quote='""') | pp.QuotedString("`")
         # ddl_string.set_debug(True) #uncomment to debug pyparsing
         ddl_term = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
         ddl_name = pp.Or([ddl_term, ddl_string, pp.Combine(ddl_string + "." + ddl_string), pp.Combine(ddl_term + ddl_string)])
