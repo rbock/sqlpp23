@@ -327,7 +327,7 @@ class DdlExecutor:
                 print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
                 print("C) Raise an issue on github")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
-        return cls._tables.values()
+        return cls._tables
 
     @classmethod
     def _execute_create_table(cls, command):
@@ -352,7 +352,7 @@ class DdlExecutor:
         columns = {}
         for ce in cols_expr:
             cls._get_create_table_column(columns, table_name, ce)
-        return columns.values()
+        return columns
 
     @classmethod
     def _get_create_table_column(cls, columns, table_name, col_expr):
@@ -413,13 +413,13 @@ class ModelWriter:
     @classmethod
     def _create_header(cls, tables, args):
         header = cls._begin_header(args.path_to_header, args)
-        for t in tables:
+        for t in tables.values():
             cls._write_table(t, header, args)
         cls._end_header(header, args)
 
     @classmethod
     def _create_split_headers(cls, tables, args):
-        for t in tables:
+        for t in tables.values():
             header = cls._begin_header(os.path.join(args.path_to_header_directory, cls._to_class_name(t.name, args) + ".h"), args)
             cls._write_table(t, header, args)
             cls._end_header(header, args)
@@ -458,7 +458,7 @@ class ModelWriter:
     @classmethod
     def _create_module(cls, tables, args):
         module = cls._begin_module(args.path_to_module, args)
-        for t in tables:
+        for t in tables.values():
             cls._write_table(t, module, args)
         cls._end_module(module, args)
 
@@ -507,7 +507,7 @@ class ModelWriter:
             print("  }", file=header)
             print("", file=header)
         print("  " + export + "struct " + table_spec + " {", file=header)
-        for column in table.columns:
+        for column in table.columns.values():
             column_class = cls._to_class_name(column.name, args)
             column_member = cls._to_member_name(column.name, args)
             print("    struct " + column_class + " {", file=header)
