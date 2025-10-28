@@ -26,12 +26,13 @@
 ##
 
 import argparse
-import collections
 import pyparsing as pp
 import sys
 import re
 import os
+from dataclasses import dataclass
 from enum import IntEnum
+from typing import Any, Dict, List
 
 
 class ExitCode(IntEnum):
@@ -300,8 +301,19 @@ class DdlParser:
 class DdlExecutor:
     """Executes the parsed DDL commands and builds the database model"""
 
-    _TableDef = collections.namedtuple ("TableDef", ["name", "columns", "commands"])
-    _ColumnDef = collections.namedtuple ("ColumnDef", ["name", "data_type", "is_const", "is_nullable", "has_default"])
+    @dataclass
+    class _ColumnDef:
+        name: str
+        data_type: str
+        is_const: bool
+        is_nullable: bool
+        has_default: bool
+
+    @dataclass
+    class _TableDef:
+        name: str
+        columns: Dict[str, Any]
+        commands: List[str]
 
     _assume_auto_id = None
     _warn_on_timestamp = None
