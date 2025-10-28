@@ -132,7 +132,6 @@ class DdlParser:
     ddl_type = None
     ddl_column = None
     ddl_constraint = None
-    ddl_ct_with_sql = None
     ddl = None
 
     @classmethod
@@ -260,7 +259,7 @@ class DdlParser:
         )
 
         # CREATE TABLE parser
-        ddl_ct_basic = (
+        ddl_create_table = (
             pp.Suppress(pp.CaselessKeyword("CREATE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
             + pp.Suppress(pp.CaselessKeyword("TABLE"))
@@ -270,16 +269,35 @@ class DdlParser:
             + pp.Group(pp.DelimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).set_results_name("columns")
             + ddl_right
         )
-        def add_command_text(text, loc, tokens):
-            create = tokens.create
-            create.value["command_text"] = text[create.locn_start:create.locn_end]
-        cls.ddl_ct_with_sql = pp.Located(ddl_ct_basic).set_results_name("create").set_parse_action(add_command_text)
+
+        # ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ... parser
+        ddl_set_default = (
+            pp.CaselessKeyword("ALTER")
+            + pp.CaselessKeyword("TABLE")
+            + pp.Optional(pp.CaselessKeyword("ONLY"))
+            + ddl_name.set_results_name("table_name")
+            + pp.CaselessKeyword("ALTER")
+            + pp.CaselessKeyword("COLUMN")
+            + ddl_name.set_results_name("column_name")
+            + pp.CaselessKeyword("SET")
+            + pp.CaselessKeyword("DEFAULT")
+            + cls.ddl_expression
+        )
+
+        # DDL command parser
+        ddl_command_basic = ddl_create_table.set_results_name("create_table") | ddl_set_default.set_results_name("set_default")
+        def rewrap_command_token(text, loc, tokens):
+            command = tokens.value
+            # FIXME: Remove the call to strip() once the following pyparsing bug is fixed
+            # https://github.com/pyparsing/pyparsing/issues/621
+            command["command_text"] = text[tokens.locn_start:tokens.locn_end].strip()
+            return [command]
+        ddl_command_with_loc = pp.Located(ddl_command_basic).set_parse_action(rewrap_command_token)
 
         # Main DDL parser
         ddl_comment = pp.one_of(["--", "#"]) + pp.rest_of_line
         cls.ddl = (
-            pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddl_ct_basic, False)) + cls.ddl_ct_with_sql))
-            .set_results_name("tables")
+            pp.OneOrMore(pp.Suppress(pp.SkipTo(ddl_command_basic, False)) + ddl_command_with_loc)
             .ignore(ddl_comment)
             .parse_with_tabs()
         )
@@ -329,8 +347,8 @@ class DdlExecutor:
         cls._has_unknown_type = False
         cls._tables = {}
         for pd in parsed_ddls:
-            for command in pd.tables:
-                cls._execute_create_table(command)
+            for command in pd:
+                cls._execute_command(command)
         if cls._has_error:
             if cls._has_unknown_type:
                 print("ERROR: Unsupported SQL data type(s).")
@@ -342,9 +360,18 @@ class DdlExecutor:
         return cls._tables
 
     @classmethod
+    def _execute_command(cls, command):
+        if command.create_table:
+            cls._execute_create_table(command)
+        elif command.set_default:
+            cls._execute_set_default(command)
+        else:
+            print("Unknown DDL command:" + os.linesep + command.dump())
+            raise RuntimeError()
+
+    @classmethod
     def _execute_create_table(cls, command):
-        table_expr = command.create.value
-        table_name = table_expr.table_name
+        table_name = command.table_name
         if table_name in cls._tables:
             print(f"ERROR: Duplicate table name {table_name}")
             cls._has_error = True
@@ -355,8 +382,8 @@ class DdlExecutor:
                 # We return the columns as a dictionary. Later, when we iterate the columns dictionary,
                 # we rely on the column iteration order being the same as the same as the column
                 # insertion order. This is only guaranteed in Python 3.7+
-                columns = cls._get_create_table_columns(table_name, table_expr.columns),
-                commands = [table_expr.command_text]
+                columns = cls._get_create_table_columns(table_name, command.columns),
+                commands = [command.command_text]
             )
 
     @classmethod
@@ -408,6 +435,21 @@ class DdlExecutor:
                 is_nullable
             )
         )
+
+    @classmethod
+    def _execute_set_default(cls, command):
+        if not command.table_name in cls._tables:
+            print(f"ERROR: Unknown table name in ALTER TABLE {command.table_name}")
+            cls._has_error = True
+            return
+        table_def = cls._tables[command.table_name]
+        if not command.column_name in table_def.columns:
+            print(f"ERROR: Unknown column name in ALTER TABLE {command.table_name} ALTER COLUMN {command.column_name}")
+            cls._has_error = True
+            return
+        column_def = table_def.columns[command.column_name]
+        column_def.has_default = True
+        table_def.commands.append(command.command_text)
 
 
 class ModelWriter:
