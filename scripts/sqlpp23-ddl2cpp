@@ -657,7 +657,7 @@ class SelfTest:
         cls._test_constraint()
         cls._test_math_expression()
         cls._test_rational()
-        cls._test_table()
+        cls._test_command_create_table()
 
     @staticmethod
     def _test_type_blob():
@@ -720,8 +720,8 @@ class SelfTest:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "UNKNOWN"
 
-    @staticmethod
-    def _test_column():
+    @classmethod
+    def _test_column(cls):
         test_data = [
             {
                 "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
@@ -796,16 +796,19 @@ class SelfTest:
         ]
         for td in test_data:
             result = DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
-            expected = td["expected"]
-            assert result.name == expected["name"]
-            assert result.type == expected["type"]
-            assert bool(result.is_unsigned) == expected["is_unsigned"]
-            assert bool(result.not_null) == expected["not_null"]
-            assert bool(result.has_auto_value) == expected["has_auto_value"]
-            assert bool(result.has_default_value) == expected["has_default_value"]
-            assert bool(result.has_generated_value) == expected["has_generated_value"]
-            assert bool(result.has_serial_value) == expected["has_serial_value"]
-            assert bool(result.is_primary_key) == expected["is_primary_key"]
+            cls._check_parsed_column(result, td["expected"])
+
+    @staticmethod
+    def _check_parsed_column(column_expr, column_expected):
+        assert column_expr.name == column_expected["name"]
+        assert column_expr.type == column_expected["type"]
+        assert bool(column_expr.is_unsigned) == column_expected["is_unsigned"]
+        assert bool(column_expr.not_null) == column_expected["not_null"]
+        assert bool(column_expr.has_auto_value) == column_expected["has_auto_value"]
+        assert bool(column_expr.has_default_value) == column_expected["has_default_value"]
+        assert bool(column_expr.has_generated_value) == column_expected["has_generated_value"]
+        assert bool(column_expr.has_serial_value) == column_expected["has_serial_value"]
+        assert bool(column_expr.is_primary_key) == column_expected["is_primary_key"]
 
     @staticmethod
     def _test_constraint():
@@ -837,17 +840,60 @@ class SelfTest:
             assert column.type == "text"
             assert column.not_null
 
-    @staticmethod
-    def _test_table():
-        text = """
-    CREATE TABLE "public"."dk" (
-    "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
-    "strange" NUMERIC(314, 15),
-    "last_update" timestamp(6) DEFAULT now(),
-    PRIMARY KEY (id)
-    )
-    """
-        result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
+    @classmethod
+    def _test_command_create_table(cls):
+        input_text = """
+            CREATE TABLE "public"."dk" (
+                id int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
+                "strange" NUMERIC(314, 15),
+                "last_update" timestamp(6) DEFAULT now(),
+                PRIMARY KEY (id)
+            )
+        """
+        result = DdlParser.ddl.parse_string(input_text, parse_all=True)
+        assert len(result) == 1
+        create_table = result[0]
+        assert create_table.create_table
+        assert create_table.table_name == "public.dk"
+        column_data = [
+            {
+                "name": "id",
+                "type": "integral",
+                "is_unsigned": False,
+                "not_null": True,
+                "has_auto_value": False,
+                "has_default_value": True,
+                "has_generated_value": False,
+                "has_serial_value": False,
+                "is_primary_key": False
+            },
+            {
+                "name": "strange",
+                "type": "floating_point",
+                "is_unsigned": False,
+                "not_null": False,
+                "has_auto_value": False,
+                "has_default_value": False,
+                "has_generated_value": False,
+                "has_serial_value": False,
+                "is_primary_key": False
+            },
+            {
+                "name": "last_update",
+                "type": "timestamp",
+                "is_unsigned": False,
+                "not_null": False,
+                "has_auto_value": False,
+                "has_default_value": True,
+                "has_generated_value": False,
+                "has_serial_value": False,
+                "is_primary_key": False
+            },
+        ]
+        assert len(create_table.columns) == len(column_data)
+        for index, expected in enumerate(column_data):
+            cls._check_parsed_column(create_table.columns[index], expected)
+        assert create_table.command_text == input_text.strip()
 
 
 def parse_commandline_args():
