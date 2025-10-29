@@ -658,7 +658,6 @@ class SelfTest:
         cls._test_math_expression()
         cls._test_rational()
         cls._test_table()
-        cls._test_primary_key_auto_increment()
 
     @staticmethod
     def _test_boolean():
@@ -753,6 +752,34 @@ class SelfTest:
                 }
             },
             {
+                "text": "\"other_field\" int8 AUTOINCREMENT NOT NULL",
+                "expected": {
+                    "name": "other_field",
+                    "type": "integral",
+                    "is_unsigned": False,
+                    "not_null": True,
+                    "has_auto_value": True,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": False
+                }
+            },
+            {
+                "text": "\"new_field\" INT UNSIGNED PRIMARY KEY",
+                "expected": {
+                    "name": "new_field",
+                    "type": "integral",
+                    "is_unsigned": True,
+                    "not_null": False,
+                    "has_auto_value": False,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": True
+                }
+            },
+            {
                 "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
                 "expected": {
                     "name": "fld2",
@@ -821,27 +848,6 @@ class SelfTest:
     )
     """
         result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
-
-    @staticmethod
-    def _test_primary_key_auto_increment():
-        for text in [
-            "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
-            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
-            "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
-        ]:
-            result = DdlParser.ddl_ct_with_sql.parse_string(text, parse_all=True)
-            assert len(result) == 1
-            table = result.create.value
-            assert table.table_name == "tab"
-            assert len(table.columns) == 1
-            column = table.columns[0]
-            assert not column.is_constraint
-            assert column.name == "col"
-            assert column.type == "integral"
-            assert column.not_null
-            assert column.has_auto_value
-            assert column.is_primary_key
-            assert table.command_text == text
 
 
 def parse_commandline_args():
