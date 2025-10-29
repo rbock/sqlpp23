@@ -643,16 +643,16 @@ class SelfTest:
     def run(cls):
         print("Running self-test")
         DdlParser.initialize()
-        cls._test_boolean()
-        cls._test_integer()
-        cls._test_serial()
-        cls._test_floating_point()
-        cls._test_text()
-        cls._test_blob()
-        cls._test_date()
-        cls._test_time()
-        cls._test_unknown()
-        cls._test_date_time()
+        cls._test_type_boolean()
+        cls._test_type_integral()
+        cls._test_type_serial()
+        cls._test_type_floating_point()
+        cls._test_type_text()
+        cls._test_type_blob()
+        cls._test_type_date()
+        cls._test_type_time()
+        cls._test_type_unknown()
+        cls._test_type_timestamp()
         cls._test_column()
         cls._test_constraint()
         cls._test_math_expression()
@@ -660,62 +660,62 @@ class SelfTest:
         cls._test_table()
 
     @staticmethod
-    def _test_boolean():
+    def _test_type_boolean():
         for t in DdlParser.ddl_boolean_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "boolean"
 
     @staticmethod
-    def _test_integer():
+    def _test_type_integral():
         for t in DdlParser.ddl_integral_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "integral"
 
     @staticmethod
-    def _test_serial():
+    def _test_type_serial():
         for t in DdlParser.ddl_serial_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "integral"
             assert result.has_serial_value
 
     @staticmethod
-    def _test_floating_point():
+    def _test_type_floating_point():
         for t in DdlParser.ddl_floating_point_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "floating_point"
 
     @staticmethod
-    def _test_text():
+    def _test_type_text():
         for t in DdlParser.ddl_text_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "text"
 
     @staticmethod
-    def _test_blob():
+    def _test_type_blob():
         for t in DdlParser.ddl_blob_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "blob"
 
     @staticmethod
-    def _test_date():
+    def _test_type_date():
         for t in DdlParser.ddl_date_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "date"
 
     @staticmethod
-    def _test_date_time():
+    def _test_type_timestamp():
         for t in DdlParser.ddl_timestamp_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "timestamp"
 
     @staticmethod
-    def _test_time():
+    def _test_type_time():
         for t in DdlParser.ddl_time_types:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "time"
 
     @staticmethod
-    def _test_unknown():
+    def _test_type_unknown():
         for t in ["cheesecake", "blueberry"]:
             result = DdlParser.ddl_type.parse_string(t, parse_all=True)
             assert result[0] == "UNKNOWN"
