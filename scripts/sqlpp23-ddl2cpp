@@ -658,6 +658,7 @@ class SelfTest:
         cls._test_math_expression()
         cls._test_rational()
         cls._test_command_create_table()
+        cls._test_command_set_default()
 
     @staticmethod
     def _test_type_blob():
@@ -894,6 +895,16 @@ class SelfTest:
         for index, expected in enumerate(column_data):
             cls._check_parsed_column(create_table.columns[index], expected)
         assert create_table.command_text == input_text.strip()
+
+    @staticmethod
+    def _test_command_set_default():
+        input_text = """ALTER TABLE ONLY mytbl ALTER COLUMN mycol SET DEFAULT 123"""
+        result = DdlParser.ddl.parse_string(input_text, parse_all=True)
+        assert len(result) == 1
+        set_default = result[0]
+        assert set_default.set_default
+        assert set_default.table_name == "mytbl"
+        assert set_default.column_name == "mycol"
 
 
 def parse_commandline_args():
