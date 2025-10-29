@@ -15,6 +15,7 @@
     - integer -> integral
     - date_time -> timestamp
   - documented the format of the custom types file
+  - recognize and process "ALTER TABLE...ALTER COLUMN...SET DEFAULT" commands, which improves processing of pg_dump output scripts.
 
 ## 0.67
 
