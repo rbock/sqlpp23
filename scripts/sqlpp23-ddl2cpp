@@ -738,7 +738,7 @@ class SelfTest:
                 }
             },
             {
-                "text": "\"fld\" int AUTO_INCREMENT",
+                "text": "'fld' int AUTO_INCREMENT",
                 "expected": {
                     "name": "fld",
                     "type": "integral",
@@ -752,7 +752,7 @@ class SelfTest:
                 }
             },
             {
-                "text": "\"other_field\" int8 AUTOINCREMENT NOT NULL",
+                "text": "other_field int8 AUTOINCREMENT NOT NULL",
                 "expected": {
                     "name": "other_field",
                     "type": "integral",
@@ -780,7 +780,7 @@ class SelfTest:
                 }
             },
             {
-                "text": "\"fld2\" int NOT NULL GENERATED ALWAYS AS abc+1",
+                "text": "'fld2' int NOT NULL GENERATED ALWAYS AS abc+1",
                 "expected": {
                     "name": "fld2",
                     "type": "integral",
