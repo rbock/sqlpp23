@@ -27,13 +27,13 @@
 CREATE TABLE tab_foo
 (
 	myBoolean CustomBooleanType,
-	myInteger CustomIntegerType,
+	myInteger CustomIntegralType,
 	mySerial CustomSerialType,
 	myFloatingPoint CustomFloatingPointType,
 	myText CustomTextType,
 	myBlob CustomBlobType,
 	myDate CustomDateType,
-	myDateTime CustomDateTimeType,
+	myDateTime CustomTimestampType,
 	myTime CustomTimeType,
 	-- Some more special cases
 	mySecondText another_text_type,

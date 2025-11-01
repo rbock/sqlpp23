@@ -1,9 +1,9 @@
-Boolean, CustomBooleanType
-Integer, CustomIntegerType, SPECIAL INT
-Serial, CustomSerialType
-FloatingPoint, CustomFloatingPointType
-Text, CustomTextType, another_text_type
-Blob, CustomBlobType
-Date, CustomDateType
-DateTime, CustomDateTimeType
-Time, CustomTimeType
+blob, CustomBlobType
+boolean, CustomBooleanType
+date, CustomDateType
+floating_point, CustomFloatingPointType
+integral, CustomIntegralType, SPECIAL INT
+serial, CustomSerialType
+text, CustomTextType, another_text_type
+time, CustomTimeType
+timestamp, CustomTimestampType
