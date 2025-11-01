@@ -48,4 +48,16 @@ The can be used like this:
    .where(foo.id.is_distinct_from(something));
 ```
 
+## Selecting `NULL`
+
+Columns in an `sqlpp::select` require a name and a data type.
+If you want to select `NULL` explicitly, you can do so using the `sqlpp::value` wrapper
+function.
+
+```c++
+select(sqlpp::value(
+            std::optional<int64_t>{} // i.e. std::nullopt, but with an explicit data type
+            ).as(sqlpp::alias::a));  // provide a name
+```
+
 [**< Index**](/docs/README.md)

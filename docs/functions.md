@@ -158,9 +158,14 @@ insert_into(tab).set(tab.name = "eight");
 But if member functions like `.as()` or comparison methods `.in()`, `not_in()`, `is_null()`, `is_not_null()`, `is_distinct_from()`, or `not_is_distinct_from()` are needed, then such raw values need to be wrapped by the `value` function, e.g.
 
 ```c++
-select(value(7).as(something), tab.id)
+select(sqlpp::value(7).as(something), tab.id)
     .from(tab)
-    .where(value("seven").in(tab.first, tab.last));
+    .where(sqlpp::value("seven").in(tab.first, tab.last));
+
+// SELECT NULL AS a
+select(sqlpp::value(
+            std::optional<int64_t>{} // i.e. std::nullopt, but with an explicit data type
+            ).as(sqlpp::alias::a));  // provide a name
 ```
 
 The other use of the `value` function is to wrap a [sub select](/docs/sub_select.md) for use as a selected column.
