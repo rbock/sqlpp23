@@ -31,5 +31,7 @@ cmake ../ \
 
 The module sources can be found in the [modules directory](/modules). They get installed into `<prefix>/modules/sqlpp23`.
 
+No compiled version of the modules will be installed. Your project will need to compile the modules sources itself.
+
 
 [**\< Index**](/docs/README.md)
