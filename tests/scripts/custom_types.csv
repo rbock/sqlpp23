@@ -1,5 +1,5 @@
 Boolean, CustomBooleanType
-Integral, CustomIntegerType, SPECIAL INT
+Integral, CustomIntegralType, SPECIAL INT
 Serial, CustomSerialType
 FloatingPoint, CustomFloatingPointType
 Text, CustomTextType, another_text_type

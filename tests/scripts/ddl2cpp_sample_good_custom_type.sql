@@ -27,7 +27,7 @@
 CREATE TABLE tab_foo
 (
 	myBoolean CustomBooleanType,
-	myInteger CustomIntegerType,
+	myInteger CustomIntegralType,
 	mySerial CustomSerialType,
 	myFloatingPoint CustomFloatingPointType,
 	myText CustomTextType,
