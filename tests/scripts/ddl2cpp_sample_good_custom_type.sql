@@ -33,7 +33,7 @@ CREATE TABLE tab_foo
 	myText CustomTextType,
 	myBlob CustomBlobType,
 	myDate CustomDateType,
-	myDateTime CustomDateTimeType,
+	myDateTime CustomTimestampType,
 	myTime CustomTimeType,
 	-- Some more special cases
 	mySecondText another_text_type,

@@ -5,5 +5,5 @@ FloatingPoint, CustomFloatingPointType
 Text, CustomTextType, another_text_type
 Blob, CustomBlobType
 Date, CustomDateType
-Timestamp, CustomDateTimeType
+Timestamp, CustomTimestampType
 Time, CustomTimeType
