@@ -542,4 +542,12 @@ auto check_compatibility(const T&) {
   return compatibility_check_t<Context, T>{};
 }
 
+template <typename T>
+struct contains_order_by {
+  static constexpr bool value = false;
+};
+
+template <typename T>
+inline constexpr bool contains_order_by_v = contains_order_by<T>::value;
+
 }  // namespace sqlpp

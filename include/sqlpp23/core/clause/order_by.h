@@ -86,6 +86,9 @@ auto to_sql_string(Context& context, const order_by_t<Expressions...>& t)
 template <typename... Expressions>
 struct is_clause<order_by_t<Expressions...>> : public std::true_type {};
 
+template <typename... Expressions>
+struct contains_order_by<order_by_t<Expressions...>> : public std::true_type {};
+
 class assert_correct_order_by_aggregates_t : public wrapped_static_assert {
  public:
   template <typename... T>

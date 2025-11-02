@@ -127,6 +127,30 @@ int main() {
     CANNOT_CALL_ANY_UNION_WITH(s_value_id, dynamic(maybe, s_value_oid));
   }
 
+  // UNION arguments must not contain order_by, because the resulting SQL would
+  // be invalid if
+  //   - the order_by were in the left query
+  //   - the order_by were in the right query and the arguments were using
+  //     different tables (columns are serialized with table-qualification).
+  {
+    auto s_foo = select(foo.id).from(foo);
+    auto s_bar = select(bar.id).from(foo);
+
+    // Do not allow order_by in the LHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.desc()), s_foo);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.desc()), s_bar);
+
+    // Do not allow order_by in the RHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo, s_bar.order_by(foo.id.desc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar, s_bar.order_by(foo.id.desc()));
+
+    // Do not allow order_by in both expressions.
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.desc()),
+                               s_bar.order_by(foo.id.desc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.desc()),
+                               s_bar.order_by(bar.id.desc()));
+  }
+
   // UNION requires preparable statements
   {
     auto u = union_all(lhs, incomplete_rhs);

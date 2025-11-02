@@ -133,7 +133,9 @@ template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_union_args =
     (is_statement<Lhs>::value and is_statement<Rhs>::value and
      has_result_row<Lhs>::value and has_result_row<Rhs>::value and
-     is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);
+     is_result_compatible<get_result_row_t<Lhs>,
+                          get_result_row_t<Rhs>>::value and
+     (not contains_order_by_v<Lhs>) and (not contains_order_by_v<Rhs>));
 
 struct no_union_t {
   template <typename Statement, typename Rhs>

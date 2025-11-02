@@ -222,6 +222,12 @@ template <typename... Clauses>
 struct is_statement<statement_t<Clauses...>> : public std::true_type {};
 
 template <typename... Clauses>
+struct contains_order_by<statement_t<Clauses...>> 
+{
+  static constexpr bool value = (false or ... or contains_order_by_v<Clauses>);
+};
+
+template <typename... Clauses>
 struct has_result_row<statement_t<Clauses...>>
     : public has_result_row<result_type_provider_t<Clauses...>> {};
 
