@@ -84,6 +84,21 @@ The custom type names are case-insensitive just like the native SQL types.
 [^2]: To generate a C++ module, both --path-to-module and --module-name should be specified.
 [^3]: Exactly one of --path-to-module, --path-to-header or --path-to-header-directory should be specified.
 
+## Program exit code
+
+The program follows the POSIX standard and exits with a zero code on success and a non-zero code on failure. Below is a full list of the currently supported exit codes:
+
+| Exit code | Meaning |
+| --------: | ------- |
+| 0 | Success. The requested operation(s) were completed successfully. |
+| 1 | Bad command-line arguments. The specified command-line arguments or their combination was invalid. |
+| 10 | DDL execution error. The input DDL file(s) were valid syntactically but had a semantic error, e.g. duplicate table name, duplicate column name, column using an unknown data type ([custom data types](#custom-data-types) might help you in this case), etc. |
+| 20 | DDL parse error. At least one of the specified DDL input file(s) has invalid syntax. |
+| 30 | Bad custom types. The specified [custom data types](#custom-data-types) file is not valid. |
+| Other | OS-specific runtime error. While the program does not use these exit codes directly, some OSes may report other termination codes, that are not listed here, when the program fails to run or is terminated forcefully. |
+
+Please note that the error codes are not set in stone and may change in the future. The only thing the program guarantees, is that a zero exit code means success and a non-zero code means *some kind* of error.
+
 ## Examples of program usage
 
 Once you have the DDL files, you can create C++ headers or modules for them with provided
