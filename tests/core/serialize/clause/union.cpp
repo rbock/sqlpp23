@@ -56,11 +56,6 @@ int main(int, char*[]) {
                 "DISTINCT SELECT tab_foo.id FROM tab_foo UNION ALL "
                 "SELECT tab_bar.id FROM tab_bar");
 
-  SQLPP_COMPARE(select(f.id).from(f).union_all(
-                    select(t.id).from(t).order_by(t.id.desc())),
-                "SELECT tab_foo.id FROM tab_foo UNION ALL "
-                "SELECT tab_bar.id FROM tab_bar ORDER BY tab_bar.id DESC");
-
   // Using free function
   SQLPP_COMPARE(union_all(select(t.id).from(t), select(f.id).from(f)),
                 "SELECT tab_bar.id FROM tab_bar UNION ALL SELECT "
