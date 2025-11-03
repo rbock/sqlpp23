@@ -37,20 +37,22 @@ if (${Python3_Interpreter_FOUND})
     else()
         message(STATUS "Pyparsing is installed: Enabling sqlpp23-ddl2cpp tests.")
 
+        cmake_path(SET ddl2cpp NORMALIZE "${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp")
+
         add_test(NAME sqlpp23.scripts.ddl2cpp.parser
-            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                     "--self-test"
                     )
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.bad_will_fail
-            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                     "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
                     "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
                     "--namespace" "test")
         set_tests_properties(sqlpp23.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.bad_has_parse_error
-            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                     "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
                     "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
                     "--namespace" "test")
@@ -58,7 +60,7 @@ if (${Python3_Interpreter_FOUND})
           PASS_REGULAR_EXPRESSION "ERROR: Failed to parse.*")
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.good_succeeds
-            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                     "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                     "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/good.h"
                     "--namespace" "test")
@@ -67,7 +69,6 @@ if (${Python3_Interpreter_FOUND})
 
         foreach(sample_name sample sample_identity_naming)
             set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}.h")
-            set(use_identity_naming)
             if(sample_name STREQUAL "sample_identity_naming")
                 set(naming_style identity)
             else()
@@ -75,14 +76,14 @@ if (${Python3_Interpreter_FOUND})
             endif()
             add_custom_command(
                 OUTPUT "${sqlpp.scripts.generated.sample.include}"
-                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+                COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                         "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                         "--path-to-header" "${sqlpp.scripts.generated.sample.include}"
                         "--naming-style" "${naming_style}"
                         "--namespace" "test"
                         "--suppress-timestamp-warning"
                 DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                        "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+                        "${ddl2cpp}"
                 VERBATIM)
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
@@ -94,7 +95,7 @@ if (${Python3_Interpreter_FOUND})
         foreach(bad_type "booltype" "invalid" "serial5" "typeint")
             set(bad_type_test_name "sqlpp23.scripts.ddl2cpp.bad_type.${bad_type}")
             add_test(NAME "${bad_type_test_name}"
-                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+                COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                         "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad_type_${bad_type}.sql"
                         "--path-to-header" "${CMAKE_CURRENT_BINARY_DIR}/fail.h"
                         "--namespace" "test"
@@ -104,21 +105,24 @@ if (${Python3_Interpreter_FOUND})
         endforeach()
 
         # Custom types defined in a CSV file
-        set(custom_type_sql "ddl2cpp_sample_good_custom_type")
-        set(sqlpp.scripts.generated.custom_type_sql.include "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_sql}.h")
+        set(custom_type_stem "ddl2cpp_sample_good_custom_type")
+        set(custom_type_sql "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.sql")
+        set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}.h")
+        set(custom_type_cpp "${custom_type_stem}.cpp")
+        set(custom_type_exe "sqlpp.scripts.compiled.${custom_type_stem}")
         add_custom_command(
-            OUTPUT "${sqlpp.scripts.generated.custom_type_sql.include}"
-            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+            OUTPUT "${custom_type_header}"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
                     "--path-to-custom-types=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
-                    "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
-                    "--path-to-header" "${sqlpp.scripts.generated.custom_type_sql.include}"
+                    "--path-to-ddl" "${custom_type_sql}"
+                    "--path-to-header" "${custom_type_header}"
                     "--namespace" "test"
                     "--suppress-timestamp-warning"
-            DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
-                    "${CMAKE_CURRENT_LIST_DIR}/../../scripts/sqlpp23-ddl2cpp"
+            DEPENDS "${custom_type_sql}"
+                    "${ddl2cpp}"
             VERBATIM)
-        add_executable(sqlpp.scripts.compiled.${custom_type_sql} ${custom_type_sql}.cpp
-            "${sqlpp.scripts.generated.custom_type_sql.include}")
-        target_link_libraries(sqlpp.scripts.compiled.${custom_type_sql} PRIVATE sqlpp23)
+        add_executable("${custom_type_exe}" "${custom_type_cpp}"
+            "${custom_type_header}")
+        target_link_libraries("${custom_type_exe}" PRIVATE sqlpp23)
     endif()
 endif()
