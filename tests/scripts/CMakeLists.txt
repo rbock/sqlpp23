@@ -106,7 +106,7 @@ if (${Python3_Interpreter_FOUND})
 
         # Custom types defined in a CSV file
         set(custom_type_stem "ddl2cpp_sample_good_custom_type")
-        set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/custom_types.csv")
+        set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.csv")
         set(custom_type_sql "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.sql")
         set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}.h")
         set(custom_type_cpp "${custom_type_stem}.cpp")
