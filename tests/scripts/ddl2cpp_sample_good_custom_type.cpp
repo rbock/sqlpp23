@@ -1,4 +1,3 @@
-
 #include <ddl2cpp_sample_good_custom_type.h>
 #include <sqlpp23/core/chrono.h>
 
