@@ -106,6 +106,7 @@ if (${Python3_Interpreter_FOUND})
 
         # Custom types defined in a CSV file
         set(custom_type_stem "ddl2cpp_sample_good_custom_type")
+        set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/custom_types.csv")
         set(custom_type_sql "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.sql")
         set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}.h")
         set(custom_type_cpp "${custom_type_stem}.cpp")
@@ -113,12 +114,13 @@ if (${Python3_Interpreter_FOUND})
         add_custom_command(
             OUTPUT "${custom_type_header}"
             COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
-                    "--path-to-custom-types=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
+                    "--path-to-custom-types=${custom_type_csv}"
                     "--path-to-ddl" "${custom_type_sql}"
                     "--path-to-header" "${custom_type_header}"
                     "--namespace" "test"
                     "--suppress-timestamp-warning"
             DEPENDS "${custom_type_sql}"
+                    "${custom_type_csv}"
                     "${ddl2cpp}"
             VERBATIM)
         add_executable("${custom_type_exe}" "${custom_type_cpp}"
