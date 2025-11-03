@@ -1,0 +1,9 @@
+Blob, CustomBlobType
+Boolean, CustomBooleanType
+Date, CustomDateType
+FloatingPoint, CustomFloatingPointType
+Integral, CustomIntegralType, SPECIAL INT
+Serial, CustomSerialType
+Text, CustomTextType, another_text_type
+Time, CustomTimeType
+Timestamp, CustomTimestampType
