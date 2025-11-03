@@ -1,8 +1,10 @@
-#include <ddl2cpp_sample_good_custom_type.h>
+#include <ddl2cpp_sample_good_custom_type_old.h>
+#include <ddl2cpp_sample_good_custom_type_new.h>
 #include <sqlpp23/core/chrono.h>
 
-int main() {
-  test::TabFoo tab_foo;
+template <typename T>
+void test_db_model() {
+  T tab_foo;
   tab_foo.myBoolean = true;
   tab_foo.myInteger = 5;
   tab_foo.mySerial = 10;
@@ -27,4 +29,9 @@ int main() {
   tab_foo.builtinDate = std::chrono::sys_days{};
   tab_foo.builtinDateTime = std::chrono::system_clock::now();
   tab_foo.builtinTime = std::chrono::seconds{10};
+}
+
+int main() {
+  test_db_model<test::dbm_old::TabFoo>();
+  test_db_model<test::dbm_new::TabFoo>();
 }
