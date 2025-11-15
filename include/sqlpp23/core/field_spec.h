@@ -55,22 +55,23 @@ struct is_field_compatible {
 };
 
 template <typename LeftNameTag,
-          typename LeftValue,
+          typename LeftDataType,
           typename RightNameTag,
-          typename RightValue>
-struct is_field_compatible<field_spec_t<LeftNameTag, LeftValue>,
-                           field_spec_t<RightNameTag, RightValue>> {
-  using L = field_spec_t<LeftNameTag, LeftValue>;
-  using R = field_spec_t<RightNameTag, RightValue>;
+          typename RightDataType>
+struct is_field_compatible<field_spec_t<LeftNameTag, LeftDataType>,
+                           field_spec_t<RightNameTag, RightDataType>> {
+  using L = field_spec_t<LeftNameTag, LeftDataType>;
+  using R = field_spec_t<RightNameTag, RightDataType>;
   static constexpr auto value =
       std::is_same<make_char_sequence_t<L>, make_char_sequence_t<R>>::value and
-      std::is_same<remove_optional_t<LeftValue>,
-                   remove_optional_t<RightValue>>::value and  // Same value type
-      (is_optional<LeftValue>::value or
-       !is_optional<RightValue>::value);  // The left hand side determines the
-                                          // result row and therefore must allow
-                                          // NULL if the right hand side allows
-                                          // it
+      std::is_same<remove_optional_t<LeftDataType>,
+                   remove_optional_t<RightDataType>>::value and  // Same value
+                                                                 // type
+      (is_optional<LeftDataType>::value or
+       !is_optional<RightDataType>::value);  // The left hand side determines
+                                             // the result row and therefore
+                                             // must allow NULL if the right
+                                             // hand side allows it
 };
 
 template <typename Statement, typename NamedExpr>
