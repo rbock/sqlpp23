@@ -164,10 +164,10 @@ struct is_result_compatible {
   static constexpr auto value = false;
 };
 
-template <typename LDb, typename... LFields, typename RDb, typename... RFields>
+template <typename... LFields, typename... RFields>
   requires(sizeof...(LFields) == sizeof...(RFields))
-struct is_result_compatible<result_row_t<LDb, LFields...>,
-                            result_row_t<RDb, RFields...>> {
+struct is_result_compatible<result_row_t<LFields...>,
+                            result_row_t<RFields...>> {
   static constexpr auto value =
       logic::all<is_field_compatible<LFields, RFields>::value...>::value;
 };
