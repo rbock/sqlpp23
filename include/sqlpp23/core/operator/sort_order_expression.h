@@ -29,20 +29,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp23/core/operator/comparison_functions.h>
+#include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
 template <typename L>
 struct sort_order_expression {
   constexpr sort_order_expression(L l, sort_type r)
-      : _l(std::move(l)), _r(std::move(r)) {}
+      : _lhs(std::move(l)), _rhs(std::move(r)) {}
   sort_order_expression(const sort_order_expression&) = default;
   sort_order_expression(sort_order_expression&&) = default;
   sort_order_expression& operator=(const sort_order_expression&) = default;
   sort_order_expression& operator=(sort_order_expression&&) = default;
   ~sort_order_expression() = default;
 
-  L _l;
-  sort_type _r;
+ private:
+  friend reader_t;
+  L _lhs;
+  sort_type _rhs;
 };
 
 template <typename L>
@@ -64,7 +67,7 @@ auto to_sql_string(Context&, const sort_type& t) -> std::string {
 template <typename Context, typename L>
 auto to_sql_string(Context& context, const sort_order_expression<L>& t)
     -> std::string {
-  return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
+  return operand_to_sql_string(context, read.lhs(t)) + to_sql_string(context, read.rhs(t));
 }
 
 }  // namespace sqlpp
