@@ -28,7 +28,7 @@
 
 namespace greek {
 SQLPP_CREATE_NAME_TAG(id);
-SQLPP_CREATE_NAME_TAG(textN);
+SQLPP_CREATE_NAME_TAG(text_n);
 }  // namespace greek
 
 int Union(int, char*[]) {
@@ -37,12 +37,13 @@ int Union(int, char*[]) {
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 
-  db(select(t.id).from(t).union_distinct(select(f.intN.as(t.id)).from(f)));
-  db(select(t.id).from(t).union_all(select(f.intN.as(t.id)).from(f)));
+  db(select(f.intN.as(t.id)).from(f).union_distinct(select(t.id).from(t)));
+  db(select(f.intN.as(t.id)).from(f).union_all(select(t.id).from(t)));
 
   // t.id can be null, a given value cannot
   db(select(t.id).from(t).union_all(select(sqlpp::value(1).as(t.id))));
   db(select(t.id).from(t).union_all(select(sqlpp::value(1).as(greek::id))));
+
 
   // t.textN can be null, f.textNnD cannot
   static_assert(
@@ -51,11 +52,11 @@ int Union(int, char*[]) {
                     sqlpp::data_type_of_t<decltype(f.textNnD)>>::value,
                 "");
   db(select(t.textN).from(t).union_all(
-      select(f.textNnD.as(greek::textN)).from(f)));
+      // Note the text_n. This can be done better with reflection.
+      select(f.textNnD.as(greek::text_n)).from(f)));
 
-  auto u = select(t.id)
-               .from(t)
-               .union_all(select(f.intN.as(t.id)).from(f))
+  auto u = select(f.intN.as(t.id)).from(f)
+               .union_all(select(t.id).from(t))
                .as(sqlpp::alias::u);
 
   db(select(all_of(u)).from(u).union_all(select(t.intN.as(t.id)).from(t)));

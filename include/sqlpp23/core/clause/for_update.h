@@ -42,6 +42,9 @@ auto to_sql_string(Context&, const for_update_t&) -> std::string {
 template <>
 struct is_clause<for_update_t> : public std::true_type {};
 
+template <>
+struct contains_for_update<for_update_t> : public std::true_type {};
+
 template <typename Statement>
 struct consistency_check<Statement, for_update_t> {
   using type = consistent_t;

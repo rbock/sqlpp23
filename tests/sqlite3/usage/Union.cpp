@@ -40,6 +40,10 @@ int Union(int, char*[]) {
     std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 
+  for (const auto& row : db(u.order_by(tab.id.asc()))) {
+    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+  }
+
   for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab)))) {
     std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }

@@ -32,6 +32,9 @@
 #include <sqlpp23/core/query/result_row.h>
 #include <sqlpp23/core/query/statement.h>
 #include <sqlpp23/core/reader.h>
+#include <sqlpp23/core/clause/union_order_by.h>
+#include <sqlpp23/core/clause/limit.h>
+#include <sqlpp23/core/clause/offset.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/query/dynamic_fwd.h>
@@ -101,8 +104,9 @@ struct nodes_of<union_t<Flag, Lhs, Rhs>> {
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
-  using type = static_combined_check_t<statement_consistency_check_t<Lhs>,
-                                       statement_consistency_check_t<Rhs>>;
+  using type = static_combined_check_t<
+      statement_consistency_check_t<Lhs>,
+      statement_consistency_check_t<remove_dynamic_t<Rhs>>>;
   constexpr auto operator()() {
     return type{};
   }
@@ -135,7 +139,10 @@ inline constexpr bool are_valid_union_args =
      has_result_row<Lhs>::value and has_result_row<Rhs>::value and
      is_result_compatible<get_result_row_t<Lhs>,
                           get_result_row_t<Rhs>>::value and
-     (not contains_order_by_v<Lhs>) and (not contains_order_by_v<Rhs>));
+     (not contains_order_by_v<Lhs>) and (not contains_order_by_v<Rhs>) and
+     (not contains_limit_v<Lhs>) and (not contains_limit_v<Rhs>) and
+     (not contains_offset_v<Lhs>) and (not contains_offset_v<Rhs>) and
+     (not contains_for_update_v<Lhs>) and (not contains_for_update_v<Rhs>));
 
 struct no_union_t {
   template <typename Statement, typename Rhs>
@@ -144,12 +151,11 @@ struct no_union_t {
   auto union_distinct(this Statement&& self, Rhs rhs) {
     using S = std::decay_t<Statement>;
 
-    return statement_t<union_t<union_distinct_t, S, Rhs>, no_union_t>{
-        statement_constructor_arg<union_t<union_distinct_t, S, Rhs>,
-                                  no_union_t>{
-            union_t<union_distinct_t, S, Rhs>{
-                std::forward<Statement>(self), rhs},
-            no_union_t{}}};
+    return statement_t<union_t<union_distinct_t, S, Rhs>, no_union_t,
+                       no_union_order_by_t>{statement_constructor_arg<
+        union_t<union_distinct_t, S, Rhs>, no_union_t, no_union_order_by_t, no_limit_t, no_offset_t>{
+        union_t<union_distinct_t, S, Rhs>{std::forward<Statement>(self), rhs},
+        no_union_t{}, no_union_order_by_t{}, no_limit_t{}, no_offset_t{}}};
   }
 
   template <typename Statement, typename Rhs>
@@ -158,11 +164,12 @@ struct no_union_t {
   auto union_all(this Statement&& self, Rhs rhs) {
     using S = std::decay_t<Statement>;
 
-    return statement_t<union_t<union_all_t, S, Rhs>, no_union_t>{
-        statement_constructor_arg<union_t<union_all_t, S, Rhs>, no_union_t>{
-            union_t<union_all_t, S, Rhs>{std::forward<Statement>(self),
-                                         rhs},
-            no_union_t{}}};
+    return statement_t<union_t<union_all_t, S, Rhs>, no_union_t,
+                       no_union_order_by_t>{
+        statement_constructor_arg<union_t<union_all_t, S, Rhs>, no_union_t,
+                                  no_union_order_by_t>{
+            union_t<union_all_t, S, Rhs>{std::forward<Statement>(self), rhs},
+            no_union_t{}, no_union_order_by_t{}}};
   }
 };
 
