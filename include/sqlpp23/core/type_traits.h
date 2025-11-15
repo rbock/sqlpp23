@@ -550,4 +550,28 @@ struct contains_order_by {
 template <typename T>
 inline constexpr bool contains_order_by_v = contains_order_by<T>::value;
 
+template <typename T>
+struct contains_limit {
+  static constexpr bool value = false;
+};
+
+template <typename T>
+inline constexpr bool contains_limit_v = contains_limit<T>::value;
+
+template <typename T>
+struct contains_offset {
+  static constexpr bool value = false;
+};
+
+template <typename T>
+inline constexpr bool contains_offset_v = contains_offset<T>::value;
+
+template <typename T>
+struct contains_for_update {
+  static constexpr bool value = false;
+};
+
+template <typename T>
+inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
+
 }  // namespace sqlpp
