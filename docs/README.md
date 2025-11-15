@@ -34,6 +34,7 @@ The following pages will tell you how to use it:
   - [Database connectors](connectors.md)
   - [Debug logging](logging.md)
   - [Select](/docs/select.md), see also [`with`](/docs/with.md)
+  - [Union](/docs/union.md)
   - [Insert](/docs/insert.md)
   - [Update](/docs/update.md)
   - [Delete](/docs/delete.md)
