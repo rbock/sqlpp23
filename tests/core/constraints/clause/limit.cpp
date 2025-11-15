@@ -48,18 +48,18 @@ concept cannot_call_limit_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   // OK
   static_assert(can_call_limit_with<decltype(7u)>, "");
   static_assert(can_call_limit_with<decltype(7)>, "");
-  static_assert(can_call_limit_with<decltype(bar.id)>, "");
-  static_assert(can_call_limit_with<decltype(bar.intN)>, "nullable is OK");
-
   static_assert(can_call_limit_with<decltype(sqlpp::dynamic(maybe, 7u))>, "");
   static_assert(can_call_limit_with<decltype(sqlpp::dynamic(maybe, 7))>, "");
-  static_assert(can_call_limit_with<decltype(dynamic(maybe, bar.id))>, "");
+
+  // Try limiting by column
+  static_assert(cannot_call_limit_with<decltype(bar.id)>, "");
+  static_assert(cannot_call_limit_with<decltype(bar.intN)>, "nullable is OK");
+  static_assert(cannot_call_limit_with<decltype(dynamic(maybe, bar.id))>, "");
 
   // Try assignment or comparison
   static_assert(cannot_call_limit_with<decltype(bar.intN = 7)>, "");
@@ -80,33 +80,5 @@ int main() {
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
                   "");
-  }
-
-  // `limit` using unknown table
-  {
-    auto s = select(foo.id).from(foo).limit(bar.id);
-    using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_limit_t>::value,
-        "");
-  }
-
-  // `limit` statically using dynamic table
-  {
-    auto s =
-        select(foo.id).from(foo.cross_join(dynamic(maybe, bar))).limit(bar.id);
-    using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>,
-                     sqlpp::assert_no_unknown_static_tables_in_limit_t>::value,
-        "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_static_tables_in_limit_t>::value,
-        "");
   }
 }

@@ -34,29 +34,6 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-class assert_no_unknown_tables_in_limit_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in limit() requires a table "
-                        "which is otherwise "
-                        "not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_limit_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in limit() statically "
-                        "requires a table which is "
-                        "only known dynamically in the statement");
-  }
-};
-
 template <typename Expression>
 struct limit_t {
   limit_t(Expression expression) : _expression(expression) {}
@@ -80,12 +57,12 @@ auto to_sql_string(Context& context, const limit_t<Expression>& t)
 template <typename Expression>
 struct is_clause<limit_t<Expression>> : public std::true_type {};
 
+template <typename Expression>
+struct contains_limit<limit_t<Expression>> : public std::true_type {};
+
 template <typename Statement, typename Expression>
 struct consistency_check<Statement, limit_t<Expression>> {
-  using type = detail::expression_static_check_t<
-      Statement,
-      Expression,
-      assert_no_unknown_static_tables_in_limit_t>;
+  using type = consistent_t;
   constexpr auto operator()() {
     return type{};
   }
@@ -93,11 +70,7 @@ struct consistency_check<Statement, limit_t<Expression>> {
 
 template <typename Statement, typename Expression>
 struct prepare_check<Statement, limit_t<Expression>> {
-  using type = static_combined_check_t<
-      static_check_t<Statement::template _no_unknown_tables<Expression>,
-                     assert_no_unknown_tables_in_limit_t>,
-      static_check_t<Statement::template _no_unknown_static_tables<Expression>,
-                     assert_no_unknown_static_tables_in_limit_t>>;
+  using type = consistent_t;
   constexpr auto operator()() {
     return type{};
   }
@@ -105,8 +78,9 @@ struct prepare_check<Statement, limit_t<Expression>> {
 
 struct no_limit_t {
   template <typename Statement, typename Arg>
-    requires(is_integral<remove_dynamic_t<Arg>>::value or
-             is_unsigned_integral<remove_dynamic_t<Arg>>::value)
+    requires((is_integral<remove_dynamic_t<Arg>>::value or
+              is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
+             required_tables_of_t<Arg>{}.empty())
   auto limit(this Statement&& self, Arg arg) {
     return new_statement<no_limit_t>(std::forward<Statement>(self),
                                      limit_t<Arg>{std::move(arg)});
@@ -126,11 +100,12 @@ struct consistency_check<Statement, no_limit_t> {
   }
 };
 
-template <typename T>
-  requires(is_integral<remove_dynamic_t<T>>::value or
-           is_unsigned_integral<remove_dynamic_t<T>>::value)
-auto limit(T t) {
-  return statement_t<no_limit_t>().limit(std::move(t));
+template <typename Arg>
+    requires((is_integral<remove_dynamic_t<Arg>>::value or
+              is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
+             required_tables_of_t<Arg>{}.empty())
+auto limit(Arg arg) {
+  return statement_t<no_limit_t>().limit(std::move(arg));
 }
 
 }  // namespace sqlpp

@@ -34,29 +34,6 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-class assert_no_unknown_tables_in_offset_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in offset() requires a table "
-                        "which is otherwise "
-                        "not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_offset_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in offset() statically "
-                        "requires a table which is "
-                        "only known dynamically in the statement");
-  }
-};
-
 template <typename Expression>
 struct offset_t {
   offset_t(Expression expression) : _expression(expression) {}
@@ -80,12 +57,12 @@ auto to_sql_string(Context& context, const offset_t<Expression>& t)
 template <typename Expression>
 struct is_clause<offset_t<Expression>> : public std::true_type {};
 
+template <typename Expression>
+struct contains_offset<offset_t<Expression>> : public std::true_type {};
+
 template <typename Statement, typename Expression>
 struct consistency_check<Statement, offset_t<Expression>> {
-  using type = detail::expression_static_check_t<
-      Statement,
-      Expression,
-      assert_no_unknown_static_tables_in_offset_t>;
+  using type = consistent_t;
   constexpr auto operator()() {
     return type{};
   }
@@ -93,11 +70,7 @@ struct consistency_check<Statement, offset_t<Expression>> {
 
 template <typename Statement, typename Expression>
 struct prepare_check<Statement, offset_t<Expression>> {
-  using type = static_combined_check_t<
-      static_check_t<Statement::template _no_unknown_tables<Expression>,
-                     assert_no_unknown_tables_in_offset_t>,
-      static_check_t<Statement::template _no_unknown_static_tables<Expression>,
-                     assert_no_unknown_static_tables_in_offset_t>>;
+  using type = consistent_t;
   constexpr auto operator()() {
     return type{};
   }
@@ -105,8 +78,9 @@ struct prepare_check<Statement, offset_t<Expression>> {
 
 struct no_offset_t {
   template <typename Statement, typename Arg>
-    requires(is_integral<remove_dynamic_t<Arg>>::value or
-             is_unsigned_integral<remove_dynamic_t<Arg>>::value)
+    requires((is_integral<remove_dynamic_t<Arg>>::value or
+              is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
+             required_tables_of_t<Arg>{}.empty())
   auto offset(this Statement&& self, Arg arg) {
     return new_statement<no_offset_t>(std::forward<Statement>(self),
                                       offset_t<Arg>{std::move(arg)});
@@ -126,11 +100,12 @@ struct consistency_check<Statement, no_offset_t> {
   }
 };
 
-template <typename T>
-  requires(is_integral<remove_dynamic_t<T>>::value or
-           is_unsigned_integral<remove_dynamic_t<T>>::value)
-auto offset(T t) {
-  return statement_t<no_offset_t>().offset(std::move(t));
+template <typename Arg>
+    requires((is_integral<remove_dynamic_t<Arg>>::value or
+              is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
+             required_tables_of_t<Arg>{}.empty())
+auto offset(Arg arg) {
+  return statement_t<no_offset_t>().offset(std::move(arg));
 }
 
 }  // namespace sqlpp
