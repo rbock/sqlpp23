@@ -150,7 +150,7 @@ int main() {
   // UNION arguments must not contain for_update.
   {
     auto s_foo = select(foo.id).from(foo);
-    auto s_bar = select(bar.id).from(foo);
+    auto s_bar = select(bar.id).from(bar);
 
     // Do not allow for_update in the LHS expression.
     CANNOT_CALL_ANY_UNION_WITH(s_foo.for_update(), s_foo);
@@ -165,6 +165,106 @@ int main() {
                                s_bar.for_update());
     CANNOT_CALL_ANY_UNION_WITH(s_bar.for_update(),
                                s_bar.for_update());
+  }
+
+  // UNION arguments must not contain order_by.
+  {
+    auto s_foo = select(foo.id).from(foo);
+    auto s_bar = select(bar.id).from(bar);
+
+    // Do not allow order_by in the LHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.asc()), s_foo);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.asc()), s_bar);
+
+    // Do not allow order_by in the RHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo, s_bar.order_by(foo.id.asc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar, s_bar.order_by(foo.id.asc()));
+
+    // Do not allow order_by in both expressions.
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.asc()),
+                               s_bar.order_by(foo.id.asc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.asc()),
+                               s_bar.order_by(foo.id.asc()));
+  }
+
+  // UNION arguments must not contain union_order_by.
+  {
+    auto s_foo = select(foo.id).from(foo).union_all(select(foo.id).from(foo));
+    auto s_bar = select(bar.id).from(bar);
+
+    // Do not allow order_by in the LHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.asc()), s_foo);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.asc()), s_bar);
+
+    // Do not allow order_by in the RHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo, s_bar.order_by(foo.id.asc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar, s_bar.order_by(foo.id.asc()));
+
+    // Do not allow order_by in both expressions.
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.asc()),
+                               s_bar.order_by(foo.id.asc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.asc()),
+                               s_bar.order_by(foo.id.asc()));
+  }
+
+  // UNION arguments must not contain order_by.
+  {
+    auto s_foo = select(foo.id).from(foo);
+    auto s_bar = select(bar.id).from(bar);
+
+    // Do not allow order_by in the LHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.asc()), s_foo);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.order_by(foo.id.asc()), s_bar);
+
+    // Do not allow order_by in the RHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo, s_bar.order_by(foo.id.asc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar, s_bar.order_by(foo.id.asc()));
+
+    // Do not allow order_by in both expressions.
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.asc()),
+                               s_bar.order_by(foo.id.asc()));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.order_by(foo.id.asc()),
+                               s_bar.order_by(foo.id.asc()));
+  }
+
+  // UNION arguments must not contain limit.
+  {
+    auto s_foo = select(foo.id).from(foo);
+    auto s_bar = select(bar.id).from(bar);
+
+    // Do not allow limit in the LHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.limit(7), s_foo);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.limit(7), s_bar);
+
+    // Do not allow limit in the RHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo, s_bar.limit(7));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar, s_bar.limit(7));
+
+    // Do not allow limit in both expressions.
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.limit(7),
+                               s_bar.limit(7));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.limit(7),
+                               s_bar.limit(7));
+  }
+
+  // UNION arguments must not contain offset.
+  {
+    auto s_foo = select(foo.id).from(foo);
+    auto s_bar = select(bar.id).from(foo);
+
+    // Do not allow offset in the LHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.offset(42), s_foo);
+    CANNOT_CALL_ANY_UNION_WITH(s_foo.offset(42), s_bar);
+
+    // Do not allow offset in the RHS expression.
+    CANNOT_CALL_ANY_UNION_WITH(s_foo, s_bar.offset(42));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar, s_bar.offset(42));
+
+    // Do not allow offset in both expressions.
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.offset(42),
+                               s_bar.offset(42));
+    CANNOT_CALL_ANY_UNION_WITH(s_bar.offset(42),
+                               s_bar.offset(42));
   }
 
   // UNION requires preparable statements
