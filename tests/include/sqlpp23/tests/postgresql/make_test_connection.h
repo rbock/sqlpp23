@@ -51,9 +51,10 @@ inline std::shared_ptr<sqlpp::postgresql::connection_config> make_test_config(
   config->user = getenv("USER");
   config->dbname = "sqlpp_postgresql";
 #endif
-  config->debug = debug_logger(categories, [](const std::string& message) {
-    std::clog << message << '\n';
-  });
+  config->debug = debug_logger(
+      categories, [](sqlpp::log_category, const std::string& message) {
+        std::clog << message << '\n';
+      });
   return config;
 }
 

@@ -45,9 +45,10 @@ inline std::shared_ptr<sqlpp::mock_db::connection_config> make_test_config(
   auto config = std::make_shared<sqlpp::mock_db::connection_config>();
 
   config->id = "mock";
-  config->debug = debug_logger(categories, [](const std::string& message) {
-    std::clog << message << '\n';
-  });
+  config->debug = debug_logger(
+      categories, [](sqlpp::log_category, const std::string& message) {
+        std::clog << message << '\n';
+      });
   return config;
 }
 

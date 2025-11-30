@@ -46,7 +46,7 @@ enum class log_category : uint8_t {
   all = 0xFF,
 };
 
-using log_function_t = std::function<void(const std::string&)>;
+using log_function_t = std::function<void(log_category, const std::string&)>;
 
 class debug_logger {
   uint8_t _categories = 0;
@@ -75,7 +75,7 @@ class debug_logger {
     const auto category_bit =
         static_cast<std::underlying_type_t<log_category>>(category);
     if (_categories & category_bit) {
-      _log_function(std::format(fmt, std::forward<Args>(args)...));
+      _log_function(category, std::format(fmt, std::forward<Args>(args)...));
     }
   }
 };

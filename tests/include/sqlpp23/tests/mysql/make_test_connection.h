@@ -45,9 +45,10 @@ inline std::shared_ptr<sqlpp::mysql::connection_config> make_test_config(
   auto config = std::make_shared<sqlpp::mysql::connection_config>();
   config->user = "root";
   config->database = "sqlpp_mysql";
-  config->debug = debug_logger(categories, [](const std::string& message) {
-    std::clog << message << '\n';
-  });
+  config->debug = debug_logger(
+      categories, [](sqlpp::log_category, const std::string& message) {
+        std::clog << message << '\n';
+      });
   return config;
 }
 

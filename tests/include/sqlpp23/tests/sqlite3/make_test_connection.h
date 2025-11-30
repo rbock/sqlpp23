@@ -47,9 +47,10 @@ import sqlpp23.sqlite3;
 namespace sqlpp::sqlite3 {
 inline debug_logger get_debug_logger(
     const std::vector<sqlpp::log_category>& categories = {log_category::all}) {
-  return debug_logger(categories, [](const std::string& message) {
-    std::clog << message << '\n';
-  });
+  return debug_logger(categories,
+                      [](sqlpp::log_category, const std::string& message) {
+                        std::clog << message << '\n';
+                      });
 }
 
 // Get configuration for test connection
