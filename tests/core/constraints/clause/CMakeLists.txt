@@ -47,6 +47,7 @@ create_test(truncate)
 create_test(update_set_list)
 create_test(using)
 create_test(union)
+create_test(union_order_by)
 create_test(where)
 create_test(with)
 
