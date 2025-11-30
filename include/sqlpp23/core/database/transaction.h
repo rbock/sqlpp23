@@ -83,7 +83,7 @@ class transaction_t {
 
   void rollback() {
     _finished = true;
-    _db.rollback_transaction(false);
+    _db.rollback_transaction();
   }
 };
 
