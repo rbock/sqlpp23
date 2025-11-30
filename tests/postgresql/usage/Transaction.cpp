@@ -60,6 +60,10 @@ int Transaction(int, char*[]) {
 
       tx.commit();
       require_equal(__LINE__, db.is_transaction_active(), false);
+      auto tx2 = start_transaction(db, sqlpp::isolation_level::serializable);
+      require_equal(__LINE__, db.is_transaction_active(), true);
+      tx2.rollback();
+      require_equal(__LINE__, db.is_transaction_active(), false);
     }
 
     require_equal(__LINE__, db.get_default_isolation_level(),
