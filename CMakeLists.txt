@@ -45,27 +45,6 @@ option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON
 
 set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
 
-### Dependencies
-if(DEPENDENCY_CHECK AND BUILD_MYSQL_CONNECTOR)
-    find_package(MySQL REQUIRED)
-endif()
-
-if(DEPENDENCY_CHECK AND BUILD_MARIADB_CONNECTOR)
-    find_package(MariaDB REQUIRED)
-endif()
-
-if(DEPENDENCY_CHECK AND BUILD_POSTGRESQL_CONNECTOR)
-    find_package(PostgreSQL REQUIRED)
-endif()
-
-if(DEPENDENCY_CHECK AND BUILD_SQLITE3_CONNECTOR)
-    find_package(SQLite3 REQUIRED)
-endif()
-
-if(DEPENDENCY_CHECK AND BUILD_SQLCIPHER_CONNECTOR)
-    find_package(SQLCipher REQUIRED)
-endif()
-
 ### Core targets
 include(Sqlpp23TargetHelper)
 
@@ -78,23 +57,38 @@ target_include_directories(sqlpp23 INTERFACE
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
 if(BUILD_SQLITE3_CONNECTOR)
+    if(DEPENDENCY_CHECK)
+        find_package(SQLite3 REQUIRED)
+    endif()
     add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
 endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
+    if(DEPENDENCY_CHECK)
+        find_package(SQLCipher REQUIRED)
+    endif()
     add_component(NAME sqlcipher DEPENDENCIES SQLCipher::SQLCipher)
     target_compile_definitions(sqlpp23_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
+    if(DEPENDENCY_CHECK)
+        find_package(MySQL REQUIRED)
+    endif()
     add_component(NAME mysql DEPENDENCIES MySQL::MySQL)
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
+    if(DEPENDENCY_CHECK)
+        find_package(MariaDB REQUIRED)
+    endif()
     add_component(NAME mariadb DEPENDENCIES MariaDB::MariaDB)
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
+    if(DEPENDENCY_CHECK)
+        find_package(PostgreSQL REQUIRED)
+    endif()
     add_component(NAME postgresql DEPENDENCIES PostgreSQL::PostgreSQL)
 endif()
 
