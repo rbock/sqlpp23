@@ -33,6 +33,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 include(GNUInstallDirs)
 include(CTest)
+include(Sqlpp23TargetHelper)
 
 option(BUILD_MYSQL_CONNECTOR "Build MySQL Connector" OFF)
 option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
@@ -46,8 +47,6 @@ option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON
 set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
 
 ### Core targets
-include(Sqlpp23TargetHelper)
-
 add_library(sqlpp23 INTERFACE)
 add_library(sqlpp23::sqlpp23 ALIAS sqlpp23)
 
