@@ -51,27 +51,25 @@ add_library(sqlpp23 INTERFACE)
 add_library(sqlpp23::sqlpp23 ALIAS sqlpp23)
 target_include_directories(sqlpp23 INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
+install_component(NAME "" TARGETS sqlpp23 DIRECTORY)
 
+### Component targets
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3)
     install_component(NAME SQLite3 TARGETS sqlpp23_sqlite3 DIRECTORY sqlite3)
 endif()
-
 if(BUILD_SQLCIPHER_CONNECTOR)
     add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER)
     install_component(NAME SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3)
 endif()
-
 if(BUILD_MYSQL_CONNECTOR)
     add_component(NAME mysql PACKAGE MySQL DEPENDENCIES MySQL::MySQL)
     install_component(NAME MySQL TARGETS sqlpp23_mysql DIRECTORY mysql)
 endif()
-
 if(BUILD_MARIADB_CONNECTOR)
     add_component(NAME mariadb PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB)
     install_component(NAME MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql)
 endif()
-
 if(BUILD_POSTGRESQL_CONNECTOR)
     add_component(NAME postgresql PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL)
     install_component(NAME PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
@@ -95,8 +93,6 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
-
-install_component(NAME "" TARGETS sqlpp23 DIRECTORY)
 
 ### Tests
 if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
