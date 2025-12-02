@@ -75,17 +75,12 @@ if(BUILD_POSTGRESQL_CONNECTOR)
     install_component(NAME PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
 endif()
 
-if(BUILD_WITH_MODULES)
-    add_subdirectory(modules)
-else()
-    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
-endif()
-
-### Packaging
+# Utility programs
 install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+### Packaging
 write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
@@ -93,6 +88,13 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
+
+# C++20 modules
+if(BUILD_WITH_MODULES)
+    add_subdirectory(modules)
+else()
+    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+endif()
 
 ### Tests
 if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
