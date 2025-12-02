@@ -84,7 +84,7 @@ endif()
 if(BUILD_WITH_MODULES)
     add_subdirectory(modules)
 else()
-  set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
 ### Packaging
