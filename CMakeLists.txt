@@ -63,26 +63,17 @@ endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
     add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER)
-    install_component(NAME Sqlpp23SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3)
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindSQLCipher.cmake
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    )
+    install_component(NAME Sqlpp23SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3 FIND_SCRIPT FindSQLCipher)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
     add_component(NAME mysql PACKAGE MySQL DEPENDENCIES MySQL::MySQL)
-    install_component(NAME Sqlpp23MySQL TARGETS sqlpp23_mysql DIRECTORY mysql)
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMySQL.cmake
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    )
+    install_component(NAME Sqlpp23MySQL TARGETS sqlpp23_mysql DIRECTORY mysql FIND_SCRIPT FindMySQL)
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
     add_component(NAME mariadb PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB)
-    install_component(NAME Sqlpp23MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql)
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMariaDB.cmake
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    )
+    install_component(NAME Sqlpp23MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql FIND_SCRIPT FindMariaDB)
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
