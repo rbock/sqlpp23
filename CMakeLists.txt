@@ -99,6 +99,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
 install_component(NAME "" TARGETS sqlpp23 DIRECTORY)
 
 ### Tests
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
     add_subdirectory(tests)
 endif()
