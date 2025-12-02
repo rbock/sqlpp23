@@ -45,7 +45,7 @@ endfunction()
 
 function(install_component)
     set(options)
-    set(oneValueArgs NAME DIRECTORY FIND_SCRIPT)
+    set(oneValueArgs NAME DIRECTORY)
     set(multiValueArgs TARGETS)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -69,9 +69,8 @@ function(install_component)
         PATTERN *.h
     )
 
-    if(ARG_FIND_SCRIPT)
-        install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/${ARG_FIND_SCRIPT}.cmake
-            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-        )
+    set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_NAME}.cmake)
+    if(EXISTS ${FIND_SCRIPT})
+        install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
     endif()
 endfunction()

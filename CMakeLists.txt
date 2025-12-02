@@ -59,17 +59,17 @@ endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
     add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER)
-    install_component(NAME SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3 FIND_SCRIPT FindSQLCipher)
+    install_component(NAME SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
     add_component(NAME mysql PACKAGE MySQL DEPENDENCIES MySQL::MySQL)
-    install_component(NAME MySQL TARGETS sqlpp23_mysql DIRECTORY mysql FIND_SCRIPT FindMySQL)
+    install_component(NAME MySQL TARGETS sqlpp23_mysql DIRECTORY mysql)
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
     add_component(NAME mariadb PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB)
-    install_component(NAME MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql FIND_SCRIPT FindMariaDB)
+    install_component(NAME MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql)
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
