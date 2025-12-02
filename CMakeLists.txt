@@ -54,27 +54,27 @@ target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3)
-    install_component(NAME Sqlpp23SQLite3 TARGETS sqlpp23_sqlite3 DIRECTORY sqlite3)
+    install_component(NAME SQLite3 TARGETS sqlpp23_sqlite3 DIRECTORY sqlite3)
 endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
     add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER)
-    install_component(NAME Sqlpp23SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3 FIND_SCRIPT FindSQLCipher)
+    install_component(NAME SQLCipher TARGETS sqlpp23_sqlcipher DIRECTORY sqlite3 FIND_SCRIPT FindSQLCipher)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
     add_component(NAME mysql PACKAGE MySQL DEPENDENCIES MySQL::MySQL)
-    install_component(NAME Sqlpp23MySQL TARGETS sqlpp23_mysql DIRECTORY mysql FIND_SCRIPT FindMySQL)
+    install_component(NAME MySQL TARGETS sqlpp23_mysql DIRECTORY mysql FIND_SCRIPT FindMySQL)
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
     add_component(NAME mariadb PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB)
-    install_component(NAME Sqlpp23MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql FIND_SCRIPT FindMariaDB)
+    install_component(NAME MariaDB TARGETS sqlpp23_mariadb DIRECTORY mysql FIND_SCRIPT FindMariaDB)
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
     add_component(NAME postgresql PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL)
-    install_component(NAME Sqlpp23PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
+    install_component(NAME PostgreSQL TARGETS sqlpp23_postgresql DIRECTORY postgresql)
 endif()
 
 if(BUILD_WITH_MODULES)
@@ -96,7 +96,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
 
-install_component(NAME Sqlpp23 TARGETS sqlpp23 DIRECTORY)
+install_component(NAME "" TARGETS sqlpp23 DIRECTORY)
 
 ### Tests
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
