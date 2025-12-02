@@ -61,8 +61,7 @@ if(BUILD_SQLITE3_CONNECTOR)
 endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
-    add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher)
-    target_compile_definitions(sqlpp23_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
+    add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
