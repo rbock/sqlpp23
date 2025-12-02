@@ -49,10 +49,7 @@ set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING 
 ### Core targets
 add_library(sqlpp23 INTERFACE)
 add_library(sqlpp23::sqlpp23 ALIAS sqlpp23)
-
-target_include_directories(sqlpp23 INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-)
+target_include_directories(sqlpp23 INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 target_compile_features(sqlpp23 INTERFACE cxx_std_23)
 
 if(BUILD_SQLITE3_CONNECTOR)
@@ -95,7 +92,6 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
-
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
