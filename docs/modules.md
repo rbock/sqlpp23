@@ -12,7 +12,7 @@ import sqlpp23.postgresql;
 As of September 2025 (version 0.67), this is still evolving, but all tests build and pass with modules using either
 
 * clang++-20.1.2
-* g++-15.2
+* g++-15.2.0 or 15.3.0 (15.2.1 has a regression which prevents it from compiling sqlpp23 correctly)
 
 If you want to build tests with modules, call cmake with generator `ninja` and `-DBUILD_WITH_MODULES=ON`, e.g.
 
