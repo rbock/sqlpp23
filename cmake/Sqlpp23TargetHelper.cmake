@@ -39,7 +39,7 @@ function(add_component)
     set_target_properties(sqlpp23_${ARG_NAME} PROPERTIES EXPORT_NAME ${ARG_NAME})
     target_link_libraries(sqlpp23_${ARG_NAME} INTERFACE sqlpp23 ${ARG_DEPENDENCIES})
     if(ARG_DEFINES)
-        target_compile_definitions(sqlpp23_sqlcipher INTERFACE ${ARG_DEFINES})
+        target_compile_definitions(sqlpp23_${ARG_NAME} INTERFACE ${ARG_DEFINES})
     endif()
 endfunction()
 
