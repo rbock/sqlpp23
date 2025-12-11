@@ -47,14 +47,20 @@ endfunction()
 
 function(install_component)
     set(options)
-    set(oneValueArgs NAME DIRECTORY TARGET)
+    set(oneValueArgs NAME DIRECTORY)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    set(TARGET sqlpp23)
+    if(ARG_NAME)
+        string(TOLOWER ${ARG_NAME} NAME_LC)
+        string(APPEND TARGET "_" ${NAME_LC})
+    endif()
 
     install(FILES ${PROJECT_SOURCE_DIR}/cmake/configs/Sqlpp23${ARG_NAME}Config.cmake
         DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     )
 
-    install(TARGETS ${ARG_TARGET}
+    install(TARGETS ${TARGET}
         EXPORT Sqlpp23Targets
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
