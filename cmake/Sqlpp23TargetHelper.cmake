@@ -76,11 +76,6 @@ function(install_component)
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
-    install(EXPORT Sqlpp23Targets
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-        NAMESPACE   sqlpp23::
-    )
-
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_DIRECTORY}
         DESTINATION include/sqlpp23
         FILES_MATCHING

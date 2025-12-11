@@ -85,6 +85,10 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
+install(EXPORT Sqlpp23Targets
+    DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+    NAMESPACE   sqlpp23::
+)
 
 # C++20 modules
 if(BUILD_WITH_MODULES)
