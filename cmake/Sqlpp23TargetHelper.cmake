@@ -58,7 +58,7 @@ endfunction()
 
 function(install_component)
     set(options)
-    set(oneValueArgs NAME DIRECTORY)
+    set(oneValueArgs HEADER_DIR NAME)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     set(TARGET sqlpp23)
@@ -76,7 +76,7 @@ function(install_component)
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
 
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_DIRECTORY}
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}
         DESTINATION include/sqlpp23
         FILES_MATCHING
         PATTERN *.h
