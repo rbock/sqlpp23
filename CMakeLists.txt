@@ -46,14 +46,11 @@ option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON
 
 set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
 
-### Core targets
-add_library(sqlpp23 INTERFACE)
-add_library(sqlpp23::sqlpp23 ALIAS sqlpp23)
-target_include_directories(sqlpp23 INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
-target_compile_features(sqlpp23 INTERFACE cxx_std_23)
+### Main (core) library
+add_component()
 install_component(NAME "" DIRECTORY)
 
-### Component targets
+### Connector components
 if(BUILD_SQLITE3_CONNECTOR)
     add_component(NAME sqlite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3)
     install_component(NAME SQLite3 DIRECTORY sqlite3)
