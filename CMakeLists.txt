@@ -48,28 +48,22 @@ set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING 
 
 ### Main (core) library
 add_component()
-install_component(NAME "" HEADER_DIR)
 
 ### Connector components
 if(BUILD_SQLITE3_CONNECTOR)
-    add_component(NAME sqlite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3)
-    install_component(NAME SQLite3 HEADER_DIR sqlite3)
+    add_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3 HEADER_DIR sqlite3)
 endif()
 if(BUILD_SQLCIPHER_CONNECTOR)
-    add_component(NAME sqlcipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER)
-    install_component(NAME SQLCipher HEADER_DIR sqlite3)
+    add_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3)
 endif()
 if(BUILD_MYSQL_CONNECTOR)
-    add_component(NAME mysql PACKAGE MySQL DEPENDENCIES MySQL::MySQL)
-    install_component(NAME MySQL HEADER_DIR mysql)
+    add_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql)
 endif()
 if(BUILD_MARIADB_CONNECTOR)
-    add_component(NAME mariadb PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB)
-    install_component(NAME MariaDB HEADER_DIR mysql)
+    add_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql)
 endif()
 if(BUILD_POSTGRESQL_CONNECTOR)
-    add_component(NAME postgresql PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL)
-    install_component(NAME PostgreSQL HEADER_DIR postgresql)
+    add_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql)
 endif()
 
 # Utility programs

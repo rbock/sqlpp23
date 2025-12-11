@@ -27,19 +27,25 @@ include(CMakePackageConfigHelpers)
 
 function(add_component)
     set(options)
-    set(oneValueArgs NAME PACKAGE)
-    set(multiValueArgs DEPENDENCIES DEFINES)
+    set(oneValueArgs HEADER_DIR NAME PACKAGE)
+    set(multiValueArgs DEFINES DEPENDENCIES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
+    # Use the component name to deduce the various target names. An empty component name
+    # means that we don't create a component but the main library target, so we have to
+    # handle that case separately.
     if(ARG_NAME)
-        set(TARGET_NAME sqlpp23_${ARG_NAME})
-        set(TARGET_ALIAS sqlpp23::${ARG_NAME})
-        set(TARGET_EXPORTED ${ARG_NAME})
+        string(TOLOWER ${ARG_NAME} LC_NAME)
+        set(TARGET_NAME sqlpp23_${LC_NAME})
+        set(TARGET_ALIAS sqlpp23::${LC_NAME})
+        set(TARGET_EXPORTED ${LC_NAME})
     else()
         set(TARGET_NAME sqlpp23)
         set(TARGET_ALIAS sqlpp23::sqlpp23)
         set(TARGET_EXPORTED sqlpp23)
     endif()
+
+    # Create the component targets
     if(ARG_PACKAGE AND DEPENDENCY_CHECK)
         find_package(${ARG_PACKAGE} REQUIRED)
     endif()
@@ -54,34 +60,20 @@ function(add_component)
     if(ARG_DEPENDENCIES)
         target_link_libraries(${TARGET_NAME} INTERFACE sqlpp23 ${ARG_DEPENDENCIES})
     endif()
-endfunction()
 
-function(install_component)
-    set(options)
-    set(oneValueArgs HEADER_DIR NAME)
-    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-    set(TARGET sqlpp23)
-    if(ARG_NAME)
-        string(TOLOWER ${ARG_NAME} NAME_LC)
-        string(APPEND TARGET "_" ${NAME_LC})
-    endif()
-
+    # Install the component
     install(FILES ${PROJECT_SOURCE_DIR}/cmake/configs/Sqlpp23${ARG_NAME}Config.cmake
         DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     )
-
-    install(TARGETS ${TARGET}
+    install(TARGETS ${TARGET_NAME}
         EXPORT Sqlpp23Targets
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}
         DESTINATION include/sqlpp23
         FILES_MATCHING
         PATTERN *.h
     )
-
     set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_NAME}.cmake)
     if(EXISTS ${FIND_SCRIPT})
         install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
