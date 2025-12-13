@@ -52,7 +52,6 @@ function(add_component)
     add_library(${TARGET_NAME} INTERFACE)
     add_library(${TARGET_ALIAS} ALIAS ${TARGET_NAME})
     set_target_properties(${TARGET_NAME} PROPERTIES EXPORT_NAME ${TARGET_EXPORTED})
-    target_include_directories(${TARGET_NAME} INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
     target_compile_features(${TARGET_NAME} INTERFACE cxx_std_23)
     if(ARG_DEFINES)
         target_compile_definitions(${TARGET_NAME} INTERFACE ${ARG_DEFINES})
@@ -60,6 +59,19 @@ function(add_component)
     if(ARG_DEPENDENCIES)
         target_link_libraries(${TARGET_NAME} INTERFACE sqlpp23 ${ARG_DEPENDENCIES})
     endif()
+    if(ARG_NAME)
+        file(GLOB_RECURSE HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
+    else()
+        file(GLOB_RECURSE HDR_COMPONENT LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
+        file(GLOB HDR_COMMON LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
+        set(HEADERS ${HDR_COMPONENT} ${HDR_COMMON})
+    endif()
+    # Add the component headers to the HEADERS file set. This also adds the base directory to the
+    # target's build interface include directories.
+    target_sources(${TARGET_NAME}
+        INTERFACE
+        FILE_SET HEADERS BASE_DIRS ${PROJECT_SOURCE_DIR}/include FILES ${HEADERS}
+    )
 
     # Install the component
     install(FILES ${PROJECT_SOURCE_DIR}/cmake/configs/Sqlpp23${ARG_NAME}Config.cmake
@@ -67,23 +79,9 @@ function(add_component)
     )
     install(TARGETS ${TARGET_NAME}
         EXPORT Sqlpp23Targets
+        FILE_SET HEADERS
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-    if(ARG_NAME)
-        install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}
-            DESTINATION include/sqlpp23
-            FILES_MATCHING
-            PATTERN *.h
-        )
-    else()
-        install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/core
-            DESTINATION include/sqlpp23
-            FILES_MATCHING
-            PATTERN *.h
-        )
-        file(GLOB HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
-        install(FILES ${HEADERS} DESTINATION include/sqlpp23)
-    endif()
     set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_NAME}.cmake)
     if(EXISTS ${FIND_SCRIPT})
         install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
