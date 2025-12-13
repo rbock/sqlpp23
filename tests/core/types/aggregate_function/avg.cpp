@@ -104,6 +104,6 @@ int main() {
   test_avg(uint64_t{7});
 
   // floating point
-  test_avg(float{7.7});
+  test_avg(7.7f);
   test_avg(double{7.7});
 }

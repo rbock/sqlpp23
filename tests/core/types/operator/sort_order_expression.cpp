@@ -111,7 +111,7 @@ int main() {
   test_order_expression(uint64_t{7});
 
   // floating point
-  test_order_expression(float{7.7});
+  test_order_expression(7.7f);
   test_order_expression(double{7.7});
 
   // text

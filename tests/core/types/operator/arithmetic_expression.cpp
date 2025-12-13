@@ -287,7 +287,7 @@ void test_concatenation_expressions(Value v) {
 }
 
 int main() {
-  auto fp = float{7};
+  auto fp = 7.f;
   auto in = int{7};
   auto ui = unsigned{7};
   auto bo = bool{1};

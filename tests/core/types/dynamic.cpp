@@ -117,7 +117,7 @@ int main() {
   test_dynamic(uint64_t{7});
 
   // floating point
-  test_dynamic(float{7.7});
+  test_dynamic(7.7f);
   test_dynamic(double{7.7});
 
   // text

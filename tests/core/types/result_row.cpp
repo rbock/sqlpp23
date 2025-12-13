@@ -135,7 +135,7 @@ int main() {
   test_result_row<uint64_t>(uint64_t{7});
 
   // floating point
-  test_result_row<double>(float{7.7});
+  test_result_row<double>(7.7f);
   test_result_row<double>(double{7.7});
 
   // text

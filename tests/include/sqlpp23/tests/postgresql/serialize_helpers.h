@@ -30,12 +30,12 @@
 
 #define SQLPP_COMPARE(expr, expected_string)                               \
   {                                                                        \
-    static auto db =                                                       \
+    static auto compare_db =                                               \
         sqlpp::postgresql::make_test_connection("UTC", /*categories=*/{}); \
-    sqlpp::postgresql::context_t context{&db};                             \
+    sqlpp::postgresql::context_t compare_context{&compare_db};             \
                                                                            \
     using sqlpp::to_sql_string;                                            \
-    const auto result = to_sql_string(context, expr);                      \
+    const auto result = to_sql_string(compare_context, expr);              \
                                                                            \
     if (result != expected_string) {                                       \
       std::cerr << __FILE__ << " " << __LINE__ << '\n'                     \

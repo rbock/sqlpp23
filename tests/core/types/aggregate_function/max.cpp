@@ -106,7 +106,7 @@ int main() {
   test_max(uint64_t{7});
 
   // floating point
-  test_max(float{7.7});
+  test_max(7.7f);
   test_max(double{7.7});
 
   // text

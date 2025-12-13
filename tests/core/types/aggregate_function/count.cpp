@@ -106,7 +106,7 @@ int main() {
   test_count(uint64_t{7});
 
   // floating point
-  test_count(float{7.7});
+  test_count(7.7f);
   test_count(double{7.7});
 
   // text

@@ -87,7 +87,7 @@ int main() {
   test_value(uint64_t{7});
 
   // floating point
-  test_value(float{7.7});
+  test_value(7.7f);
   test_value(double{7.7});
 
   // text

@@ -114,7 +114,7 @@ int main() {
   test_any(uint64_t{7});
 
   // floating point
-  test_any(float{7.7});
+  test_any(7.7f);
   test_any(double{7.7});
 
   // text
