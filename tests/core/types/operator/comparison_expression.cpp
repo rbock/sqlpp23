@@ -172,7 +172,7 @@ int main() {
   test_comparison_expression(uint64_t{7});
 
   // floating point
-  test_comparison_expression(float{7.7});
+  test_comparison_expression(7.7f);
   test_comparison_expression(double{7.7});
 
   // text

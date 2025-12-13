@@ -134,7 +134,7 @@ int main() {
   test_in_expression(uint64_t{7});
 
   // floating point
-  test_in_expression(float{7.7});
+  test_in_expression(7.7f);
   test_in_expression(double{7.7});
 
   // text

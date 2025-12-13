@@ -199,10 +199,10 @@ int main() {
   test_numeric_aggregate_functions(uint64_t{7});
 
   // floating point
-  test_aggregate_functions(float{7.7});
+  test_aggregate_functions(7.7f);
   test_aggregate_functions(double{7.7});
 
-  test_numeric_aggregate_functions(float{7.7});
+  test_numeric_aggregate_functions(7.7f);
   test_numeric_aggregate_functions(double{7.7});
 
   // text

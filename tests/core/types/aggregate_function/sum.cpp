@@ -108,6 +108,6 @@ int main() {
   test_sum(uint64_t{7});
 
   // floating point
-  test_sum(float{7.7});
+  test_sum(7.7f);
   test_sum(double{7.7});
 }

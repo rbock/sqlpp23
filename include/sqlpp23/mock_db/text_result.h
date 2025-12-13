@@ -45,7 +45,7 @@ struct MockRes {
 
 namespace sqlpp::mock_db {
 class text_result_t {
-  size_t _row_index = -1;
+  size_t _row_index = std::numeric_limits<std::size_t>::max();
   MockRes* _mock_res = nullptr;
   const connection_config* _config;
 

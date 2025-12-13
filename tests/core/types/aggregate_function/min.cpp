@@ -106,7 +106,7 @@ int main() {
   test_min(uint64_t{7});
 
   // floating point
-  test_min(float{7.7});
+  test_min(7.7f);
   test_min(double{7.7});
 
   // text

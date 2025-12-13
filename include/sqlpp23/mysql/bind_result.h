@@ -128,7 +128,7 @@ class bind_result_t {
 
   bool _invalid() const { return !_mysql_stmt; }
 
-  void bind_field(size_t index, bool& /*value*/) {
+  void bind_field(unsigned int index, bool& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding boolean result at index: {}",
@@ -148,7 +148,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, int64_t& /*value*/) {
+  void bind_field(unsigned int index, int64_t& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding integral result at index: {}",
@@ -168,7 +168,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, uint64_t& /*value*/) {
+  void bind_field(unsigned int index, uint64_t& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(
           log_category::result,
@@ -188,7 +188,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, double& /*value*/) {
+  void bind_field(unsigned int index, double& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(
           log_category::result,
@@ -208,7 +208,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, std::string_view& /*value*/) {
+  void bind_field(unsigned int index, std::string_view& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding text result at index: {}",
@@ -227,7 +227,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, std::span<const uint8_t>& /*value*/) {
+  void bind_field(unsigned int index, std::span<const uint8_t>& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding blob result at index: {}",
@@ -246,7 +246,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_chrono_field(size_t index, enum_field_types buffer_type) {
+  void bind_chrono_field(unsigned int index, enum_field_types buffer_type) {
     auto& buffer{_result_buffers[index]};
     new (&buffer.mysql_time_) MYSQL_TIME{};
 
@@ -260,7 +260,7 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(size_t index, std::chrono::sys_days& /*value*/) {
+  void bind_field(unsigned int index, std::chrono::sys_days& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding date result at index: {}",
@@ -270,7 +270,7 @@ class bind_result_t {
     bind_chrono_field(index, MYSQL_TYPE_DATE);
   }
 
-  void bind_field(size_t index, ::sqlpp::chrono::sys_microseconds& /*value*/) {
+  void bind_field(unsigned int index, ::sqlpp::chrono::sys_microseconds& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: binding date time result at index: {}",
@@ -280,7 +280,7 @@ class bind_result_t {
     bind_chrono_field(index, MYSQL_TYPE_DATETIME);
   }
 
-  void bind_field(size_t index, ::std::chrono::microseconds& /*value*/) {
+  void bind_field(unsigned int index, ::std::chrono::microseconds& /*value*/) {
     if constexpr (debug_enabled) {
       _config->debug.log(
           log_category::result,
@@ -291,12 +291,12 @@ class bind_result_t {
   }
 
   template <class T>
-  void bind_field(size_t index, std::optional<T>& value) {
+  void bind_field(unsigned int index, std::optional<T>& value) {
     value = T{};
     bind_field(index, *value);
   }
 
-  void read_field(size_t index, bool& value) {
+  void read_field(unsigned int index, bool& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading bool result at index: {}",
@@ -305,7 +305,7 @@ class bind_result_t {
     value = _result_buffers[index].bool_;
   }
 
-  void read_field(size_t index, int64_t& value) {
+  void read_field(unsigned int index, int64_t& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading integral result at index: {}",
@@ -314,7 +314,7 @@ class bind_result_t {
     value = _result_buffers[index].int64_;
   }
 
-  void read_field(size_t index, uint64_t& value) {
+  void read_field(unsigned int index, uint64_t& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(
           log_category::result,
@@ -323,7 +323,7 @@ class bind_result_t {
     value = _result_buffers[index].uint64_;
   }
 
-  void read_field(size_t index, double& value) {
+  void read_field(unsigned int index, double& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(
           log_category::result,
@@ -332,7 +332,7 @@ class bind_result_t {
     value = _result_buffers[index].double_;
   }
 
-  void refetch_if_required(size_t index) {
+  void refetch_if_required(unsigned int index) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: Checking result size at index: {}",
@@ -360,7 +360,7 @@ class bind_result_t {
     }
   }
 
-  void read_field(size_t index, std::string_view& value) {
+  void read_field(unsigned int index, std::string_view& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading text result at index: {}",
@@ -372,7 +372,7 @@ class bind_result_t {
     value = std::string_view(buffer.var_buffer.data(), *parameters.length);
   }
 
-  void read_field(size_t index, std::span<const uint8_t>& value) {
+  void read_field(unsigned int index, std::span<const uint8_t>& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading blob result at index: {}",
@@ -386,7 +386,7 @@ class bind_result_t {
         *parameters.length);
   }
 
-  void read_field(size_t index, std::chrono::sys_days& value) {
+  void read_field(unsigned int index, std::chrono::sys_days& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading date result at index: {}",
@@ -402,7 +402,7 @@ class bind_result_t {
             ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day);
   }
 
-  void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
+  void read_field(unsigned int index, ::sqlpp::chrono::sys_microseconds& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading date time result at index: {}",
@@ -422,7 +422,7 @@ class bind_result_t {
             std::chrono::microseconds(dt.second_part);
   }
 
-  void read_field(size_t index, ::std::chrono::microseconds& value) {
+  void read_field(unsigned int index, ::std::chrono::microseconds& value) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: reading date time result at index: {}",
@@ -436,7 +436,7 @@ class bind_result_t {
   }
 
   template <class T>
-  void read_field(size_t index, std::optional<T>& value) {
+  void read_field(unsigned int index, std::optional<T>& value) {
     if (_result_buffers[index].is_null) {
       value.reset();
       return;

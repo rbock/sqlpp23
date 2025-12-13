@@ -29,10 +29,10 @@
 
 #include <sqlpp23/core/basic/parameter.h>
 #include <sqlpp23/core/chrono.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 
 namespace sqlpp {
-namespace postgresql {
 // Serialize parameters
 template <typename DataType, typename NameType>
 auto to_sql_string(postgresql::context_t& context,
@@ -75,16 +75,14 @@ inline auto to_sql_string(postgresql::context_t&,
   return std::format("TIME WITH TIME ZONE'{0:%H:%M:%S+00}'", t);
 }
 
-inline auto to_sql_string(postgresql::context_t&, const bool& t)
-    -> std::string {
-  return t ? "'t'::boolean" : "'f'::boolean";
-}
-
 inline auto data_type_to_sql_string(postgresql::context_t&,
                           const sqlpp::blob&) -> std::string {
   return "BYTEA";
 }
 
-}  // namespace postgresql
+inline auto to_sql_string(postgresql::context_t&, const bool& t)
+    -> std::string {
+  return t ? "'t'::boolean" : "'f'::boolean";
+}
 
 }  // namespace sqlpp

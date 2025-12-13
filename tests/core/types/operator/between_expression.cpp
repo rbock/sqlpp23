@@ -157,7 +157,7 @@ int main() {
   test_between_expression(uint64_t{7});
 
   // floating point
-  test_between_expression(float{7.7});
+  test_between_expression(7.7f);
   test_between_expression(double{7.7});
 
   // text

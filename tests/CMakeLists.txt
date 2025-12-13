@@ -33,7 +33,7 @@ else()
 endif()
 
 if (NOT MSVC)
-    target_compile_options(sqlpp23_testing INTERFACE -Wall -Wextra -pedantic)
+  target_compile_options(sqlpp23_testing INTERFACE -Wall -Wextra -pedantic -Wshadow -Wconversion)
 endif ()
 
 add_subdirectory(core)

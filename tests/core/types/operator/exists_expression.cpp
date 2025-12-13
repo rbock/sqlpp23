@@ -99,7 +99,7 @@ int main() {
   test_exists(uint64_t{7});
 
   // floating point
-  test_exists(float{7.7});
+  test_exists(7.7f);
   test_exists(double{7.7});
 
   // text

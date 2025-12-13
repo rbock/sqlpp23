@@ -106,7 +106,7 @@ int main() {
   test_assign_expression(foo.uIntN, uint8_t{7});
 
   // floating point
-  test_assign_expression(foo.doubleN, float{7.7});
+  test_assign_expression(foo.doubleN, 7.7f);
 
   // text
   test_assign_expression(bar.textN, '7');

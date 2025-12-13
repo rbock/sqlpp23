@@ -28,18 +28,18 @@
 
 #include <sqlpp23/tests/sqlite3/make_test_connection.h>
 
-#define SQLPP_COMPARE(expr, expected_string)                       \
-  {                                                                \
-    static auto db = sqlpp::sqlite3::make_test_connection({});     \
-    sqlpp::sqlite3::context_t context{&db};                        \
-                                                                   \
-    using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(context, expr);              \
-                                                                   \
-    if (result != expected_string) {                               \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
-                << "Expected: -->|" << expected_string << "|<--\n" \
-                << "Received: -->|" << result << "|<--\n";         \
-      return -1;                                                   \
-    }                                                              \
+#define SQLPP_COMPARE(expr, expected_string)                           \
+  {                                                                    \
+    static auto compare_db = sqlpp::sqlite3::make_test_connection({}); \
+    sqlpp::sqlite3::context_t compare_context{&compare_db};            \
+                                                                       \
+    using sqlpp::to_sql_string;                                        \
+    const auto result = to_sql_string(compare_context, expr);          \
+                                                                       \
+    if (result != expected_string) {                                   \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'                 \
+                << "Expected: -->|" << expected_string << "|<--\n"     \
+                << "Received: -->|" << result << "|<--\n";             \
+      return -1;                                                       \
+    }                                                                  \
   }

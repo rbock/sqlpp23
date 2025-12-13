@@ -96,8 +96,8 @@ int Blob(int, char*[]) {
   verify_blob(db, smallBlob, result.last_insert_id);
   verify_blob(db, blobN, prep_result.last_insert_id);
   {
-    auto result = db(select(tab.blobN).from(tab).where(tab.id == null_result.last_insert_id));
-    const auto& result_row = result.front();
+    auto result2 = db(select(tab.blobN).from(tab).where(tab.id == null_result.last_insert_id));
+    const auto& result_row = result2.front();
     std::cerr << "Null blob is_null:\t" << std::boolalpha
               << (result_row.blobN == std::nullopt) << std::endl;
   }

@@ -243,7 +243,7 @@ int main() {
   test_select_as(unsigned{7});
 
   // floating point
-  test_select_as(float{7.7});
+  test_select_as(7.7f);
 
   // text
   test_select_as("seven");
