@@ -42,15 +42,15 @@ struct connection_config {
   connection_config(std::string path,
                     int fl = 0,
                     std::string vf = "",
-                    std::string password = "",
+                    std::string password_ = "",
                     debug_logger dbg = {},
-                    bool use_extended_result_codes = false)
+                    bool use_extended_result_codes_ = false)
       : path_to_database{std::move(path)},
         flags{fl},
         vfs{std::move(vf)},
-        password{password},
+        password{password_},
         debug{std::move(dbg)},
-        use_extended_result_codes{use_extended_result_codes} {}
+        use_extended_result_codes{use_extended_result_codes_} {}
 
   bool operator==(const connection_config& other) const {
     return (other.path_to_database == path_to_database &&
