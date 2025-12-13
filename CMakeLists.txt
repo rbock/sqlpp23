@@ -47,7 +47,7 @@ option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON
 set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
 
 ### Main (core) library
-add_component()
+add_core()
 
 ### Connector components
 if(BUILD_SQLITE3_CONNECTOR)

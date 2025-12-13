@@ -25,65 +25,86 @@
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+function(add_core)
+    # The core library needs the core headers plus all the headers in the top include directory
+    file(GLOB_RECURSE HDR_COMPONENT LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
+    file(GLOB HDR_COMMON LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
+    set(HEADERS ${HDR_COMPONENT} ${HDR_COMMON})
+    add_common(
+        CONFIG_SCRIPT Sqlpp23Config.cmake
+        HEADERS ${HEADERS}
+        TARGET_NAME sqlpp23
+        TARGET_ALIAS sqlpp23::sqlpp23
+        TARGET_EXPORTED sqlpp23
+    )
+endfunction()
+
 function(add_component)
     set(options)
     set(oneValueArgs HEADER_DIR NAME PACKAGE)
     set(multiValueArgs DEFINES DEPENDENCIES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    # Use the component name to deduce the various target names. An empty component name
-    # means that we don't create a component but the main library target, so we have to
-    # handle that case separately.
-    if(ARG_NAME)
-        string(TOLOWER ${ARG_NAME} LC_NAME)
-        set(TARGET_NAME sqlpp23_${LC_NAME})
-        set(TARGET_ALIAS sqlpp23::${LC_NAME})
-        set(TARGET_EXPORTED ${LC_NAME})
-    else()
-        set(TARGET_NAME sqlpp23)
-        set(TARGET_ALIAS sqlpp23::sqlpp23)
-        set(TARGET_EXPORTED sqlpp23)
-    endif()
+    file(GLOB_RECURSE HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
+    string(TOLOWER ${ARG_NAME} LC_NAME)
+    add_common(
+        CONFIG_SCRIPT Sqlpp23${ARG_NAME}Config.cmake
+        DEFINES ${ARG_DEFINES}
+        DEPENDENCIES ${ARG_DEPENDENCIES}
+        HEADERS ${HEADERS}
+        PACKAGE ${ARG_PACKAGE}
+        TARGET_NAME sqlpp23_${LC_NAME}
+        TARGET_ALIAS sqlpp23::${LC_NAME}
+        TARGET_EXPORTED ${LC_NAME}
+    )
 
-    # Create the component targets
+endfunction()
+
+function(add_common)
+    set(options)
+    set(oneValueArgs CONFIG_SCRIPT PACKAGE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED)
+    set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
+    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # If the component needs a specific package, check if it is installed
     if(ARG_PACKAGE AND DEPENDENCY_CHECK)
         find_package(${ARG_PACKAGE} REQUIRED)
     endif()
-    add_library(${TARGET_NAME} INTERFACE)
-    add_library(${TARGET_ALIAS} ALIAS ${TARGET_NAME})
-    set_target_properties(${TARGET_NAME} PROPERTIES EXPORT_NAME ${TARGET_EXPORTED})
-    target_compile_features(${TARGET_NAME} INTERFACE cxx_std_23)
+
+    # Create the component targets
+    add_library(${ARG_TARGET_NAME} INTERFACE)
+    add_library(${ARG_TARGET_ALIAS} ALIAS ${ARG_TARGET_NAME})
+    set_target_properties(${ARG_TARGET_NAME} PROPERTIES EXPORT_NAME ${ARG_TARGET_EXPORTED})
+    target_compile_features(${ARG_TARGET_NAME} INTERFACE cxx_std_23)
     if(ARG_DEFINES)
-        target_compile_definitions(${TARGET_NAME} INTERFACE ${ARG_DEFINES})
+        target_compile_definitions(${ARG_TARGET_NAME} INTERFACE ${ARG_DEFINES})
     endif()
     if(ARG_DEPENDENCIES)
-        target_link_libraries(${TARGET_NAME} INTERFACE sqlpp23 ${ARG_DEPENDENCIES})
-    endif()
-    if(ARG_NAME)
-        file(GLOB_RECURSE HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
-    else()
-        file(GLOB_RECURSE HDR_COMPONENT LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
-        file(GLOB HDR_COMMON LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
-        set(HEADERS ${HDR_COMPONENT} ${HDR_COMMON})
+        target_link_libraries(${ARG_TARGET_NAME} INTERFACE sqlpp23 ${ARG_DEPENDENCIES})
     endif()
     # Add the component headers to the HEADERS file set. This also adds the base directory to the
     # target's build interface include directories.
-    target_sources(${TARGET_NAME}
+    target_sources(
+        ${ARG_TARGET_NAME}
         INTERFACE
-        FILE_SET HEADERS BASE_DIRS ${PROJECT_SOURCE_DIR}/include FILES ${HEADERS}
+        FILE_SET HEADERS BASE_DIRS ${PROJECT_SOURCE_DIR}/include FILES ${ARG_HEADERS}
     )
 
     # Install the component
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/configs/Sqlpp23${ARG_NAME}Config.cmake
-        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    )
-    install(TARGETS ${TARGET_NAME}
+    install(
+        TARGETS ${ARG_TARGET_NAME}
         EXPORT Sqlpp23Targets
         FILE_SET HEADERS
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-    set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_NAME}.cmake)
-    if(EXISTS ${FIND_SCRIPT})
-        install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
+    install(
+        FILES ${PROJECT_SOURCE_DIR}/cmake/configs/${ARG_CONFIG_SCRIPT}
+        DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+    )
+    if(ARG_PACKAGE)
+        set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_PACKAGE}.cmake)
+        if(EXISTS ${FIND_SCRIPT})
+            install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
+        endif()
     endif()
 endfunction()
