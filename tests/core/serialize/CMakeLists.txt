@@ -25,11 +25,8 @@
 set(test_files
     DynamicWhere.cpp
     Insert.cpp
-    Lower.cpp
     ParameterizedVerbatim.cpp
     TableAlias.cpp
-    Trim.cpp
-    Upper.cpp
 )
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})

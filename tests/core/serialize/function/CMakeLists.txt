@@ -29,11 +29,5 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
-create_test(coalesce)
-create_test(concat)
-create_test(current_date)
-create_test(current_time)
-create_test(current_timestamp)
-create_test(flatten)
-create_test(get_sql_name)
+create_test(all)
 
