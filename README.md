@@ -84,7 +84,15 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
 __Compiler:__
 sqlpp23 makes use of C++23 and requires a recent compiler and standard library.
 
-License:
+If you use the library without modules, the following compiler versions are known to be sufficient:
+
+* clang: 20.1 (both libstdc++ and libc++ work)
+* gcc: 14.2
+* MSVC: 19.44.35219
+
+For modules, please check out [/docs/modules.md](/docs/modules.md).
+
+## License:
 
 sqlpp23 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp23/blob/main/LICENSE).
 
