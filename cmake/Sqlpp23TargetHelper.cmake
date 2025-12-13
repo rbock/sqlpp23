@@ -69,11 +69,21 @@ function(add_component)
         EXPORT Sqlpp23Targets
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-    install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}
-        DESTINATION include/sqlpp23
-        FILES_MATCHING
-        PATTERN *.h
-    )
+    if(ARG_NAME)
+        install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}
+            DESTINATION include/sqlpp23
+            FILES_MATCHING
+            PATTERN *.h
+        )
+    else()
+        install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/sqlpp23/core
+            DESTINATION include/sqlpp23
+            FILES_MATCHING
+            PATTERN *.h
+        )
+        file(GLOB HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
+        install(FILES ${HEADERS} DESTINATION include/sqlpp23)
+    endif()
     set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_NAME}.cmake)
     if(EXISTS ${FIND_SCRIPT})
         install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
