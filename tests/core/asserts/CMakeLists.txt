@@ -25,7 +25,7 @@
 function(create_test_for_setup name)
     set(target sqlpp23_core_asserts_setup_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23_core_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
@@ -34,7 +34,7 @@ function(test_assert name pattern)
     set(test sqlpp23_core_asserts_${name})
     set(target sqlpp23_core_asserts_${name})
     add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23_core_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
     target_compile_definitions(${target} PRIVATE SQLPP_CHECK_STATIC_ASSERT)
     add_test(NAME ${test}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}

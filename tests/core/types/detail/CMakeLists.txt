@@ -25,7 +25,7 @@
 function(test_compile name)
     set(target sqlpp23_core_types_clause_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23_core_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
 endfunction()
 
 test_compile(get_last_if)

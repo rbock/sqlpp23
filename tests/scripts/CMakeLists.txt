@@ -88,7 +88,7 @@ if (${Python3_Interpreter_FOUND})
 
             add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
                 "${sqlpp.scripts.generated.sample.include}")
-            target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp23)
+            target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp23::core)
         endforeach()
 
         # Invalid .types names
@@ -128,6 +128,6 @@ if (${Python3_Interpreter_FOUND})
                 VERBATIM)
         endforeach()
         add_executable("${custom_type_exe}" "${custom_type_cpp}" ${custom_type_headers})
-        target_link_libraries("${custom_type_exe}" PRIVATE sqlpp23)
+        target_link_libraries("${custom_type_exe}" PRIVATE sqlpp23::core)
     endif()
 endif()

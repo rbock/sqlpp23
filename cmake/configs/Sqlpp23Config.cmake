@@ -47,10 +47,13 @@ endforeach()
 # Add the target file
 include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp23Targets.cmake)
 
-# Load any optional components 
+# Load any optional components
 foreach(comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_comps)
     include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp23${comp}Config.cmake OPTIONAL)
 endforeach()
+
+# Add the target sqlpp23::sqlpp23 as an alias for sqlpp23::core
+add_library(sqlpp23::sqlpp23 ALIAS sqlpp23::core)
 
 # Import "ddl2cpp" script
 if(NOT TARGET sqlpp23::ddl2cpp)
@@ -65,6 +68,6 @@ if(NOT TARGET sqlpp23::ddl2cpp)
     unset(sqlpp23_ddl2cpp_location)
 endif()
 
-# Resture module path 
+# Resture module path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH_save})
 unset(CMAKE_MODULE_PATH_save)

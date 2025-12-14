@@ -21,8 +21,9 @@ You can find examples for both methods in the examples folder.
 1. FetchContent (Recommended, no installation required)
 1. FindPackage (installation required, see below)
 
-Both methods will provide the `sqlpp23::sqlpp23` target as well as targets for
-each connector:
+Both methods will provide the core target `sqlpp23::core` as well as its alias
+`sqlpp23::sqlpp23` for backwards compatibility. Also the following connector-specific
+targets are provided:
 
 - sqlpp23::mysql
 - sqlpp23::mariadb
