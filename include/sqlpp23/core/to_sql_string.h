@@ -117,7 +117,7 @@ auto float_to_sql_string(Context& context, const T& f) -> std::string {
     return f > std::numeric_limits<T>::max() ? inf_to_sql_string(context)
                                              : neg_inf_to_sql_string(context);
   } else {
-    return std::format("{:.{}g}", f, std::numeric_limits<T>::max_digits10);
+    return std::format("{:.{}g}", f, std::numeric_limits<T>::digits10);
   }
 }
 

@@ -26,29 +26,14 @@
 
 #include <sqlpp23/tests/core/all.h>
 
-namespace {
-template <typename T>
-std::string string_for_10_0000086() {
-  switch (std::numeric_limits<T>::max_digits10) {
-    case 9:
-      return "10.0000086";
-    case 17:
-      return "10.000008599999999";
-    case 21:
-      return "10.0000086000000000001";
-    default:
-      throw std::logic_error("Unknown floating point digit count");
-  }
-}
-}  // namespace
-
 int main(int, char*[]) {
-  SQLPP_COMPARE(10.0000114f, "10.0000114");
-  SQLPP_COMPARE(10.0000114, "10.0000114");
-  SQLPP_COMPARE(10.0000114l, "10.0000114");
-  SQLPP_COMPARE(10.0000086f, string_for_10_0000086<float>());
-  SQLPP_COMPARE(10.0000086, string_for_10_0000086<double>());
-  SQLPP_COMPARE(10.0000086l, string_for_10_0000086<long double>());
+  // float only has a few digits of precision
+  SQLPP_COMPARE(10.123456789f, "10.1235");
+
+  // double has more digits of precision
+  SQLPP_COMPARE(10.12345678901234567890, "10.1234567890123");
+
+  // No tests for long double as libc++ and libstdc++ use different representations
 
   return 0;
 }

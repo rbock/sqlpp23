@@ -30,6 +30,7 @@ int main() {
   SQLPP_COMPARE(true, "'t'::boolean");
   SQLPP_COMPARE(false, "'f'::boolean");
   SQLPP_COMPARE(17, "17");
+  SQLPP_COMPARE(0.1f, "0.1");
 
   return 0;
 }
