@@ -32,7 +32,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 
-namespace sqlpp {
+namespace sqlpp::postgresql {
 // Serialize parameters
 template <typename DataType, typename NameType>
 auto to_sql_string(postgresql::context_t& context,
@@ -80,9 +80,10 @@ inline auto data_type_to_sql_string(postgresql::context_t&,
   return "BYTEA";
 }
 
-inline auto to_sql_string(postgresql::context_t&, const bool& t)
-    -> std::string {
+// This has to be a template to prevent other numeric types to be narrowed into
+// bool here.
+inline auto to_sql_string(postgresql::context_t&, const bool& t) -> std::string {
   return t ? "'t'::boolean" : "'f'::boolean";
 }
 
-}  // namespace sqlpp
+}  // namespace sqlpp::postgresql

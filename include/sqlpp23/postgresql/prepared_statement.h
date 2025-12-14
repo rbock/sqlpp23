@@ -34,6 +34,7 @@
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/debug_logger.h>
+#include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/postgresql/database/connection_handle.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
 #include <sqlpp23/postgresql/pg_result.h>
@@ -144,6 +145,7 @@ class prepared_statement_t {
 
     _stmt_null_parameters[index] = false;
     context_t context{nullptr};
+    using sqlpp::to_sql_string;
     _stmt_parameters[index] = to_sql_string(context, value);
   }
 
