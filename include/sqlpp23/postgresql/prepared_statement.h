@@ -130,9 +130,9 @@ class prepared_statement_t {
 
     _stmt_null_parameters[index] = false;
     if (value) {
-      _stmt_parameters[index] = "TRUE";
+      _stmt_parameters[index] = "t";
     } else {
-      _stmt_parameters[index] = "FALSE";
+      _stmt_parameters[index] = "f";
     }
   }
 

@@ -25,6 +25,9 @@
  */
 
 #include <cassert>
+#include <chrono>
+#include "sqlpp23/core/basic/parameter.h"
+#include "sqlpp23/core/type_traits/data_type.h"
 
 #include <sqlpp23/tests/postgresql/all.h>
 
@@ -54,6 +57,31 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
 }
 
+void testParameter(sql::connection& db) {
+  auto ps = db.prepare(select(
+        sqlpp::parameter(sqlpp::boolean{}, sqlpp::alias::b).as(sqlpp::alias::b),
+        sqlpp::parameter(sqlpp::integral{}, sqlpp::alias::i).as(sqlpp::alias::i),
+        sqlpp::parameter(sqlpp::floating_point{}, sqlpp::alias::f).as(sqlpp::alias::f),
+        sqlpp::parameter(sqlpp::text{}, sqlpp::alias::t).as(sqlpp::alias::t),
+        sqlpp::parameter(sqlpp::timestamp{}, sqlpp::alias::n).as(sqlpp::alias::n)
+        ));
+  ps.parameters.b = true;
+  ps.parameters.i = 17;
+  ps.parameters.f = 0.1;
+  ps.parameters.t = "cheesecake";
+  auto n = std::chrono::time_point_cast<std::chrono::microseconds>(
+      std::chrono::system_clock::now());
+  ps.parameters.n = n;
+
+  for (const auto& row : db(ps)) {
+    assert(row.b == true);
+    assert(row.i == 17);
+    assert(row.f == 0.1);
+    assert(row.t == "cheesecake");
+    assert(row.n == n);
+  }
+}
+
 namespace {
 SQLPP_CREATE_NAME_TAG(something);
 }
@@ -70,6 +98,8 @@ int Select(int, char*[]) {
   testSelectAll(db, 2);
   db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
   testSelectAll(db, 3);
+
+  testParameter(db);
 
   // Test size functionality
   const auto test_size = db(select(all_of(tab)).from(tab));
