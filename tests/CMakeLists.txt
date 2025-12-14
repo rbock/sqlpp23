@@ -29,7 +29,7 @@ if(BUILD_WITH_MODULES)
   target_link_libraries(sqlpp23_testing INTERFACE sqlpp23.core.module)
   target_compile_definitions(sqlpp23_testing INTERFACE BUILD_WITH_MODULES)
 else()
-  target_link_libraries(sqlpp23_testing INTERFACE sqlpp23)
+  target_link_libraries(sqlpp23_testing INTERFACE sqlpp23::core)
 endif()
 
 if (NOT MSVC)

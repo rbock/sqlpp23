@@ -34,8 +34,8 @@ function(add_core)
         CONFIG_SCRIPT Sqlpp23Config.cmake
         HEADERS ${HEADERS}
         TARGET_NAME sqlpp23
-        TARGET_ALIAS sqlpp23::sqlpp23
-        TARGET_EXPORTED sqlpp23
+        TARGET_ALIAS sqlpp23::core
+        TARGET_EXPORTED core
     )
 endfunction()
 

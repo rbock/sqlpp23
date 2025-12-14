@@ -25,7 +25,7 @@
 function(create_test name)
     set(target sqlpp23_core_usage_aggregate_function_${name})
     add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlpp23 sqlpp23_testing sqlpp23_core_testing sqlpp23_core_testing)
+    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing sqlpp23_core_testing)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
