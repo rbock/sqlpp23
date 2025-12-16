@@ -29,7 +29,7 @@ if(BUILD_WITH_MODULES)
         FILE_SET all_my_modules TYPE CXX_MODULES FILES
         modules/sqlpp23.test.mysql.tables.cppm
     )
-    target_link_libraries(sqlpp23.test.mysql.tables.module PUBLIC sqlpp23.core.module)
+    target_link_libraries(sqlpp23.test.mysql.tables.module PUBLIC sqlpp23::core_module)
 endif()
 
 find_package(Threads REQUIRED)
@@ -39,7 +39,7 @@ target_include_directories(sqlpp23_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURC
 if(BUILD_WITH_MODULES)
     target_link_libraries(sqlpp23_mysql_testing INTERFACE
       sqlpp23_testing
-      sqlpp23.mysql.module
+      sqlpp23::mysql_module
       sqlpp23.test.mysql.tables.module
     )
 else()
@@ -48,7 +48,7 @@ else()
     )
 endif()
 if (MSVC)
-  target_compile_options(sqlpp23_mysql_testing INTERFACE -DNOMINMAX)
+    target_compile_options(sqlpp23_mysql_testing INTERFACE -DNOMINMAX)
 endif ()
 
 add_subdirectory(asserts)
