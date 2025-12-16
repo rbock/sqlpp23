@@ -29,7 +29,7 @@ if(BUILD_WITH_MODULES)
         FILE_SET all_my_modules TYPE CXX_MODULES FILES
         modules/sqlpp23.test.sqlite3.tables.cppm
     )
-    target_link_libraries(sqlpp23.test.sqlite3.tables.module PUBLIC sqlpp23.core.module)
+    target_link_libraries(sqlpp23.test.sqlite3.tables.module PUBLIC sqlpp23::core_module)
 endif()
 
 add_library(sqlpp23_sqlite3_testing INTERFACE)
@@ -38,7 +38,7 @@ target_include_directories(sqlpp23_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOU
 if(BUILD_WITH_MODULES)
     target_link_libraries(sqlpp23_sqlite3_testing INTERFACE
       sqlpp23_testing
-      sqlpp23.sqlite3.module
+      sqlpp23::sqlite3_module
       sqlpp23.test.sqlite3.tables.module
     )
 else()
