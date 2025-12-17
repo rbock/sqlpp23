@@ -21,18 +21,32 @@ You can find examples for both methods in the examples folder.
 1. FetchContent (Recommended, no installation required)
 1. FindPackage (installation required, see below)
 
-Both methods will provide the core target `sqlpp23::core` as well as its alias
-`sqlpp23::sqlpp23` for backwards compatibility. Also the following connector-specific
-targets are provided:
+Both methods will provide the following CMake targets
 
-- sqlpp23::mysql
-- sqlpp23::mariadb
-- sqlpp23::sqlite3
-- sqlpp23::sqlcipher
-- sqlpp23::postgresql
+| Target | How to include | Description |
+| ------ | -------------- | ----------- |
+| sqlpp23::core | #include <sqlpp23/sqlpp23.h> | The core functionality, which is not connector-specific, as headers |
+| sqlpp23::core_module | import sqlpp23::core; | The core functionality, which is not connector-specific, as a module |
+| sqlpp23::sqlpp23 | #include <sqlpp23/sqlpp23.h> | A backwards-compatible alias of sqlpp23::core |
+| sqlpp23::mariadb | #include <sqlpp23/mysql/mysql.h>[^1] | The MariaDB connector as headers |
+| sqlpp23::mariadb_module | import sqlpp23::mariadb; | The MariaDB connector as a module |
+| sqlpp23::mysql | #include <sqlpp23/mysql/mysql.h> | The MySQL connector as headers |
+| sqlpp23::mysql_module | import sqlpp23::mysql; | The MySQL connector as a module |
+| sqlpp23::postgresql | #include <sqlpp23/postgresql/postgresql.h> | The PostgreSQL connector as headers |
+| sqlpp23::postgresql_module | import sqlpp23::postgresql; | The PostgreSQL connector as a module |
+| sqlpp23::sqlcipher | #include <sqlpp23/sqlite3/sqlite3.h>[^2] | The SQLCipher connector as headers |
+| sqlpp23::sqlcipher_module | import sqlpp23::sqlcipher; | The SQLCipher connector as a module |
+| sqlpp23::sqlite3 | #include <sqlpp23/sqlite3/sqlite3.h> | The SQLite3 connector as headers |
+| sqlpp23::sqlite3_module | import sqlpp23::sqlite3; | The SQLite3 connector as a module |
 
-These targets will make sure all required dependencies are available and
-correctly linked and include directories are set correctly.
+[^1]: The MariaDB connector re-uses the codebase of the MySQL connector. That's
+why you use the MariaDB connector by including the MySQL headers.
+[^2]: The SQLCipher connector re-uses the codebase of the SQLite3 connector.
+That's why you use the SQLCipher connector by including the SQLite3 headers.
+
+These targets will make sure all required dependencies are available, correctly
+linked, include directories are set correctly and module interface files (if
+using the module targets) are added to your project sources.
 
 ## Build and install
 
