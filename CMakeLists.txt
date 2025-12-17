@@ -46,24 +46,33 @@ option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON
 
 set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
 
+# If we are building without C++20 modules, don't scan the sources for module dependencies
+# This speeds up the build process.
+if(NOT BUILD_WITH_MODULES)
+    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+endif()
+
 ### Main (core) library
 add_core()
 
+### Mock Database
+add_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp23.mock_db.cppm NO_INSTALL)
+
 ### Connector components
 if(BUILD_SQLITE3_CONNECTOR)
-    add_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3 HEADER_DIR sqlite3)
+    add_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3 HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
 endif()
 if(BUILD_SQLCIPHER_CONNECTOR)
-    add_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3)
+    add_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
 endif()
 if(BUILD_MYSQL_CONNECTOR)
-    add_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql)
+    add_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
 endif()
 if(BUILD_MARIADB_CONNECTOR)
-    add_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql)
+    add_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
 endif()
 if(BUILD_POSTGRESQL_CONNECTOR)
-    add_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql)
+    add_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql MODULE_INTERFACE sqlpp23.postgresql.cppm)
 endif()
 
 # Utility programs
@@ -82,14 +91,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
 install(EXPORT Sqlpp23Targets
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
     NAMESPACE   sqlpp23::
+    CXX_MODULES_DIRECTORY .
 )
-
-# C++20 modules
-if(BUILD_WITH_MODULES)
-    add_subdirectory(modules)
-else()
-    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
-endif()
 
 ### Tests
 if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)

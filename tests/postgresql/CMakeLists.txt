@@ -29,7 +29,7 @@ if(BUILD_WITH_MODULES)
       FILE_SET all_my_modules TYPE CXX_MODULES FILES
       modules/sqlpp23.test.postgresql.tables.cppm
   )
-  target_link_libraries(sqlpp23.test.postgresql.tables.module PUBLIC sqlpp23.core.module)
+  target_link_libraries(sqlpp23.test.postgresql.tables.module PUBLIC sqlpp23::core_module)
 endif()
 
 add_library(sqlpp23_postgresql_testing INTERFACE)
@@ -38,7 +38,7 @@ target_include_directories(sqlpp23_postgresql_testing INTERFACE ${CMAKE_CURRENT_
 if(BUILD_WITH_MODULES)
     target_link_libraries(sqlpp23_postgresql_testing INTERFACE
       sqlpp23_testing
-      sqlpp23.postgresql.module
+      sqlpp23::postgresql_module
       sqlpp23.test.postgresql.tables.module
     )
 else()
