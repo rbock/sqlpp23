@@ -5,7 +5,7 @@ db_connection::pq_conn& db_connection::fetch()
 {
   if (m_conn_ptr == nullptr)
   {
-    m_conn_ptr = sqlpp::compat::make_unique<pq_conn>(m_pool.get());
+    m_conn_ptr = std::make_unique<pq_conn>(m_pool.get());
   }
   return *m_conn_ptr;
 }
