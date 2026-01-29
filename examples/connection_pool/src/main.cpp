@@ -13,7 +13,6 @@ int main()
   config->dbname = "my_database";
   config->user = "my_username";
   config->password = "my_password";
-  config->debug = false;
   db_global_init(config);
 
   // Spawn 10 threads and make them send SQL queries in parallel
