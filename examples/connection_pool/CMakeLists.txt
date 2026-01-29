@@ -35,7 +35,7 @@ target_include_directories ("${APP_NAME}" PRIVATE "${GEN_HEADERS_DIR}" "${PROJEC
 
 # Linked libraries
 find_package (Sqlpp23 REQUIRED COMPONENTS PostgreSQL)
-target_link_libraries ("${APP_NAME}" PRIVATE sqlpp23::postgresql)
+target_link_libraries ("${APP_NAME}" PRIVATE sqlpp23::core sqlpp23::postgresql)
 
 # Project sources
 target_sources (
