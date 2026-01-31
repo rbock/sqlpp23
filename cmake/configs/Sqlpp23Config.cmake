@@ -53,7 +53,9 @@ foreach(comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_comps)
 endforeach()
 
 # Add the target sqlpp23::sqlpp23 as an alias for sqlpp23::core
-add_library(sqlpp23::sqlpp23 ALIAS sqlpp23::core)
+if(NOT (TARGET sqlpp23::sqlpp23))
+    add_library(sqlpp23::sqlpp23 ALIAS sqlpp23::core)
+endif()
 
 # Import "ddl2cpp" script
 if(NOT TARGET sqlpp23::ddl2cpp)
