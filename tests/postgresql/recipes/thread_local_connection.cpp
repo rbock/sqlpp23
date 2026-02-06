@@ -97,6 +97,8 @@ int main() {
   // Initialize the global connection pool
   g_pool.initialize(sql::make_test_config(), num_threads);
 
+  test::createTabBar(g_dbc);
+  test::TabBar tb{};
   // Spawn the threads and make each thread execute multiple SQL queries
   std::vector<std::thread> threads{};
   for (int i = 0; i < num_threads; ++i) {
@@ -106,7 +108,7 @@ int main() {
         // Instead we use the database autocommit mode in which the database
         // engine wraps each quety in its own transaction.
         //
-        g_dbc(select(sqlpp::value(1).as(sqlpp::alias::a)));
+        g_dbc(insert_into(tb).set(tb.intN = i * j));
       }
     }));
   }
