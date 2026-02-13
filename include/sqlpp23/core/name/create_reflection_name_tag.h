@@ -35,7 +35,7 @@
 #endif
 #endif
 
-#if (SQLPP_INCLUDE_REFLECTION == 1)
+#if SQLPP_INCLUDE_REFLECTION == 1
 
 #include <sqlpp23/core/detail/fixed_string.h>
 

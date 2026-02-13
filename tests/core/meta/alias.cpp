@@ -26,10 +26,8 @@
 
 #include <sqlpp23/tests/core/all.h>
 
-#define SQLPP_INCLUDE_REFLECTION 1
-
 int main(int, char*[]) {
-#if SQLPP_INCLUDE_REFLECTION
+#if SQLPP_INCLUDE_REFLECTION == 1
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 

@@ -47,7 +47,7 @@ struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
     return {};
   }
 
-#if SQLPP_INCLUDE_REFLECTION
+#if SQLPP_INCLUDE_REFLECTION == 1
   template <::sqlpp::detail::fixed_string Alias>
   constexpr auto as() const -> table_as_t<
       TableSpec,
