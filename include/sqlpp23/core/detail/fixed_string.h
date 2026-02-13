@@ -31,7 +31,6 @@
 #include <format>
 #include <stdexcept>
 #include <string_view>
-#include <type_traits>
 
 namespace sqlpp::detail {
 template <::std::size_t Size>

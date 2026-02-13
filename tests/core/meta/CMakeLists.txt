@@ -30,5 +30,3 @@ function(create_test name)
 endfunction()
 
 create_test(alias)
-create_test(table_alias)
-

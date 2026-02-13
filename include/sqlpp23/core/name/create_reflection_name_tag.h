@@ -27,8 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(__cpp_impl_reflection)
-#if __cpp_impl_reflection >= 202506L
+#ifndef SQLPP_INCLUDE_REFLECTION
+#if defined(__cpp_impl_reflection) && __cpp_impl_reflection >= 202506L
+#define SQLPP_INCLUDE_REFLECTION 1
+#else
+#define SQLPP_INCLUDE_REFLECTION 0
+#endif
+#endif
+
+#if (SQLPP_INCLUDE_REFLECTION == 1)
 
 #include <sqlpp23/core/detail/fixed_string.h>
 
@@ -82,5 +89,4 @@ consteval auto make_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
 }
 
 }  // namespace sqlpp::meta
-#endif
 #endif

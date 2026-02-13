@@ -26,14 +26,33 @@
 
 #include <sqlpp23/tests/core/all.h>
 
+#define SQLPP_INCLUDE_REFLECTION 1
+
 int main(int, char*[]) {
-#if defined(__cpp_impl_reflection)
-#if __cpp_impl_reflection >= 202506L
+#if SQLPP_INCLUDE_REFLECTION
+  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   SQLPP_COMPARE(avg(bar.id + 7).as<"my_average">(),
                 "AVG(tab_bar.id + 7) AS my_average");
-#endif
+
+  const auto table_a = foo.as<"table_a">();
+  const auto table_b = bar.as<"table_b">();
+
+  SQLPP_COMPARE(sqlpp::select(table_a.id.as<"id_a">(), table_a.intN,
+                              table_b.id.as<"id_b">(), table_b.textN)
+                    .from(table_a.join(table_b).on(table_a.id == table_b.id)),
+                "SELECT table_a.id AS id_a, table_a.int_n, table_b.id AS id_b, "
+                "table_b.text_n "
+                "FROM tab_foo AS table_a "
+                "INNER JOIN tab_bar AS table_b "
+                "ON table_a.id = table_b.id");
+
+  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
+  for (const auto& row :
+       db(sqlpp::select(table_a.id.as<"id_a">()).from(table_a))) {
+    std::cout << row.id_a << std::endl;
+  }
 #endif
 
   return 0;
