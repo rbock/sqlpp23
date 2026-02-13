@@ -54,8 +54,9 @@ struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
 #if defined(__cpp_impl_reflection)
 #if __cpp_impl_reflection >= 202506L
   template <::sqlpp::detail::fixed_string Alias>
-  constexpr auto as() const
-      -> table_as_t<TableSpec, name_tag_of_t<decltype(::sqlpp::meta::make_alias<Alias>())>> {
+  constexpr auto as() const -> table_as_t<
+      TableSpec,
+      name_tag_of_t<decltype(::sqlpp::meta::make_alias<Alias>())>> {
     return {};
   }
 #endif

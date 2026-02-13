@@ -36,48 +36,51 @@
 
 namespace sqlpp::meta {
 
-template<::sqlpp::detail::fixed_string Alias>
+template <::sqlpp::detail::fixed_string Alias>
 struct reflection_alias {
-    struct _sqlpp_name_tag {
-        [[maybe_unused]] static constexpr bool require_quotes = false;
-        [[maybe_unused]] static constexpr auto name = Alias;
+  struct _sqlpp_name_tag {
+    [[maybe_unused]] static constexpr bool require_quotes = false;
+    [[maybe_unused]] static constexpr auto name = Alias;
 
-        template<typename T>
-        struct _member_impl_outer_t {
-            struct _member_impl_inner_t;
+    template <typename T>
+    struct _member_impl_outer_t {
+      struct _member_impl_inner_t;
 
-            consteval {
-                ::std::meta::define_aggregate(^^_member_impl_inner_t, {
-                    ::std::meta::data_member_spec(^^T, {
-                        .name = _sqlpp_name_tag::name
-                    })
-                });
-            }
-        };
-
-        // separate struct with base class necessary because it's not possible to add a member function with `define_aggregate`
-        template<typename T>
-        struct _member_t : _member_impl_outer_t<T>::_member_impl_inner_t {
-            auto& operator()(this auto&& self) {
-                // used to access members of base
-                constexpr auto ctx1 = ::std::meta::access_context::current();
-                constexpr auto ctx2 = ctx1.via(^^_member_t);
-
-                // get first (and single) member of this struct which has `Alias` as its name
-                return self.[: ::std::meta::nonstatic_data_members_of(
-                    ^^typename _member_impl_outer_t<T>::_member_impl_inner_t,
-                    ctx2
-                )[0] :];
-            }
-        };
+      consteval {
+        ::std::meta::define_aggregate(
+            ^^_member_impl_inner_t,
+            {
+                ::std::meta::data_member_spec(
+                    ^^T, {
+                             .name = _sqlpp_name_tag::name})});
+      }
     };
+
+    // separate struct with base class necessary because it's not possible to
+    // add a member function with `define_aggregate`
+    template <typename T>
+    struct _member_t : _member_impl_outer_t<T>::_member_impl_inner_t {
+      auto& operator()(this auto&& self) {
+        // used to access members of base
+        constexpr auto ctx1 = ::std::meta::access_context::current();
+        constexpr auto ctx2 = ctx1.via(^^_member_t);
+
+        // get first (and single) member of this struct which has `Alias` as its
+        // name
+        return self
+            .[: ::std::meta::nonstatic_data_members_of(
+                    ^^typename _member_impl_outer_t<T>::_member_impl_inner_t,
+                    ctx2)[0]:];
+      }
+    };
+  };
 };
 
-template<::sqlpp::detail::fixed_string Alias>
+template <::sqlpp::detail::fixed_string Alias>
 consteval auto make_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
-    return {};
+  return {};
 }
 
-} // namespace sqlpp::meta
+}  // namespace sqlpp::meta
 #endif
 #endif

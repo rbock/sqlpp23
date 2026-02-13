@@ -50,8 +50,10 @@ class enable_as {
 #if __cpp_impl_reflection >= 202506L
   template <::sqlpp::detail::fixed_string Alias, typename Expr>
   constexpr auto as(this Expr&& self)
-      -> decltype(::sqlpp::as(::std::forward<Expr>(self), ::sqlpp::meta::make_alias<Alias>())) {
-    return ::sqlpp::as(::std::forward<Expr>(self), ::sqlpp::meta::make_alias<Alias>());
+      -> decltype(::sqlpp::as(::std::forward<Expr>(self),
+                              ::sqlpp::meta::make_alias<Alias>())) {
+    return ::sqlpp::as(::std::forward<Expr>(self),
+                       ::sqlpp::meta::make_alias<Alias>());
   }
 #endif
 #endif

@@ -35,14 +35,14 @@ int main(int, char*[]) {
   const auto table_a = foo.as<"table_a">();
   const auto table_b = bar.as<"table_b">();
 
-  SQLPP_COMPARE(
-    sqlpp::select(table_a.id.as<"id_a">(), table_a.intN, table_b.id.as<"id_b">(), table_b.textN)
-      .from(table_a.join(table_b).on(table_a.id == table_b.id)),
-    "SELECT table_a.id AS id_a, table_a.int_n, table_b.id AS id_b, table_b.text_n "
-    "FROM tab_foo AS table_a "
-    "INNER JOIN tab_bar AS table_b "
-    "ON table_a.id = table_b.id"
-  );
+  SQLPP_COMPARE(sqlpp::select(table_a.id.as<"id_a">(), table_a.intN,
+                              table_b.id.as<"id_b">(), table_b.textN)
+                    .from(table_a.join(table_b).on(table_a.id == table_b.id)),
+                "SELECT table_a.id AS id_a, table_a.int_n, table_b.id AS id_b, "
+                "table_b.text_n "
+                "FROM tab_foo AS table_a "
+                "INNER JOIN tab_bar AS table_b "
+                "ON table_a.id = table_b.id");
 #endif
 #endif
 

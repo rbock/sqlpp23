@@ -31,7 +31,8 @@ int main(int, char*[]) {
 #if __cpp_impl_reflection >= 202506L
   const auto bar = test::TabBar{};
 
-  SQLPP_COMPARE(avg(bar.id + 7).as<"my_average">(), "AVG(tab_bar.id + 7) AS my_average");
+  SQLPP_COMPARE(avg(bar.id + 7).as<"my_average">(),
+                "AVG(tab_bar.id + 7) AS my_average");
 #endif
 #endif
 

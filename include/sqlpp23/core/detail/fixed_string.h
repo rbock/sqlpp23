@@ -30,39 +30,39 @@
 #include <cstddef>
 #include <format>
 #include <stdexcept>
-#include <type_traits>
 #include <string_view>
+#include <type_traits>
 
 namespace sqlpp::detail {
-template<::std::size_t Size>
+template <::std::size_t Size>
 struct fixed_string {
-    static constexpr ::std::size_t size = Size;
+  static constexpr ::std::size_t size = Size;
 
-    consteval fixed_string(const char (&str)[Size]) noexcept {
-        for(::std::size_t i = 0; i < Size; ++i) {
-            value[i] = str[i];
-        }
+  consteval fixed_string(const char (&str)[Size]) noexcept {
+    for (::std::size_t i = 0; i < Size; ++i) {
+      value[i] = str[i];
     }
+  }
 
-    constexpr operator ::std::string_view() const {
-        return ::std::string_view(value, Size);
+  constexpr operator ::std::string_view() const {
+    return ::std::string_view(value, Size);
+  }
+
+  constexpr operator const char*() const { return value; }
+
+  constexpr auto operator[](::std::size_t index) -> char {
+    if (index >= Size) {
+      if consteval {
+        throw ::std::out_of_range("index is out of range of fixed_string.");
+      } else {
+        throw ::std::out_of_range(::std::format(
+            "index {} is out of range of fixed_string with size of {}.", index,
+            size));
+      }
     }
+    return value[index];
+  }
 
-    constexpr operator const char*() const {
-        return value;
-    }
-
-    constexpr auto operator[](::std::size_t index) -> char {
-        if (index >= Size) {
-            if consteval {
-                throw ::std::out_of_range("index is out of range of fixed_string.");
-            } else {
-                throw ::std::out_of_range(::std::format("index {} is out of range of fixed_string with size of {}.", index, size));
-            }
-        }
-        return value[index];
-    }
-
-    char value[Size]{};
+  char value[Size]{};
 };
-} // namespace sqlpp::detail
+}  // namespace sqlpp::detail
