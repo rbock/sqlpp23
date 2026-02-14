@@ -49,15 +49,9 @@ struct fixed_string {
 
   constexpr operator const char*() const { return value; }
 
-  constexpr auto operator[](::std::size_t index) -> char {
+  consteval auto operator[](::std::size_t index) -> char {
     if (index >= Size) {
-      if consteval {
-        throw ::std::out_of_range("index is out of range of fixed_string.");
-      } else {
-        throw ::std::out_of_range(::std::format(
-            "index {} is out of range of fixed_string with size of {}.", index,
-            size));
-      }
+      throw ::std::out_of_range("index is out of range of fixed_string");
     }
     return value[index];
   }

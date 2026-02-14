@@ -37,9 +37,10 @@
 
 #if SQLPP_INCLUDE_REFLECTION == 1
 
-#include <sqlpp23/core/detail/fixed_string.h>
-
 #include <meta>
+#include <optional>
+
+#include <sqlpp23/core/detail/fixed_string.h>
 
 namespace sqlpp::meta {
 
@@ -59,7 +60,10 @@ struct reflection_alias {
             {
                 ::std::meta::data_member_spec(
                     ^^T, {
-                             .name = _sqlpp_name_tag::name})});
+                             .name = _sqlpp_name_tag::name,
+                             .alignment = std::nullopt,
+                             .bit_width = std::nullopt,
+                             .no_unique_address = false})});
       }
     };
 
