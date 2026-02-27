@@ -38,7 +38,7 @@ int Transaction(int, char*[]) {
       require_equal(__LINE__, db.is_transaction_active(), false);
       auto current_level = std::string(
           db(sqlpp::statement_t{}
-             << sqlpp::verbatim("show transaction_isolation;")
+             << sqlpp::verbatim_clause("show transaction_isolation;")
              << with_result_type_of(select(sqlpp::value("").as(level))))
               .front()
               .level);
@@ -50,7 +50,7 @@ int Transaction(int, char*[]) {
       require_equal(__LINE__, db.is_transaction_active(), true);
       current_level =
           db(sqlpp::statement_t{}
-             << sqlpp::verbatim("show transaction_isolation;")
+             << sqlpp::verbatim_clause("show transaction_isolation;")
              << with_result_type_of(select(sqlpp::value("").as(level))))
               .front()
               .level;

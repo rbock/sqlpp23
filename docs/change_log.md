@@ -7,6 +7,7 @@
 Breaking changes:
 
 - Added log_category parameter to log function, #86
+- verbatim_clause replaces verbatim if used as a clause in a custom query
 
 Other changes:
 

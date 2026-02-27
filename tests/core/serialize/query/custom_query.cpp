@@ -67,7 +67,7 @@ int main() {
 
   // A pragma query for sqlite
   SQLPP_COMPARE(sqlpp::statement_t<>{}
-                    << sqlpp::verbatim("PRAGMA user_version")
+                    << sqlpp::verbatim_clause("PRAGMA user_version")
                     << with_result_type_of(select(sqlpp::value(1).as(pragma))),
                 "PRAGMA user_version");
 
@@ -90,7 +90,7 @@ int main() {
   batch.add_values(bar.textN = "sample", bar.boolNn = true);
   batch.add_values(bar.textN = "ample", bar.boolNn = false);
   SQLPP_COMPARE(sqlpp::insert()
-                    << sqlpp::verbatim(" OR IGNORE") << into(bar) << batch,
+                    << sqlpp::verbatim_clause(" OR IGNORE") << into(bar) << batch,
                 "INSERT OR IGNORE INTO tab_bar (text_n, bool_nn) VALUES "
                 "('sample', 1), ('ample', 0)");
 

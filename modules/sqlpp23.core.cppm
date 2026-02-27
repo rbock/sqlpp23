@@ -37,8 +37,9 @@ export namespace sqlpp {
 using ::sqlpp::column_t;
 using ::sqlpp::table_t;
 using ::sqlpp::table_as_t;
+using ::sqlpp::verbatim_clause_t;
 using ::sqlpp::verbatim_t;
-using ::sqlpp::verbatim_table;
+using ::sqlpp::verbatim_table_t;
 using ::sqlpp::table_columns;
 using ::sqlpp::all_of;
 using ::sqlpp::enable_join;
@@ -51,6 +52,8 @@ using ::sqlpp::cross_join;
 using ::sqlpp::parameter;
 using ::sqlpp::parameter_t; // TODO remove?
 using ::sqlpp::verbatim;
+using ::sqlpp::verbatim_clause;
+using ::sqlpp::verbatim_table;
 using ::sqlpp::parameterized_verbatim;
 using ::sqlpp::schema;
 using ::sqlpp::schema_qualified_table;

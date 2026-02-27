@@ -26,14 +26,15 @@ for (const auto& row :
 }
 ```
 
-`verbatim` can also be used as a custom clause:
+## `verbatim_clause`
+`verbatim_clause` can also be used as a custom clause:
 
 ```c++
 // components of a statement can be combined into custom statement using
 // the `<<` operator.
 for (const auto& row :
      db(select(all_of(t)).from(t)
-        << sqlpp::verbatim("WINDOW window_name AS (window_definition)")
+        << sqlpp::verbatim_clause("WINDOW window_name AS (window_definition)")
         << order_by(t.id))) {
   // ...
 }
@@ -51,7 +52,7 @@ It won't serialize its arguments, but change the return type of the statement, e
 // We can tell the library to treat this like a select of a single column
 // with the correct type.
 for (const auto& row :
-     db(sqlpp::statement_t{} << sqlpp::verbatim("PRAGMA user_version")
+     db(sqlpp::statement_t{} << sqlpp::verbatim_clause("PRAGMA user_version")
                              << with_result_type_of(select(t.id)))) {
   user_version = row.id;
 }
@@ -62,7 +63,7 @@ for (const auto& row :
 // Not recommended, though, as it is clearly more prone to errors than the
 // canonical way.
 for (const auto& row :
-   db(sqlpp::statement_t{} << sqlpp::verbatim("SELECT *") << from(t)
+   db(sqlpp::statement_t{} << sqlpp::verbatim_clause("SELECT *") << from(t)
                            << where(t.id > 17)
                            << with_result_type_of(select(all_of(t))))) {
 (void)row.id;

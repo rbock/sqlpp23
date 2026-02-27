@@ -42,8 +42,8 @@ struct on_duplicate_key_update {
     return *this;
   }
 
-  auto get() const -> sqlpp::verbatim_t<::sqlpp::no_value_t> {
-    return ::sqlpp::verbatim(_serialized);
+  auto get() const -> sqlpp::verbatim_clause_t {
+    return ::sqlpp::verbatim_clause(_serialized);
   }
 };
 }  // namespace
@@ -57,7 +57,7 @@ int CustomQuery(int, char*[]) {
 
   // A void custom query
   auto x = sqlpp::statement_t{}
-           << sqlpp::verbatim("PRAGMA writeable_schema = 1");
+           << sqlpp::verbatim_clause("PRAGMA writeable_schema = 1");
   std::cerr << to_sql_string(printer, x) << std::endl;
   db(x);
 
@@ -76,14 +76,14 @@ int CustomQuery(int, char*[]) {
   }
 
   // Create a custom "insert or ignore"
-  db(sqlpp::insert() << sqlpp::verbatim(" OR IGNORE") << into(t)
+  db(sqlpp::insert() << sqlpp::verbatim_clause(" OR IGNORE") << into(t)
                      << insert_set(t.textN = "sample", t.boolNn = true));
 
   // Create a custom multi-row "insert or ignore"
   auto batch = insert_columns(t.textN, t.boolNn);
   batch.add_values(t.textN = "sample", t.boolNn = true);
   batch.add_values(t.textN = "ample", t.boolNn = false);
-  db(sqlpp::insert() << sqlpp::verbatim(" OR IGNORE") << into(t) << batch);
+  db(sqlpp::insert() << sqlpp::verbatim_clause(" OR IGNORE") << into(t) << batch);
 
   // Create a MYSQL style custom "insert on duplicate update"
   db(sqlpp::insert_into(t).set(t.textN = "sample", t.boolNn = true)
@@ -102,22 +102,24 @@ int CustomQuery(int, char*[]) {
                 "insert yields an integral value");
 
   auto d = sqlpp::statement_t{}
-           << sqlpp::verbatim("INSERT INTO tab_sample VALUES()")
+           << sqlpp::verbatim_clause("INSERT INTO tab_sample VALUES()")
            << with_result_type_of(sqlpp::insert());
   auto j = db(d).last_insert_id;
   static_assert(std::is_integral<decltype(j)>::value,
                 "insert yields an integral value");
 
   for (const auto& row :
-       db(sqlpp::statement_t{} << sqlpp::verbatim("PRAGMA user_version")
+       db(sqlpp::statement_t{} << sqlpp::verbatim_clause("PRAGMA user_version")
                                << with_result_type_of(select(all_of(t))))) {
     (void)row.id;
   }
 
+  (select(all_of(t)).from(t) << sqlpp::verbatim_clause("something")).as(sqlpp::alias::a);
+
   // If you really want the statement to contain "SELECT *" instead of every
   // column explicitly (maybe you are running into size limits?)
   for (const auto& row :
-       db(sqlpp::statement_t{} << sqlpp::verbatim("SELECT *") << from(t)
+       db(sqlpp::statement_t{} << sqlpp::verbatim_clause("SELECT *") << from(t)
                                << where(t.id > 17)
                                << with_result_type_of(select(all_of(t))))) {
     (void)row.id;

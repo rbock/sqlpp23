@@ -44,8 +44,8 @@ struct on_duplicate_key_update {
     return *this;
   }
 
-  auto get() const -> sqlpp::verbatim_t<::sqlpp::no_value_t> {
-    return ::sqlpp::verbatim(_serialized);
+  auto get() const -> sqlpp::verbatim_clause_t {
+    return ::sqlpp::verbatim_clause(_serialized);
   }
 };
 }  // namespace

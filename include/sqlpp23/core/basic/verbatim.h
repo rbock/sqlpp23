@@ -48,16 +48,6 @@ struct verbatim_t : public enable_as, enable_comparison {
 };
 
 template <typename DataType>
-struct is_clause<verbatim_t<DataType>> : public std::true_type {};
-
-template <typename Statement, typename DataType>
-struct consistency_check<Statement, verbatim_t<DataType>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
-};
-template <typename DataType>
 struct data_type_of<verbatim_t<DataType>> {
   // Since we do not know what's going on inside the verbatim, we assume it can
   // be null.

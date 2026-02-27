@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,19 +27,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/schema_qualified_table.h>
-#include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/core/clause/insert.h>
-#include <sqlpp23/core/clause/select.h>
-#include <sqlpp23/core/clause/truncate.h>
-#include <sqlpp23/core/clause/update.h>
-#include <sqlpp23/core/clause/with.h>
-#include <sqlpp23/core/clause/returning.h>
-#include <sqlpp23/core/clause/on_conflict.h>
-#include <sqlpp23/core/clause/using.h>
-#include <sqlpp23/core/clause/verbatim_clause.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/core/function.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/operator.h>
+#include <utility>
+
+#include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/core/type_traits.h>
+
+namespace sqlpp {
+struct verbatim_clause_t {
+  verbatim_clause_t(std::string verbatim_clause) : _verbatim_clause(std::move(verbatim_clause)) {}
+  verbatim_clause_t(const verbatim_clause_t&) = default;
+  verbatim_clause_t(verbatim_clause_t&&) = default;
+  verbatim_clause_t& operator=(const verbatim_clause_t&) = default;
+  verbatim_clause_t& operator=(verbatim_clause_t&&) = default;
+  ~verbatim_clause_t() = default;
+
+  std::string _verbatim_clause;
+};
+
+template <>
+struct is_clause<verbatim_clause_t> : public std::true_type {};
+
+template <typename Statement>
+struct consistency_check<Statement, verbatim_clause_t> {
+  using type = consistent_t;
+  constexpr auto operator()() {
+    return type{};
+  }
+};
+
+template <typename Context>
+auto to_sql_string(Context&, const verbatim_clause_t& t) -> std::string {
+  return t._verbatim_clause;
+}
+
+inline auto verbatim_clause(std::string s) -> verbatim_clause_t {
+  return {std::move(s)};
+}
+}  // namespace sqlpp

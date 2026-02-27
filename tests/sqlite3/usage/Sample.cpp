@@ -183,7 +183,8 @@ int Sample(int, char*[]) {
                 .where(tab.intN.not_in(select(tab.intN).from(tab))))
              .empty());
 
-  auto x = sqlpp::statement_t<>{} << sqlpp::verbatim("PRAGMA user_version = 1");
+  auto x = sqlpp::statement_t<>{}
+           << sqlpp::verbatim_clause("PRAGMA user_version = 1");
   db(x);
   const int64_t pragmaValue =
       db(x << with_result_type_of(select(sqlpp::value(1).as(pragma))))

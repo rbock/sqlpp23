@@ -44,7 +44,7 @@ int Transaction(int, char*[]) {
 
   int64_t pragmaValue =
       db(sqlpp::statement_t<>{}
-         << sqlpp::verbatim("PRAGMA read_uncommitted")
+         << sqlpp::verbatim_clause("PRAGMA read_uncommitted")
          << with_result_type_of(select(sqlpp::value(1).as(pragma))))
           .front()
           .pragma;
@@ -58,7 +58,7 @@ int Transaction(int, char*[]) {
   assert(db.is_transaction_active());
 
   pragmaValue = db(sqlpp::statement_t<>{}
-                   << sqlpp::verbatim("PRAGMA read_uncommitted")
+                   << sqlpp::verbatim_clause("PRAGMA read_uncommitted")
                    << with_result_type_of(select(sqlpp::value(1).as(pragma))))
                     .front()
                     .pragma;
