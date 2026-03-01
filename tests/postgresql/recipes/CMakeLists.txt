@@ -30,3 +30,4 @@ function(create_test name)
 endfunction()
 
 create_test(optimistic_concurrency_control)
+create_test(thread_local_connection)
