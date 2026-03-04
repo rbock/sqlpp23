@@ -169,19 +169,42 @@ enum class sort_type {
 template <typename L>
 requires(values_are_comparable<L, L>::value)
 constexpr auto asc(L l) -> sort_order_expression<L> {
-  return {l, sort_type::asc};
+  return {std::move(l), sort_type::asc};
 }
 
 template <typename L>
 requires(values_are_comparable<L, L>::value)
 constexpr auto desc(L l) -> sort_order_expression<L> {
-  return {l, sort_type::desc};
+  return {std::move(l), sort_type::desc};
 }
 
 template <typename L>
 requires(values_are_comparable<L, L>::value)
 constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
-  return {l, order};
+  return {std::move(l), order};
+}
+
+enum class nulls_pos {
+  first,
+  last,
+};
+
+template <typename L>
+  requires(values_are_comparable<L, L>::value)
+constexpr auto nulls_first(L l) -> sort_order_expression<L> {
+  return {std::move(l), {std::nullopt , nulls_pos::first}};
+}
+
+template <typename L>
+  requires(values_are_comparable<L, L>::value)
+constexpr auto nulls_last(L l) -> sort_order_expression<L> {
+  return {std::move(l), {std::nullopt , nulls_pos::last}};
+}
+
+template <typename L>
+  requires(values_are_comparable<L, L>::value)
+constexpr auto nulls_order(L l, nulls_pos pos) -> sort_order_expression<L> {
+  return {std::move(l), {std::nullopt , std::move(pos)}};
 }
 
 }  // namespace sqlpp
