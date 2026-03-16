@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <optional>
 #include <span>
 #include <string_view>
 
@@ -97,6 +96,8 @@ inline size_t hex_assign(std::vector<uint8_t>& value,
 }
 }  // namespace detail
 
+class text_result_t;
+
 class text_result_t {
   pg_result_t _pg_result;
   const connection_config* _config;
@@ -159,6 +160,21 @@ class text_result_t {
     return std::strtoull(PQcmdTuples(_pg_result.get()), nullptr, 10);
   }
 
+  auto& debug() const { return _config->debug; }
+  bool get_is_null(size_t field_index) const {
+    return PQgetisnull(_pg_result.get(), _row_index,
+                      static_cast<int>(field_index));
+  }
+  char* get_field_value(size_t field_index) const {
+    return PQgetvalue(_pg_result.get(), _row_index,
+                      static_cast<int>(field_index));
+  }
+  size_t get_field_length(size_t field_index) const {
+    return static_cast<size_t>(PQgetlength(_pg_result.get(), _row_index,
+                       static_cast<int>(field_index)));
+  }
+  auto& var_buffer(size_t field_index) { return _var_buffers[field_index]; }
+
   bool operator==(const text_result_t& rhs) const {
     return (this->_pg_result.get() == rhs._pg_result.get());
   }
@@ -182,194 +198,185 @@ class text_result_t {
     }
   }
 
-  void read_field(size_t _index, bool& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading boolean result at index {}", index);
-    }
-
-    switch(PQgetvalue(_pg_result.get(), _row_index, index)[0]) {
-      case 't':
-        value = true;
-        break;
-      default:
-        value = false;
-    }
-  }
-
-  void read_field(size_t _index, double& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading floating_point result at index {}", index);
-    }
-
-    value = std::strtod(PQgetvalue(_pg_result.get(), _row_index, index), nullptr);
-  }
-
-  void read_field(size_t _index, int64_t& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                         "reading integral result at index: {}", index);
-    }
-
-    value = std::strtoll(PQgetvalue(_pg_result.get(), _row_index, index),
-                         nullptr, 10);
-  }
-
-  void read_field(size_t _index, uint64_t& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "PostgreSQL debug: reading unsigned integral result at index {}",
-          index);
-    }
-
-    value = std::strtoull(PQgetvalue(_pg_result.get(), _row_index, index),
-                          nullptr, 10);
-  }
-
-  void read_field(size_t _index, std::string_view& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading text result at index {}", index);
-    }
-
-    value = std::string_view(
-        PQgetvalue(_pg_result.get(), _row_index, index),
-        static_cast<size_t>(PQgetlength(_pg_result.get(), _row_index, index)));
-  }
-
-  // PostgreSQL will return one of those (using the default ISO client):
-  //
-  // 2010-10-11 01:02:03 - ISO timestamp without timezone
-  // 2011-11-12 01:02:03.123456 - ISO timesapt with sub-second (microsecond)
-  // precision 1997-12-17 07:37:16-08 - ISO timestamp with timezone 1992-10-10
-  // 01:02:03-06:30 - for some timezones with non-hour offset 1900-01-01 - date
-  // only we do not support time-only values !
-  void read_field(size_t _index, std::chrono::sys_days& value) {
-    const auto index = static_cast<int>(_index);
-
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading date result at index {}", index);
-    }
-
-    const char* date_string = PQgetvalue(_pg_result.get(), _row_index, index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "date string: {}",
-                           date_string);
-    }
-    if (::sqlpp::detail::parse_date(value, date_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid date");
-      }
-    }
-
-    if (*date_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date result: {}",
-                           date_string);
-      }
-    }
-  }
-
-  // always returns UTC time for timestamp with time zone
-  void read_field(size_t _index, ::sqlpp::chrono::sys_microseconds& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading date_time result at index {}", index);
-    }
-
-    const char* date_time_string = PQgetvalue(_pg_result.get(), _row_index, index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "got date_time string: {}",
-                           date_time_string);
-    }
-    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid date_time");
-      }
-    }
-
-    if (*date_time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date_time result: {}",
-                           date_time_string);
-      }
-    }
-  }
-
-  // always returns UTC time for time with time zone
-  void read_field(size_t _index, ::std::chrono::microseconds& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading time result at index {}", index);
-    }
-
-    const char* time_string = PQgetvalue(_pg_result.get(), _row_index, index);
-
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "got time string: {}",
-                           time_string);
-    }
-
-    if (::sqlpp::detail::parse_time(value, time_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid time");
-      }
-    }
-
-    if (*time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date_time result: {}",
-                           time_string);
-      }
-    }
-  }
-
-  void read_field(size_t _index, std::span<const uint8_t>& value) {
-    const auto index = static_cast<int>(_index);
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading blob result at index {}", index);
-    }
-
-    // Need to decode the hex data.
-    // Using PQexecParams would allow to use binary data.
-    // That's certainly faster, but some effort to determine the correct column
-    // types.
-    const auto size = detail::hex_assign(
-        _var_buffers[_index],
-        reinterpret_cast<const uint8_t*>(
-            PQgetvalue(_pg_result.get(), _row_index, index)),
-        static_cast<size_t>(PQgetlength(_pg_result.get(), _row_index, index)));
-
-    value = std::span<const uint8_t>(_var_buffers[_index].data(), size);
-  }
-
-  template <typename T>
-  auto read_field(size_t _index, std::optional<T>& value) -> void {
-    const auto index = static_cast<int>(_index);
-    if (PQgetisnull(_pg_result.get(), _row_index, index)) {
-      value.reset();
-    } else {
-      if (not value.has_value()) {
-        value = T{};
-      }
-      read_field(_index, *value);
-    }
-  }
-
   int size() const { return _row_count; }
 };
+
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       bool& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "reading boolean result at index {}", field_index);
+  }
+
+  switch (result.get_field_value(field_index)[0]) {
+    case 't':
+      value = true;
+      break;
+    default:
+      value = false;
+  }
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       double& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "reading floating_point result at index {}",
+                       field_index);
+  }
+
+  value = std::strtod(result.get_field_value(field_index), nullptr);
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       int64_t& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "reading integral result at index: {}", field_index);
+  }
+
+  value = std::strtoll(result.get_field_value(field_index), nullptr, 10);
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       uint64_t& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(
+        log_category::result,
+        "PostgreSQL debug: reading unsigned integral result at index {}",
+        field_index);
+  }
+
+  value = std::strtoull(result.get_field_value(field_index), nullptr, 10);
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       std::string_view& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "reading text result at index {}",
+                       field_index);
+  }
+
+  value = std::string_view(result.get_field_value(field_index),
+                           result.get_field_length(field_index));
+}
+
+// PostgreSQL will return one of those (using the default ISO client):
+//
+// 2010-10-11 01:02:03 - ISO timestamp without timezone
+// 2011-11-12 01:02:03.123456 - ISO timesapt with sub-second (microsecond)
+// precision 1997-12-17 07:37:16-08 - ISO timestamp with timezone 1992-10-10
+// 01:02:03-06:30 - for some timezones with non-hour offset 1900-01-01 - date
+// only we do not support time-only values !
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       std::chrono::sys_days& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "reading date result at index {}",
+                       field_index);
+  }
+
+  const char* date_string = result.get_field_value(field_index);
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "date string: {}", date_string);
+  }
+  if (::sqlpp::detail::parse_date(value, date_string) == false) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "invalid date");
+    }
+  }
+
+  if (*date_string) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                         "trailing characters in date result: {}", date_string);
+    }
+  }
+}
+
+// always returns UTC time for timestamp with time zone
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       ::sqlpp::chrono::sys_microseconds& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "reading date_time result at index {}", field_index);
+  }
+
+  const char* date_time_string = result.get_field_value(field_index);
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "got date_time string: {}",
+                       date_time_string);
+  }
+  if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "invalid date_time");
+    }
+  }
+
+  if (*date_time_string) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                         "trailing characters in date_time result: {}",
+                         date_time_string);
+    }
+  }
+}
+
+// always returns UTC time for time with time zone
+inline void read_field(const text_result_t& result,
+                       size_t field_index,
+                       ::std::chrono::microseconds& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "reading time result at index {}",
+                       field_index);
+  }
+
+  const char* time_string = result.get_field_value(field_index);
+
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "got time string: {}",
+                       time_string);
+  }
+
+  if (::sqlpp::detail::parse_time(value, time_string) == false) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "invalid time");
+    }
+  }
+
+  if (*time_string) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                         "trailing characters in date_time result: {}",
+                         time_string);
+    }
+  }
+}
+
+inline void read_field(text_result_t& result,
+                       size_t field_index,
+                       std::span<const uint8_t>& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "reading blob result at index {}",
+                       field_index);
+  }
+
+  // Need to decode the hex data.
+  // Using PQexecParams would allow to use binary data.
+  // That's certainly faster, but some effort to determine the correct column
+  // types.
+  const auto size = detail::hex_assign(
+      result.var_buffer(field_index),
+      reinterpret_cast<const uint8_t*>(result.get_field_value(field_index)),
+      result.get_field_length(field_index));
+
+  value = std::span<const uint8_t>(result.var_buffer(field_index).data(), size);
+}
+
 }  // namespace sqlpp::postgresql
