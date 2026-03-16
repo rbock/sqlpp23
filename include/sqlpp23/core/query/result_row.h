@@ -30,6 +30,7 @@
 #include <utility>
 
 #include <sqlpp23/core/field_spec.h>
+#include <sqlpp23/core/query/read_field.h>
 #include <sqlpp23/core/query/result_row_fwd.h>
 
 namespace sqlpp {
@@ -52,7 +53,7 @@ struct result_field
 
   template <typename Target>
   void _read_field(Target& target) {
-    target.read_field(index, _field::operator()());
+    read_field(target, index, _field::operator()());
   }
 };
 
