@@ -1,16 +1,18 @@
-/*
- * Copyright (c) 2025, Roland Bock
+#pragma once
+
+/**
+ * Copyright © 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ *   Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -25,17 +27,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-module;
+#include <optional>
 
-#include <sqlpp23/mock_db/mock_db.h>
+#include <sqlpp23/core/wrong.h>
 
-export module sqlpp23.mock_db;
+namespace sqlpp {
 
-export namespace sqlpp::mock_db {
-using ::sqlpp::mock_db::bind_parameter;
-using ::sqlpp::mock_db::read_field;
-using ::sqlpp::mock_db::command_result;
-using ::sqlpp::mock_db::connection;
-using ::sqlpp::mock_db::connection_config;
-using ::sqlpp::mock_db::context_t;
+template <typename Result, typename Value>
+void bind_field(Result&, size_t /*field_index*/, Value&) {
+  static_assert(wrong_t<Value>::value, "Missing specialization");
 }
+
+template <typename Result, typename Value>
+auto bind_field(Result& result, size_t field_index, std::optional<Value>& value)
+    -> void {
+  value = Value{};
+  bind_field(result, field_index, *value);
+}
+
+}  // namespace sqlpp
+

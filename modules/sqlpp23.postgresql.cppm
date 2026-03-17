@@ -32,6 +32,8 @@ module;
 export module sqlpp23.postgresql;
 
 export namespace sqlpp::postgresql {
+using ::sqlpp::postgresql::bind_parameter;
+using ::sqlpp::postgresql::read_field;
 using ::sqlpp::postgresql::connection;
 using ::sqlpp::postgresql::connection_config;
 using ::sqlpp::postgresql::connection_pool;

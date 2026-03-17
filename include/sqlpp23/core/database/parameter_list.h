@@ -31,6 +31,7 @@
 #include <utility>
 
 #include <sqlpp23/core/detail/type_vector.h>
+#include <sqlpp23/core/query/bind_parameter.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/wrong.h>
 
@@ -59,8 +60,9 @@ struct parameter_list_t<detail::type_vector<Parameter...>>
   template <typename Target, size_t... Is>
   void _bind_impl(Target& target,
                   const std::index_sequence<Is...>& /*unused*/) const {
-    (target._bind_parameter(
-         Is, std::tuple_element<Is, _member_tuple_t>::type::operator()()),
+    (bind_parameter(
+         target, Is,
+         std::tuple_element<Is, _member_tuple_t>::type::operator()()),
      ...);
   }
 };

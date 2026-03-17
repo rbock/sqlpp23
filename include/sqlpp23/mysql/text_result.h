@@ -29,7 +29,6 @@
 
 #include <cstdlib>
 #include <memory>
-#include <optional>
 #include <span>
 #include <string_view>
 
@@ -76,6 +75,17 @@ class text_result_t {
     return _mysql_res ? mysql_num_rows(_mysql_res.get()) : size_t{};
   }
 
+  auto& debug() const { return _config->debug; }
+  bool get_is_null(size_t field_index) const {
+    return _text_result_row.data[field_index] == nullptr;
+  }
+  const char* get_field_value(size_t field_index) const {
+    return _text_result_row.data[field_index];
+  }
+  size_t get_field_length(size_t field_index) const {
+    return _text_result_row.len[field_index];
+  }
+
   template <typename ResultRow>
   void next(ResultRow& result_row) {
     if (_invalid()) {
@@ -97,128 +107,6 @@ class text_result_t {
 
   bool _invalid() const { return !_mysql_res; }
 
-  void read_field(size_t index, bool& value) {
-    value = (_text_result_row.data[index][0] == 't' or
-             _text_result_row.data[index][0] == '1');
-  }
-
-  void read_field(size_t index, double& value) {
-    value = std::strtod(_text_result_row.data[index], nullptr);
-  }
-
-  void read_field(size_t index, int64_t& value) {
-    value = std::strtoll(_text_result_row.data[index], nullptr, 10);
-  }
-
-  void read_field(size_t index, uint64_t& value) {
-    value = std::strtoull(_text_result_row.data[index], nullptr, 10);
-  }
-
-  void read_field(size_t index, std::span<const uint8_t>& value) {
-    value = std::span<const uint8_t>(
-        reinterpret_cast<const uint8_t*>(_text_result_row.data[index]),
-        _text_result_row.len[index]);
-  }
-
-  void read_field(size_t index, std::string_view& value) {
-    value = std::string_view(_text_result_row.data[index],
-                             _text_result_row.len[index]);
-  }
-
-  void read_field(size_t index, std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "parsing date result at index: {}", index);
-    }
-
-    const char* date_string = _text_result_row.data[index];
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "date string: {}",
-                           date_string);
-    }
-
-    if (::sqlpp::detail::parse_date(value, date_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid date");
-      }
-    }
-
-    if (*date_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date result: {}",
-                           date_string);
-      }
-    }
-  }
-
-  void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "parsing timestamp result at index: {}", index);
-    }
-
-    const char* date_time_string = _text_result_row.data[index];
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "date_time string: {}",
-                           date_time_string);
-    }
-
-    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid date_time");
-      }
-    }
-
-    if (*date_time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date_time result: {}",
-                           date_time_string);
-      }
-    }
-  }
-
-  void read_field(size_t index, ::std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "parsing time of day result at index: {}", index);
-    }
-
-    const char* time_string = _text_result_row.data[index];
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "time of day string: {}",
-                           time_string);
-    }
-
-    if (::sqlpp::detail::parse_time(value, time_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid time");
-      }
-    }
-
-    if (*time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in time result: {}",
-                           time_string);
-      }
-    }
-  }
-
-  template <typename T>
-  auto read_field(size_t index, std::optional<T>& value) -> void {
-    const bool is_null = _text_result_row.data[index] == nullptr;
-    if (is_null) {
-      value.reset();
-    } else {
-      if (not value.has_value()) {
-        value = T{};
-      }
-      read_field(index, *value);
-    }
-  }
-
  private:
   bool next_impl() {
     if constexpr (debug_enabled) {
@@ -234,4 +122,114 @@ class text_result_t {
     return _text_result_row.data;
   }
 };
+
+  inline void read_field(const text_result_t& result, size_t field_index, bool& value) {
+    value = (result.get_field_value(field_index)[0] == 't' or
+             result.get_field_value(field_index)[0] == '1');
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, double& value) {
+    value = std::strtod(result.get_field_value(field_index), nullptr);
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, int64_t& value) {
+    value = std::strtoll(result.get_field_value(field_index), nullptr, 10);
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, uint64_t& value) {
+    value = std::strtoull(result.get_field_value(field_index), nullptr, 10);
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, std::span<const uint8_t>& value) {
+    value = std::span<const uint8_t>(
+        reinterpret_cast<const uint8_t*>(result.get_field_value(field_index)),
+        result.get_field_length(field_index));
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, std::string_view& value) {
+    value = std::string_view(result.get_field_value(field_index),
+                             result.get_field_length(field_index));
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, std::chrono::sys_days& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "parsing date result at index: {}", field_index);
+    }
+
+    const char* date_string = result.get_field_value(field_index);
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "date string: {}",
+                           date_string);
+    }
+
+    if (::sqlpp::detail::parse_date(value, date_string) == false) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result, "invalid date");
+      }
+    }
+
+    if (*date_string) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "trailing characters in date result: {}",
+                           date_string);
+      }
+    }
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, ::sqlpp::chrono::sys_microseconds& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "parsing timestamp result at index: {}", field_index);
+    }
+
+    const char* date_time_string = result.get_field_value(field_index);
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "date_time string: {}",
+                           date_time_string);
+    }
+
+    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result, "invalid date_time");
+      }
+    }
+
+    if (*date_time_string) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "trailing characters in date_time result: {}",
+                           date_time_string);
+      }
+    }
+  }
+
+  inline void read_field(const text_result_t& result, size_t field_index, ::std::chrono::microseconds& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "parsing time of day result at index: {}", field_index);
+    }
+
+    const char* time_string = result.get_field_value(field_index);
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "time of day string: {}",
+                           time_string);
+    }
+
+    if (::sqlpp::detail::parse_time(value, time_string) == false) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result, "invalid time");
+      }
+    }
+
+    if (*time_string) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "trailing characters in time result: {}",
+                           time_string);
+      }
+    }
+  }
+
 }  // namespace sqlpp::mysql

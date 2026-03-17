@@ -32,6 +32,8 @@ module;
 export module sqlpp23.sqlite3;
 
 export namespace sqlpp::sqlite3 {
+using ::sqlpp::sqlite3::bind_parameter;
+using ::sqlpp::sqlite3::read_field;
 using ::sqlpp::sqlite3::connection;
 using ::sqlpp::sqlite3::connection_config;
 using ::sqlpp::sqlite3::connection_pool;
