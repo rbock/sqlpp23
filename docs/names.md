@@ -98,6 +98,12 @@ When used with C++26 and reflection support, the library offers another overload
 // rename entities.
 foo.as<"left">();             // tab_foo AS left
 max(left.id).as<"max_id">();  // MAX(left.id) AS max_id
+
+// alternatively you can use the user-defined literal "_alias" instead of template arguments.
+using namespace sqlpp::literals;  // using namespace required in scope
+
+foo.as("left"_alias);             // tab_foo AS left
+max(left.id).as("max_id"_alias);  // MAX(left.id) AS max_id
 ```
 
 **Experimental**
