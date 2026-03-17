@@ -44,6 +44,7 @@ struct MockRes {
 };
 
 namespace sqlpp::mock_db {
+
 class text_result_t {
   size_t _row_index = std::numeric_limits<std::size_t>::max();
   MockRes* _mock_res = nullptr;
@@ -99,133 +100,16 @@ class text_result_t {
 
   bool _invalid() const { return !_mock_res; }
 
+  auto& debug() const { return _config->debug; }
+  bool get_is_null(size_t field_index) const {
+    return _mock_res->rows[_row_index][field_index].has_value();
+  }
   std::string& get_field(size_t index) {
     return _mock_res->rows[_row_index][index].value();
   }
 
-  void read_field(size_t index, bool& value) {
-    value = (get_field(index)[0] == 't' or
-             get_field(index)[0] == '1');
-  }
-
-  void read_field(size_t index, double& value) {
-    value = std::strtod(get_field(index).c_str(), nullptr);
-  }
-
-  void read_field(size_t index, int64_t& value) {
-    value = std::strtoll(get_field(index).c_str(), nullptr, 10);
-  }
-
-  void read_field(size_t index, uint64_t& value) {
-    value = std::strtoull(get_field(index).c_str(), nullptr, 10);
-  }
-
-  void read_field(size_t index, std::span<const uint8_t>& value) {
-    value = std::span<const uint8_t>(
-        reinterpret_cast<const uint8_t*>(get_field(index).c_str()),
-        get_field(index).size());
-  }
-
-  void read_field(size_t index, std::string_view& value) {
-    value = std::string_view(get_field(index).c_str(),
-                             get_field(index).size());
-  }
-
-  void read_field(size_t index, std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "parsing date result at index: {}", index);
-    }
-
-    const char* date_string = get_field(index).c_str();
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "date string: {}",
-                           date_string);
-    }
-
-    if (::sqlpp::detail::parse_date(value, date_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid date result: {}",
-                             date_string);
-      }
-    }
-
-    if (*date_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date result: {}",
-                           date_string);
-      }
-    }
-  }
-
-  void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "parsing date result at index: {}", index);
-    }
-
-    const char* date_time_string = get_field(index).c_str();
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "date_time string: {}",
-                           date_time_string);
-    }
-
-    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                             "invalid date_time result: {}", date_time_string);
-      }
-    }
-
-    if (*date_time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date_time result: {}",
-                           date_time_string);
-      }
-    }
-  }
-
-  void read_field(size_t index, ::std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "parsing time of day result at index: {}", index);
-    }
-
-    const char* time_string = get_field(index).c_str();
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result, "time of day string: {}",
-                           time_string);
-    }
-
-    if (::sqlpp::detail::parse_time(value, time_string) == false) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result, "invalid time result: {}",
-                             time_string);
-      }
-    }
-
-    if (*time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in time result: {}",
-                           time_string);
-      }
-    }
-  }
-
-  template <typename T>
-  auto read_field(size_t index, std::optional<T>& value) -> void {
-    const bool is_null = _mock_res->rows[_row_index][index].has_value();
-    if (is_null) {
-      value.reset();
-    } else {
-      if (not value.has_value()) {
-        value = T{};
-      }
-      read_field(index, *value);
-    }
+  const std::string& get_field(size_t index) const {
+    return _mock_res->rows[_row_index][index].value();
   }
 
  private:
@@ -244,4 +128,129 @@ class text_result_t {
     return false;
   }
 };
+
+inline void read_field(const text_result_t& result, size_t index, bool& value) {
+  value =
+      (result.get_field(index)[0] == 't' or result.get_field(index)[0] == '1');
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       double& value) {
+  value = std::strtod(result.get_field(index).c_str(), nullptr);
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       int64_t& value) {
+  value = std::strtoll(result.get_field(index).c_str(), nullptr, 10);
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       uint64_t& value) {
+  value = std::strtoull(result.get_field(index).c_str(), nullptr, 10);
+}
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       std::span<const uint8_t>& value) {
+  value = std::span<const uint8_t>(
+      reinterpret_cast<const uint8_t*>(result.get_field(index).c_str()),
+      result.get_field(index).size());
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       std::string_view& value) {
+  value = std::string_view(result.get_field(index).c_str(),
+                           result.get_field(index).size());
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       std::chrono::sys_days& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "parsing date result at index: {}",
+                       index);
+  }
+
+  const char* date_string = result.get_field(index).c_str();
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "date string: {}", date_string);
+  }
+
+  if (::sqlpp::detail::parse_date(value, date_string) == false) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "invalid date result: {}",
+                         date_string);
+    }
+  }
+
+  if (*date_string) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                         "trailing characters in date result: {}", date_string);
+    }
+  }
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       ::sqlpp::chrono::sys_microseconds& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "parsing date result at index: {}",
+                       index);
+  }
+
+  const char* date_time_string = result.get_field(index).c_str();
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "date_time string: {}",
+                       date_time_string);
+  }
+
+  if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "invalid date_time result: {}",
+                         date_time_string);
+    }
+  }
+
+  if (*date_time_string) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                         "trailing characters in date_time result: {}",
+                         date_time_string);
+    }
+  }
+}
+
+inline void read_field(const text_result_t& result,
+                       size_t index,
+                       ::std::chrono::microseconds& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "parsing time of day result at index: {}", index);
+  }
+
+  const char* time_string = result.get_field(index).c_str();
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result, "time of day string: {}",
+                       time_string);
+  }
+
+  if (::sqlpp::detail::parse_time(value, time_string) == false) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result, "invalid time result: {}",
+                         time_string);
+    }
+  }
+
+  if (*time_string) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                         "trailing characters in time result: {}", time_string);
+    }
+  }
+}
+
 }  // namespace sqlpp::mock_db
