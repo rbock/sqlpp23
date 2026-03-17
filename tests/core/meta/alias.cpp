@@ -28,6 +28,8 @@
 
 int main(int, char*[]) {
 #if SQLPP_INCLUDE_REFLECTION == 1
+  using namespace sqlpp::literals;
+
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
@@ -35,10 +37,10 @@ int main(int, char*[]) {
                 "AVG(tab_bar.id + 7) AS my_average");
 
   const auto table_a = foo.as<"table_a">();
-  const auto table_b = bar.as<"table_b">();
+  const auto table_b = bar.as("table_b"_alias);
 
   SQLPP_COMPARE(sqlpp::select(table_a.id.as<"id_a">(), table_a.intN,
-                              table_b.id.as<"id_b">(), table_b.textN)
+                              table_b.id.as("id_b"_alias), table_b.textN)
                     .from(table_a.join(table_b).on(table_a.id == table_b.id)),
                 "SELECT table_a.id AS id_a, table_a.int_n, table_b.id AS id_b, "
                 "table_b.text_n "

@@ -93,4 +93,12 @@ consteval auto make_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
 }
 
 }  // namespace sqlpp::meta
+
+namespace sqlpp::literals {
+template <::sqlpp::detail::fixed_string Alias>
+consteval auto operator""_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
+  return {};
+}
+
+}  // namespace sqlpp::literals
 #endif
