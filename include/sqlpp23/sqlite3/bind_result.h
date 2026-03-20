@@ -91,194 +91,50 @@ class bind_result_t {
     }
   }
 
-  void read_field(size_t index, bool& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "binding boolean result at index {}",
-                           index);
-    }
-
-    value = static_cast<signed char>(
-        sqlite3_column_int(_sqlite3_statement.get(), static_cast<int>(index)));
+  auto& debug() const { return _config->debug; }
+  auto get_column_blob(size_t field_index) const {
+    return sqlite3_column_blob(_sqlite3_statement.get(),
+                               static_cast<int>(field_index));
+  }
+  auto get_column_double(size_t field_index) const {
+    return sqlite3_column_double(_sqlite3_statement.get(),
+                                 static_cast<int>(field_index));
+  }
+  auto get_column_int(size_t field_index) const {
+    return sqlite3_column_int(_sqlite3_statement.get(),
+                              static_cast<int>(field_index));
+  }
+  auto get_column_int64(size_t field_index) const {
+    return sqlite3_column_int64(_sqlite3_statement.get(),
+                                static_cast<int>(field_index));
+  }
+  auto get_column_text(size_t field_index) const {
+    return sqlite3_column_text(_sqlite3_statement.get(),
+                               static_cast<int>(field_index));
+  }
+  auto get_column_text16(size_t field_index) const {
+    return sqlite3_column_text16(_sqlite3_statement.get(),
+                                 static_cast<int>(field_index));
+  }
+  auto get_column_value(size_t field_index) const {
+    return sqlite3_column_value(_sqlite3_statement.get(),
+                                static_cast<int>(field_index));
   }
 
-  void read_field(size_t index, double& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "binding floating_point result at index {}", index);
-    }
-
-    switch (sqlite3_column_type(_sqlite3_statement.get(),
-                                static_cast<int>(index))) {
-      case (SQLITE3_TEXT):
-        value = atof(reinterpret_cast<const char*>(sqlite3_column_text(
-            _sqlite3_statement.get(), static_cast<int>(index))));
-        break;
-      default:
-        value = sqlite3_column_double(_sqlite3_statement.get(),
-                                      static_cast<int>(index));
-    }
+  auto get_column_bytes(size_t field_index) const {
+    return sqlite3_column_bytes(_sqlite3_statement.get(),
+                                static_cast<int>(field_index));
   }
-
-  void read_field(size_t index, int64_t& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "reading integral result at index {}",
-                           index);
-    }
-
-    value = sqlite3_column_int64(_sqlite3_statement.get(),
-                                 static_cast<int>(index));
+  auto get_column_bytes16(size_t field_index) const {
+    return sqlite3_column_bytes16(_sqlite3_statement.get(),
+                                  static_cast<int>(field_index));
   }
-
-  void read_field(size_t index, uint64_t& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "binding unsigned integral result at index {}", index);
-    }
-
-    value = static_cast<uint64_t>(sqlite3_column_int64(
-        _sqlite3_statement.get(), static_cast<int>(index)));
+  auto get_column_type(size_t field_index) const {
+    return sqlite3_column_type(_sqlite3_statement.get(),
+                               static_cast<int>(field_index));
   }
-
-  void read_field(size_t index, std::string_view& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: binding text result at index {}",
-                           index);
-    }
-
-    value = std::string_view(
-        reinterpret_cast<const char*>(sqlite3_column_text(
-            _sqlite3_statement.get(), static_cast<int>(index))),
-        static_cast<size_t>(sqlite3_column_bytes(_sqlite3_statement.get(),
-                                                 static_cast<int>(index))));
-  }
-
-  void read_field(size_t index, std::span<const uint8_t>& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: binding blob result at index {}",
-                           index);
-    }
-
-    value = std::span<const uint8_t>(
-        reinterpret_cast<const uint8_t*>(sqlite3_column_blob(
-            _sqlite3_statement.get(), static_cast<int>(index))),
-        static_cast<size_t>(sqlite3_column_bytes(_sqlite3_statement.get(),
-                                                 static_cast<int>(index))));
-  }
-
-  void read_field(size_t index, std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: binding date result at index {}",
-                           index);
-    }
-
-    const char* time_string =
-        reinterpret_cast<const char*>(sqlite3_column_text(
-            _sqlite3_statement.get(), static_cast<int>(index)));
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: time string {}",
-                           time_string);
-    }
-
-    if (::sqlpp::detail::parse_time(value, time_string) ==
-        false) {
-      value = {};
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "Sqlite3 debug: invalid time");
-      }
-    }
-    if (*time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in time result: {}",
-                           time_string);
-      }
-    }
-  }
-
-  void read_field(size_t index, std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: binding date result at index {}",
-                           index);
-    }
-
-    const char* date_string = reinterpret_cast<const char*>(sqlite3_column_text(
-        _sqlite3_statement.get(), static_cast<int>(index)));
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: date string: {}", date_string);
-    }
-
-    if (::sqlpp::detail::parse_date(value, date_string) == false) {
-      value = {};
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                             "Sqlite3 debug: invalid date");
-      }
-    }
-    if (*date_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date result: {}",
-                           date_string);
-      }
-    }
-  }
-
-  void read_field(size_t index, ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: binding date result at index {}",
-                           index);
-    }
-
-    const char* date_time_string =
-        reinterpret_cast<const char*>(sqlite3_column_text(
-            _sqlite3_statement.get(), static_cast<int>(index)));
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "Sqlite3 debug: date_time string: {}",
-                           date_time_string);
-    }
-
-    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
-      value = {};
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "Sqlite3 debug: invalid date_time");
-      }
-    }
-    if (*date_time_string) {
-      if constexpr (debug_enabled) {
-        _config->debug.log(log_category::result,
-                           "trailing characters in date_time result: {}",
-                           date_time_string);
-      }
-    }
-  }
-
-  template <typename T>
-  auto read_field(size_t index, std::optional<T>& field) -> void {
-    const bool is_null =
-        sqlite3_column_type(_sqlite3_statement.get(),
-                            static_cast<int>(index)) == SQLITE_NULL;
-    if (is_null) {
-      field.reset();
-    } else {
-      if (not field.has_value()) {
-        field = T{};
-      }
-      read_field(index, *field);
-    }
+  bool get_is_null(size_t field_index) const {
+    return get_column_type(field_index) == SQLITE_NULL;
   }
 
  private:
@@ -301,6 +157,176 @@ class bind_result_t {
     }
   }
 };
+
+  inline void read_field(const bind_result_t& result, size_t index, bool& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "binding boolean result at index {}",
+                           index);
+    }
+
+    value = static_cast<signed char>(
+        result.get_column_int(index));
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, double& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(
+          log_category::result,
+          "binding floating_point result at index {}", index);
+    }
+
+    switch (result.get_column_type(index)) {
+      case (SQLITE3_TEXT):
+        value = atof(reinterpret_cast<const char*>(result.get_column_text(index)));
+        break;
+      default:
+        value = result.get_column_double(index);
+    }
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, int64_t& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "reading integral result at index {}",
+                           index);
+    }
+
+    value = result.get_column_int64(index);
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, uint64_t& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(
+          log_category::result,
+          "binding unsigned integral result at index {}", index);
+    }
+
+    value = static_cast<uint64_t>(result.get_column_int64(
+        index));
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, std::string_view& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: binding text result at index {}",
+                           index);
+    }
+
+    value = std::string_view(
+        reinterpret_cast<const char*>(result.get_column_text(
+            index)),
+        static_cast<size_t>(result.get_column_bytes(index)));
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, std::span<const uint8_t>& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: binding blob result at index {}",
+                           index);
+    }
+
+    value = std::span<const uint8_t>(
+        reinterpret_cast<const uint8_t*>(result.get_column_blob(
+            index)),
+        static_cast<size_t>(result.get_column_bytes(index)));
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, std::chrono::microseconds& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: binding date result at index {}",
+                           index);
+    }
+
+    const char* time_string =
+        reinterpret_cast<const char*>(result.get_column_text(
+            index));
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: time string {}",
+                           time_string);
+    }
+
+    if (::sqlpp::detail::parse_time(value, time_string) ==
+        false) {
+      value = {};
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "Sqlite3 debug: invalid time");
+      }
+    }
+    if (*time_string) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "trailing characters in time result: {}",
+                           time_string);
+      }
+    }
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, std::chrono::sys_days& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: binding date result at index {}",
+                           index);
+    }
+
+    const char* date_string = reinterpret_cast<const char*>(result.get_column_text(
+        index));
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: date string: {}", date_string);
+    }
+
+    if (::sqlpp::detail::parse_date(value, date_string) == false) {
+      value = {};
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                             "Sqlite3 debug: invalid date");
+      }
+    }
+    if (*date_string) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "trailing characters in date result: {}",
+                           date_string);
+      }
+    }
+  }
+
+  inline void read_field(const bind_result_t& result, size_t index, ::sqlpp::chrono::sys_microseconds& value) {
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: binding date result at index {}",
+                           index);
+    }
+
+    const char* date_time_string =
+        reinterpret_cast<const char*>(result.get_column_text(
+            index));
+    if constexpr (debug_enabled) {
+      result.debug().log(log_category::result,
+                           "Sqlite3 debug: date_time string: {}",
+                           date_time_string);
+    }
+
+    if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false) {
+      value = {};
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "Sqlite3 debug: invalid date_time");
+      }
+    }
+    if (*date_time_string) {
+      if constexpr (debug_enabled) {
+        result.debug().log(log_category::result,
+                           "trailing characters in date_time result: {}",
+                           date_time_string);
+      }
+    }
+  }
+
 }  // namespace sqlpp::sqlite3
 
 
