@@ -223,6 +223,8 @@ using ::sqlpp::trim;
 using ::sqlpp::upper;
 
 // database
+using ::sqlpp::read_field;
+using ::sqlpp::bind_field;
 using ::sqlpp::isolation_level;
 using ::sqlpp::start_transaction;
 using ::sqlpp::exception;

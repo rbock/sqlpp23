@@ -32,6 +32,8 @@ module;
 export module sqlpp23.mysql;
 
 export namespace sqlpp::mysql {
+using ::sqlpp::mysql::read_field;
+using ::sqlpp::mysql::bind_field;
 using ::sqlpp::mysql::connection;
 using ::sqlpp::mysql::connection_config;
 using ::sqlpp::mysql::connection_pool;
