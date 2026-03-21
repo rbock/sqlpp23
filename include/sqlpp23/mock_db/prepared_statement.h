@@ -50,77 +50,96 @@ class prepared_statement_t {
   prepared_statement_t& operator=(prepared_statement_t&&) = default;
   ~prepared_statement_t() = default;
 
-  void _bind_parameter(size_t index, const bool& value) {
+  void bind_null(size_t parameter_index) {
     if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding boolean parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index, const int64_t& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding integral parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index, const uint64_t& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding unsigned integral parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index, const double& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding double parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index, const std::string_view& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding text parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index, const std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding date parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index,
-                       const ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding date_time parameter {} at index {}", value, index);
-    }
-  }
-
-  void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter,
-                  "binding time_of_day parameter {} at index {}", value, index);
-    }
-  }
-
-  template <typename Parameter>
-  void _bind_parameter(size_t index,
-                       const std::optional<Parameter>& parameter) {
-    if (parameter.has_value()) {
-      _bind_parameter(index, parameter.value());
-      return;
-    }
-
-    if constexpr (debug_enabled) {
-      debug().log(log_category::parameter, "binding NULL parameter {}", index);
+      debug().log(log_category::parameter, "binding NULL parameter {}", parameter_index);
     }
   }
 
   const debug_logger& debug() { return _config->debug; }
 };
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const bool& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding boolean parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const int64_t& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding integral parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const uint64_t& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "binding unsigned integral parameter {} at parameter_index {}", value,
+        parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const double& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding double parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const std::string_view& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding text parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const std::chrono::sys_days& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding date parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const ::sqlpp::chrono::sys_microseconds& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "binding date_time parameter {} at parameter_index {}", value,
+        parameter_index);
+  }
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                          size_t parameter_index,
+                          const ::std::chrono::microseconds& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "binding time_of_day parameter {} at parameter_index {}", value,
+        parameter_index);
+  }
+}
 
 }  // namespace sqlpp::mock_db

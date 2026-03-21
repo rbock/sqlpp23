@@ -37,6 +37,7 @@
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/postgresql/database/connection_handle.h>
 #include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp23/core/database/parameter_list.h>
 #include <sqlpp23/postgresql/pg_result.h>
 #include <sqlpp23/postgresql/to_sql_string.h>
 
@@ -121,122 +122,82 @@ class prepared_statement_t {
                                  /*paramFormats*/ nullptr, /*resultFormat*/ 0)};
   }
 
-  void _bind_parameter(size_t index, const bool& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding boolean parameter {} at index {}", value,
-                           index);
-    }
+  auto& debug() const { return _config->debug; }
 
-    _stmt_null_parameters[index] = false;
+  void bind_parameter(size_t parameter_index, const bool& value) {
+    _stmt_null_parameters[parameter_index] = false;
     if (value) {
-      _stmt_parameters[index] = "t";
+      _stmt_parameters[parameter_index] = "t";
     } else {
-      _stmt_parameters[index] = "f";
+      _stmt_parameters[parameter_index] = "f";
     }
   }
 
-  void _bind_parameter(size_t index, const double& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding floating_point parameter {} at index {}",
-                           value, index);
-    }
-
-    _stmt_null_parameters[index] = false;
+  void bind_parameter(size_t parameter_index, const double& value) {
+    _stmt_null_parameters[parameter_index] = false;
     context_t context{nullptr};
     using sqlpp::to_sql_string;
-    _stmt_parameters[index] = to_sql_string(context, value);
+    _stmt_parameters[parameter_index] = to_sql_string(context, value);
   }
 
-  void _bind_parameter(size_t index, const int64_t& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding integral parameter {} at index {}", value,
-                           index);
-    }
-
+  void bind_parameter(size_t parameter_index, const int64_t& value) {
     // Assign values
-    _stmt_null_parameters[index] = false;
-    _stmt_parameters[index] = std::to_string(value);
+    _stmt_null_parameters[parameter_index] = false;
+    _stmt_parameters[parameter_index] = std::to_string(value);
   }
 
-  void _bind_parameter(size_t index, const std::string& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding text parameter {} at index {}", value,
-                           index);
-    }
-
+  void bind_parameter(size_t parameter_index, const std::string& value) {
     // Assign values
-    _stmt_null_parameters[index] = false;
-    _stmt_parameters[index] = value;
+    _stmt_null_parameters[parameter_index] = false;
+    _stmt_parameters[parameter_index] = value;
   }
 
-  void _bind_parameter(size_t index, const std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding date parameter {} at index {} ", value,
-                           index);
-    }
-    _stmt_null_parameters[index] = false;
+  void bind_parameter(size_t parameter_index, const std::chrono::sys_days& value) {
+    _stmt_null_parameters[parameter_index] = false;
     const auto ymd = std::chrono::year_month_day{value};
-    _stmt_parameters[index] = std::format("{}", ymd);
+    _stmt_parameters[parameter_index] = std::format("{}", ymd);
 
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
                            "binding date parameter string: {}",
-                           _stmt_parameters[index]);
+                           _stmt_parameters[parameter_index]);
     }
   }
 
-  void _bind_parameter(size_t index, const ::std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding time parameter {} at index {}", value,
-                           index);
-    }
-    _stmt_null_parameters[index] = false;
+  void bind_parameter(size_t parameter_index, const ::std::chrono::microseconds& value) {
+    _stmt_null_parameters[parameter_index] = false;
     const auto dp = std::chrono::floor<std::chrono::days>(value);
     const auto time = std::chrono::hh_mm_ss(
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
 
     // Timezone handling - always treat the local value as UTC.
-    _stmt_parameters[index] = std::format("{}+00", time);
+    _stmt_parameters[parameter_index] = std::format("{}+00", time);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
                            "binding time parameter string: {}",
-                           _stmt_parameters[index]);
+                           _stmt_parameters[parameter_index]);
     }
   }
 
-  void _bind_parameter(size_t index,
+  void bind_parameter(size_t parameter_index,
                        const ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding date_time parameter at index {}", index);
-    }
-    _stmt_null_parameters[index] = false;
+    _stmt_null_parameters[parameter_index] = false;
     const auto dp = std::chrono::floor<std::chrono::days>(value);
     const auto time = std::chrono::hh_mm_ss(
         std::chrono::floor<::std::chrono::microseconds>(value - dp));
     const auto ymd = std::chrono::year_month_day{dp};
 
     // Timezone handling - always treat the local value as UTC.
-    _stmt_parameters[index] = std::format("{} {}+00", ymd, time);
+    _stmt_parameters[parameter_index] = std::format("{} {}+00", ymd, time);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
                            "binding date_time parameter string: {}",
-                           _stmt_parameters[index]);
+                           _stmt_parameters[parameter_index]);
     }
   }
 
-  void _bind_parameter(size_t index, const std::vector<unsigned char>& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::parameter,
-                           "binding blob parameter at index {}", index);
-    }
-    _stmt_null_parameters[index] = false;
+  void bind_parameter(size_t parameter_index, const std::vector<unsigned char>& value) {
+    _stmt_null_parameters[parameter_index] = false;
     constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     auto param = std::string(value.size() * 2 + 2,
@@ -248,28 +209,111 @@ class prepared_statement_t {
       param[++i] = hex_chars[c >> 4];
       param[++i] = hex_chars[c & 0x0F];
     }
-    _stmt_parameters[index] = std::move(param);
+    _stmt_parameters[parameter_index] = std::move(param);
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
-                           "binding blob parameter string (up to 100 "
-                           "chars): {}",
-                           _stmt_parameters[index].substr(0, 100));
+                         "binding blob parameter string (up to 100 "
+                         "chars): {}",
+                         _stmt_parameters[parameter_index].substr(0, 100));
     }
   }
 
-  template <typename Parameter>
-  void _bind_parameter(size_t index,
-                       const std::optional<Parameter>& parameter) {
-    if (parameter.has_value()) {
-      _bind_parameter(index, parameter.value());
-      return;
-    }
-
+  void bind_null(size_t parameter_index) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::parameter,
-                           "binding NULL parameter at index {}", index);
+                         "binding NULL parameter at parameter_index {}",
+                         parameter_index);
     }
-    _stmt_null_parameters[index] = true;
+    _stmt_null_parameters[parameter_index] = true;
   }
 };
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const bool& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding boolean parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const double& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "binding floating_point parameter {} at parameter_index {}", value,
+        parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const int64_t& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding integral parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::string& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding text parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::chrono::sys_days& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding date parameter {} at parameter_index {} ",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const ::std::chrono::microseconds& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding time parameter {} at parameter_index {}",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const ::sqlpp::chrono::sys_microseconds& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding date_time parameter at parameter_index {}",
+                          parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::vector<unsigned char>& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "binding blob parameter at parameter_index {}",
+                          parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
 }  // namespace sqlpp::postgresql

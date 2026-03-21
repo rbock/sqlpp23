@@ -114,184 +114,225 @@ class prepared_statement_t {
     sqlite3_reset(_sqlite3_statement.get());
   }
 
-  void _bind_parameter(size_t index, const bool& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding boolean parameter {} at index {}", value,
-          index);
-    }
-
+  void bind_parameter(size_t parameter_index, const bool& value) {
     const int rc = sqlite3_bind_int(_sqlite3_statement.get(),
-                                    static_cast<int>(index + 1), value);
+                                    static_cast<int>(parameter_index + 1), value);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const double& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding floating_point parameter {} at index {}",
-          value, index);
-    }
-
+  void bind_parameter(size_t parameter_index, const double& value) {
     int rc;
     if (std::isnan(value))
       rc = sqlite3_bind_text(_sqlite3_statement.get(),
-                             static_cast<int>(index + 1), "NaN", 3,
+                             static_cast<int>(parameter_index + 1), "NaN", 3,
                              SQLITE_STATIC);
     else if (std::isinf(value)) {
       if (value > std::numeric_limits<double>::max())
         rc = sqlite3_bind_text(_sqlite3_statement.get(),
-                               static_cast<int>(index + 1), "Inf", 3,
+                               static_cast<int>(parameter_index + 1), "Inf", 3,
                                SQLITE_STATIC);
       else
         rc = sqlite3_bind_text(_sqlite3_statement.get(),
-                               static_cast<int>(index + 1), "-Inf", 4,
+                               static_cast<int>(parameter_index + 1), "-Inf", 4,
                                SQLITE_STATIC);
     } else
       rc = sqlite3_bind_double(_sqlite3_statement.get(),
-                               static_cast<int>(index + 1), value);
+                               static_cast<int>(parameter_index + 1), value);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const int64_t& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding integral parameter {} at index {}", value,
-          index);
-    }
-
+  void bind_parameter(size_t parameter_index, const int64_t& value) {
     const int rc = sqlite3_bind_int64(_sqlite3_statement.get(),
-                                      static_cast<int>(index + 1), value);
+                                      static_cast<int>(parameter_index + 1), value);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const uint64_t& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding unsigned integral parameter {} at index {}",
-          value, index);
-    }
-
+  void bind_parameter(size_t parameter_index, const uint64_t& value) {
     const int rc = sqlite3_bind_int64(_sqlite3_statement.get(),
-                                      static_cast<int>(index + 1),
+                                      static_cast<int>(parameter_index + 1),
                                       static_cast<int64_t>(value));
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const std::string& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(log_category::parameter,
-                        "Sqlite3 debug: binding text parameter {} at index {}",
-                        value, index);
-    }
-
+  void bind_parameter(size_t parameter_index, const std::string& value) {
     const int rc = sqlite3_bind_text(
-        _sqlite3_statement.get(), static_cast<int>(index + 1), value.data(),
+        _sqlite3_statement.get(), static_cast<int>(parameter_index + 1), value.data(),
         static_cast<int>(value.size()), SQLITE_STATIC);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding time of day parameter {} at index {}", value,
-          index);
-    }
-
-    const auto text = std::format("{0:%H:%M:%S}", value);
+  void bind_parameter(size_t parameter_index, const std::chrono::microseconds& value) {
+   const auto text = std::format("{0:%H:%M:%S}", value);
     const int rc = sqlite3_bind_text(
-        _sqlite3_statement.get(), static_cast<int>(index + 1), text.data(),
+        _sqlite3_statement.get(), static_cast<int>(parameter_index + 1), text.data(),
         static_cast<int>(text.size()), SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(log_category::parameter,
-                        "Sqlite3 debug: binding date parameter {} at index {}",
-                        value, index);
-    }
-
+  void bind_parameter(size_t parameter_index, const std::chrono::sys_days& value) {
     const auto text = std::format("{0:%Y-%m-%d}", value);
     const int rc = sqlite3_bind_text(
-        _sqlite3_statement.get(), static_cast<int>(index + 1), text.data(),
+        _sqlite3_statement.get(), static_cast<int>(parameter_index + 1), text.data(),
         static_cast<int>(text.size()), SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index,
+  void bind_parameter(size_t parameter_index,
                        const ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding date_time parameter {} at index {}", value,
-          index);
-    }
-
     const auto text = std::format("{0:%Y-%m-%d %H:%M:%S}", value);
     const int rc = sqlite3_bind_text(
-        _sqlite3_statement.get(), static_cast<int>(index + 1), text.data(),
+        _sqlite3_statement.get(), static_cast<int>(parameter_index + 1), text.data(),
         static_cast<int>(text.size()), SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  void _bind_parameter(size_t index, const std::vector<uint8_t>& value) {
-    if constexpr (debug_enabled) {
-      config->debug.log(
-          log_category::parameter,
-          "Sqlite3 debug: binding blob parameter size of {} at index {}",
-          value.size(), index);
-    }
-
+  void bind_parameter(size_t parameter_index, const std::vector<uint8_t>& value) {
     const int rc = sqlite3_bind_blob(
-        _sqlite3_statement.get(), static_cast<int>(index + 1), value.data(),
+        _sqlite3_statement.get(), static_cast<int>(parameter_index + 1), value.data(),
         static_cast<int>(value.size()), SQLITE_STATIC);
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 
-  template <typename Parameter>
-  void _bind_parameter(size_t index,
-                       const std::optional<Parameter>& parameter) {
-    if (parameter.has_value()) {
-      _bind_parameter(index, parameter.value());
-      return;
-    }
-
+  void bind_null(size_t parameter_index) {
     if constexpr (debug_enabled) {
       config->debug.log(log_category::parameter,
-                        "Sqlite3 debug: binding NULL parameter at index {}",
-                        index);
+                        "Sqlite3 debug: binding NULL parameter at parameter_index {}",
+                        parameter_index);
     }
 
     const int rc = sqlite3_bind_null(_sqlite3_statement.get(),
-                                     static_cast<int>(index + 1));
+                                     static_cast<int>(parameter_index + 1));
     if (rc != SQLITE_OK) {
       throw exception{sqlite3_errmsg(_connection), rc};
     }
   }
 };
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const bool& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "Sqlite3 debug: binding boolean parameter {} at parameter_index {}",
+        value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const double& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "Sqlite3 debug: binding floating_point parameter {} "
+                          "at parameter_index {}",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const int64_t& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "Sqlite3 debug: binding integral parameter {} at parameter_index {}",
+        value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const uint64_t& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "Sqlite3 debug: binding unsigned integral parameter "
+                          "{} at parameter_index {}",
+                          value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::string& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "Sqlite3 debug: binding text parameter {} at parameter_index {}", value,
+        parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::chrono::microseconds& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "Sqlite3 debug: binding time of day parameter {} at parameter_index {}",
+        value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::chrono::sys_days& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "Sqlite3 debug: binding date parameter {} at parameter_index {}", value,
+        parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const ::sqlpp::chrono::sys_microseconds& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(
+        log_category::parameter,
+        "Sqlite3 debug: binding date_time parameter {} at parameter_index {}",
+        value, parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
+inline void bind_parameter(prepared_statement_t& statement,
+                           size_t parameter_index,
+                           const std::vector<uint8_t>& value) {
+  if constexpr (debug_enabled) {
+    statement.debug().log(log_category::parameter,
+                          "Sqlite3 debug: binding blob parameter size of {} at "
+                          "parameter_index {}",
+                          value.size(), parameter_index);
+  }
+  statement.bind_parameter(parameter_index, value);
+}
+
 }  // namespace sqlpp::sqlite3
 
