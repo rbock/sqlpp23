@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <optional>
 #include <span>
 #include <string_view>
 
@@ -128,17 +127,11 @@ class bind_result_t {
 
   bool _invalid() const { return !_mysql_stmt; }
 
-  void bind_field(unsigned int index, bool& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: binding boolean result at index: {}",
-                           index);
-    }
-
-    auto& buffer{_result_buffers[index]};
+  void bind_bool(size_t field_index) {
+    auto& buffer{_result_buffers[field_index]};
     new (&buffer.bool_) bool{};
 
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = MYSQL_TYPE_TINY;
     param.buffer = &buffer.bool_;
     param.buffer_length = sizeof(buffer.bool_);
@@ -148,17 +141,11 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(unsigned int index, int64_t& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: binding integral result at index: {}",
-                           index);
-    }
-
-    auto& buffer{_result_buffers[index]};
+  void bind_int64(size_t field_index) {
+    auto& buffer{_result_buffers[field_index]};
     new (&buffer.int64_) int64_t{};
 
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
     param.buffer = &buffer.int64_;
     param.buffer_length = sizeof(buffer.int64_);
@@ -168,17 +155,11 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(unsigned int index, uint64_t& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "MySQL debug: binding unsigned integral result at index: {}", index);
-    }
-
-    auto& buffer{_result_buffers[index]};
+  void bind_uint64(size_t field_index) {
+    auto& buffer{_result_buffers[field_index]};
     new (&buffer.uint64_) uint64_t{};
 
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = MYSQL_TYPE_LONGLONG;
     param.buffer = &buffer.uint64_;
     param.buffer_length = sizeof(buffer.uint64_);
@@ -188,17 +169,11 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(unsigned int index, double& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "MySQL debug: binding floating point result at index: {}", index);
-    }
-
-    auto& buffer{_result_buffers[index]};
+  void bind_double(size_t field_index) {
+    auto& buffer{_result_buffers[field_index]};
     new (&buffer.double_) double{};
 
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = MYSQL_TYPE_DOUBLE;
     param.buffer = &buffer.double_;
     param.buffer_length = sizeof(buffer.double_);
@@ -208,16 +183,10 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(unsigned int index, std::string_view& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: binding text result at index: {}",
-                           index);
-    }
+  void bind_string(size_t field_index) {
+    auto& buffer{_result_buffers[field_index]};
 
-    auto& buffer{_result_buffers[index]};
-
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = MYSQL_TYPE_STRING;
     param.buffer = buffer.var_buffer.data();
     param.buffer_length = buffer.var_buffer.size();
@@ -227,16 +196,10 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(unsigned int index, std::span<const uint8_t>& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: binding blob result at index: {}",
-                           index);
-    }
+  void bind_blob(size_t field_index) {
+    auto& buffer{_result_buffers[field_index]};
 
-    auto& buffer{_result_buffers[index]};
-
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = MYSQL_TYPE_BLOB;
     param.buffer = buffer.var_buffer.data();
     param.buffer_length = buffer.var_buffer.size();
@@ -246,11 +209,11 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_chrono_field(unsigned int index, enum_field_types buffer_type) {
-    auto& buffer{_result_buffers[index]};
+  void bind_chrono_field(size_t field_index, enum_field_types buffer_type) {
+    auto& buffer{_result_buffers[field_index]};
     new (&buffer.mysql_time_) MYSQL_TIME{};
 
-    MYSQL_BIND& param{_result_params[index]};
+    MYSQL_BIND& param{_result_params[field_index]};
     param.buffer_type = buffer_type;
     param.buffer = &buffer.mysql_time_;
     param.buffer_length = sizeof(buffer.mysql_time_);
@@ -260,40 +223,16 @@ class bind_result_t {
     param.error = &buffer.error;
   }
 
-  void bind_field(unsigned int index, std::chrono::sys_days& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: binding date result at index: {}",
-                           index);
-    }
-
-    bind_chrono_field(index, MYSQL_TYPE_DATE);
+  void bind_date(size_t field_index) {
+    bind_chrono_field(field_index, MYSQL_TYPE_DATE);
   }
 
-  void bind_field(unsigned int index, ::sqlpp::chrono::sys_microseconds& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: binding date time result at index: {}",
-                           index);
-    }
-
-    bind_chrono_field(index, MYSQL_TYPE_DATETIME);
+  void bind_date_time(size_t field_index) {
+    bind_chrono_field(field_index, MYSQL_TYPE_DATETIME);
   }
 
-  void bind_field(unsigned int index, ::std::chrono::microseconds& /*value*/) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "MySQL debug: binding time of day result at index: {}", index);
-    }
-
-    bind_chrono_field(index, MYSQL_TYPE_TIME);
-  }
-
-  template <class T>
-  void bind_field(unsigned int index, std::optional<T>& value) {
-    value = T{};
-    bind_field(index, *value);
+  void bind_time_of_day(size_t field_index) {
+    bind_chrono_field(field_index, MYSQL_TYPE_TIME);
   }
 
   auto& debug() const { return _config->debug; }
@@ -386,6 +325,111 @@ class bind_result_t {
     }
   }
 };
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       bool& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding boolean result at index: {}",
+                       field_index);
+  }
+
+  result.bind_bool(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       int64_t& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding integral result at index: {}",
+                       field_index);
+  }
+
+  result.bind_int64(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       uint64_t& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(
+        log_category::result,
+        "MySQL debug: binding unsigned integral result at index: {}",
+        field_index);
+  }
+  result.bind_uint64(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       double& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(
+        log_category::result,
+        "MySQL debug: binding floating point result at index: {}", field_index);
+  }
+  result.bind_double(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       std::string_view& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding text result at index: {}",
+                       field_index);
+  }
+  result.bind_string(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       std::span<const uint8_t>& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding blob result at index: {}",
+                       field_index);
+  }
+  result.bind_blob(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       std::chrono::sys_days& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding date result at index: {}",
+                       field_index);
+  }
+
+  result.bind_date(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       ::sqlpp::chrono::sys_microseconds& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding date time result at index: {}",
+                       field_index);
+  }
+
+  result.bind_date_time(field_index);
+}
+
+inline void bind_field(bind_result_t& result,
+                       size_t field_index,
+                       ::std::chrono::microseconds& /*value*/) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: binding time of day result at index: {}",
+                       field_index);
+  }
+
+  result.bind_time_of_day(field_index);
+}
 
 inline void read_field(const bind_result_t& result,
                        size_t field_index,

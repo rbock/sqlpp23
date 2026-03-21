@@ -31,6 +31,7 @@
 
 #include <sqlpp23/core/field_spec.h>
 #include <sqlpp23/core/query/read_field.h>
+#include <sqlpp23/core/query/bind_field.h>
 #include <sqlpp23/core/query/result_row_fwd.h>
 
 namespace sqlpp {
@@ -48,7 +49,7 @@ struct result_field
 
   template <typename Target>
   void _bind_field(Target& target) {
-    target.bind_field(index, _field::operator()());
+    bind_field(target, index, _field::operator()());
   }
 
   template <typename Target>
