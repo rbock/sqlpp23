@@ -296,62 +296,45 @@ class bind_result_t {
     bind_field(index, *value);
   }
 
-  void read_field(unsigned int index, bool& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading bool result at index: {}",
-                           index);
-    }
-    value = _result_buffers[index].bool_;
+  auto& debug() const { return _config->debug; }
+  bool get_is_null(size_t field_index) const {
+    return _result_buffers[field_index].is_null;
   }
-
-  void read_field(unsigned int index, int64_t& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading integral result at index: {}",
-                           index);
-    }
-    value = _result_buffers[index].int64_;
+  auto get_bool(size_t field_index) const {
+    return _result_buffers[field_index].bool_;
   }
-
-  void read_field(unsigned int index, uint64_t& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "MySQL debug: reading unsigned integral result at index: {}", index);
-    }
-    value = _result_buffers[index].uint64_;
+  auto get_uint64(size_t field_index) const {
+    return _result_buffers[field_index].uint64_;
   }
-
-  void read_field(unsigned int index, double& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(
-          log_category::result,
-          "MySQL debug: reading floating point result at index: {}", index);
-    }
-    value = _result_buffers[index].double_;
+  auto get_int64(size_t field_index) const {
+    return _result_buffers[field_index].int64_;
   }
-
-  void refetch_if_required(unsigned int index) {
+  auto get_double(size_t field_index) const {
+    return _result_buffers[field_index].double_;
+  }
+  auto get_time(size_t field_index) const {
+    return _result_buffers[field_index].mysql_time_;
+  }
+  void refetch_if_required(size_t field_index) {
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
                            "MySQL debug: Checking result size at index: {}",
-                           index);
+                           field_index);
     }
-    auto& buffer = _result_buffers[index];
-    auto& parameters = _result_params[index];
+    auto& buffer = _result_buffers[field_index];
+    auto& parameters = _result_params[field_index];
     if (*parameters.length > parameters.buffer_length) {
       if constexpr (debug_enabled) {
         _config->debug.log(log_category::result,
                              "MySQL debug: increasing buffer at: {} to {}",
-                             index, *parameters.length);
+                             field_index, *parameters.length);
       }
 
       buffer.var_buffer.resize(*parameters.length);
       parameters.buffer = buffer.var_buffer.data();
       parameters.buffer_length = buffer.var_buffer.size();
       const auto err =
-          mysql_stmt_fetch_column(_mysql_stmt.get(), &parameters, index, 0);
+          mysql_stmt_fetch_column(_mysql_stmt.get(), &parameters, static_cast<unsigned int>(field_index), 0);
       if (err){
         throw exception{mysql_stmt_error(_mysql_stmt.get()),
                         mysql_stmt_errno(_mysql_stmt.get())};
@@ -359,91 +342,12 @@ class bind_result_t {
       _require_bind = true;
     }
   }
-
-  void read_field(unsigned int index, std::string_view& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading text result at index: {}",
-                           index);
-    }
-    refetch_if_required(index);
-    const auto& buffer = _result_buffers[index];
-    const auto& parameters = _result_params[index];
-    value = std::string_view(buffer.var_buffer.data(), *parameters.length);
+  const char* get_data(size_t field_index) const {
+    return _result_buffers[field_index].var_buffer.data();
   }
 
-  void read_field(unsigned int index, std::span<const uint8_t>& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading blob result at index: {}",
-                           index);
-    }
-    refetch_if_required(index);
-    const auto& buffer = _result_buffers[index];
-    const auto& parameters = _result_params[index];
-    value = std::span<const uint8_t>(
-        reinterpret_cast<const uint8_t*>(buffer.var_buffer.data()),
-        *parameters.length);
-  }
-
-  void read_field(unsigned int index, std::chrono::sys_days& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading date result at index: {}",
-                           index);
-    }
-
-    const auto& dt = _result_buffers[index].mysql_time_;
-    if (dt.year > std::numeric_limits<int>::max()){
-      throw sqlpp::exception{"cannot read year from db: " +
-                             std::to_string(dt.year)};
-    }
-    value = ::std::chrono::year(static_cast<int>(dt.year)) /
-            ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day);
-  }
-
-  void read_field(unsigned int index, ::sqlpp::chrono::sys_microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading date time result at index: {}",
-                           index);
-    }
-
-    const auto& dt = _result_buffers[index].mysql_time_;
-    if (dt.year > std::numeric_limits<int>::max()) {
-      throw sqlpp::exception{"cannot read year from db: " +
-                             std::to_string(dt.year)};
-    }
-    value = std::chrono::sys_days(
-                ::std::chrono::year(static_cast<int>(dt.year)) /
-                ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day)) +
-            std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +
-            std::chrono::seconds(dt.second) +
-            std::chrono::microseconds(dt.second_part);
-  }
-
-  void read_field(unsigned int index, ::std::chrono::microseconds& value) {
-    if constexpr (debug_enabled) {
-      _config->debug.log(log_category::result,
-                           "MySQL debug: reading date time result at index: {}",
-                           index);
-    }
-
-    const auto& dt = _result_buffers[index].mysql_time_;
-    value = std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +
-            std::chrono::seconds(dt.second) +
-            std::chrono::microseconds(dt.second_part);
-  }
-
-  template <class T>
-  void read_field(unsigned int index, std::optional<T>& value) {
-    if (_result_buffers[index].is_null) {
-      value.reset();
-      return;
-    }
-    if (!value.has_value())
-      value = T{};
-    read_field(index, *value);
+  auto get_length(size_t field_index) const {
+    return *_result_params[field_index].length;
   }
 
  private:
@@ -482,4 +386,132 @@ class bind_result_t {
     }
   }
 };
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       bool& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading bool result at index: {}",
+                       field_index);
+  }
+  value = result.get_bool(field_index);
+}
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       int64_t& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading integral result at index: {}",
+                       field_index);
+  }
+  value = result.get_int64(field_index);
+}
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       uint64_t& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(
+        log_category::result,
+        "MySQL debug: reading unsigned integral result at index: {}",
+        field_index);
+  }
+  value = result.get_uint64(field_index);
+}
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       double& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(
+        log_category::result,
+        "MySQL debug: reading floating point result at index: {}", field_index);
+  }
+  value = result.get_double(field_index);
+}
+
+inline void read_field(bind_result_t& result,
+                       size_t field_index,
+                       std::string_view& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading text result at index: {}",
+                       field_index);
+  }
+  result.refetch_if_required(field_index);
+  value = std::string_view(result.get_data(field_index),
+                           result.get_length(field_index));
+}
+
+inline void read_field(bind_result_t& result,
+                       size_t field_index,
+                       std::span<const uint8_t>& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading blob result at index: {}",
+                       field_index);
+  }
+  result.refetch_if_required(field_index);
+  value = std::span<const uint8_t>(
+      reinterpret_cast<const uint8_t*>(result.get_data(field_index)),
+      result.get_length(field_index));
+}
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       std::chrono::sys_days& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading date result at index: {}",
+                       field_index);
+  }
+
+  const auto& dt = result.get_time(field_index);
+  if (dt.year > std::numeric_limits<int>::max()) {
+    throw sqlpp::exception{"cannot read year from db: " +
+                           std::to_string(dt.year)};
+  }
+  value = ::std::chrono::year(static_cast<int>(dt.year)) /
+          ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day);
+}
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       ::sqlpp::chrono::sys_microseconds& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading date time result at index: {}",
+                       field_index);
+  }
+
+  const auto& dt = result.get_time(field_index);
+  if (dt.year > std::numeric_limits<int>::max()) {
+    throw sqlpp::exception{"cannot read year from db: " +
+                           std::to_string(dt.year)};
+  }
+  value = std::chrono::sys_days(::std::chrono::year(static_cast<int>(dt.year)) /
+                                ::std::chrono::month(dt.month) /
+                                ::std::chrono::day(dt.day)) +
+          std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +
+          std::chrono::seconds(dt.second) +
+          std::chrono::microseconds(dt.second_part);
+}
+
+inline void read_field(const bind_result_t& result,
+                       size_t field_index,
+                       ::std::chrono::microseconds& value) {
+  if constexpr (debug_enabled) {
+    result.debug().log(log_category::result,
+                       "MySQL debug: reading date time result at index: {}",
+                       field_index);
+  }
+
+  const auto& dt = result.get_time(field_index);
+  value = std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) +
+          std::chrono::seconds(dt.second) +
+          std::chrono::microseconds(dt.second_part);
+}
+
 }  // namespace sqlpp::mysql
