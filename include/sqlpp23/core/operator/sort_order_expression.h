@@ -32,21 +32,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
+
+template <typename L>
+struct sort_order_with_nulls_expression  {
+  constexpr sort_order_with_nulls_expression(sort_order_expression<L> lhs, nulls_pos rhs)
+      : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
+  sort_order_with_nulls_expression(const sort_order_with_nulls_expression&) = default;
+  sort_order_with_nulls_expression(sort_order_with_nulls_expression&&) = default;
+  sort_order_with_nulls_expression& operator=(const sort_order_with_nulls_expression&) = default;
+  sort_order_with_nulls_expression& operator=(sort_order_with_nulls_expression&&) = default;
+  ~sort_order_with_nulls_expression() = default;
+
+ private:
+  friend reader_t;
+  const sort_order_expression<L> _lhs;
+  const nulls_pos _rhs;
+};
+
 template <typename L>
 struct sort_order_expression {
-  constexpr sort_order_expression(L l, sort_type r)
-      : _lhs(std::move(l)), _rhs(std::move(r)) {}
+  constexpr sort_order_expression(L lhs, sort_type rhs)
+      : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   sort_order_expression(const sort_order_expression&) = default;
   sort_order_expression(sort_order_expression&&) = default;
   sort_order_expression& operator=(const sort_order_expression&) = default;
   sort_order_expression& operator=(sort_order_expression&&) = default;
   ~sort_order_expression() = default;
 
+  constexpr auto nulls_first() -> sort_order_with_nulls_expression<L>;
+  constexpr auto nulls_last() -> sort_order_with_nulls_expression<L>;
+  constexpr auto nulls_order(::sqlpp::nulls_pos t) -> sort_order_with_nulls_expression<L>;
+
  private:
   friend reader_t;
   L _lhs;
   sort_type _rhs;
 };
+
+
+
+template <typename L>
+constexpr auto sort_order_expression<L>::nulls_first() -> sort_order_with_nulls_expression<L> {
+  return {std::move(_lhs), ::sqlpp::nulls_pos::first};
+}
+
+template <typename L>
+constexpr auto sort_order_expression<L>::nulls_last() -> sort_order_with_nulls_expression<L> {
+  return {std::move(_lhs), ::sqlpp::nulls_pos::last};
+};
+
+template <typename L>
+constexpr auto sort_order_expression<L>::nulls_order(::sqlpp::nulls_pos t) -> sort_order_with_nulls_expression<L> {
+  return {std::move(_lhs), std::move(t)};
+}
 
 template <typename L>
 struct nodes_of<sort_order_expression<L>> {
@@ -62,6 +100,20 @@ auto to_sql_string(Context&, const sort_type& t) -> std::string {
     return " ASC";
   }
   return " DESC";
+}
+
+template <typename Context>
+auto to_sql_string(Context&, const nulls_pos& t) -> std::string {
+  if (t == nulls_pos::first) {
+    return " NULLS FIRST";
+  }
+  return " NULLS LAST";
+}
+
+template <typename Context>
+auto to_sql_string(Context& context, const sort_order& t)
+    -> std::string {
+  return to_sql_string(context, read.lhs(t)) + to_sql_string(context, read.rhs(t));
 }
 
 template <typename Context, typename L>
