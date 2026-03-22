@@ -261,18 +261,16 @@ Because `parameter_value<XCoord>::type = XCoord`, the parameter struct holds
 ### Prepared SELECT
 
 ```cpp
-SQLPP_CREATE_NAME_TAG(minX);
-
 auto stmt = db.prepare(
     select(all_of(t))
     .from(t)
-    .where(t.x > sqlpp::parameter(t.x, minX))
+    .where(t.x > sqlpp::parameter(t.x))
 );
 
-stmt.parameters.minX = XCoord{5};   // XCoord directly
+stmt.parameters.x = XCoord{5};   // XCoord directly; param name matches column name
 
 for (const auto& row : db(stmt)) {
-  XCoord x = row.x;             // XCoord on the read side too
+  XCoord x = row.x;          // XCoord on the read side too
   use(x.value);
 }
 ```
@@ -280,51 +278,49 @@ for (const auto& row : db(stmt)) {
 ### Prepared INSERT
 
 ```cpp
-SQLPP_CREATE_NAME_TAG(px);
-SQLPP_CREATE_NAME_TAG(py);
-
 auto stmt = db.prepare(
     insert_into(t).set(
-        t.x = sqlpp::parameter(t.x, px),
-        t.y = sqlpp::parameter(t.y, py)
+        t.x = sqlpp::parameter(t.x),
+        t.y = sqlpp::parameter(t.y)
     )
 );
 
-stmt.parameters.px = XCoord{10};
-stmt.parameters.py = YCoord{20};
+stmt.parameters.x = XCoord{10};
+stmt.parameters.y = YCoord{20};
 db(stmt);
 ```
 
 ### Prepared UPDATE
 
 ```cpp
-SQLPP_CREATE_NAME_TAG(newX);
-SQLPP_CREATE_NAME_TAG(rowId);
-
 auto stmt = db.prepare(
     update(t)
-    .set(t.x = sqlpp::parameter(t.x, newX))
-    .where(t.id == sqlpp::parameter(t.id, rowId))
+    .set(t.x = sqlpp::parameter(t.x))
+    .where(t.id == sqlpp::parameter(t.id))
 );
 
-stmt.parameters.newX  = XCoord{99};
-stmt.parameters.rowId = 1;
+stmt.parameters.x  = XCoord{99};
+stmt.parameters.id = 1;
 db(stmt);
 ```
 
 ### Prepared DELETE
 
 ```cpp
-SQLPP_CREATE_NAME_TAG(delX);
-
 auto stmt = db.prepare(
     delete_from(t)
-    .where(t.x == sqlpp::parameter(t.x, delX))
+    .where(t.x == sqlpp::parameter(t.x))
 );
 
-stmt.parameters.delX = XCoord{0};
+stmt.parameters.x = XCoord{0};
 db(stmt);
 ```
+
+> `sqlpp::parameter(col)` derives both the data type and the parameter name
+> from the column itself, so `stmt.parameters.x` matches the column name `x`
+> directly. The two-argument form `sqlpp::parameter(col, name_tag)` is only
+> needed when the same column appears as a parameter more than once in a single
+> statement and the two occurrences must be distinguishable.
 
 ---
 
