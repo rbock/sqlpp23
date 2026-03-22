@@ -269,7 +269,7 @@ auto stmt = db.prepare(
     .where(t.x > sqlpp::parameter(t.x, minX))
 );
 
-stmt.params.minX = XCoord{5};   // XCoord directly
+stmt.parameters.minX = XCoord{5};   // XCoord directly
 
 for (const auto& row : db(stmt)) {
   XCoord x = row.x;             // XCoord on the read side too
@@ -290,8 +290,8 @@ auto stmt = db.prepare(
     )
 );
 
-stmt.params.px = XCoord{10};
-stmt.params.py = YCoord{20};
+stmt.parameters.px = XCoord{10};
+stmt.parameters.py = YCoord{20};
 db(stmt);
 ```
 
@@ -307,8 +307,8 @@ auto stmt = db.prepare(
     .where(t.id == sqlpp::parameter(t.id, rowId))
 );
 
-stmt.params.newX  = XCoord{99};
-stmt.params.rowId = 1;
+stmt.parameters.newX  = XCoord{99};
+stmt.parameters.rowId = 1;
 db(stmt);
 ```
 
@@ -322,7 +322,7 @@ auto stmt = db.prepare(
     .where(t.x == sqlpp::parameter(t.x, delX))
 );
 
-stmt.params.delX = XCoord{0};
+stmt.parameters.delX = XCoord{0};
 db(stmt);
 ```
 
