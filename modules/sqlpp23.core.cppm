@@ -75,6 +75,14 @@ using ::sqlpp::timestamp;
 using ::sqlpp::time;
 
 // operators:arithmetic
+using ::sqlpp::plus;
+using ::sqlpp::minus;
+using ::sqlpp::multiplies;
+using ::sqlpp::divides;
+using ::sqlpp::negate;
+using ::sqlpp::modulus;
+using ::sqlpp::arithmetic_data_type;
+using ::sqlpp::arithmetic_expression;
 using ::sqlpp::operator+;
 using ::sqlpp::operator-;
 using ::sqlpp::operator*;
@@ -211,6 +219,7 @@ using ::sqlpp::over;
 
 // functions
 using ::sqlpp::coalesce;
+using ::sqlpp::tuple_operand;
 using ::sqlpp::concat;
 using ::sqlpp::current_date;
 using ::sqlpp::current_time;
@@ -291,10 +300,12 @@ using ::sqlpp::is_aggregate_expression;
 using ::sqlpp::is_non_aggregate_expression;
 using ::sqlpp::assert_no_parameters_t; // TODO: constraint test?
 using ::sqlpp::is_time;
+using ::sqlpp::values_are_assignable;
 using ::sqlpp::values_are_comparable;
 using ::sqlpp::nodes_of;
 using ::sqlpp::wrong;
 using ::sqlpp::compatibility_check;
+using ::sqlpp::result_data_type_of;
 using ::sqlpp::data_type_of;
 using ::sqlpp::is_timestamp;
 using ::sqlpp::is_blob;

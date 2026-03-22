@@ -60,7 +60,7 @@ class text_result_t {
 
     if constexpr (debug_enabled) {
       _config->debug.log(log_category::result,
-                           "Constructing result, using mysql result at {}",
+                           "Constructing result, using mock result at {}",
                            std::hash<void*>{}(_mock_res));
     }
   }
