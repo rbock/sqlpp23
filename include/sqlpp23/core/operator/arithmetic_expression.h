@@ -84,203 +84,318 @@ template <typename Operator, typename L, typename R>
 using arithmetic_data_type_t =
     typename arithmetic_data_type<Operator, L, R>::type;
 
-#define SQLPP_ARITHMETIC_DATA_TYPE(Op, Left, Right, DataType) \
-  template <>                                                   \
-  struct arithmetic_data_type<Op, Left, Right> {               \
-    using type = DataType;                                     \
-  };
-
 // Operator plus
-SQLPP_ARITHMETIC_DATA_TYPE(plus,
-                            floating_point,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, floating_point, integral, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(plus,
-                            floating_point,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, floating_point, boolean, floating_point);
+template <>
+struct arithmetic_data_type<plus, floating_point, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<plus, floating_point, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<plus, floating_point, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<plus, floating_point, boolean> {
+  using type = floating_point;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(plus, integral, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, integral, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, integral, unsigned_integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, integral, boolean, integral);
+template <>
+struct arithmetic_data_type<plus, integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<plus, integral, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<plus, integral, unsigned_integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<plus, integral, boolean> {
+  using type = integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(plus,
-                            unsigned_integral,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, unsigned_integral, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(plus,
-                            unsigned_integral,
-                            unsigned_integral,
-                            unsigned_integral);
-SQLPP_ARITHMETIC_DATA_TYPE(plus,
-                            unsigned_integral,
-                            boolean,
-                            unsigned_integral);
+template <>
+struct arithmetic_data_type<plus, unsigned_integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<plus, unsigned_integral, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<plus, unsigned_integral, unsigned_integral> {
+  using type = unsigned_integral;
+};
+template <>
+struct arithmetic_data_type<plus, unsigned_integral, boolean> {
+  using type = unsigned_integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(plus, boolean, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, boolean, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(plus,
-                            boolean,
-                            unsigned_integral,
-                            unsigned_integral);
-SQLPP_ARITHMETIC_DATA_TYPE(plus, boolean, boolean, unsigned_integral);
+template <>
+struct arithmetic_data_type<plus, boolean, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<plus, boolean, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<plus, boolean, unsigned_integral> {
+  using type = unsigned_integral;
+};
+template <>
+struct arithmetic_data_type<plus, boolean, boolean> {
+  using type = unsigned_integral;
+};
 
 // Operator minus
-SQLPP_ARITHMETIC_DATA_TYPE(minus,
-                            floating_point,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, floating_point, integral, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(minus,
-                            floating_point,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, floating_point, boolean, floating_point);
+template <>
+struct arithmetic_data_type<minus, floating_point, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<minus, floating_point, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<minus, floating_point, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<minus, floating_point, boolean> {
+  using type = floating_point;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(minus, integral, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, integral, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, integral, unsigned_integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, integral, boolean, integral);
+template <>
+struct arithmetic_data_type<minus, integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<minus, integral, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<minus, integral, unsigned_integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<minus, integral, boolean> {
+  using type = integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(minus,
-                            unsigned_integral,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, unsigned_integral, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(minus,
-                            unsigned_integral,
-                            unsigned_integral,
-                            integral);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, unsigned_integral, boolean, integral);
+template <>
+struct arithmetic_data_type<minus, unsigned_integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<minus, unsigned_integral, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<minus, unsigned_integral, unsigned_integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<minus, unsigned_integral, boolean> {
+  using type = integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(minus, boolean, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, boolean, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, boolean, unsigned_integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(minus, boolean, boolean, integral);
+template <>
+struct arithmetic_data_type<minus, boolean, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<minus, boolean, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<minus, boolean, unsigned_integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<minus, boolean, boolean> {
+  using type = integral;
+};
 
 // Operator multiplies
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            floating_point,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            floating_point,
-                            integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            floating_point,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            floating_point,
-                            boolean,
-                            floating_point);
+template <>
+struct arithmetic_data_type<multiplies, floating_point, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<multiplies, floating_point, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<multiplies, floating_point, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<multiplies, floating_point, boolean> {
+  using type = floating_point;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            integral,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies, integral, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies, integral, unsigned_integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies, integral, boolean, integral);
+template <>
+struct arithmetic_data_type<multiplies, integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<multiplies, integral, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<multiplies, integral, unsigned_integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<multiplies, integral, boolean> {
+  using type = integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            unsigned_integral,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies, unsigned_integral, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            unsigned_integral,
-                            unsigned_integral,
-                            unsigned_integral);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            unsigned_integral,
-                            boolean,
-                            unsigned_integral);
+template <>
+struct arithmetic_data_type<multiplies, unsigned_integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<multiplies, unsigned_integral, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<multiplies, unsigned_integral, unsigned_integral> {
+  using type = unsigned_integral;
+};
+template <>
+struct arithmetic_data_type<multiplies, unsigned_integral, boolean> {
+  using type = unsigned_integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            boolean,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies, boolean, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies,
-                            boolean,
-                            unsigned_integral,
-                            unsigned_integral);
-SQLPP_ARITHMETIC_DATA_TYPE(multiplies, boolean, boolean, boolean);
+template <>
+struct arithmetic_data_type<multiplies, boolean, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<multiplies, boolean, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<multiplies, boolean, unsigned_integral> {
+  using type = unsigned_integral;
+};
+template <>
+struct arithmetic_data_type<multiplies, boolean, boolean> {
+  using type = boolean;
+};
 
 // Operator divides
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            floating_point,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides, floating_point, integral, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            floating_point,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides, floating_point, boolean, floating_point);
+template <>
+struct arithmetic_data_type<divides, floating_point, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, floating_point, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, floating_point, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, floating_point, boolean> {
+  using type = floating_point;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(divides, integral, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides, integral, integral, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            integral,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides, integral, boolean, floating_point);
+template <>
+struct arithmetic_data_type<divides, integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, integral, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, integral, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, integral, boolean> {
+  using type = floating_point;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            unsigned_integral,
-                            floating_point,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            unsigned_integral,
-                            integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            unsigned_integral,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            unsigned_integral,
-                            boolean,
-                            floating_point);
+template <>
+struct arithmetic_data_type<divides, unsigned_integral, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, unsigned_integral, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, unsigned_integral, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, unsigned_integral, boolean> {
+  using type = floating_point;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(divides, boolean, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides, boolean, integral, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides,
-                            boolean,
-                            unsigned_integral,
-                            floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(divides, boolean, boolean, floating_point);
+template <>
+struct arithmetic_data_type<divides, boolean, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, boolean, integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, boolean, unsigned_integral> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<divides, boolean, boolean> {
+  using type = floating_point;
+};
 
 // Operator negate
-SQLPP_ARITHMETIC_DATA_TYPE(negate, no_value_t, floating_point, floating_point);
-SQLPP_ARITHMETIC_DATA_TYPE(negate, no_value_t, integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(negate, no_value_t, unsigned_integral, integral);
-SQLPP_ARITHMETIC_DATA_TYPE(negate, no_value_t, boolean, integral);
+template <>
+struct arithmetic_data_type<negate, no_value_t, floating_point> {
+  using type = floating_point;
+};
+template <>
+struct arithmetic_data_type<negate, no_value_t, integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<negate, no_value_t, unsigned_integral> {
+  using type = integral;
+};
+template <>
+struct arithmetic_data_type<negate, no_value_t, boolean> {
+  using type = integral;
+};
 
 // Operator modulus
-SQLPP_ARITHMETIC_DATA_TYPE(modulus, integral, integral, unsigned_integral);
-SQLPP_ARITHMETIC_DATA_TYPE(modulus,
-                            integral,
-                            unsigned_integral,
-                            unsigned_integral);
+template <>
+struct arithmetic_data_type<modulus, integral, integral> {
+  using type = unsigned_integral;
+};
+template <>
+struct arithmetic_data_type<modulus, integral, unsigned_integral> {
+  using type = unsigned_integral;
+};
 
-SQLPP_ARITHMETIC_DATA_TYPE(modulus,
-                            unsigned_integral,
-                            integral,
-                            unsigned_integral);
-SQLPP_ARITHMETIC_DATA_TYPE(modulus,
-                            unsigned_integral,
-                            unsigned_integral,
-                            unsigned_integral);
-
-#undef SQLPP_ARITHMETIC_DATA_TYPE
+template <>
+struct arithmetic_data_type<modulus, unsigned_integral, integral> {
+  using type = unsigned_integral;
+};
+template <>
+struct arithmetic_data_type<modulus, unsigned_integral, unsigned_integral> {
+  using type = unsigned_integral;
+};
 
 // Handle optional types
 template <typename Operator, typename L, typename R>

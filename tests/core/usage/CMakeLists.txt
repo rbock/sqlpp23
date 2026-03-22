@@ -24,6 +24,7 @@
 
 set(test_files
     CustomQuery.cpp
+    CustomType.cpp
     DateTime.cpp
     DateTimeParser.cpp
     Insert.cpp
