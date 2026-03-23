@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2026, Roland Bock
+ * Copyright (c) 2026, Matthijs Möhlmann
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,18 +27,18 @@
 
 #include <sqlpp23/tests/core/all.h>
 
-// This test introduces two data types that represent X/Y coordinates, e.g. of a
-// point.
-// By telling the library which fields represent XCoord and which represent
-// YCoord, we can ensure that these values are not accidentally mixed. In order
-// to do so, we also need to introduce a few helpers to make sqlpp23 understand
-// how to handle these custom types.
+// This test introduces two data types that represent X/Y coordinates, e.g. of
+// a point. By telling the library which fields represent XCoord and which
+// represent YCoord, we can ensure that these values are not accidentally mixed.
+// In order to do so, we also need to introduce a few helpers to make sqlpp23
+// understand how to handle these custom types.
 namespace {
+
 // This represents an X-coordinate.
-struct XCoord
-{
-   int64_t value;
+struct XCoord {
+  int64_t value;
 };
+
 // Syntactic sugar for testing whether a type is XCoord.
 template <typename T>
 struct is_xcoord : public std::is_same<sqlpp::data_type_of_t<T>, XCoord> {};
@@ -56,19 +57,34 @@ template <typename Result>
 void read_field(const Result& result, size_t field_index, XCoord& xcoord) {
   read_field(result, field_index, xcoord.value);
 }
+
+// Helper to bind an XCoord as a prepared statement parameter.
+template <typename Statement>
+void bind_parameter(Statement& stmt, size_t index, const XCoord& xcoord) {
+  bind_parameter(stmt, index, xcoord.value);
+}
+
 }  // namespace
 
 namespace sqlpp {
+
 // Specialize data_type_of to make is_xcoord work.
 template <>
 struct data_type_of<XCoord> {
   using type = XCoord;
 };
 
-// Specializing record_data_type_of is required for sqlpp23 to know the field
+// Specializing result_data_type_of is required for sqlpp23 to know the field
 // type in the result row.
 template <>
 struct result_data_type_of<XCoord> {
+  using type = XCoord;
+};
+
+// Specializing parameter_value is required for sqlpp23 to know the type held
+// in a prepared statement parameter struct.
+template <>
+struct parameter_value<XCoord> {
   using type = XCoord;
 };
 
@@ -109,14 +125,17 @@ constexpr auto operator*(L l, R r) -> arithmetic_expression<L, multiplies, R> {
 }  // namespace sqlpp
 
 namespace {
-struct YCoord
-{
-   int64_t value;
+
+struct YCoord {
+  int64_t value;
 };
+
+// Syntactic sugar for testing whether a type is YCoord.
 template <typename T>
 struct is_ycoord : public std::is_same<sqlpp::data_type_of_t<T>, YCoord> {};
 template <typename T>
 static constexpr bool is_ycoord_v = is_ycoord<T>::value;
+
 template <typename Context>
 auto to_sql_string(Context& context, const YCoord& ycoord) {
   using sqlpp::to_sql_string;
@@ -128,9 +147,15 @@ void read_field(const Result& result, size_t field_index, YCoord& ycoord) {
   read_field(result, field_index, ycoord.value);
 }
 
+template <typename Statement>
+void bind_parameter(Statement& stmt, size_t index, const YCoord& ycoord) {
+  bind_parameter(stmt, index, ycoord.value);
+}
+
 }  // namespace
 
 namespace sqlpp {
+
 template <>
 struct data_type_of<YCoord> {
   using type = YCoord;
@@ -141,12 +166,17 @@ struct result_data_type_of<YCoord> {
   using type = YCoord;
 };
 
+template <>
+struct parameter_value<YCoord> {
+  using type = YCoord;
+};
+
 template <typename L, typename R>
-  requires(is_ycoord<L>::value and is_ycoord<R>::value)
+  requires(is_ycoord_v<L> and is_ycoord_v<R>)
 struct values_are_assignable<L, R> : public std::true_type {};
 
 template <typename L, typename R>
-  requires(is_ycoord<L>::value and is_ycoord<R>::value)
+  requires(is_ycoord_v<L> and is_ycoord_v<R>)
 struct values_are_comparable<L, R> : public std::true_type {};
 
 template <>
@@ -172,33 +202,34 @@ constexpr auto operator*(L l, R r) -> arithmetic_expression<L, multiplies, R> {
 }  // namespace sqlpp
 
 namespace test {
-  struct TabPoint_ {
-    struct Id {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-      using data_type = ::sqlpp::integral;
-      using has_default = std::true_type;
-    };
-    struct X {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(x, x);
-      using data_type = XCoord;
-      using has_default = std::true_type;
-    };
-    struct Y {
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(y, y);
-      using data_type = YCoord;
-      using has_default = std::true_type;
-    };
-    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_point, tabPoint);
-    template<typename T>
-    using _table_columns = sqlpp::table_columns<T,
-               Id,
-               X,
-               Y>;
-    using _required_insert_columns = sqlpp::detail::type_set<>;
-  };
-  using TabPoint = ::sqlpp::table_t<TabPoint_>;
 
-}  // namespace
+struct TabPoint_ {
+  struct Id {
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
+    using data_type = ::sqlpp::integral;
+    using has_default = std::true_type;  // SERIAL / auto-increment
+  };
+  struct X {
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(x, x);
+    using data_type = XCoord;
+    using has_default = std::false_type;  // required on INSERT
+  };
+  struct Y {
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(y, y);
+    using data_type = YCoord;
+    using has_default = std::false_type;  // required on INSERT
+  };
+  SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_point, tabPoint);
+  template <typename T>
+  using _table_columns = sqlpp::table_columns<T, Id, X, Y>;
+  using _required_insert_columns =
+      sqlpp::detail::type_set<sqlpp::column_t<sqlpp::table_t<TabPoint_>, X>,
+                              sqlpp::column_t<sqlpp::table_t<TabPoint_>, Y>>;
+};
+using TabPoint = ::sqlpp::table_t<TabPoint_>;
+
+}  // namespace test
+
 int CustomType(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
@@ -218,5 +249,46 @@ int CustomType(int, char*[]) {
     static_assert(std::is_same_v<decltype(row.x), XCoord>);
     static_assert(std::is_same_v<decltype(row.y), YCoord>);
   }
+
+  // Delete (requires values_are_comparable)
+  db(delete_from(t).where(t.x == XCoord{0} and t.y == YCoord{0}));
+
+  // Prepared select (requires parameter_value and bind_parameter)
+  {
+    auto stmt = db.prepare(
+        select(all_of(t)).from(t).where(t.x > sqlpp::parameter(t.x)));
+    stmt.parameters.x = XCoord{5};
+    for (const auto& row : db(stmt)) {
+      static_assert(std::is_same_v<decltype(row.x), XCoord>);
+      static_assert(std::is_same_v<decltype(row.y), YCoord>);
+    }
+  }
+
+  // Prepared insert (requires parameter_value and bind_parameter)
+  {
+    auto stmt = db.prepare(insert_into(t).set(t.x = sqlpp::parameter(t.x),
+                                              t.y = sqlpp::parameter(t.y)));
+    stmt.parameters.x = XCoord{10};
+    stmt.parameters.y = YCoord{20};
+    db(stmt);
+  }
+
+  // Prepared update (requires parameter_value and bind_parameter)
+  {
+    auto stmt = db.prepare(update(t)
+                               .set(t.x = sqlpp::parameter(t.x))
+                               .where(t.id == sqlpp::parameter(t.id)));
+    stmt.parameters.x = XCoord{99};
+    stmt.parameters.id = 1;
+    db(stmt);
+  }
+
+  // Prepared delete (requires parameter_value and bind_parameter)
+  {
+    auto stmt = db.prepare(delete_from(t).where(t.x == sqlpp::parameter(t.x)));
+    stmt.parameters.x = XCoord{0};
+    db(stmt);
+  }
+
   return 0;
 }
