@@ -321,7 +321,7 @@ db(stmt);
 > from the column itself, so `stmt.parameters.x` matches the column name `x`
 > directly. The two-argument form `sqlpp::parameter(col, name_tag)` is only
 > needed when the same column appears as a parameter more than once in a single
-> statement and the two occurrences must be distinguishable.
+> statement.
 
 ---
 
