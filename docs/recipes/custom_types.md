@@ -29,9 +29,82 @@ types.
 
 ## 1. Custom type implementation
 
-Every custom type needs six things. The first three are free functions placed
-near the type definition; the remaining four are template specialisations in
-`namespace sqlpp`.
+Integrating a custom type requires three free functions and five template
+specialisations. The free functions are placed near the type definition and are
+found by ADL; the specialisations go in `namespace sqlpp`.
+
+### The `is_xcoord` predicate
+
+Before writing any of the specialisations, define a predicate that recognises
+all expressions whose data type is `XCoord` — both a bare `XCoord` value and a
+column whose `data_type` is `XCoord`. It mirrors sqlpp23's own `is_integral`,
+`is_text`, etc., and is used in the `requires` clauses that follow:
+
+```cpp
+template <typename T>
+struct is_xcoord : public std::is_same<sqlpp::data_type_of_t<T>, XCoord> {};
+
+template <typename T>
+inline constexpr bool is_xcoord_v = is_xcoord<T>::value;
+```
+
+### Template specialisations in `namespace sqlpp`
+
+**`data_type_of<T>`** — declares the type's data type tag. Using the type
+itself as its own tag (rather than mapping to `sqlpp::integral`) gives each
+custom type its own identity, so `XCoord` and `YCoord` columns cannot be
+accidentally mixed:
+
+```cpp
+namespace sqlpp {
+
+template <>
+struct data_type_of<XCoord> {
+  using type = XCoord;   // XCoord is its own tag
+};
+```
+
+**`result_data_type_of<Tag>`** — declares what type a result row field holds
+for this tag. With the self-tagging pattern this is always the type itself:
+
+```cpp
+template <>
+struct result_data_type_of<XCoord> {
+  using type = XCoord;
+};
+```
+
+**`parameter_value<Tag>`** — declares the type held in a prepared statement
+parameter struct:
+
+```cpp
+template <>
+struct parameter_value<XCoord> {
+  using type = XCoord;
+};
+```
+
+**`values_are_assignable<L, R>`** — controls whether `R` can be assigned to an
+`L` column (i.e. used in `SET` and `INSERT`). Without this, `.set(t.x = ...)`
+will not compile:
+
+```cpp
+template <typename L, typename R>
+  requires(is_xcoord_v<L> and is_xcoord_v<R>)
+struct values_are_assignable<L, R> : public std::true_type {};
+```
+
+**`values_are_comparable<L, R>`** — controls whether `L` and `R` can be
+compared (i.e. used in `WHERE` with `==`, `<`, `>`, etc.) and sorted (i.e.
+used in `ORDER BY` via `.asc()` / `.desc()`):
+
+```cpp
+template <typename L, typename R>
+  requires(is_xcoord_v<L> and is_xcoord_v<R>)
+struct values_are_comparable<L, R> : public std::true_type {};
+
+} // namespace sqlpp
+```
 
 ### Free functions (ADL-discovered, live near the type)
 
@@ -65,78 +138,6 @@ template <typename Statement>
 void bind_parameter(Statement& stmt, size_t index, const XCoord& v) {
   bind_parameter(stmt, index, v.value);
 }
-```
-
-### Template specialisations in `namespace sqlpp`
-
-**`data_type_of<T>`** — declares the type's data type tag. Using the type
-itself as its own tag (rather than mapping to `sqlpp::integral`) gives each
-custom type its own identity, so `XCoord` and `YCoord` columns cannot be mixed:
-
-```cpp
-namespace sqlpp {
-
-template <>
-struct data_type_of<XCoord> {
-  using type = XCoord;   // XCoord is its own tag
-};
-```
-
-**`result_data_type_of<Tag>`** — declares what type a result row field holds
-for this tag. With the self-tagging pattern this is always the type itself:
-
-```cpp
-template <>
-struct result_data_type_of<XCoord> {
-  using type = XCoord;
-};
-```
-
-**`parameter_value<Tag>`** — declares the type held in a prepared statement
-parameter struct. Again, the type itself:
-
-```cpp
-template <>
-struct parameter_value<XCoord> {
-  using type = XCoord;
-};
-```
-
-**`values_are_assignable<L, R>`** — controls whether `R` can be assigned to an
-`L` column (i.e. used in `SET` and `INSERT`). Without this, `.set(t.x = ...)`
-will not compile:
-
-```cpp
-template <typename L, typename R>
-  requires(is_xcoord_v<L> and is_xcoord_v<R>)
-struct values_are_assignable<L, R> : public std::true_type {};
-```
-
-**`values_are_comparable<L, R>`** — controls whether `L` and `R` can be
-compared (i.e. used in `WHERE` with `==`, `<`, `>`, etc.) and sorted (i.e.
-used in `ORDER BY` via `.asc()` / `.desc()`):
-
-```cpp
-template <typename L, typename R>
-  requires(is_xcoord_v<L> and is_xcoord_v<R>)
-struct values_are_comparable<L, R> : public std::true_type {};
-
-} // namespace sqlpp
-```
-
-### The `is_xcoord` helper
-
-The `requires` clauses above need a predicate that recognises all types whose
-data type is `XCoord` — both a bare `XCoord` value and a column whose
-`data_type` is `XCoord`. The pattern mirrors sqlpp23's own `is_integral`,
-`is_text`, etc.:
-
-```cpp
-template <typename T>
-struct is_xcoord : public std::is_same<sqlpp::data_type_of_t<T>, XCoord> {};
-
-template <typename T>
-inline constexpr bool is_xcoord_v = is_xcoord<T>::value;
 ```
 
 ---
@@ -390,7 +391,7 @@ compile error unless you explicitly specialise it.
 | `sqlpp::parameter_value<T>` with `type = T` | `namespace sqlpp` | Prepared statements |
 | `sqlpp::values_are_assignable<L, R>` | `namespace sqlpp` | SET / INSERT |
 | `sqlpp::values_are_comparable<L, R>` | `namespace sqlpp` | WHERE, ORDER BY |
-| `is_T` / `is_T_v` helper | near `T` | Constraint expressions |
+| `is_T` / `is_T_v` predicate | near `T` | Constraint expressions |
 | `sqlpp::arithmetic_data_type<Op, L, R>` + `operator` | `namespace sqlpp` | Arithmetic in queries *(optional)* |
 
 The complete working example can be found in
