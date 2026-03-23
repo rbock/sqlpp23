@@ -30,12 +30,12 @@ types.
 ## 1. Custom type implementation
 
 Integrating a custom type requires three free functions and five template
-specialisations. The free functions are placed near the type definition and are
-found by ADL; the specialisations go in `namespace sqlpp`.
+specializations. The free functions are placed near the type definition and are
+found by ADL; the specializations go in `namespace sqlpp`.
 
 ### The `is_xcoord` predicate
 
-Before writing any of the specialisations, define a predicate that recognises
+Before writing any of the specializations, define a predicate that recognizes
 all expressions whose data type is `XCoord` — both a bare `XCoord` value and a
 column whose `data_type` is `XCoord`. It mirrors sqlpp23's own `is_integral`,
 `is_text`, etc., and is used in the `requires` clauses that follow:
@@ -48,7 +48,7 @@ template <typename T>
 inline constexpr bool is_xcoord_v = is_xcoord<T>::value;
 ```
 
-### Template specialisations in `namespace sqlpp`
+### Template specializations in `namespace sqlpp`
 
 **`data_type_of<T>`** — declares the type's data type tag. Using the type
 itself as its own tag (rather than mapping to `sqlpp::integral`) gives each
@@ -108,7 +108,7 @@ struct values_are_comparable<L, R> : public std::true_type {};
 
 ### Free functions (ADL-discovered, live near the type)
 
-**`to_sql_string`** — serialises the value to SQL text. Delegate to the
+**`to_sql_string`** — serializes the value to SQL text. Delegate to the
 underlying primitive:
 
 ```cpp
@@ -328,7 +328,7 @@ db(stmt);
 ## 5. Optional: arithmetic operators
 
 If you want to use arithmetic on custom type columns — in `SET` expressions or
-computed `WHERE` clauses — specialise `arithmetic_data_type` and provide the
+computed `WHERE` clauses — specialize `arithmetic_data_type` and provide the
 corresponding `operator` overloads in `namespace sqlpp`.
 
 The example below allows `XCoord + XCoord → XCoord` and
@@ -375,7 +375,7 @@ db(update(t).set(
 
 Each operator overload is independent — add only the combinations that make
 sense for your domain. Mixed-type arithmetic (e.g. `XCoord + YCoord`) is a
-compile error unless you explicitly specialise it.
+compile error unless you explicitly specialize it.
 
 ---
 
