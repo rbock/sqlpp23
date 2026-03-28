@@ -39,6 +39,7 @@ class ExitCode(IntEnum):
     SUCCESS = 0
     BAD_ARGS = 1
     BAD_CUSTOM_TYPES = 30
+    BAD_CPP_TYPES = 31
     BAD_DDL_COMMAND = 10
     BAD_DDL_PARSING = 20
 
@@ -326,6 +327,7 @@ class DdlExecutor:
         is_const: bool
         is_nullable: bool
         has_default: bool
+        cpp_type: str = None
 
     @dataclass
     class _TableDef:
@@ -340,7 +342,7 @@ class DdlExecutor:
     _tables = None
 
     @classmethod
-    def execute(cls, parsed_ddls, args):
+    def execute(cls, parsed_ddls, args, cpp_type_overrides):
         cls._assume_auto_id = args.assume_auto_id
         cls._warn_on_timestamp = not args.suppress_timestamp_warning
         cls._has_error = False
@@ -357,6 +359,9 @@ class DdlExecutor:
                 print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
                 print("C) Raise an issue on github")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
+        validate_cpp_types(cpp_type_overrides, cls._tables)
+        for (table_name, col_name), cpp_type in cpp_type_overrides.items():
+            cls._tables[table_name].columns[col_name].cpp_type = cpp_type
         return cls._tables
 
     @classmethod
@@ -569,10 +574,11 @@ class ModelWriter:
                 + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
             const_prefix = "const " if column.is_const else ""
+            type_str = column.cpp_type if column.cpp_type else "::sqlpp::" + column.data_type
             if column.is_nullable:
-                print("      using data_type = " + const_prefix + "std::optional<::sqlpp::" + column.data_type + ">;", file=header)
+                print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
             else:
-                print("      using data_type = " + const_prefix + "::sqlpp::" + column.data_type + ";", file=header)
+                print("      using data_type = " + const_prefix + type_str + ";", file=header)
             if column.has_default:
                 print("      using has_default = std::true_type;", file=header)
             else:
@@ -918,6 +924,7 @@ def parse_commandline_args():
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
     paths.add_argument("--path-to-custom-types", help="path to csv file defining aliases of existing SQL data types")
+    paths.add_argument("--path-to-cpp-types", help="path to csv file mapping table:column pairs to C++ types (format: 'table_name:column_name,FullyQualifiedCppType')")
 
     options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
@@ -985,6 +992,38 @@ def get_custom_types(filename):
         return types
 
 
+def get_cpp_types(filename):
+    if not filename:
+        return {}
+    import csv
+    overrides = {}
+    with open(filename, newline="") as csv_file:
+        for row in csv.reader(csv_file):
+            if not row or row[0].strip().startswith("#"):
+                continue
+            if len(row) != 2:
+                print(f"ERROR: --path-to-cpp-types file has invalid row: {row}")
+                sys.exit(ExitCode.BAD_CPP_TYPES)
+            key = row[0].strip()
+            cpp_type = row[1].strip()
+            if ":" not in key:
+                print(f"ERROR: --path-to-cpp-types file has invalid key '{key}' (expected 'table_name:column_name')")
+                sys.exit(ExitCode.BAD_CPP_TYPES)
+            table_name, _, col_name = key.partition(":")
+            overrides[(table_name.strip(), col_name.strip())] = cpp_type
+    return overrides
+
+
+def validate_cpp_types(cpp_type_overrides, tables):
+    for (table_name, col_name) in cpp_type_overrides:
+        if table_name not in tables:
+            print(f"ERROR: --path-to-cpp-types references unknown table '{table_name}'")
+            sys.exit(ExitCode.BAD_CPP_TYPES)
+        if col_name not in tables[table_name].columns:
+            print(f"ERROR: --path-to-cpp-types references unknown column '{col_name}' in table '{table_name}'")
+            sys.exit(ExitCode.BAD_CPP_TYPES)
+
+
 if __name__ == "__main__":
     args = parse_commandline_args()
 
@@ -992,8 +1031,9 @@ if __name__ == "__main__":
         SelfTest.run()
     else:
         custom_types = get_custom_types(args.path_to_custom_types)
+        cpp_type_overrides = get_cpp_types(args.path_to_cpp_types)
         DdlParser.initialize(custom_types)
         parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
-        tables = DdlExecutor.execute(parsed_ddls, args)
+        tables = DdlExecutor.execute(parsed_ddls, args, cpp_type_overrides)
         ModelWriter.write(tables, args)
     sys.exit(ExitCode.SUCCESS)
