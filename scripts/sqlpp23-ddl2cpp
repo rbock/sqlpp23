@@ -240,9 +240,17 @@ class DdlParser:
             + cls.ddl_expression
         ).set_results_name("is_constraint")
 
+        # cpp_type annotation parser: captures type from '-- ... cpp_type:SomeType ...'
+        # The trailing .* is required to consume the full comment line, including any
+        # text that follows the type (e.g. '-- note cpp_type:XCoord (extra text)').
+        ddl_cpp_type_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*').set_parse_action(
+            lambda t: re.search(r'cpp_type:\s*(\S+)', t[0]).group(1)
+        )
+
         # Column parser
         cls.ddl_column = pp.Group(
-            ddl_name.set_results_name("name")
+            pp.Optional(ddl_cpp_type_annotation).set_results_name("cpp_type")
+            + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
             + pp.Suppress(pp.Optional(ddl_width))
             + pp.Suppress(pp.Optional(ddl_timezone))
@@ -296,10 +304,11 @@ class DdlParser:
         ddl_command_with_loc = pp.Located(ddl_command_basic).set_parse_action(rewrap_command_token)
 
         # Main DDL parser
-        ddl_comment = pp.one_of(["--", "#"]) + pp.rest_of_line
+        # Suppress regular comments but not cpp_type annotations (those are captured in ddl_column)
+        ddl_regular_comment = pp.Regex(r'--(?!.*cpp_type:).*') | pp.Regex(r'#.*')
         cls.ddl = (
             pp.OneOrMore(pp.Suppress(pp.SkipTo(ddl_command_basic, False)) + ddl_command_with_loc)
-            .ignore(ddl_comment)
+            .ignore(ddl_regular_comment)
             .parse_with_tabs()
         )
 
@@ -438,7 +447,8 @@ class DdlExecutor:
                 (cls._assume_auto_id and col_name == "id") or
                 col_expr.has_generated_value or
                 is_nullable
-            )
+            ),
+            cpp_type = col_expr.cpp_type or None,
         )
 
     @classmethod
