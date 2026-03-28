@@ -154,7 +154,6 @@ struct on_conflict_do_update_t {
 
  private:
   friend ::sqlpp::reader_t;
-  friend ::sqlpp::reader_t;
   OnConflict _on_conflict;
   std::tuple<Assignments...> _assignments;
 };
