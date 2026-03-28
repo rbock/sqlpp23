@@ -293,8 +293,23 @@ class DdlParser:
             + cls.ddl_expression
         )
 
+        # COMMENT ON COLUMN parser (PostgreSQL)
+        # Captures: schema.table.column or table.column, and the quoted comment string
+        ddl_comment_on_column = (
+            pp.CaselessKeyword("COMMENT")
+            + pp.CaselessKeyword("ON")
+            + pp.CaselessKeyword("COLUMN")
+            + ddl_name.set_results_name("qualified_column")
+            + pp.CaselessKeyword("IS")
+            + ddl_string.set_results_name("comment_text")
+        )
+
         # DDL command parser
-        ddl_command_basic = ddl_create_table.set_results_name("create_table") | ddl_set_default.set_results_name("set_default")
+        ddl_command_basic = (
+            ddl_create_table.set_results_name("create_table")
+            | ddl_set_default.set_results_name("set_default")
+            | ddl_comment_on_column.set_results_name("comment_on_column")
+        )
         def rewrap_command_token(text, loc, tokens):
             command = tokens.value
             # FIXME: Remove the call to strip() once the following pyparsing bug is fixed
@@ -349,11 +364,20 @@ class DdlExecutor:
     _has_error = None
     _has_unknown_type = None
     _tables = None
+    _postgresql_schema = None
+
+    @classmethod
+    def _strip_schema(cls, name):
+        """Strip the --postgresql-schema prefix from a table name if present."""
+        if cls._postgresql_schema and name.startswith(cls._postgresql_schema + "."):
+            return name[len(cls._postgresql_schema) + 1:]
+        return name
 
     @classmethod
     def execute(cls, parsed_ddls, args, cpp_type_overrides):
         cls._assume_auto_id = args.assume_auto_id
         cls._warn_on_timestamp = not args.suppress_timestamp_warning
+        cls._postgresql_schema = args.postgresql_schema
         cls._has_error = False
         cls._has_unknown_type = False
         cls._tables = {}
@@ -379,13 +403,15 @@ class DdlExecutor:
             cls._execute_create_table(command)
         elif command.set_default:
             cls._execute_set_default(command)
+        elif command.comment_on_column:
+            cls._execute_comment_on_column(command)
         else:
             print("Unknown DDL command:" + os.linesep + command.dump())
             raise RuntimeError()
 
     @classmethod
     def _execute_create_table(cls, command):
-        table_name = command.table_name
+        table_name = cls._strip_schema(command.table_name)
         if table_name in cls._tables:
             print(f"ERROR: Duplicate table name {table_name}")
             cls._has_error = True
@@ -465,6 +491,27 @@ class DdlExecutor:
         column_def = table_def.columns[command.column_name]
         column_def.has_default = True
         table_def.commands.append(command.command_text)
+
+    @classmethod
+    def _execute_comment_on_column(cls, command):
+        # qualified_column is schema.table.column or table.column; split off the last part
+        qualified = command.qualified_column
+        last_dot = qualified.rfind(".")
+        if last_dot == -1:
+            print(f"ERROR: COMMENT ON COLUMN target '{qualified}' is not in table.column format")
+            cls._has_error = True
+            return
+        table_name = cls._strip_schema(qualified[:last_dot])
+        col_name = qualified[last_dot + 1:]
+        if table_name not in cls._tables:
+            # Not every COMMENT ON COLUMN refers to a table we parsed; silently skip.
+            return
+        table_def = cls._tables[table_name]
+        if col_name not in table_def.columns:
+            return
+        cpp_type = re.search(r'cpp_type:\s*(\S+)', command.comment_text)
+        if cpp_type:
+            table_def.columns[col_name].cpp_type = cpp_type.group(1)
 
 
 class ModelWriter:
@@ -938,6 +985,7 @@ def parse_commandline_args():
 
     options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
+    options.add_argument("--postgresql-schema", metavar="SCHEMA", help="strip this schema prefix from PostgreSQL table names (e.g. 'public')")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
     options.add_argument("--assume-auto-id", action="store_true", help="assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)")
     options.add_argument("--naming-style", choices=["camel-case", "identity"], default="camel-case", help="naming style for generated tables and columns.\n\n\n\n 'camel-case' (default): interprets '_' as word separator and translates table names to UpperCamelCase and column names to lowerCamelCase, e.g. 'my_cool_table.important_column' will be represented as 'MyCoolTable{}.importantColumn' in generated code.\n 'identity' uses table and column names as is in generated code (default: 'camel-case')")
