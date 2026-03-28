@@ -47,6 +47,60 @@ The base type names follow closely the data types supported by sqlpp23:
 
 The custom type names are case-insensitive just like the native SQL types.
 
+## C++ type overrides
+
+sqlpp23 supports user-defined C++ types as column data types (see [Custom types](/docs/recipes/custom_types.md)).
+`sqlpp23-ddl2cpp` provides three ways to tell the generator which C++ type to use for a specific column.
+All three can be combined; when more than one applies to the same column, `--path-to-cpp-types` takes the
+highest precedence, followed by `COMMENT ON COLUMN`, and finally inline SQL comments.
+
+### Option 1 — CSV file (`--path-to-cpp-types`)
+
+Pass a CSV file where each line maps a `table_name:column_name` pair to a fully-qualified C++ type:
+
+```
+tab_point:x,::myapp::XCoord
+tab_point:y,::myapp::YCoord
+```
+
+Tell `sqlpp23-ddl2cpp` to use that file through the `--path-to-cpp-types` command-line option. It is an
+error if a line in the file refers to a table or column that does not exist in the DDL input.
+
+### Option 2 — Inline SQL comment
+
+Place a `-- ... cpp_type:<type> ...` comment on the line immediately before the column definition.
+The annotation can appear anywhere in the comment; surrounding text is ignored:
+
+```sql
+CREATE TABLE tab_point (
+    -- cpp_type:point_id
+    id bigint AUTO_INCREMENT PRIMARY KEY,
+    -- this column holds cpp_type:XCoord (horizontal axis)
+    x bigint NOT NULL,
+    -- cpp_type:YCoord
+    y bigint NOT NULL
+);
+```
+
+### Option 3 — PostgreSQL `COMMENT ON COLUMN`
+
+For PostgreSQL dumps, annotations can be embedded in `COMMENT ON COLUMN` statements.
+The `cpp_type:` keyword is extracted from the comment string wherever it appears:
+
+```sql
+COMMENT ON COLUMN public.tab_point.x IS 'x coordinate cpp_type:XCoord (horizontal axis)';
+COMMENT ON COLUMN public.tab_point.y IS 'cpp_type:YCoord';
+```
+
+Use `--postgresql-schema` together with this option so that schema-qualified table names
+(e.g. `public.tab_point`) are resolved correctly against the generated table definitions
+(see [Command-line options](#command-line-options)).
+
+### Include headers for custom C++ types
+
+`sqlpp23-ddl2cpp` does not emit `#include` directives for the headers that define custom C++ types.
+Add those includes manually to the generated file, or arrange for them to be included transitively.
+
 ## Command-line options
 
 **Help**
@@ -67,11 +121,13 @@ The custom type names are case-insensitive just like the native SQL types.
 | --path-to-header-directory PATH_TO_HEADER_DIRECTORY | No[^3] | | Output Directory for the generated C++ headers | Second command-line argument + -split-tables. |
 | --path-to-module PATH_TO_MODULE | No[^2][^3] | | Output pathname of the generated C++ module. | N/A |
 | --path-to-custom-types PATH_TO_CUSTOM_TYPES | No | | Input pathname of a CSV file defining aliases of existing data types. | Same |
+| --path-to-cpp-types PATH_TO_CPP_TYPES | No | | Input pathname of a CSV file mapping `table_name:column_name` pairs to fully-qualified C++ types (see [C++ type overrides](#c-type-overrides)). | N/A |
 
 **Additional options**
 | Option | Required | Default | Description | Before v0.67 |
 | ------ | -------- | ------- | ----------- | ------------ |
 | --module-name MODULE_NAME | No[^2] | | Name of the generated C++ module | N/A |
+| --postgresql-schema SCHEMA | No | | Strip this schema prefix from PostgreSQL table names (e.g. `public`). Required when using `COMMENT ON COLUMN` annotations from a PostgreSQL dump (see [C++ type overrides](#c-type-overrides)). | N/A |
 | --suppress-timestamp-warning | No | False | Don't display a warning when date/time data types are used. | -no-timestamp-warning |
 | --assume-auto-id | No | False | Treat columns called *id* as if they have a default auto-increment value. | -auto-id |
 | --naming-style {camel-case,identity} | No | camel-case | Naming style for generated tables and columns. *camel-case* interprets *_* as word separator and translates table names to *UpperCamelCase* and column names to *lowerCamelCase*. *identity* uses table and column names as-is in generated code. |  -identity-naming |
@@ -95,6 +151,7 @@ The program follows the POSIX standard and exits with a zero code on success and
 | 10 | DDL execution error. The input DDL file(s) were valid syntactically but had a semantic error, e.g. duplicate table name, duplicate column name, column using an unknown data type ([custom data types](#custom-data-types) might help you in this case), etc. |
 | 20 | DDL parse error. At least one of the specified DDL input file(s) has invalid syntax. |
 | 30 | Bad custom types. The specified [custom data types](#custom-data-types) file is not valid. |
+| 31 | Bad C++ types. The specified [C++ type overrides](#c-type-overrides) file is not valid, or references a table or column that does not exist in the DDL input. |
 | Other | OS-specific runtime error. While the program does not use these exit codes directly, some OSes may report other termination codes, that are not listed here, when the program fails to run or is terminated forcefully. |
 
 Please note that the error codes are not set in stone and may change in the future. The only thing the program guarantees, is that a zero exit code means success and a non-zero code means *some kind* of error.
