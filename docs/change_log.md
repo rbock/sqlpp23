@@ -11,6 +11,8 @@ Breaking changes:
 
 Other changes:
 
+- add support for custom types, see [docs](/docs/recipes/custom_types.md), #106
+- add user-defined literal to allow to create a nametag provider from a string literal, e.g. used like this `foo.as("left"_alias);`, #107
 - add .as<"my_name">() overload (requires C++26 with reflection), #99
 - deprecate result_row_t::as_tuple
 - new as_tuple(const result_row_t&)
