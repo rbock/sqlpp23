@@ -40,6 +40,7 @@
 #include <sqlpp23/core/name/char_sequence.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -83,9 +84,6 @@ using representative_expression_t =
 
 template <typename When, typename Then>
 struct when_then_pair_t {
-  When _when;
-  Then _then;
-
   using nodes = ::sqlpp::detail::type_vector<When, Then>;
 
   when_then_pair_t(When w, Then t) : _when(w), _then(t) {}
@@ -95,6 +93,11 @@ struct when_then_pair_t {
   when_then_pair_t& operator=(const when_then_pair_t&) = default;
   when_then_pair_t& operator=(when_then_pair_t&&) = default;
   ~when_then_pair_t() = default;
+
+ private:
+  friend reader_t;
+  When _when;
+  Then _then;
 };
 
 template <typename When, typename Then>
@@ -106,11 +109,11 @@ struct nodes_of<when_then_pair_t<When, Then>> {
 };
 
 template <typename Context, typename When, typename Then>
-auto to_sql_string(Context& context, const when_then_pair_t<When, Then>& pair)
+auto to_sql_string(Context& context, const when_then_pair_t<When, Then>& t)
     -> std::string {
   // Temporary result to enforce order of evaluation.
-  auto result = " WHEN " + operand_to_sql_string(context, pair._when);
-  return result + " THEN " + operand_to_sql_string(context, pair._then);
+  auto result = " WHEN " + operand_to_sql_string(context, read.when(t));
+  return result + " THEN " + operand_to_sql_string(context, read.then(t));
 }
 
 // RepresentativeExpression is an expression that has the same data type as the
@@ -128,6 +131,8 @@ struct case_t : public enable_as, public enable_comparison {
   case_t& operator=(case_t&&) = default;
   ~case_t() = default;
 
+ private:
+  friend reader_t;
   std::tuple<WhenThenPairs...> _when_then_list;
   Else _else;
 };
@@ -161,9 +166,9 @@ auto to_sql_string(
     const case_t<RepresentativeExpression, Else, WhenThenPairs...>& t)
     -> std::string {
   std::string ret_val = "CASE";
-  ret_val += ::sqlpp::tuple_to_sql_string(context, t._when_then_list,
+  ret_val += ::sqlpp::tuple_to_sql_string(context, read.when_then_list(t),
                                           ::sqlpp::tuple_clause{""});
-  ret_val += " ELSE " + operand_to_sql_string(context, t._else);
+  ret_val += " ELSE " + operand_to_sql_string(context, read.else_(t));
   ret_val += " END";
   return ret_val;
 }
@@ -177,9 +182,6 @@ class case_pending_then_t;
 
 template <typename RepresentativeExpression, typename... WhenThenPairs>
 class case_builder_t {
- private:
-  std::tuple<WhenThenPairs...> _current_pairs;
-
  public:
   case_builder_t(std::tuple<WhenThenPairs...> current_pairs)
       : _current_pairs(current_pairs) {}
@@ -219,6 +221,9 @@ class case_builder_t {
                 WhenThenPairs...> {
     return {_current_pairs, null_opt_value};
   }
+
+ private:
+  std::tuple<WhenThenPairs...> _current_pairs;
 };
 
 // RepresentativeExpression is an expression that has the same data type as the
@@ -227,10 +232,6 @@ template <typename RepresentativeExpression,
           typename When,
           typename... WhenThenPairs>
 class case_pending_then_t {
- private:
-  std::tuple<WhenThenPairs...> _previous_pairs;
-  When _condition;
-
  public:
   case_pending_then_t(std::tuple<WhenThenPairs...> previous_pairs,
                       When condition)
@@ -270,6 +271,10 @@ class case_pending_then_t {
                           when_then_pair_t<When, std::nullopt_t>>{
         std::move(new_pairs_tuple)};
   }
+
+ private:
+  std::tuple<WhenThenPairs...> _previous_pairs;
+  When _condition;
 };
 
 template <StaticBoolean When>

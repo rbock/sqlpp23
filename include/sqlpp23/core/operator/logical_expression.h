@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/noop.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/query/dynamic.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
@@ -43,110 +44,118 @@ struct logical_or {
   static constexpr auto symbol = " OR ";
 };
 
-template <typename L, typename Operator, typename R>
-struct logical_expression
-    : public enable_as {
+template <typename Lhs, typename Operator, typename Rhs>
+struct logical_expression : public enable_as {
   logical_expression() = delete;
-  constexpr logical_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
+  constexpr logical_expression(Lhs lhs, Rhs rhs)
+      : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   logical_expression(const logical_expression&) = default;
   logical_expression(logical_expression&&) = default;
   logical_expression& operator=(const logical_expression&) = default;
   logical_expression& operator=(logical_expression&&) = default;
   ~logical_expression() = default;
 
-  L _l;
-  R _r;
+ private:
+  friend reader_t;
+  Lhs _lhs;
+  Rhs _rhs;
 };
 
-template <typename L, typename Operator, typename R>
-struct data_type_of<logical_expression<L, Operator, R>>
+template <typename Lhs, typename Operator, typename Rhs>
+struct data_type_of<logical_expression<Lhs, Operator, Rhs>>
     : std::conditional<
-          sqlpp::is_optional<data_type_of_t<L>>::value or
-              sqlpp::is_optional<data_type_of_t<remove_dynamic_t<R>>>::value,
+          sqlpp::is_optional<data_type_of_t<Lhs>>::value or
+              sqlpp::is_optional<data_type_of_t<remove_dynamic_t<Rhs>>>::value,
           std::optional<boolean>,
           boolean> {};
 
-template <typename L, typename Operator, typename R>
-struct nodes_of<logical_expression<L, Operator, R>> {
-  using type = detail::type_vector<L, R>;
+template <typename Lhs, typename Operator, typename Rhs>
+struct nodes_of<logical_expression<Lhs, Operator, Rhs>> {
+  using type = detail::type_vector<Lhs, Rhs>;
 };
 
-template <typename L, typename Operator, typename R>
-struct requires_parentheses<logical_expression<L, Operator, R>>
+template <typename Lhs, typename Operator, typename Rhs>
+struct requires_parentheses<logical_expression<Lhs, Operator, Rhs>>
     : public std::true_type {};
 
-template <typename Context, typename L, typename Operator, typename R>
+template <typename Context, typename Lhs, typename Operator, typename Rhs>
 auto to_sql_string(Context& context,
-                   const logical_expression<L, Operator, R>& t) -> std::string {
+                   const logical_expression<Lhs, Operator, Rhs>& t)
+    -> std::string {
   // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
-  return ret_val + operand_to_sql_string(context, t._r);
+  auto ret_val = operand_to_sql_string(context, read.lhs(t)) + Operator::symbol;
+  return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
-template <typename Context, typename L, typename Operator, typename R>
+template <typename Context, typename Lhs, typename Operator, typename Rhs>
 auto to_sql_string(Context& context,
-                   const logical_expression<L, Operator, dynamic_t<R>>& t)
+                   const logical_expression<Lhs, Operator, dynamic_t<Rhs>>& t)
     -> std::string {
-  if (t._r.has_value()) {
+  if (read.rhs(t).has_value()) {
     // Note: Temporary required to enforce parameter ordering.
-    auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
-    return ret_val + operand_to_sql_string(context, t._r.value());
+    auto ret_val = operand_to_sql_string(context, read.lhs(t)) + Operator::symbol;
+    return ret_val + operand_to_sql_string(context, read.rhs(t).value());
   }
 
   // If the dynamic part is inactive ignore it.
-  return to_sql_string(context, t._l);
+  return to_sql_string(context, read.lhs(t));
 }
 
 template <typename Context,
-          typename L,
+          typename Lhs,
           typename Operator,
           typename R1,
           typename R2>
 auto to_sql_string(
     Context& context,
-    const logical_expression<logical_expression<L, Operator, R1>, Operator, R2>&
-        t) -> std::string {
+    const logical_expression<logical_expression<Lhs, Operator, R1>,
+                             Operator,
+                             R2>& t) -> std::string {
   // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = to_sql_string(context, t._l) + Operator::symbol;
-  return ret_val + operand_to_sql_string(context, t._r);
+  auto ret_val = to_sql_string(context, read.lhs(t)) + Operator::symbol;
+  return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
 template <typename Context,
-          typename L,
+          typename Lhs,
           typename Operator,
           typename R1,
           typename R2>
-auto to_sql_string(Context& context,
-                   const logical_expression<logical_expression<L, Operator, R1>,
-                                            Operator,
-                                            dynamic_t<R2>>& t) -> std::string {
-  if (t._r.has_value()) {
+auto to_sql_string(
+    Context& context,
+    const logical_expression<logical_expression<Lhs, Operator, R1>,
+                             Operator,
+                             dynamic_t<R2>>& t) -> std::string {
+  if (read.rhs(t).has_value()) {
     // Note: Temporary required to enforce parameter ordering.
-    auto ret_val = to_sql_string(context, t._l) + Operator::symbol;
-    return ret_val + operand_to_sql_string(context, t._r.value());
+    auto ret_val = to_sql_string(context, read.lhs(t)) + Operator::symbol;
+    return ret_val + operand_to_sql_string(context, read.rhs(read.rhs(t).value()));
   }
 
   // If the dynamic part is inactive ignore it.
-  return to_sql_string(context, t._l);
+  return to_sql_string(context, read.lhs(t));
 }
 
-template <StaticBoolean L, DynamicBoolean R>
-constexpr auto operator and(L l, R r) -> logical_expression<L, logical_and, R> {
-  return {std::move(l), std::move(r)};
+template <StaticBoolean Lhs, DynamicBoolean Rhs>
+constexpr auto operator and(Lhs lhs, Rhs rhs)
+    -> logical_expression<Lhs, logical_and, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
-template <StaticBoolean L, DynamicBoolean R>
-constexpr auto operator||(L l, R r) -> logical_expression<L, logical_or, R> {
-  return {std::move(l), std::move(r)};
+template <StaticBoolean Lhs, DynamicBoolean Rhs>
+constexpr auto operator||(Lhs lhs, Rhs rhs)
+    -> logical_expression<Lhs, logical_or, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
 struct logical_not {
   static constexpr auto symbol = "NOT ";
 };
 
-template <StaticBoolean R>
-constexpr auto operator!(R r) -> logical_expression<noop, logical_not, R> {
-  return {{}, std::move(r)};
+template <StaticBoolean Rhs>
+constexpr auto operator!(Rhs rhs)
+    -> logical_expression<noop, logical_not, Rhs> {
+  return {{}, std::move(rhs)};
 }
 
 }  // namespace sqlpp

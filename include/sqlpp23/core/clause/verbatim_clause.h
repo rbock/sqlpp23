@@ -29,19 +29,22 @@
 
 #include <utility>
 
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 struct verbatim_clause_t {
-  verbatim_clause_t(std::string verbatim_clause) : _verbatim_clause(std::move(verbatim_clause)) {}
+  verbatim_clause_t(std::string expression) : _expression(std::move(expression)) {}
   verbatim_clause_t(const verbatim_clause_t&) = default;
   verbatim_clause_t(verbatim_clause_t&&) = default;
   verbatim_clause_t& operator=(const verbatim_clause_t&) = default;
   verbatim_clause_t& operator=(verbatim_clause_t&&) = default;
   ~verbatim_clause_t() = default;
 
-  std::string _verbatim_clause;
+ private:
+  friend reader_t;
+  std::string _expression;
 };
 
 template <>
@@ -57,7 +60,7 @@ struct consistency_check<Statement, verbatim_clause_t> {
 
 template <typename Context>
 auto to_sql_string(Context&, const verbatim_clause_t& t) -> std::string {
-  return t._verbatim_clause;
+  return read.expression(t);
 }
 
 inline auto verbatim_clause(std::string s) -> verbatim_clause_t {

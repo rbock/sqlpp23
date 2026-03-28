@@ -28,19 +28,22 @@
  */
 
 #include <sqlpp23/core/query/statement_fwd.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Select>
 struct any_t {
-  constexpr any_t(Select select) : _select(std::move(select)) {}
+  constexpr any_t(Select expression) : _expression(std::move(expression)) {}
   any_t(const any_t&) = default;
   any_t(any_t&&) = default;
   any_t& operator=(const any_t&) = default;
   any_t& operator=(any_t&&) = default;
   ~any_t() = default;
 
-  Select _select;
+ private:
+  friend reader_t;
+  Select _expression;
 };
 
 // No data_type_of defined for any_t, because it is to be used with basic
@@ -66,7 +69,7 @@ using remove_any_t = typename remove_any<T>::type;
 
 template <typename Context, typename Select>
 auto to_sql_string(Context& context, const any_t<Select>& t) -> std::string {
-  return "ANY (" + to_sql_string(context, t._select) + ")";
+  return "ANY (" + to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename... Clauses>

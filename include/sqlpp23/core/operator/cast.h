@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/default_value.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -44,6 +45,8 @@ struct cast_t  : public enable_as, public enable_comparison {
   cast_t& operator=(cast_t&&) = default;
   ~cast_t() = default;
 
+ private:
+  friend reader_t;
   Expression _expression;
 };
 
@@ -62,7 +65,7 @@ auto to_sql_string(Context& context, const cast_t<Expression, DataType>& t)
     -> std::string {
   return std::format(
       "CAST({} AS {})",
-      operand_to_sql_string(context, t._expression),
+      operand_to_sql_string(context, read.expression(t)),
       data_type_to_sql_string(context, DataType{}));
 }
 

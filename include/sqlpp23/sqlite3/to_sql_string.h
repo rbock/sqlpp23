@@ -40,6 +40,7 @@
 #include <sqlpp23/core/clause/using.h>
 #include <sqlpp23/core/clause/with.h>
 #include <sqlpp23/core/database/exception.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/sqlite3/database/connection.h>
 #include <sqlpp23/sqlpp23.h>
@@ -60,8 +61,8 @@ auto to_sql_string(context_t& context,
                    const comparison_expression<L, sqlpp::op_is_distinct_from, R>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = operand_to_sql_string(context, t._l) + " IS NOT ";
-  return ret_val + operand_to_sql_string(context, t._r);
+  auto ret_val = operand_to_sql_string(context, read.lhs(t)) + " IS NOT ";
+  return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
 template <typename L, typename R>
@@ -69,8 +70,8 @@ auto to_sql_string(context_t& context,
                    const comparison_expression<L, sqlpp::op_is_not_distinct_from, R>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = operand_to_sql_string(context, t._l) + " IS ";
-  return ret_val + operand_to_sql_string(context, t._r);
+  auto ret_val = operand_to_sql_string(context, read.lhs(t)) + " IS ";
+  return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
 // Serialize parameters

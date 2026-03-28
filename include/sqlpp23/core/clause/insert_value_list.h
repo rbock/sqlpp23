@@ -91,7 +91,7 @@ struct tuple_rhs_assignment_operand_no_dynamic {
                   size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
-    return prefix + operand_to_sql_string(context, t._r);
+    return prefix + operand_to_sql_string(context, read.rhs(t));
   }
 
   template <typename Context, typename T>

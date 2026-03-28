@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp23/core/operator/as_expression_fwd.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
@@ -44,6 +45,8 @@ struct as_expression {
   as_expression& operator=(as_expression&&) = default;
   ~as_expression() = default;
 
+ private:
+  friend reader_t;
   Expression _expression;
 };
 
@@ -67,7 +70,7 @@ struct is_as_expression<as_expression<Expression, NameTag>>
 template <typename Context, typename Expression, typename NameTag>
 auto to_sql_string(Context& context,
                    const as_expression<Expression, NameTag>& t) -> std::string {
-  return operand_to_sql_string(context, t._expression) + " AS " +
+  return operand_to_sql_string(context, read.expression(t)) + " AS " +
          name_to_sql_string(context, NameTag{});
 }
 

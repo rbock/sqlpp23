@@ -66,6 +66,14 @@ struct reader_t {
     return t._rhs;
   }
   template <typename T>
+  const auto& low(const T& t) const {
+    return t._low;
+  }
+  template <typename T>
+  const auto& high(const T& t) const {
+    return t._high;
+  }
+  template <typename T>
   const auto& table(const T& t) const {
     return t._table;
   }
@@ -76,6 +84,22 @@ struct reader_t {
   template <typename T>
   const auto& on_conflict_update(const T& t) const {
     return t._on_conflict_update;
+  }
+  template <typename T>
+  const auto& when(const T& t) const {
+    return t._when;
+  }
+  template <typename T>
+  const auto& then(const T& t) const {
+    return t._then;
+  }
+  template <typename T>
+  const auto& when_then_list(const T& t) const {
+    return t._when_then_list;
+  }
+  template <typename T>
+  const auto& else_(const T& t) const {
+    return t._else;
   }
 };
 

@@ -26,9 +26,10 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/query/statement.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp::alias {
@@ -38,14 +39,17 @@ SQLPP_CREATE_NAME_TAG(exists_);
 namespace sqlpp {
 template <typename Select>
 struct exists_expression : public enable_as {
-  constexpr exists_expression(Select s) : _select(std::move(s)) {}
+  constexpr exists_expression(Select expression)
+      : _expression(std::move(expression)) {}
   exists_expression(const exists_expression&) = default;
   exists_expression(exists_expression&&) = default;
   exists_expression& operator=(const exists_expression&) = default;
   exists_expression& operator=(exists_expression&&) = default;
   ~exists_expression() = default;
 
-  Select _select;
+ private:
+  friend reader_t;
+  Select _expression;
 };
 
 template <typename Select>
@@ -61,16 +65,16 @@ struct nodes_of<exists_expression<Select>> {
 template <typename Context, typename Select>
 auto to_sql_string(Context& context, const exists_expression<Select>& t)
     -> std::string {
-  return "EXISTS (" + to_sql_string(context, t._select) + ")";
+  return "EXISTS (" + to_sql_string(context, read.expression(t)) + ")";
 }
 
 template <typename... Clauses>
   requires(is_statement<statement_t<Clauses...>>::value and
            has_result_row<statement_t<Clauses...>>::value and
            statement_consistency_check_t<statement_t<Clauses...>>::value)
-constexpr auto exists(statement_t<Clauses...> s)
+constexpr auto exists(statement_t<Clauses...> expression)
     -> exists_expression<statement_t<Clauses...>> {
-  return exists_expression<statement_t<Clauses...>>{std::move(s)};
+  return exists_expression<statement_t<Clauses...>>{std::move(expression)};
 }
 
 }  // namespace sqlpp

@@ -30,79 +30,82 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp23/core/basic/column_fwd.h>
 #include <sqlpp23/core/default_value.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename L, typename Operator, typename R>
+template <typename Lhs, typename Operator, typename Rhs>
 struct assign_expression {
-  constexpr assign_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
+  constexpr assign_expression(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   assign_expression(const assign_expression&) = default;
   assign_expression(assign_expression&&) = default;
   assign_expression& operator=(const assign_expression&) = default;
   assign_expression& operator=(assign_expression&&) = default;
   ~assign_expression() = default;
 
-  L _l;
-  R _r;
+ private:
+  friend reader_t;
+  Lhs _lhs;
+  Rhs _rhs;
 };
 
-template <typename L, typename Operator, typename R>
-auto get_rhs(assign_expression<L, Operator, R> e) -> R {
-  return e._r;
+template <typename Lhs, typename Operator, typename Rhs>
+auto get_rhs(assign_expression<Lhs, Operator, Rhs> e) -> Rhs {
+  return read.rhs(e);
 }
 
-template <typename L, typename Operator, typename R>
-auto get_rhs(dynamic_t<assign_expression<L, Operator, R>> e) -> dynamic_t<R> {
+template <typename Lhs, typename Operator, typename Rhs>
+auto get_rhs(dynamic_t<assign_expression<Lhs, Operator, Rhs>> e) -> dynamic_t<Rhs> {
   if (e.has_value()) {
-    return {e.value()._r};
+    return {read.rhs(e.value())};
   }
   return {std::nullopt};
 }
 
-template <typename L, typename R>
+template <typename Lhs, typename Rhs>
 constexpr bool are_correct_assignment_args =
-    not is_const<L>::value and values_are_assignable<L, R>::value and
-    (can_be_null<L>::value or not can_be_null<R>::value);
+    not is_const<Lhs>::value and values_are_assignable<Lhs, Rhs>::value and
+    (can_be_null<Lhs>::value or not can_be_null<Rhs>::value);
 
-template <typename L>
-constexpr bool are_correct_assignment_args<L, default_value_t> =
-    not is_const<L>::value and has_default<L>::value;
+template <typename Lhs>
+constexpr bool are_correct_assignment_args<Lhs, default_value_t> =
+    not is_const<Lhs>::value and has_default<Lhs>::value;
 
-template <typename L, typename Operator, typename R>
-struct is_assignment<assign_expression<L, Operator, R>>
+template <typename Lhs, typename Operator, typename Rhs>
+struct is_assignment<assign_expression<Lhs, Operator, Rhs>>
     : public std::true_type {};
 
-template <typename L, typename Operator, typename R>
-struct nodes_of<assign_expression<L, Operator, R>> {
-  using type = detail::type_vector<L, R>;
+template <typename Lhs, typename Operator, typename Rhs>
+struct nodes_of<assign_expression<Lhs, Operator, Rhs>> {
+  using type = detail::type_vector<Lhs, Rhs>;
 };
 
-template <typename L, typename Operator, typename R>
-struct lhs<assign_expression<L, Operator, R>> {
-  using type = L;
+template <typename Lhs, typename Operator, typename Rhs>
+struct lhs<assign_expression<Lhs, Operator, Rhs>> {
+  using type = Lhs;
 };
 
-template <typename L, typename Operator, typename R>
-struct rhs<assign_expression<L, Operator, R>> {
-  using type = R;
+template <typename Lhs, typename Operator, typename Rhs>
+struct rhs<assign_expression<Lhs, Operator, Rhs>> {
+  using type = Rhs;
 };
 
-template <typename Context, typename L, typename Operator, typename R>
-auto to_sql_string(Context& context, const assign_expression<L, Operator, R>& t)
+template <typename Context, typename Lhs, typename Operator, typename Rhs>
+auto to_sql_string(Context& context, const assign_expression<Lhs, Operator, Rhs>& t)
     -> std::string {
-  return to_sql_string(context, simple_column(t._l)) + Operator::symbol +
-         operand_to_sql_string(context, t._r);
+  return to_sql_string(context, simple_column(read.lhs(t))) + Operator::symbol +
+         operand_to_sql_string(context, read.rhs(t));
 }
 
 struct op_assign {
   static constexpr auto symbol = " = ";
 };
 
-template <typename _Table, typename ColumnSpec, typename R>
-  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, R>)
-constexpr auto assign(column_t<_Table, ColumnSpec> column, R value)
-    -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, R> {
+template <typename _Table, typename ColumnSpec, typename Rhs>
+  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, Rhs>)
+constexpr auto assign(column_t<_Table, ColumnSpec> column, Rhs value)
+    -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, Rhs> {
   return {std::move(column), std::move(value)};
 }
 

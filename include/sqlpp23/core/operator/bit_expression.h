@@ -30,108 +30,111 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp23/core/noop.h>
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename L, typename Operator, typename R>
+template <typename Lhs, typename Operator, typename Rhs>
 struct bit_expression : public enable_as {
-  constexpr bit_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
+  constexpr bit_expression(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
   bit_expression(const bit_expression&) = default;
   bit_expression(bit_expression&&) = default;
   bit_expression& operator=(const bit_expression&) = default;
   bit_expression& operator=(bit_expression&&) = default;
   ~bit_expression() = default;
 
-  L _l;
-  R _r;
+ private:
+  friend reader_t;
+  Lhs _lhs;
+  Rhs _rhs;
 };
 
-template <typename L, typename Operator, typename R>
-struct data_type_of<bit_expression<L, Operator, R>> {
+template <typename Lhs, typename Operator, typename Rhs>
+struct data_type_of<bit_expression<Lhs, Operator, Rhs>> {
   using type =
-      std::conditional_t<sqlpp::is_optional<data_type_of_t<L>>::value or
-                             sqlpp::is_optional<data_type_of_t<R>>::value,
+      std::conditional_t<sqlpp::is_optional<data_type_of_t<Lhs>>::value or
+                             sqlpp::is_optional<data_type_of_t<Rhs>>::value,
                          std::optional<integral>,
                          integral>;
 };
 
-template <typename L, typename Operator, typename R>
-struct nodes_of<bit_expression<L, Operator, R>> {
-  using type = detail::type_vector<L, R>;
+template <typename Lhs, typename Operator, typename Rhs>
+struct nodes_of<bit_expression<Lhs, Operator, Rhs>> {
+  using type = detail::type_vector<Lhs, Rhs>;
 };
 
-template <typename L, typename Operator, typename R>
-struct requires_parentheses<bit_expression<L, Operator, R>>
+template <typename Lhs, typename Operator, typename Rhs>
+struct requires_parentheses<bit_expression<Lhs, Operator, Rhs>>
     : public std::true_type {};
 
-template <typename Context, typename L, typename Operator, typename R>
-auto to_sql_string(Context& context, const bit_expression<L, Operator, R>& t)
+template <typename Context, typename Lhs, typename Operator, typename Rhs>
+auto to_sql_string(Context& context, const bit_expression<Lhs, Operator, Rhs>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
-  return ret_val + operand_to_sql_string(context, t._r);
+  auto ret_val = operand_to_sql_string(context, read.lhs(t)) + Operator::symbol;
+  return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
 struct bit_and {
   static constexpr auto symbol = " & ";
 };
 
-template <typename L, typename R>
-  requires(is_integral<L>::value and is_integral<R>::value)
-constexpr auto operator&(L l, R r) -> bit_expression<L, bit_and, R> {
-  return {std::move(l), std::move(r)};
+template <typename Lhs, typename Rhs>
+  requires(is_integral<Lhs>::value and is_integral<Rhs>::value)
+constexpr auto operator&(Lhs lhs, Rhs rhs) -> bit_expression<Lhs, bit_and, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
 struct bit_or {
   static constexpr auto symbol = " | ";
 };
 
-template <typename L, typename R>
-  requires(is_integral<L>::value and is_integral<R>::value)
-constexpr auto operator|(L l, R r) -> bit_expression<L, bit_or, R> {
-  return {std::move(l), std::move(r)};
+template <typename Lhs, typename Rhs>
+  requires(is_integral<Lhs>::value and is_integral<Rhs>::value)
+constexpr auto operator|(Lhs lhs, Rhs rhs) -> bit_expression<Lhs, bit_or, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
 struct bit_xor {
   static constexpr auto symbol = " ^ ";
 };
 
-template <typename L, typename R>
-  requires(is_integral<L>::value and is_integral<R>::value)
-constexpr auto operator^(L l, R r) -> bit_expression<L, bit_xor, R> {
-  return {std::move(l), std::move(r)};
+template <typename Lhs, typename Rhs>
+  requires(is_integral<Lhs>::value and is_integral<Rhs>::value)
+constexpr auto operator^(Lhs lhs, Rhs rhs) -> bit_expression<Lhs, bit_xor, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
 struct bit_not {
   static constexpr auto symbol = "~";
 };
 
-template <typename R>
-  requires(is_integral<R>::value)
-constexpr auto operator~(R r) -> bit_expression<noop, bit_not, R> {
-  return {{}, std::move(r)};
+template <typename Rhs>
+  requires(is_integral<Rhs>::value)
+constexpr auto operator~(Rhs rhs) -> bit_expression<noop, bit_not, Rhs> {
+  return {{}, std::move(rhs)};
 }
 
 struct bit_shift_left {
   static constexpr auto symbol = " << ";
 };
 
-template <typename L, typename R>
-  requires(is_integral<L>::value and
-           (is_integral<R>::value or is_unsigned_integral<R>::value))
-constexpr auto operator<<(L l, R r) -> bit_expression<L, bit_shift_left, R> {
-  return {std::move(l), std::move(r)};
+template <typename Lhs, typename Rhs>
+  requires(is_integral<Lhs>::value and
+           (is_integral<Rhs>::value or is_unsigned_integral<Rhs>::value))
+constexpr auto operator<<(Lhs lhs, Rhs rhs) -> bit_expression<Lhs, bit_shift_left, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
 struct bit_shift_right {
   static constexpr auto symbol = " >> ";
 };
 
-template <typename L, typename R>
-  requires(is_integral<L>::value and
-           (is_integral<R>::value or is_unsigned_integral<R>::value))
-constexpr auto operator>>(L l, R r) -> bit_expression<L, bit_shift_right, R> {
-  return {std::move(l), std::move(r)};
+template <typename Lhs, typename Rhs>
+  requires(is_integral<Lhs>::value and
+           (is_integral<Rhs>::value or is_unsigned_integral<Rhs>::value))
+constexpr auto operator>>(Lhs lhs, Rhs rhs) -> bit_expression<Lhs, bit_shift_right, Rhs> {
+  return {std::move(lhs), std::move(rhs)};
 }
 
 }  // namespace sqlpp
