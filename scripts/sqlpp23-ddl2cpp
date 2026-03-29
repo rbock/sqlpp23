@@ -39,6 +39,7 @@ class ExitCode(IntEnum):
     SUCCESS = 0
     BAD_ARGS = 1
     BAD_CUSTOM_TYPES = 30
+    BAD_CPP_TYPES = 31
     BAD_DDL_COMMAND = 10
     BAD_DDL_PARSING = 20
 
@@ -239,9 +240,17 @@ class DdlParser:
             + cls.ddl_expression
         ).set_results_name("is_constraint")
 
+        # cpp_type annotation parser: captures type from '-- ... cpp_type:SomeType ...'
+        # The trailing .* is required to consume the full comment line, including any
+        # text that follows the type (e.g. '-- note cpp_type:XCoord (extra text)').
+        ddl_cpp_type_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*').set_parse_action(
+            lambda t: re.search(r'cpp_type:\s*(\S+)', t[0]).group(1)
+        )
+
         # Column parser
         cls.ddl_column = pp.Group(
-            ddl_name.set_results_name("name")
+            pp.Optional(ddl_cpp_type_annotation).set_results_name("cpp_type")
+            + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
             + pp.Suppress(pp.Optional(ddl_width))
             + pp.Suppress(pp.Optional(ddl_timezone))
@@ -253,6 +262,7 @@ class DdlParser:
                 | ddl_default_value
                 | ddl_generated_value
                 | ddl_primary_key
+                | (pp.Suppress(pp.CaselessKeyword("COMMENT")) + ddl_string.set_results_name("column_comment"))
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
@@ -284,8 +294,23 @@ class DdlParser:
             + cls.ddl_expression
         )
 
+        # COMMENT ON COLUMN parser (PostgreSQL)
+        # Captures: schema.table.column or table.column, and the quoted comment string
+        ddl_comment_on_column = (
+            pp.CaselessKeyword("COMMENT")
+            + pp.CaselessKeyword("ON")
+            + pp.CaselessKeyword("COLUMN")
+            + ddl_name.set_results_name("qualified_column")
+            + pp.CaselessKeyword("IS")
+            + ddl_string.set_results_name("comment_text")
+        )
+
         # DDL command parser
-        ddl_command_basic = ddl_create_table.set_results_name("create_table") | ddl_set_default.set_results_name("set_default")
+        ddl_command_basic = (
+            ddl_create_table.set_results_name("create_table")
+            | ddl_set_default.set_results_name("set_default")
+            | ddl_comment_on_column.set_results_name("comment_on_column")
+        )
         def rewrap_command_token(text, loc, tokens):
             command = tokens.value
             # FIXME: Remove the call to strip() once the following pyparsing bug is fixed
@@ -295,10 +320,11 @@ class DdlParser:
         ddl_command_with_loc = pp.Located(ddl_command_basic).set_parse_action(rewrap_command_token)
 
         # Main DDL parser
-        ddl_comment = pp.one_of(["--", "#"]) + pp.rest_of_line
+        # Suppress regular comments but not cpp_type annotations (those are captured in ddl_column)
+        ddl_regular_comment = pp.Regex(r'--(?!.*cpp_type:).*') | pp.Regex(r'#.*')
         cls.ddl = (
             pp.OneOrMore(pp.Suppress(pp.SkipTo(ddl_command_basic, False)) + ddl_command_with_loc)
-            .ignore(ddl_comment)
+            .ignore(ddl_regular_comment)
             .parse_with_tabs()
         )
 
@@ -326,6 +352,7 @@ class DdlExecutor:
         is_const: bool
         is_nullable: bool
         has_default: bool
+        cpp_type: str = None
 
     @dataclass
     class _TableDef:
@@ -338,11 +365,20 @@ class DdlExecutor:
     _has_error = None
     _has_unknown_type = None
     _tables = None
+    _postgresql_schema = None
 
     @classmethod
-    def execute(cls, parsed_ddls, args):
+    def _strip_schema(cls, name):
+        """Strip the --postgresql-schema prefix from a table name if present."""
+        if cls._postgresql_schema and name.startswith(cls._postgresql_schema + "."):
+            return name[len(cls._postgresql_schema) + 1:]
+        return name
+
+    @classmethod
+    def execute(cls, parsed_ddls, args, cpp_type_overrides):
         cls._assume_auto_id = args.assume_auto_id
         cls._warn_on_timestamp = not args.suppress_timestamp_warning
+        cls._postgresql_schema = args.postgresql_schema
         cls._has_error = False
         cls._has_unknown_type = False
         cls._tables = {}
@@ -350,12 +386,25 @@ class DdlExecutor:
             for command in pd:
                 cls._execute_command(command)
         if cls._has_error:
-            if cls._has_unknown_type:
-                print("ERROR: Unsupported SQL data type(s).")
-                print("Possible solutions:")
-                print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
-                print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
-                print("C) Raise an issue on github")
+            sys.exit(ExitCode.BAD_DDL_COMMAND)
+        # Apply all cpp_type sources before checking for unresolved UNKNOWN types.
+        # Order: COMMENT ON COLUMN (already applied above) < --path-to-cpp-types (applied now).
+        validate_cpp_types(cpp_type_overrides, cls._tables)
+        for (table_name, col_name), cpp_type in cpp_type_overrides.items():
+            cls._tables[table_name].columns[col_name].cpp_type = cpp_type
+        # Any column that still has UNKNOWN data_type and no cpp_type is a real error.
+        for table_def in cls._tables.values():
+            for col_def in table_def.columns.values():
+                if col_def.data_type == "UNKNOWN" and col_def.cpp_type is None:
+                    print(f"ERROR: SQL data type of {table_def.name}.{col_def.name} is not supported.")
+                    cls._has_error = True
+        if cls._has_error:
+            print("ERROR: Unsupported SQL data type(s).")
+            print("Possible solutions:")
+            print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
+            print("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
+            print("C) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
+            print("D) Raise an issue on github")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
 
@@ -365,13 +414,15 @@ class DdlExecutor:
             cls._execute_create_table(command)
         elif command.set_default:
             cls._execute_set_default(command)
+        elif command.comment_on_column:
+            cls._execute_comment_on_column(command)
         else:
             print("Unknown DDL command:" + os.linesep + command.dump())
             raise RuntimeError()
 
     @classmethod
     def _execute_create_table(cls, command):
-        table_name = command.table_name
+        table_name = cls._strip_schema(command.table_name)
         if table_name in cls._tables:
             print(f"ERROR: Duplicate table name {table_name}")
             cls._has_error = True
@@ -408,12 +459,16 @@ class DdlExecutor:
                 print("WARNING: If you are using types WITH timezones, your code has to deal with that.")
                 print("WARNING: You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
-        elif col_expr.type == "UNKNOWN":
-            print(f"ERROR: SQL data type of {table_name}.{col_name} is not supported.")
-            cls._has_error = True
-            cls._has_unknown_type = True
-            return
         data_type = col_expr.type
+        cpp_type = col_expr.cpp_type or None
+        if not cpp_type and col_expr.column_comment:
+            m = re.search(r'cpp_type:\s*(\S+)', col_expr.column_comment)
+            if m:
+                cpp_type = m.group(1)
+        # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
+        # The check for unresolved UNKNOWN types happens in execute() after all
+        # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
+        # have been applied.
         if data_type == "integral" and col_expr.is_unsigned:
             data_type = "unsigned_" + data_type
         is_nullable = (
@@ -433,23 +488,46 @@ class DdlExecutor:
                 (cls._assume_auto_id and col_name == "id") or
                 col_expr.has_generated_value or
                 is_nullable
-            )
+            ),
+            cpp_type = cpp_type,
         )
 
     @classmethod
     def _execute_set_default(cls, command):
-        if not command.table_name in cls._tables:
+        table_name = cls._strip_schema(command.table_name)
+        if table_name not in cls._tables:
             print(f"ERROR: Unknown table name in ALTER TABLE {command.table_name}")
             cls._has_error = True
             return
-        table_def = cls._tables[command.table_name]
-        if not command.column_name in table_def.columns:
+        table_def = cls._tables[table_name]
+        if command.column_name not in table_def.columns:
             print(f"ERROR: Unknown column name in ALTER TABLE {command.table_name} ALTER COLUMN {command.column_name}")
             cls._has_error = True
             return
         column_def = table_def.columns[command.column_name]
         column_def.has_default = True
         table_def.commands.append(command.command_text)
+
+    @classmethod
+    def _execute_comment_on_column(cls, command):
+        # qualified_column is schema.table.column or table.column; split off the last part
+        qualified = command.qualified_column
+        last_dot = qualified.rfind(".")
+        if last_dot == -1:
+            print(f"ERROR: COMMENT ON COLUMN target '{qualified}' is not in table.column format")
+            cls._has_error = True
+            return
+        table_name = cls._strip_schema(qualified[:last_dot])
+        col_name = qualified[last_dot + 1:]
+        if table_name not in cls._tables:
+            # Not every COMMENT ON COLUMN refers to a table we parsed; silently skip.
+            return
+        table_def = cls._tables[table_name]
+        if col_name not in table_def.columns:
+            return
+        cpp_type = re.search(r'cpp_type:\s*(\S+)', command.comment_text)
+        if cpp_type:
+            table_def.columns[col_name].cpp_type = cpp_type.group(1)
 
 
 class ModelWriter:
@@ -569,10 +647,11 @@ class ModelWriter:
                 + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
             const_prefix = "const " if column.is_const else ""
+            type_str = column.cpp_type if column.cpp_type else "::sqlpp::" + column.data_type
             if column.is_nullable:
-                print("      using data_type = " + const_prefix + "std::optional<::sqlpp::" + column.data_type + ">;", file=header)
+                print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
             else:
-                print("      using data_type = " + const_prefix + "::sqlpp::" + column.data_type + ";", file=header)
+                print("      using data_type = " + const_prefix + type_str + ";", file=header)
             if column.has_default:
                 print("      using has_default = std::true_type;", file=header)
             else:
@@ -659,6 +738,10 @@ class SelfTest:
         cls._test_rational()
         cls._test_command_create_table()
         cls._test_command_set_default()
+        cls._test_column_comment()
+        cls._test_cpp_type_inline_comment()
+        cls._test_command_comment_on_column()
+        cls._test_cpp_type_executor()
 
     @staticmethod
     def _test_type_blob():
@@ -906,6 +989,133 @@ class SelfTest:
         assert set_default.table_name == "mytbl"
         assert set_default.column_name == "mycol"
 
+        # Schema-qualified table name
+        input_text = """ALTER TABLE ONLY public.mytbl ALTER COLUMN mycol SET DEFAULT 123"""
+        result = DdlParser.ddl.parse_string(input_text, parse_all=True)
+        assert result[0].set_default
+        assert result[0].table_name == "public.mytbl"
+        assert result[0].column_name == "mycol"
+
+    @staticmethod
+    def _test_column_comment():
+        # MySQL-style COMMENT clause: value is captured
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+        assert result[0].columns[0].column_comment == "cpp_type:my::Type"
+
+        # No COMMENT clause: column_comment is absent/empty
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int NOT NULL)", parse_all=True)
+        assert not result[0].columns[0].column_comment
+
+    @staticmethod
+    def _test_cpp_type_inline_comment():
+        # Annotation directly before the column
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
+        assert result[0].columns[0].cpp_type == "MyType"
+
+        # Annotation anywhere in the comment line with surrounding text
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
+        assert result[0].columns[0].cpp_type == "MyType"
+
+        # Regular comment without cpp_type: does not set cpp_type
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
+        assert not result[0].columns[0].cpp_type
+
+    @staticmethod
+    def _test_command_comment_on_column():
+        # Without schema prefix
+        result = DdlParser.ddl.parse_string(
+            "COMMENT ON COLUMN t.x IS 'some note'", parse_all=True)
+        assert result[0].comment_on_column
+        assert result[0].qualified_column == "t.x"
+        assert result[0].comment_text == "some note"
+
+        # With schema prefix and cpp_type anywhere in the comment string
+        result = DdlParser.ddl.parse_string(
+            "COMMENT ON COLUMN public.t.x IS 'note cpp_type:MyType (extra)'", parse_all=True)
+        assert result[0].comment_on_column
+        assert result[0].qualified_column == "public.t.x"
+        assert result[0].comment_text == "note cpp_type:MyType (extra)"
+
+    @classmethod
+    def _test_cpp_type_executor(cls):
+        import argparse
+
+        def make_args(**kwargs):
+            defaults = dict(assume_auto_id=False, suppress_timestamp_warning=True, postgresql_schema=None)
+            defaults.update(kwargs)
+            return argparse.Namespace(**defaults)
+
+        # Inline comment sets cpp_type; column without annotation is unaffected
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
+                -- cpp_type:MyType
+                a bigint NOT NULL,
+                b text NOT NULL
+            )
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["a"].cpp_type == "MyType"
+        assert tables["t"].columns["b"].cpp_type is None
+
+        # COMMENT ON COLUMN sets cpp_type (schema is stripped via --postgresql-schema)
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (a bigint NOT NULL)
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:MyType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].cpp_type == "MyType"
+
+        # COMMENT ON COLUMN overrides inline comment (higher precedence)
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (
+                -- cpp_type:InlineType
+                a bigint NOT NULL
+            )
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].cpp_type == "CommentType"
+
+        # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (
+                -- cpp_type:InlineType
+                a bigint NOT NULL
+            )
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
+        assert tables["t"].columns["a"].cpp_type == "CsvType"
+
+        # MySQL COMMENT clause: cpp_type extracted from column comment
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')")
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["x"].cpp_type == "my::Type"
+
+        # Unknown SQL type resolved by cpp_type annotation: no error
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
+                -- cpp_type:MyUuidType
+                id uuid NOT NULL
+            )
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["id"].cpp_type == "MyUuidType"
+
+        # Schema-qualified ALTER TABLE is resolved correctly with --postgresql-schema
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (a bigint NOT NULL)
+            ALTER TABLE ONLY public.t ALTER COLUMN a SET DEFAULT 42
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].has_default
+
 
 def parse_commandline_args():
     arg_parser = argparse.ArgumentParser(prog="sqlpp23-ddl2cpp")
@@ -918,9 +1128,11 @@ def parse_commandline_args():
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
     paths.add_argument("--path-to-custom-types", help="path to csv file defining aliases of existing SQL data types")
+    paths.add_argument("--path-to-cpp-types", help="path to csv file mapping table:column pairs to C++ types (format: 'table_name:column_name,FullyQualifiedCppType')")
 
     options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
+    options.add_argument("--postgresql-schema", metavar="SCHEMA", help="strip this schema prefix from PostgreSQL table names (e.g. 'public')")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
     options.add_argument("--assume-auto-id", action="store_true", help="assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)")
     options.add_argument("--naming-style", choices=["camel-case", "identity"], default="camel-case", help="naming style for generated tables and columns.\n\n\n\n 'camel-case' (default): interprets '_' as word separator and translates table names to UpperCamelCase and column names to lowerCamelCase, e.g. 'my_cool_table.important_column' will be represented as 'MyCoolTable{}.importantColumn' in generated code.\n 'identity' uses table and column names as is in generated code (default: 'camel-case')")
@@ -985,6 +1197,38 @@ def get_custom_types(filename):
         return types
 
 
+def get_cpp_types(filename):
+    if not filename:
+        return {}
+    import csv
+    overrides = {}
+    with open(filename, newline="") as csv_file:
+        for row in csv.reader(csv_file):
+            if not row or row[0].strip().startswith("#"):
+                continue
+            if len(row) != 2:
+                print(f"ERROR: --path-to-cpp-types file has invalid row: {row}")
+                sys.exit(ExitCode.BAD_CPP_TYPES)
+            key = row[0].strip()
+            cpp_type = row[1].strip()
+            if ":" not in key:
+                print(f"ERROR: --path-to-cpp-types file has invalid key '{key}' (expected 'table_name:column_name')")
+                sys.exit(ExitCode.BAD_CPP_TYPES)
+            table_name, _, col_name = key.partition(":")
+            overrides[(table_name.strip(), col_name.strip())] = cpp_type
+    return overrides
+
+
+def validate_cpp_types(cpp_type_overrides, tables):
+    for (table_name, col_name) in cpp_type_overrides:
+        if table_name not in tables:
+            print(f"ERROR: --path-to-cpp-types references unknown table '{table_name}'")
+            sys.exit(ExitCode.BAD_CPP_TYPES)
+        if col_name not in tables[table_name].columns:
+            print(f"ERROR: --path-to-cpp-types references unknown column '{col_name}' in table '{table_name}'")
+            sys.exit(ExitCode.BAD_CPP_TYPES)
+
+
 if __name__ == "__main__":
     args = parse_commandline_args()
 
@@ -992,8 +1236,9 @@ if __name__ == "__main__":
         SelfTest.run()
     else:
         custom_types = get_custom_types(args.path_to_custom_types)
+        cpp_type_overrides = get_cpp_types(args.path_to_cpp_types)
         DdlParser.initialize(custom_types)
         parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
-        tables = DdlExecutor.execute(parsed_ddls, args)
+        tables = DdlExecutor.execute(parsed_ddls, args, cpp_type_overrides)
         ModelWriter.write(tables, args)
     sys.exit(ExitCode.SUCCESS)
