@@ -731,6 +731,9 @@ class SelfTest:
         cls._test_rational()
         cls._test_command_create_table()
         cls._test_command_set_default()
+        cls._test_cpp_type_inline_comment()
+        cls._test_command_comment_on_column()
+        cls._test_cpp_type_executor()
 
     @staticmethod
     def _test_type_blob():
@@ -977,6 +980,100 @@ class SelfTest:
         assert set_default.set_default
         assert set_default.table_name == "mytbl"
         assert set_default.column_name == "mycol"
+
+    @staticmethod
+    def _test_cpp_type_inline_comment():
+        # Annotation directly before the column
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
+        assert result[0].columns[0].cpp_type == "MyType"
+
+        # Annotation anywhere in the comment line with surrounding text
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
+        assert result[0].columns[0].cpp_type == "MyType"
+
+        # Regular comment without cpp_type: does not set cpp_type
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
+        assert not result[0].columns[0].cpp_type
+
+    @staticmethod
+    def _test_command_comment_on_column():
+        # Without schema prefix
+        result = DdlParser.ddl.parse_string(
+            "COMMENT ON COLUMN t.x IS 'some note'", parse_all=True)
+        assert result[0].comment_on_column
+        assert result[0].qualified_column == "t.x"
+        assert result[0].comment_text == "some note"
+
+        # With schema prefix and cpp_type anywhere in the comment string
+        result = DdlParser.ddl.parse_string(
+            "COMMENT ON COLUMN public.t.x IS 'note cpp_type:MyType (extra)'", parse_all=True)
+        assert result[0].comment_on_column
+        assert result[0].qualified_column == "public.t.x"
+        assert result[0].comment_text == "note cpp_type:MyType (extra)"
+
+    @classmethod
+    def _test_cpp_type_executor(cls):
+        import argparse
+
+        def make_args(**kwargs):
+            defaults = dict(assume_auto_id=False, suppress_timestamp_warning=True, postgresql_schema=None)
+            defaults.update(kwargs)
+            return argparse.Namespace(**defaults)
+
+        # Inline comment sets cpp_type; column without annotation is unaffected
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
+                -- cpp_type:MyType
+                a bigint NOT NULL,
+                b text NOT NULL
+            )
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["a"].cpp_type == "MyType"
+        assert tables["t"].columns["b"].cpp_type is None
+
+        # COMMENT ON COLUMN sets cpp_type (schema is stripped via --postgresql-schema)
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (a bigint NOT NULL)
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:MyType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].cpp_type == "MyType"
+
+        # COMMENT ON COLUMN overrides inline comment (higher precedence)
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (
+                -- cpp_type:InlineType
+                a bigint NOT NULL
+            )
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].cpp_type == "CommentType"
+
+        # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (
+                -- cpp_type:InlineType
+                a bigint NOT NULL
+            )
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
+        assert tables["t"].columns["a"].cpp_type == "CsvType"
+
+        # Unknown SQL type resolved by cpp_type annotation: no error
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
+                -- cpp_type:MyUuidType
+                id uuid NOT NULL
+            )
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["id"].cpp_type == "MyUuidType"
 
 
 def parse_commandline_args():
