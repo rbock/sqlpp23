@@ -125,6 +125,24 @@ class enable_comparison {
     return ::sqlpp::order(std::forward<Expr>(self), t);
   }
 
+  template <typename Expr>
+  constexpr auto nulls_first(this Expr&& self)
+      -> decltype(::sqlpp::nulls_first(std::forward<Expr>(self))) {
+    return ::sqlpp::nulls_first(std::forward<Expr>(self));
+  }
+
+  template <typename Expr>
+  constexpr auto nulls_last(this Expr&& self)
+      -> decltype(::sqlpp::nulls_last(std::forward<Expr>(self))) {
+    return ::sqlpp::nulls_last(std::forward<Expr>(self));
+  }
+
+  template <typename Expr>
+  constexpr auto nulls_order(this Expr&& self, ::sqlpp::nulls_pos t)
+      -> decltype(::sqlpp::nulls_order(std::forward<Expr>(self), t)) {
+    return ::sqlpp::nulls_order(std::forward<Expr>(self), t);
+  }
+
   template <typename Expr, typename R>
   constexpr auto like(this Expr&& self, R r)
       -> decltype(::sqlpp::like(std::forward<Expr>(self), std::move(r))) {
