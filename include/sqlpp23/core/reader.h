@@ -66,14 +66,6 @@ struct reader_t {
     return t._rhs;
   }
   template <typename T>
-  const auto& low(const T& t) const {
-    return t._low;
-  }
-  template <typename T>
-  const auto& high(const T& t) const {
-    return t._high;
-  }
-  template <typename T>
   const auto& table(const T& t) const {
     return t._table;
   }

@@ -32,46 +32,48 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Lhs, typename Low, typename High>
+template <typename Expression, typename Lhs, typename Rhs>
 struct between_expression : public enable_as, public enable_comparison {
-  constexpr between_expression(Lhs lhs, Low low, High high)
-      : _lhs(std::move(lhs)), _low(std::move(low)), _high(std::move(high)) {}
+  constexpr between_expression(Expression lhs, Lhs low, Rhs high)
+      : _expression(std::move(lhs)), _lhs(std::move(low)), _rhs(std::move(high)) {}
   between_expression(const between_expression&) = default;
   between_expression(between_expression&&) = default;
   between_expression& operator=(const between_expression&) = default;
   between_expression& operator=(between_expression&&) = default;
   ~between_expression() = default;
 
+ private:
+  friend reader_t;
+  Expression _expression;
   Lhs _lhs;
-  Low _low;
-  High _high;
+  Rhs _rhs;
 };
 
-template <typename Lhs, typename Low, typename High>
-struct data_type_of<between_expression<Lhs, Low, High>>
+template <typename Expression, typename Lhs, typename Rhs>
+struct data_type_of<between_expression<Expression, Lhs, Rhs>>
     : public std::conditional<
-          sqlpp::is_optional<data_type_of_t<Lhs>>::value or
-              sqlpp::is_optional<data_type_of_t<Low>>::value or
-              sqlpp::is_optional<data_type_of_t<High>>::value,
+          sqlpp::is_optional<data_type_of_t<Expression>>::value or
+              sqlpp::is_optional<data_type_of_t<Lhs>>::value or
+              sqlpp::is_optional<data_type_of_t<Rhs>>::value,
           std::optional<boolean>,
           boolean> {};
 
-template <typename Lhs, typename Low, typename High>
-struct nodes_of<between_expression<Lhs, Low, High>> {
-  using type = detail::type_vector<Lhs, Low, High>;
+template <typename Expression, typename Lhs, typename Rhs>
+struct nodes_of<between_expression<Expression, Lhs, Rhs>> {
+  using type = detail::type_vector<Expression, Lhs, Rhs>;
 };
 
-template <typename Lhs, typename Low, typename High>
-struct requires_parentheses<between_expression<Lhs, Low, High>>
+template <typename Expression, typename Lhs, typename Rhs>
+struct requires_parentheses<between_expression<Expression, Lhs, Rhs>>
     : public std::true_type {};
 
-template <typename Context, typename Lhs, typename Low, typename High>
-auto to_sql_string(Context& context, const between_expression<Lhs, Low, High>& t)
+template <typename Context, typename Expression, typename Lhs, typename Rhs>
+auto to_sql_string(Context& context, const between_expression<Expression, Lhs, Rhs>& t)
     -> std::string {
   // Note: Temporary required to enforce parameter ordering.
-  auto ret_val = operand_to_sql_string(context, read.lhs(t)) + " BETWEEN ";
-  ret_val += operand_to_sql_string(context, read.low(t)) + " AND ";
-  return ret_val + operand_to_sql_string(context, read.high(t));
+  auto ret_val = operand_to_sql_string(context, read.expression(t)) + " BETWEEN ";
+  ret_val += operand_to_sql_string(context, read.lhs(t)) + " AND ";
+  return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
 }  // namespace sqlpp
