@@ -169,19 +169,19 @@ enum class sort_type {
 template <typename L>
 requires(values_are_comparable<L, L>::value)
 constexpr auto asc(L l) -> sort_order_expression<L> {
-  return {l, sort_type::asc};
+  return {std::move(l), sort_type::asc};
 }
 
 template <typename L>
 requires(values_are_comparable<L, L>::value)
 constexpr auto desc(L l) -> sort_order_expression<L> {
-  return {l, sort_type::desc};
+  return {std::move(l), sort_type::desc};
 }
 
 template <typename L>
 requires(values_are_comparable<L, L>::value)
 constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
-  return {l, order};
+  return {std::move(l), order};
 }
 
 }  // namespace sqlpp
