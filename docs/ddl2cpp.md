@@ -50,9 +50,16 @@ The custom type names are case-insensitive just like the native SQL types.
 ## C++ type overrides
 
 sqlpp23 supports user-defined C++ types as column data types (see [Custom types](/docs/recipes/custom_types.md)).
-`sqlpp23-ddl2cpp` provides three ways to tell the generator which C++ type to use for a specific column.
-All three can be combined; when more than one applies to the same column, `--path-to-cpp-types` takes the
-highest precedence, followed by `COMMENT ON COLUMN`, and finally inline SQL comments.
+`sqlpp23-ddl2cpp` provides four ways to assign a C++ type to a specific column. All four can be combined;
+when more than one applies to the same column the order of precedence (highest first) is:
+`--path-to-cpp-types` > `COMMENT ON COLUMN` > MySQL `COMMENT` clause > inline SQL comment.
+
+| Option | MySQL | PostgreSQL | SQLite3 |
+|--------|:-----:|:----------:|:-------:|
+| `--path-to-cpp-types` CSV file | ✓ | ✓ | ✓ |
+| Inline `--` comment | ✓ | ✓ | ✓ |
+| MySQL column `COMMENT` clause | ✓ | | |
+| PostgreSQL `COMMENT ON COLUMN` | | ✓ | |
 
 ### Option 1 — CSV file (`--path-to-cpp-types`)
 
@@ -82,9 +89,26 @@ CREATE TABLE tab_point (
 );
 ```
 
-### Option 3 — PostgreSQL `COMMENT ON COLUMN`
+This option works with all backends. When using the SQLite3 backend this and `--path-to-cpp-types`
+are the only available annotation methods, since SQLite3 DDL does not include `COMMENT ON COLUMN`
+statements or column `COMMENT` clauses.
 
-For PostgreSQL dumps, annotations can be embedded in `COMMENT ON COLUMN` statements.
+### Option 3 — MySQL column `COMMENT` clause
+
+When using the MySQL or MariaDB backend, the annotation can be embedded in the column's `COMMENT`
+attribute. The `cpp_type:` keyword is extracted from the comment string wherever it appears:
+
+```sql
+CREATE TABLE tab_foo (
+    `id`     bigint NOT NULL AUTO_INCREMENT,
+    `int_n`  int    DEFAULT NULL COMMENT 'cpp_type:test::my_int',
+    PRIMARY KEY (`id`)
+);
+```
+
+### Option 4 — PostgreSQL `COMMENT ON COLUMN`
+
+When using the PostgreSQL backend, annotations can be embedded in `COMMENT ON COLUMN` statements.
 The `cpp_type:` keyword is extracted from the comment string wherever it appears:
 
 ```sql
