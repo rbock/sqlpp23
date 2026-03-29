@@ -385,16 +385,26 @@ class DdlExecutor:
             for command in pd:
                 cls._execute_command(command)
         if cls._has_error:
-            if cls._has_unknown_type:
-                print("ERROR: Unsupported SQL data type(s).")
-                print("Possible solutions:")
-                print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
-                print("B) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
-                print("C) Raise an issue on github")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
+        # Apply all cpp_type sources before checking for unresolved UNKNOWN types.
+        # Order: COMMENT ON COLUMN (already applied above) < --path-to-cpp-types (applied now).
         validate_cpp_types(cpp_type_overrides, cls._tables)
         for (table_name, col_name), cpp_type in cpp_type_overrides.items():
             cls._tables[table_name].columns[col_name].cpp_type = cpp_type
+        # Any column that still has UNKNOWN data_type and no cpp_type is a real error.
+        for table_def in cls._tables.values():
+            for col_def in table_def.columns.values():
+                if col_def.data_type == "UNKNOWN" and col_def.cpp_type is None:
+                    print(f"ERROR: SQL data type of {table_def.name}.{col_def.name} is not supported.")
+                    cls._has_error = True
+        if cls._has_error:
+            print("ERROR: Unsupported SQL data type(s).")
+            print("Possible solutions:")
+            print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
+            print("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
+            print("C) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
+            print("D) Raise an issue on github")
+            sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
 
     @classmethod
@@ -448,12 +458,11 @@ class DdlExecutor:
                 print("WARNING: If you are using types WITH timezones, your code has to deal with that.")
                 print("WARNING: You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
-        elif col_expr.type == "UNKNOWN":
-            print(f"ERROR: SQL data type of {table_name}.{col_name} is not supported.")
-            cls._has_error = True
-            cls._has_unknown_type = True
-            return
         data_type = col_expr.type
+        # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
+        # The check for unresolved UNKNOWN types happens in execute() after all
+        # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
+        # have been applied.
         if data_type == "integral" and col_expr.is_unsigned:
             data_type = "unsigned_" + data_type
         is_nullable = (
