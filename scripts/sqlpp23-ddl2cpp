@@ -488,12 +488,13 @@ class DdlExecutor:
 
     @classmethod
     def _execute_set_default(cls, command):
-        if not command.table_name in cls._tables:
+        table_name = cls._strip_schema(command.table_name)
+        if table_name not in cls._tables:
             print(f"ERROR: Unknown table name in ALTER TABLE {command.table_name}")
             cls._has_error = True
             return
-        table_def = cls._tables[command.table_name]
-        if not command.column_name in table_def.columns:
+        table_def = cls._tables[table_name]
+        if command.column_name not in table_def.columns:
             print(f"ERROR: Unknown column name in ALTER TABLE {command.table_name} ALTER COLUMN {command.column_name}")
             cls._has_error = True
             return
@@ -981,6 +982,13 @@ class SelfTest:
         assert set_default.table_name == "mytbl"
         assert set_default.column_name == "mycol"
 
+        # Schema-qualified table name
+        input_text = """ALTER TABLE ONLY public.mytbl ALTER COLUMN mycol SET DEFAULT 123"""
+        result = DdlParser.ddl.parse_string(input_text, parse_all=True)
+        assert result[0].set_default
+        assert result[0].table_name == "public.mytbl"
+        assert result[0].column_name == "mycol"
+
     @staticmethod
     def _test_cpp_type_inline_comment():
         # Annotation directly before the column
@@ -1074,6 +1082,14 @@ class SelfTest:
         """)
         tables = DdlExecutor.execute([parsed], make_args(), {})
         assert tables["t"].columns["id"].cpp_type == "MyUuidType"
+
+        # Schema-qualified ALTER TABLE is resolved correctly with --postgresql-schema
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (a bigint NOT NULL)
+            ALTER TABLE ONLY public.t ALTER COLUMN a SET DEFAULT 42
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].has_default
 
 
 def parse_commandline_args():
