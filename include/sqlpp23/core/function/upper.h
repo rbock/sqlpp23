@@ -32,9 +32,9 @@
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expr>
+template <typename Expression>
 struct upper_t : public enable_as {
-  upper_t(const Expr expr) : _expr(expr) {}
+  upper_t(const Expression expression) : _expression(expression) {}
 
   upper_t(const upper_t&) = default;
   upper_t(upper_t&&) = default;
@@ -42,26 +42,28 @@ struct upper_t : public enable_as {
   upper_t& operator=(upper_t&&) = default;
   ~upper_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expression _expression;
 };
 
-template <typename Expr>
-struct data_type_of<upper_t<Expr>> : public data_type_of<Expr> {};
+template <typename Expression>
+struct data_type_of<upper_t<Expression>> : public data_type_of<Expression> {};
 
-template <typename Expr>
-struct nodes_of<upper_t<Expr>> {
-  using type = detail::type_vector<Expr>;
+template <typename Expression>
+struct nodes_of<upper_t<Expression>> {
+  using type = detail::type_vector<Expression>;
 };
 
-template <typename Context, typename Expr>
-auto to_sql_string(Context& context, const upper_t<Expr>& t) -> std::string {
-  return "UPPER(" + to_sql_string(context, t._expr) + ")";
+template <typename Context, typename Expression>
+auto to_sql_string(Context& context, const upper_t<Expression>& t) -> std::string {
+  return "UPPER(" + to_sql_string(context, read.expression(t)) + ")";
 }
 
-template <typename T>
-  requires(is_text<T>::value)
-auto upper(T t) -> upper_t<T> {
-  return {std::move(t)};
+template <typename Expression>
+  requires(is_text<Expression>::value)
+auto upper(Expression expression) -> upper_t<Expression> {
+  return {std::move(expression)};
 }
 
 }  // namespace sqlpp

@@ -30,13 +30,15 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename... Args>
+template <typename... Expressions>
 struct coalesce_t : public enable_comparison, public enable_as {
-  coalesce_t(const Args... args) : _args(std::move(args)...) {}
+  coalesce_t(const Expressions... expressions) : _expressions(std::move(expressions)...) {}
 
   coalesce_t(const coalesce_t&) = default;
   coalesce_t(coalesce_t&&) = default;
@@ -44,37 +46,44 @@ struct coalesce_t : public enable_comparison, public enable_as {
   coalesce_t& operator=(coalesce_t&&) = default;
   ~coalesce_t() = default;
 
-  std::tuple<Args...> _args;
+ private:
+  friend reader_t;
+  std::tuple<Expressions...> _expressions;
 };
 
-template <typename Arg, typename... Args>
-struct data_type_of<coalesce_t<Arg, Args...>> {
+template <typename Arg, typename... Expressions>
+struct data_type_of<coalesce_t<Arg, Expressions...>> {
   using type = std::conditional_t<
-      logic::any<is_optional<data_type_of_t<Arg>>::value, is_optional<data_type_of_t<Args>>::value...>::value,
+      logic::any<is_optional<data_type_of_t<Arg>>::value,
+                 is_optional<data_type_of_t<Expressions>>::value...>::value,
       force_optional_t<data_type_of_t<Arg>>,
       data_type_of_t<Arg>>;
 };
 
-template <typename... Args>
-struct nodes_of<coalesce_t<Args...>> {
-  using type = detail::type_vector<Args...>;
+template <typename... Expressions>
+struct nodes_of<coalesce_t<Expressions...>> {
+  using type = detail::type_vector<Expressions...>;
 };
 
-template <typename Context, typename... Args>
-auto to_sql_string(Context& context, const coalesce_t<Args...>& t)
+template <typename Context, typename... Expressions>
+auto to_sql_string(Context& context, const coalesce_t<Expressions...>& t)
     -> std::string {
   return "COALESCE(" +
-         tuple_to_sql_string(context, t._args, tuple_operand{", "}) + ")";
+         tuple_to_sql_string(context, read.expressions(t),
+                             tuple_operand{", "}) +
+         ")";
 }
 
-template <typename Arg, typename... Args>
+template <typename Arg, typename... Expressions>
   requires(
       has_data_type<remove_dynamic_t<Arg>>::value and
       logic::all<std::is_same_v<
           force_optional_t<data_type_of_t<remove_dynamic_t<Arg>>>,
-          force_optional_t<data_type_of_t<remove_dynamic_t<Args>>>>...>::value)
-auto coalesce(Arg arg, Args... args) -> coalesce_t<Arg, Args...> {
-  return {std::move(arg), std::move(args)...};
+          force_optional_t<data_type_of_t<remove_dynamic_t<Expressions>>>>...>::
+          value)
+auto coalesce(Arg arg, Expressions... expressions)
+    -> coalesce_t<Arg, Expressions...> {
+  return {std::move(arg), std::move(expressions)...};
 }
 
 }  // namespace sqlpp

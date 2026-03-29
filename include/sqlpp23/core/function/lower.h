@@ -28,13 +28,14 @@
  */
 
 #include <sqlpp23/core/operator/enable_as.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename Expr>
+template <typename Expression>
 struct lower_t : public enable_as {
-  lower_t(const Expr expr) : _expr(expr) {}
+  lower_t(const Expression expression) : _expression(expression) {}
 
   lower_t(const lower_t&) = default;
   lower_t(lower_t&&) = default;
@@ -42,26 +43,28 @@ struct lower_t : public enable_as {
   lower_t& operator=(lower_t&&) = default;
   ~lower_t() = default;
 
-  Expr _expr;
+ private:
+  friend reader_t;
+  Expression _expression;
 };
 
-template <typename Expr>
-struct data_type_of<lower_t<Expr>> : public data_type_of<Expr> {};
+template <typename Expression>
+struct data_type_of<lower_t<Expression>> : public data_type_of<Expression> {};
 
-template <typename Expr>
-struct nodes_of<lower_t<Expr>> {
-  using type = detail::type_vector<Expr>;
+template <typename Expression>
+struct nodes_of<lower_t<Expression>> {
+  using type = detail::type_vector<Expression>;
 };
 
-template <typename Context, typename Expr>
-auto to_sql_string(Context& context, const lower_t<Expr>& t) -> std::string {
-  return "LOWER(" + to_sql_string(context, t._expr) + ")";
+template <typename Context, typename Expression>
+auto to_sql_string(Context& context, const lower_t<Expression>& t) -> std::string {
+  return "LOWER(" + to_sql_string(context, read.expression(t)) + ")";
 }
 
-template <typename T>
-  requires(is_text<T>::value)
-auto lower(T t) -> lower_t<T> {
-  return {std::move(t)};
+template <typename Expression>
+  requires(is_text<Expression>::value)
+auto lower(Expression expression) -> lower_t<Expression> {
+  return {std::move(expression)};
 }
 
 }  // namespace sqlpp

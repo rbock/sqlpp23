@@ -30,13 +30,15 @@
 #include <sqlpp23/core/logic.h>
 #include <sqlpp23/core/operator/enable_as.h>
 #include <sqlpp23/core/operator/enable_comparison.h>
+#include <sqlpp23/core/reader.h>
 #include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp23/core/tuple_to_sql_string.h>
 #include <sqlpp23/core/type_traits.h>
 
 namespace sqlpp {
-template <typename... Args>
+template <typename... Expressions>
 struct concat_t : public enable_comparison, public enable_as {
-  concat_t(Args... args) : _args(std::move(args)...) {}
+  concat_t(Expressions... expressions) : _expressions(std::move(expressions)...) {}
 
   concat_t(const concat_t&) = default;
   concat_t(concat_t&&) = default;
@@ -44,34 +46,38 @@ struct concat_t : public enable_comparison, public enable_as {
   concat_t& operator=(concat_t&&) = default;
   ~concat_t() = default;
 
-  std::tuple<Args...> _args;
+ private:
+  friend reader_t;
+  std::tuple<Expressions...> _expressions;
 };
 
-template <typename... Args>
-struct data_type_of<concat_t<Args...>> {
+template <typename... Expressions>
+struct data_type_of<concat_t<Expressions...>> {
   using type = std::conditional_t<
-      logic::any<is_optional<data_type_of_t<Args>>::value...>::value,
+      logic::any<is_optional<data_type_of_t<Expressions>>::value...>::value,
       std::optional<sqlpp::text>,
       sqlpp::text>;
 };
 
-template <typename... Args>
-struct nodes_of<concat_t<Args...>> {
-  using type = detail::type_vector<Args...>;
+template <typename... Expressions>
+struct nodes_of<concat_t<Expressions...>> {
+  using type = detail::type_vector<Expressions...>;
 };
 
-template <typename Context, typename... Args>
-auto to_sql_string(Context& context, const concat_t<Args...>& t)
+template <typename Context, typename... Expressions>
+auto to_sql_string(Context& context, const concat_t<Expressions...>& t)
     -> std::string {
   return "CONCAT(" +
-         tuple_to_sql_string(context, t._args, tuple_operand{", "}) + ")";
+         tuple_to_sql_string(context, read.expressions(t),
+                             tuple_operand{", "}) +
+         ")";
 }
 
-template <typename... Args>
-  requires(sizeof...(Args) > 0 and
-           logic::all<is_text<remove_dynamic_t<Args>>::value...>::value)
-auto concat(Args... args) -> concat_t<Args...> {
-  return {std::move(args)...};
+template <typename... Expressions>
+  requires(sizeof...(Expressions) > 0 and
+           logic::all<is_text<remove_dynamic_t<Expressions>>::value...>::value)
+auto concat(Expressions... expressions) -> concat_t<Expressions...> {
+  return {std::move(expressions)...};
 }
 
 }  // namespace sqlpp
