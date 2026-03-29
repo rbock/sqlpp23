@@ -262,6 +262,7 @@ class DdlParser:
                 | ddl_default_value
                 | ddl_generated_value
                 | ddl_primary_key
+                | (pp.Suppress(pp.CaselessKeyword("COMMENT")) + ddl_string.set_results_name("column_comment"))
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
@@ -459,6 +460,11 @@ class DdlExecutor:
                 print("WARNING: You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         data_type = col_expr.type
+        cpp_type = col_expr.cpp_type or None
+        if not cpp_type and col_expr.column_comment:
+            m = re.search(r'cpp_type:\s*(\S+)', col_expr.column_comment)
+            if m:
+                cpp_type = m.group(1)
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
@@ -483,7 +489,7 @@ class DdlExecutor:
                 col_expr.has_generated_value or
                 is_nullable
             ),
-            cpp_type = col_expr.cpp_type or None,
+            cpp_type = cpp_type,
         )
 
     @classmethod
@@ -732,6 +738,7 @@ class SelfTest:
         cls._test_rational()
         cls._test_command_create_table()
         cls._test_command_set_default()
+        cls._test_column_comment()
         cls._test_cpp_type_inline_comment()
         cls._test_command_comment_on_column()
         cls._test_cpp_type_executor()
@@ -990,6 +997,18 @@ class SelfTest:
         assert result[0].column_name == "mycol"
 
     @staticmethod
+    def _test_column_comment():
+        # MySQL-style COMMENT clause: value is captured
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+        assert result[0].columns[0].column_comment == "cpp_type:my::Type"
+
+        # No COMMENT clause: column_comment is absent/empty
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int NOT NULL)", parse_all=True)
+        assert not result[0].columns[0].column_comment
+
+    @staticmethod
     def _test_cpp_type_inline_comment():
         # Annotation directly before the column
         result = DdlParser.ddl.parse_string(
@@ -1072,6 +1091,12 @@ class SelfTest:
         """)
         tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
         assert tables["t"].columns["a"].cpp_type == "CsvType"
+
+        # MySQL COMMENT clause: cpp_type extracted from column comment
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')")
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["x"].cpp_type == "my::Type"
 
         # Unknown SQL type resolved by cpp_type annotation: no error
         parsed = DdlParser.ddl.parse_string("""
