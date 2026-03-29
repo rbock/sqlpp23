@@ -51,6 +51,7 @@ using ::sqlpp::full_outer_join;
 using ::sqlpp::cross_join;
 using ::sqlpp::parameter;
 using ::sqlpp::parameter_t; // TODO remove?
+using ::sqlpp::parameter_value;
 using ::sqlpp::verbatim;
 using ::sqlpp::verbatim_clause;
 using ::sqlpp::verbatim_table;

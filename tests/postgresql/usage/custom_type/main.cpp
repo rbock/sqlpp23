@@ -27,9 +27,9 @@
 #include <cassert>
 #include <iostream>
 
+#include "tab_point.h"
 #include <sqlpp23/tests/postgresql/all.h>
 
-#include "tab_point.h"
 
 namespace sql = sqlpp::postgresql;
 
