@@ -35,7 +35,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct lower_t : public enable_as {
-  lower_t(const Expression expression) : _expression(expression) {}
+  lower_t(const Expression expression) : _expression(std::move(expression)) {}
 
   lower_t(const lower_t&) = default;
   lower_t(lower_t&&) = default;

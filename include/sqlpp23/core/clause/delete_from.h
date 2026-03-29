@@ -92,7 +92,7 @@ inline auto delete_from() -> blank_delete_t {
 template <typename _Table>
 auto delete_from(_Table table)
     -> decltype(blank_delete_t().single_table(table)) {
-  return {blank_delete_t().single_table(table)};
+  return {blank_delete_t().single_table(std::move(table))};
 }
 
 }  // namespace sqlpp

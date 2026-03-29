@@ -91,7 +91,7 @@ using blank_update_t = statement_t<update_t,
 template <typename _Table>
 constexpr auto update(_Table table)
     -> decltype(blank_update_t().single_table(table)) {
-  return {blank_update_t().single_table(table)};
+  return {blank_update_t().single_table(std::move(table))};
 }
 
 }  // namespace sqlpp

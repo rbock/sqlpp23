@@ -36,7 +36,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct limit_t {
-  limit_t(Expression expression) : _expression(expression) {}
+  limit_t(Expression expression) : _expression(std::move(expression)) {}
   limit_t(const limit_t&) = default;
   limit_t(limit_t&&) = default;
   limit_t& operator=(const limit_t&) = default;

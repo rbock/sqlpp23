@@ -38,7 +38,7 @@
 namespace sqlpp {
 template <typename _Table>
 struct into_t {
-  into_t(_Table table) : _table(table) {}
+  into_t(_Table table) : _table(std::move(table)) {}
 
   into_t(const into_t&) = default;
   into_t(into_t&&) = default;
@@ -84,10 +84,7 @@ class assert_into_t : public wrapped_static_assert {
  public:
   template <typename... T>
   static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-"into() required"
-   );
+    static_assert(wrong<T...>, "into() required");
   }
 };
 
@@ -96,7 +93,7 @@ struct no_into_t {
   template <typename Statement, StaticRawTable _Table>
   auto into(this Statement&& self, _Table table) {
     return new_statement<no_into_t>(std::forward<Statement>(self),
-                                    into_t<_Table>{table});
+                                    into_t<_Table>{std::move(table)});
   }
 };
 

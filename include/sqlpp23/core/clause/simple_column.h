@@ -33,7 +33,7 @@
 namespace sqlpp {
 template <typename Column>
 struct simple_column_t {
-  simple_column_t(const Column& column) : _column{column} {}
+  simple_column_t(const Column& column) : _column{std::move(column)} {}
   simple_column_t(const simple_column_t&) = default;
   simple_column_t(simple_column_t&&) = default;
   simple_column_t& operator=(const simple_column_t&) = default;

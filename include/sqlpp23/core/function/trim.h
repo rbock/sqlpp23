@@ -36,7 +36,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct trim_t : public enable_as {
-  trim_t(const Expression expression) : _expression(expression) {}
+  trim_t(const Expression expression) : _expression(std::move(expression)) {}
 
   trim_t(const trim_t&) = default;
   trim_t(trim_t&&) = default;

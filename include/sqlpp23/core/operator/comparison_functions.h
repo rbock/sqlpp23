@@ -49,7 +49,7 @@ struct op_is_null {
 template <typename L>
 constexpr auto is_null(L l)
     -> comparison_expression<L, op_is_null, std::nullopt_t> {
-  return {l, std::nullopt};
+  return {std::move(l), std::nullopt};
 }
 
 struct op_is_not_null {
@@ -59,7 +59,7 @@ struct op_is_not_null {
 template <typename L>
 constexpr auto is_not_null(L l)
     -> comparison_expression<L, op_is_not_null, std::nullopt_t> {
-  return {l, std::nullopt};
+  return {std::move(l), std::nullopt};
 }
 
 struct op_is_distinct_from {
@@ -72,7 +72,7 @@ template <typename L, typename R>
   requires(values_are_comparable<L, R>::value)
 constexpr auto is_distinct_from(L l, R r)
     -> comparison_expression<L, op_is_distinct_from, R> {
-  return {l, r};
+  return {std::move(l), std::move(r)};
 }
 
 struct op_is_not_distinct_from {
@@ -85,7 +85,7 @@ template <typename L, typename R>
   requires(values_are_comparable<L, R>::value)
 constexpr auto is_not_distinct_from(L l, R r)
     -> comparison_expression<L, op_is_not_distinct_from, R> {
-  return {l, r};
+  return {std::move(l), std::move(r)};
 }
 
 struct op_like {

@@ -227,7 +227,8 @@ struct nodes_of<insert_set_t<Assignments...>> {
 
 template <typename Tuple, typename... Assignments>
 concept CorrectAddValuesAssignments = requires(Assignments... assignments) {
-  Tuple{make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...};
+  Tuple{make_insert_value_t<lhs_t<Assignments>>(
+      get_rhs(std::move(assignments)))...};
 };
 
 template <typename... Columns>
@@ -247,8 +248,8 @@ struct column_list_t {
         CorrectAddValuesAssignments<std::tuple<make_insert_value_t<Columns>...>,
                                     Assignments...>)
   auto add_values(Assignments... assignments) -> void {
-    _expressions.emplace_back(
-        make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+    _expressions.emplace_back(make_insert_value_t<lhs_t<Assignments>>(
+        get_rhs(std::move(assignments)))...);
   }
 
  private:
@@ -382,7 +383,7 @@ template <DynamicAssignment... Assignments>
         detail::are_same<
             typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value)
 auto insert_set(Assignments... assignments) {
-  return statement_t<no_insert_value_list_t>().set(assignments...);
+  return statement_t<no_insert_value_list_t>().set(std::move(assignments)...);
 }
 
 template <DynamicColumn... Columns>
@@ -392,6 +393,6 @@ template <DynamicColumn... Columns>
       detail::are_unique<remove_dynamic_t<Columns>...>::value and
       detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value)
 auto insert_columns(Columns... cols) {
-  return statement_t<no_insert_value_list_t>().columns(cols...);
+  return statement_t<no_insert_value_list_t>().columns(std::move(cols)...);
 }
 }  // namespace sqlpp

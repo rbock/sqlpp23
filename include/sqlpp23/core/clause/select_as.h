@@ -51,7 +51,7 @@ template <typename Select, typename NameTag, typename... FieldSpecs>
 struct select_as_t
     : public select_member<NameTag, FieldSpecs>::type...,
       public enable_join {
-  select_as_t(Select select) : _expression(select) {}
+  select_as_t(Select select) : _expression(std::move(select)) {}
 
   select_as_t(const select_as_t& rhs) = default;
   select_as_t(select_as_t&& rhs) = default;

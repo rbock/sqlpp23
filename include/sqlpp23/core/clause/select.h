@@ -80,7 +80,7 @@ inline constexpr blank_select_t select() {
 template <DynamicSelectArg... Args>
   requires(detail::count_columns<Args...>() > 0 and detail::all_flags_are_before_all_columns<Args...>())
 auto select(Args... args) {
-  return blank_select_t().columns(args...);
+  return blank_select_t().columns(std::move(args)...);
 }
 
 }  // namespace sqlpp

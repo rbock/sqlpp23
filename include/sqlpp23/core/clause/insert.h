@@ -92,7 +92,7 @@ inline auto insert() -> blank_insert_t {
 template <typename _Table>
 constexpr auto insert_into(_Table table)
     -> decltype(blank_insert_t().into(table)) {
-  return {blank_insert_t().into(table)};
+  return {blank_insert_t().into(std::move(table))};
 }
 
 }  // namespace sqlpp

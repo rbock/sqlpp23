@@ -39,7 +39,7 @@
 namespace sqlpp {
 template <typename _Table>
 struct single_table_t {
-  single_table_t(_Table table) : _table(table) {}
+  single_table_t(_Table table) : _table(std::move(table)) {}
 
   single_table_t(const single_table_t&) = default;
   single_table_t(single_table_t&&) = default;
@@ -82,8 +82,9 @@ struct provided_tables_of<single_table_t<_Table>>
 struct no_single_table_t {
   template <typename Statement, StaticRawTable _Table>
   auto single_table(this Statement&& self, _Table table) {
-    return new_statement<no_single_table_t>(std::forward<Statement>(self),
-                                            single_table_t<_Table>{table});
+    return new_statement<no_single_table_t>(
+        std::forward<Statement>(self),
+        single_table_t<_Table>{std::move(table)});
   }
 };
 

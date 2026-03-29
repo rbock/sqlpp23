@@ -65,7 +65,8 @@ template <typename OnConflictUpdate, typename Expression>
 struct on_conflict_do_update_where_t {
   on_conflict_do_update_where_t(OnConflictUpdate on_conflict_update,
                                 Expression expression)
-      : _on_conflict_update(on_conflict_update), _expression(expression) {}
+      : _on_conflict_update(std::move(on_conflict_update)),
+        _expression(std::move(expression)) {}
   on_conflict_do_update_where_t(const on_conflict_do_update_where_t&) = default;
   on_conflict_do_update_where_t(on_conflict_do_update_where_t&&) = default;
   on_conflict_do_update_where_t& operator=(

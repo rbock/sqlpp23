@@ -34,7 +34,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct upper_t : public enable_as {
-  upper_t(const Expression expression) : _expression(expression) {}
+  upper_t(const Expression expression) : _expression(std::move(expression)) {}
 
   upper_t(const upper_t&) = default;
   upper_t(upper_t&&) = default;

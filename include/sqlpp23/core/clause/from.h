@@ -90,7 +90,7 @@ struct no_from_t {
   auto from(this Statement&& self, _Table table) {
     return new_statement<no_from_t>(
         std::forward<Statement>(self),
-        from_t<table_ref_t<_Table>>{make_table_ref(table)});
+        from_t<table_ref_t<_Table>>{make_table_ref(std::move(table))});
   }
 };
 

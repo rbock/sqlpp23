@@ -44,7 +44,7 @@ namespace sqlpp {
 // USING
 template <typename _Table>
 struct using_t {
-  using_t(_Table table) : _table(table) {}
+  using_t(_Table table) : _table(std::move(table)) {}
 
   using_t(const using_t&) = default;
   using_t(using_t&&) = default;
@@ -92,7 +92,7 @@ struct no_using_t {
   auto using_(this Statement&& self, _Table table) {
     return new_statement<no_using_t>(
         std::forward<Statement>(self),
-        using_t<table_ref_t<_Table>>{make_table_ref(table)});
+        using_t<table_ref_t<_Table>>{make_table_ref(std::move(table))});
   }
 };
 

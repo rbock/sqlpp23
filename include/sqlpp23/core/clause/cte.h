@@ -40,7 +40,7 @@
 namespace sqlpp {
 template <typename Flag, typename Lhs, typename Rhs>
 struct cte_union_t {
-  cte_union_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs) {}
+  cte_union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
 
   cte_union_t(const cte_union_t&) = default;
   cte_union_t(cte_union_t&&) = default;
@@ -204,7 +204,7 @@ struct cte_t
 
   using _result_row_t = result_row_t<FieldSpecs...>;
 
-  cte_t(Statement statement) : _statement(statement) {}
+  cte_t(Statement statement) : _expression(std::move(statement)) {}
   cte_t(const cte_t&) = default;
   cte_t(cte_t&&) = default;
   cte_t& operator=(const cte_t&) = default;
@@ -223,7 +223,7 @@ struct cte_t
       -> cte_t<NameTagProvider,
                cte_union_t<distinct_t, Statement, Rhs>,
                FieldSpecs...> {
-    return cte_union_t<distinct_t, Statement, Rhs>{_statement, rhs};
+    return cte_union_t<distinct_t, Statement, Rhs>{_expression, rhs};
   }
 
   template <typename Rhs>
@@ -231,10 +231,12 @@ struct cte_t
   auto union_all(Rhs rhs) const -> cte_t<NameTagProvider,
                                          cte_union_t<all_t, Statement, Rhs>,
                                          FieldSpecs...> {
-    return cte_union_t<all_t, Statement, Rhs>{_statement, rhs};
+    return cte_union_t<all_t, Statement, Rhs>{_expression, rhs};
   }
 
-  Statement _statement;
+ private:
+  friend reader_t;
+  Statement _expression;
 };
 
 template <typename Context,
@@ -245,7 +247,7 @@ auto to_sql_string(Context& context,
                    const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t)
     -> std::string {
   return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) +
-         " AS (" + to_sql_string(context, t._statement) + ")";
+         " AS (" + to_sql_string(context, read.expression(t)) + ")";
 }
 
 // Note that `cte_t` is not a table, because `join` and `from` store
@@ -291,8 +293,7 @@ struct cte_ref_t {
                  cte_ref_t<NameTagProvider>>() and
              statement_consistency_check_t<Statement>::value)
   auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement> {
-
-    return {statement};
+    return {std::move(statement)};
   }
 };
 

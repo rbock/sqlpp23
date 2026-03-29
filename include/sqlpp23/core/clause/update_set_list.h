@@ -105,7 +105,8 @@ struct no_update_set_list_t {
   {
     return new_statement<no_update_set_list_t>(
         std::forward<Statement>(self),
-        update_set_list_t<Assignments...>{std::make_tuple(assignments...)});
+        update_set_list_t<Assignments...>{
+            std::make_tuple(std::move(assignments)...)});
   }
 };
 

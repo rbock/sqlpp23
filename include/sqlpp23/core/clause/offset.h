@@ -36,7 +36,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct offset_t {
-  offset_t(Expression expression) : _expression(expression) {}
+  offset_t(Expression expression) : _expression(std::move(expression)) {}
   offset_t(const offset_t&) = default;
   offset_t(offset_t&&) = default;
   offset_t& operator=(const offset_t&) = default;

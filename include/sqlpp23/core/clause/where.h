@@ -120,7 +120,7 @@ struct no_where_t {
   auto where(this Statement&& self, Expression expression) {
 
     return new_statement<no_where_t>(std::forward<Statement>(self),
-                                     where_t<Expression>{expression});
+                                     where_t<Expression>{std::move(expression)});
   }
 };
 

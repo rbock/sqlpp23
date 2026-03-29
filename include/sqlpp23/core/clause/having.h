@@ -147,7 +147,7 @@ struct no_having_t {
   template <typename Statement, DynamicBoolean Expression>
   auto having(this Statement&& self, Expression expression) {
     return new_statement<no_having_t>(std::forward<Statement>(self),
-                                      having_t<Expression>{expression});
+                                      having_t<Expression>{std::move(expression)});
   }
 };
 
@@ -165,9 +165,9 @@ struct consistency_check<Statement, no_having_t> {
 };
 
 template <typename T>
-auto having(T&& t)
-    -> decltype(statement_t<no_having_t>().having(std::forward<T>(t))) {
-  return statement_t<no_having_t>().having(std::forward<T>(t));
+auto having(T t)
+    -> decltype(statement_t<no_having_t>().having(std::move(t))) {
+  return statement_t<no_having_t>().having(std::move(t));
 }
 
 }  // namespace sqlpp

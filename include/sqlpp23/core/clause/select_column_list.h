@@ -115,7 +115,9 @@ struct select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>> {
 };
 
 template <typename Context, typename... Flags, typename... Columns>
-auto to_sql_string(Context& context, const select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>& t)
+auto to_sql_string(
+    Context& context,
+    const select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>& t)
     -> std::string {
   // dynamic(false, foo.id) -> NULL as id
   // dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake
@@ -127,14 +129,19 @@ auto to_sql_string(Context& context, const select_column_list_t<std::tuple<Flags
 }
 
 template <typename... Flags, typename... Columns>
-struct is_clause<select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> : public std::true_type {};
+struct is_clause<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
+    : public std::true_type {};
 
 template <typename... Flags, typename... Columns>
-struct has_result_row<select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
+struct has_result_row<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
     : public std::true_type {};
 
 template <typename Statement, typename... Flags, typename... Columns>
-struct result_row_of<Statement, select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+struct result_row_of<
+    Statement,
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
 };
 
@@ -177,17 +184,21 @@ struct select_result_methods_t {
 };
 
 template <typename... Flags, typename... Columns>
-struct no_of_result_columns<select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+struct no_of_result_columns<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   static constexpr size_t value = sizeof...(Columns);
 };
 
 template <typename... Flags, typename... Columns>
-struct result_methods_of<select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+struct result_methods_of<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = select_result_methods_t<Columns...>;
 };
 
 template <typename Statement, typename... Flags, typename... Columns>
-struct consistency_check<Statement, select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+struct consistency_check<
+    Statement,
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using AC = typename Statement::_all_provided_aggregates;
   static constexpr bool has_group_by = not AC::empty();
 
@@ -200,35 +211,38 @@ struct consistency_check<Statement, select_column_list_t<std::tuple<Flags...>, s
           Statement,
           detail::remove_as_from_select_column_t<Columns>,
           assert_no_unknown_static_tables_in_selected_columns_t>...>;
-  constexpr auto operator()() {
-    return type{};
-  }
+  constexpr auto operator()() { return type{}; }
 };
 
 template <typename Statement, typename... Flags, typename... Columns>
-struct prepare_check<Statement, select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+struct prepare_check<
+    Statement,
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = static_combined_check_t<
       static_check_t<Statement::template _no_unknown_tables<
-                         select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>,
+                         select_column_list_t<std::tuple<Flags...>,
+                                              std::tuple<Columns...>>>,
                      assert_no_unknown_tables_in_selected_columns_t>,
       static_check_t<Statement::template _no_unknown_static_tables<
-                         select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>,
+                         select_column_list_t<std::tuple<Flags...>,
+                                              std::tuple<Columns...>>>,
                      assert_no_unknown_static_tables_in_selected_columns_t>>;
-  constexpr auto operator()() {
-    return type{};
-  }
+  constexpr auto operator()() { return type{}; }
 };
 
 template <typename... Flags, typename Column>
-struct data_type_of<select_column_list_t<std::tuple<Flags...>, std::tuple<Column>>>
+struct data_type_of<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Column>>>
     : public select_column_data_type_of<Column> {};
 
 template <typename... Flags, typename... Columns>
-struct is_result_clause<select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
+struct is_result_clause<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
     : public std::true_type {};
 
 template <typename... Flags, typename... Columns>
-struct nodes_of<select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+struct nodes_of<
+    select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = detail::type_vector<Columns...>;
 };
 
@@ -259,8 +273,8 @@ struct no_select_column_list_t {
         std::forward<Statement>(self),
         make_select_column_list_t<Args...>{
             std::tuple_cat(detail::tupelize<is_select_flag>(args)...),
-            std::tuple_cat(detail::tupelize<is_select_column>(std::move(args))...)
-            });
+            std::tuple_cat(
+                detail::tupelize<is_select_column>(std::move(args))...)});
   }
 };
 

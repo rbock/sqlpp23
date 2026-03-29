@@ -63,7 +63,8 @@ class assert_no_unknown_static_tables_in_order_by_t
 
 template <typename... Expressions>
 struct order_by_t {
-  order_by_t(Expressions... expressions) : _expressions(expressions...) {}
+  order_by_t(Expressions... expressions)
+      : _expressions(std::move(expressions)...) {}
 
   order_by_t(const order_by_t&) = default;
   order_by_t(order_by_t&&) = default;

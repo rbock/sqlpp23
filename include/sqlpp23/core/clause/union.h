@@ -45,7 +45,7 @@ namespace sqlpp {
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct union_t {
-  union_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs) {}
+  union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
 
   union_t(const union_t&) = default;
   union_t(union_t&&) = default;
@@ -154,7 +154,7 @@ struct no_union_t {
     return statement_t<union_t<union_distinct_t, S, Rhs>, no_union_t,
                        no_union_order_by_t>{statement_constructor_arg<
         union_t<union_distinct_t, S, Rhs>, no_union_t, no_union_order_by_t, no_limit_t, no_offset_t>{
-        union_t<union_distinct_t, S, Rhs>{std::forward<Statement>(self), rhs},
+        union_t<union_distinct_t, S, Rhs>{std::forward<Statement>(self), std::move(rhs)},
         no_union_t{}, no_union_order_by_t{}, no_limit_t{}, no_offset_t{}}};
   }
 
@@ -168,7 +168,7 @@ struct no_union_t {
                        no_union_order_by_t>{
         statement_constructor_arg<union_t<union_all_t, S, Rhs>, no_union_t,
                                   no_union_order_by_t>{
-            union_t<union_all_t, S, Rhs>{std::forward<Statement>(self), rhs},
+            union_t<union_all_t, S, Rhs>{std::forward<Statement>(self), std::move(rhs)},
             no_union_t{}, no_union_order_by_t{}}};
   }
 };

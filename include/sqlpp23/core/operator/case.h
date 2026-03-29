@@ -86,7 +86,7 @@ template <typename When, typename Then>
 struct when_then_pair_t {
   using nodes = ::sqlpp::detail::type_vector<When, Then>;
 
-  when_then_pair_t(When w, Then t) : _when(w), _then(t) {}
+  when_then_pair_t(When w, Then t) : _when(std::move(w)), _then(std::move(t)) {}
 
   when_then_pair_t(const when_then_pair_t&) = default;
   when_then_pair_t(when_then_pair_t&&) = default;
@@ -184,7 +184,7 @@ template <typename RepresentativeExpression, typename... WhenThenPairs>
 class case_builder_t {
  public:
   case_builder_t(std::tuple<WhenThenPairs...> current_pairs)
-      : _current_pairs(current_pairs) {}
+      : _current_pairs(std::move(current_pairs)) {}
 
   case_builder_t(const case_builder_t&) = default;
   case_builder_t(case_builder_t&&) = default;
@@ -197,7 +197,7 @@ class case_builder_t {
       -> case_pending_then_t<RepresentativeExpression,
                              NewWhenCondition,
                              WhenThenPairs...> {
-    return {_current_pairs, condition};
+    return {_current_pairs, std::move(condition)};
   }
 
   template <typename Else>
@@ -210,7 +210,7 @@ class case_builder_t {
       detail::representative_expression_t<RepresentativeExpression, Else>,
       Else,
       WhenThenPairs...> {
-    return {_current_pairs, else_expr};
+    return {_current_pairs, std::move(else_expr)};
   }
 
   template <typename = void>
@@ -219,7 +219,7 @@ class case_builder_t {
       -> case_t<force_optional_t<RepresentativeExpression>,
                 std::nullopt_t,
                 WhenThenPairs...> {
-    return {_current_pairs, null_opt_value};
+    return {_current_pairs, std::move(null_opt_value)};
   }
 
  private:
@@ -235,7 +235,7 @@ class case_pending_then_t {
  public:
   case_pending_then_t(std::tuple<WhenThenPairs...> previous_pairs,
                       When condition)
-      : _previous_pairs(previous_pairs), _condition(condition) {}
+      : _previous_pairs(std::move(previous_pairs)), _condition(std::move(condition)) {}
 
   case_pending_then_t(const case_pending_then_t&) = default;
   case_pending_then_t(case_pending_then_t&&) = default;
