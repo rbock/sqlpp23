@@ -572,6 +572,14 @@ struct contains_for_update {
 };
 
 template <typename T>
+struct table_of {
+  using type = void;
+};
+
+template <typename T>
+using table_of_t = typename table_of<T>::type;
+
+template <typename T>
 inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
 
 }  // namespace sqlpp

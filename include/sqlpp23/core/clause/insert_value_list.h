@@ -244,11 +244,11 @@ struct column_list_t {
   template <DynamicAssignment... Assignments>
     requires(
         std::is_same<std::tuple<Columns...>,
-                     std::tuple<lhs_t<Assignments>...>>::value and
+                     std::tuple<lhs_t<remove_dynamic_t<Assignments>>...>>::value and
         CorrectAddValuesAssignments<std::tuple<make_insert_value_t<Columns>...>,
                                     Assignments...>)
   auto add_values(Assignments... assignments) -> void {
-    _expressions.emplace_back(make_insert_value_t<lhs_t<Assignments>>(
+    _expressions.emplace_back(make_insert_value_t<lhs_t<remove_dynamic_t<Assignments>>>(
         get_rhs(std::move(assignments)))...);
   }
 
@@ -333,11 +333,11 @@ struct no_insert_value_list_t {
   }
 
   template <typename Statement, DynamicColumn... Columns>
-    requires(
-        sizeof...(Columns) > 0 and
-        logic::none<is_const<Columns>::value...>::value and
-        detail::are_unique<remove_dynamic_t<Columns>...>::value and
-        detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value)
+    requires(sizeof...(Columns) > 0 and
+             logic::none<is_const<Columns>::value...>::value and
+             logic::none<is_dynamic<Columns>::value...>::value and
+             detail::are_unique<Columns...>::value and
+             detail::are_same<table_of_t<Columns>...>::value)
   auto columns(this Statement&& self, Columns... cols) {
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(self),
@@ -349,7 +349,7 @@ struct no_insert_value_list_t {
         sizeof...(Assignments) > 0 and
         detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
         detail::are_same<
-            typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value)
+            table_of_t<lhs_t<remove_dynamic_t<Assignments>>>...>::value)
   auto set(this Statement&& self, Assignments... assignments) {
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(self),
@@ -377,21 +377,21 @@ auto insert_default_values() {
 }
 
 template <DynamicAssignment... Assignments>
-    requires(
-        sizeof...(Assignments) > 0 and
-        detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
-        detail::are_same<
-            typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value)
+  requires(
+      sizeof...(Assignments) > 0 and
+      detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
+      detail::are_same<
+          table_of_t<lhs_t<remove_dynamic_t<Assignments>>>...>::value)
 auto insert_set(Assignments... assignments) {
   return statement_t<no_insert_value_list_t>().set(std::move(assignments)...);
 }
 
 template <DynamicColumn... Columns>
-  requires(
-      sizeof...(Columns) > 0 and
-      logic::none<is_const<Columns>::value...>::value and
-      detail::are_unique<remove_dynamic_t<Columns>...>::value and
-      detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value)
+  requires(sizeof...(Columns) > 0 and
+           logic::none<is_const<Columns>::value...>::value and
+           logic::none<is_dynamic<Columns>::value...>::value and
+           detail::are_unique<Columns...>::value and
+           detail::are_same<table_of_t<Columns>...>::value)
 auto insert_columns(Columns... cols) {
   return statement_t<no_insert_value_list_t>().columns(std::move(cols)...);
 }

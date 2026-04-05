@@ -43,7 +43,9 @@ int main(int, char*[]) {
     auto i = insert_columns(foo.intN);
     i.add_values(foo.intN = 17);
     i.add_values(foo.intN = sqlpp::default_value);
-    SQLPP_COMPARE(i, " (int_n) VALUES (17), (DEFAULT)");
+    i.add_values(dynamic(true, foo.intN = 42));
+    i.add_values(dynamic(false, foo.intN = 42));
+    SQLPP_COMPARE(i, " (int_n) VALUES (17), (DEFAULT), (42), (DEFAULT)");
   }
 
   {
@@ -66,21 +68,6 @@ int main(int, char*[]) {
     SQLPP_COMPARE(i,
                   " (int_n, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, "
                   "'cheese'), (17, NULL, 'cake')");
-  }
-
-  // Dynamic columns.
-  // If the conditions for dynamic columns and values do not match, it results
-  // in a bad query. This cannot be prevented at compile time and will therefore
-  // fail to execute on the database backend.
-  {
-    auto i = insert_columns(dynamic(true, foo.intN), dynamic(false, foo.boolN));
-    i.add_values(dynamic(true, foo.intN = sqlpp::default_value),
-                 dynamic(true, foo.boolN = sqlpp::default_value));
-    SQLPP_COMPARE(i, " (int_n) VALUES (DEFAULT, DEFAULT)");
-
-    i.add_values(dynamic(false, foo.intN = sqlpp::default_value),
-                 dynamic(false, foo.boolN = sqlpp::default_value));
-    SQLPP_COMPARE(i, " (int_n) VALUES (DEFAULT, DEFAULT), ()");
   }
 
   return 0;

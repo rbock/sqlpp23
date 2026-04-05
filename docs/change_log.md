@@ -8,6 +8,8 @@ Breaking changes:
 
 - Added log_category parameter to log function, #86
 - verbatim_clause replaces verbatim if used as a clause in a custom query
+- insert_into(t).columns() does not support dynamic columns any more.
+  Instead, add_values supports dynamic assignments which fall back to DEFAULT assignment if the dynamic condition is false.
 
 Other changes:
 

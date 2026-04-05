@@ -51,6 +51,10 @@ multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_
 multi_insert.values.add(t.gamma = std::optional<bool>(true),
                         t.beta = std::optional<std::string>("pie"),
                         t.delta = std::nullopt);
+// If a dynamic assignment is false, the DEFAULT value will be inserted.
+multi_insert.values.add(t.gamma = std::optional<bool>(true),
+                        t.beta = std::optional<std::string>("pie"),
+                        dynamic(maybe, t.delta = 7));
 db(multi_insert);
 ```
 

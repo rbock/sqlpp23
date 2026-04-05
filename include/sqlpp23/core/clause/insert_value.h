@@ -42,6 +42,11 @@ struct insert_value_t {
   insert_value_t(_value_t value)
       : _is_default(false), _value(std::move(value)) {}
 
+  template <typename T>
+  insert_value_t(dynamic_t<T> dynamic_value)
+      : _is_default(not dynamic_value.has_value()),
+        _value(dynamic_value.has_value() ? dynamic_value.value() : T{}) {}
+
   insert_value_t(const default_value_t& /*unused*/)
       : _is_default(true), _value{} {}
 

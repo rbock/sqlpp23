@@ -155,6 +155,9 @@ int main() {
   static_assert(can_call_insert_columns_with<decltype(bar.intN)>);
   static_assert(cannot_call_insert_columns_with<decltype(bar.intN = 7)>);
 
+  // insert_into(table).columns(dynamic arguments) cannot be constructed.
+  static_assert(cannot_call_insert_columns_with<decltype(dynamic(true, bar.intN))>);
+
   // insert_into(table).columns(duplicate columns>) is
   // inconsistent and cannot be constructed.
   static_assert(
@@ -181,23 +184,6 @@ int main() {
                                sqlpp::assert_all_required_columns_t>::value,
                   "");
   }
-  {
-    auto i = insert_into(bar).columns(dynamic(true, bar.intN));
-    using I = decltype(i);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_all_required_columns_t>::value,
-                  "");
-  }
-
-  // insert_into(table).columns(<dynamic required columns>) is also inconsistent
-  // but can be constructed (check can only run later)
-  {
-    auto i = insert_into(bar).columns(dynamic(true, bar.boolNn));
-    using I = decltype(i);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_all_required_columns_t>::value,
-                  "");
-  }
 
   // -------------------------
   // insert_into(tab).columns(...).add_value(...)
@@ -211,6 +197,10 @@ int main() {
                                            decltype(bar.boolNn = true)>);
     static_assert(
         can_call_add_values_with<I, decltype(bar.intN = sqlpp::default_value),
+                                 decltype(bar.boolNn = true)>);
+
+    static_assert(
+        can_call_add_values_with<I, decltype(dynamic(true, bar.intN = 42)),
                                  decltype(bar.boolNn = true)>);
 
     // Not OK, missing assignment
@@ -241,24 +231,4 @@ int main() {
                                     decltype(bar.boolNn = bar.boolNn)>);
   }
 
-  // Dynamic columns
-  {
-    auto i = insert_into(bar).columns(dynamic(true, bar.intN), bar.boolNn);
-    using I = decltype(i);
-
-    i.add_values(dynamic(true, bar.intN = 7), bar.boolNn = true);
-    static_assert(
-        can_call_add_values_with<I, decltype(dynamic(true, bar.intN = 7)),
-                                 decltype(bar.boolNn = true)>);
-
-    // Not OK, compound expressions not allowed in values
-    static_assert(cannot_call_add_values_with<
-                  I, decltype(dynamic(true, bar.intN = bar.intN + 7)),
-                  decltype(bar.boolNn = true)>);
-
-    // Not OK, missing values
-    static_assert(
-        cannot_call_add_values_with<I, decltype(dynamic(true, bar.intN = 7))>);
-    static_assert(cannot_call_add_values_with<I, decltype(bar.boolNn = true)>);
-  }
 }

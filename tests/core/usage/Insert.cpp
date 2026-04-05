@@ -60,6 +60,8 @@ int Insert(int, char*[]) {
   multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
   multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
                           t.intN = sqlpp::default_value);
+  multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
+                          dynamic(maybe, t.intN = 7));
   multi_insert.add_values(t.boolNn = true, t.textN = std::optional{"pie"},
                           t.intN = std::nullopt);
   std::cerr << to_sql_string(ctx, multi_insert) << std::endl;

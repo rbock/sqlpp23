@@ -77,6 +77,11 @@ struct name_tag_of<column_t<_Table, ColumnSpec>>
     : public name_tag_of<ColumnSpec> {};
 
 template <typename _Table, typename ColumnSpec>
+struct table_of<column_t<_Table, ColumnSpec>> {
+  using type = _Table;
+};
+
+template <typename _Table, typename ColumnSpec>
 struct required_tables_of<column_t<_Table, ColumnSpec>> {
   using type = detail::type_set<_Table>;
 };
