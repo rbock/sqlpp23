@@ -1,4 +1,4 @@
-# Copyright (c) 2025, Vesselin Atanasov
+# Copyright (c) 2026, Vesselin Atanasov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,14 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test name)
-    set(target sqlpp23_postgresql_recipes_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
-create_test(optimistic_concurrency_control)
-create_test(thread_local_connection)
-
-add_subdirectory(enum)
+set(target sqlpp23_postgresql_recipes_enum)
+add_executable(${target} main.cpp)
+target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
+add_test(NAME ${target} COMMAND ${target})
