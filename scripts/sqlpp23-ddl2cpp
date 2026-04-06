@@ -252,6 +252,7 @@ class DdlParser:
             pp.Optional(ddl_cpp_type_annotation).set_results_name("cpp_type")
             + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
+            + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
             + pp.Suppress(pp.Optional(ddl_width))
             + pp.Suppress(pp.Optional(ddl_timezone))
             + pp.ZeroOrMore(
@@ -352,6 +353,7 @@ class DdlExecutor:
         is_const: bool
         is_nullable: bool
         has_default: bool
+        is_array: bool
         cpp_type: str = None
 
     @dataclass
@@ -397,6 +399,9 @@ class DdlExecutor:
             for col_def in table_def.columns.values():
                 if col_def.data_type == "UNKNOWN" and col_def.cpp_type is None:
                     print(f"ERROR: SQL data type of {table_def.name}.{col_def.name} is not supported.")
+                    cls._has_error = True
+                if col_def.is_array and col_def.cpp_type is None:
+                    print(f"ERROR: Array type of {table_def.name}.{col_def.name} is not supported.")
                     cls._has_error = True
         if cls._has_error:
             print("ERROR: Unsupported SQL data type(s).")
@@ -489,6 +494,7 @@ class DdlExecutor:
                 col_expr.has_generated_value or
                 is_nullable
             ),
+            is_array = col_expr.is_array,
             cpp_type = cpp_type,
         )
 
@@ -818,7 +824,8 @@ class SelfTest:
                     "has_default_value": True,
                     "has_generated_value": False,
                     "has_serial_value": False,
-                    "is_primary_key": False
+                    "is_primary_key": False,
+                    "is_array": False,
                 }
             },
             {
@@ -832,7 +839,8 @@ class SelfTest:
                     "has_default_value": False,
                     "has_generated_value": False,
                     "has_serial_value": False,
-                    "is_primary_key": False
+                    "is_primary_key": False,
+                    "is_array": False,
                 }
             },
             {
@@ -846,7 +854,8 @@ class SelfTest:
                     "has_default_value": False,
                     "has_generated_value": False,
                     "has_serial_value": False,
-                    "is_primary_key": False
+                    "is_primary_key": False,
+                    "is_array": False,
                 }
             },
             {
@@ -860,7 +869,8 @@ class SelfTest:
                     "has_default_value": False,
                     "has_generated_value": False,
                     "has_serial_value": False,
-                    "is_primary_key": True
+                    "is_primary_key": True,
+                    "is_array": False,
                 }
             },
             {
@@ -874,25 +884,42 @@ class SelfTest:
                     "has_default_value": False,
                     "has_generated_value": True,
                     "has_serial_value": False,
-                    "is_primary_key": False
+                    "is_primary_key": False,
+                    "is_array": False,
                 }
-            }
+            },
+            {
+                "text": "int_array int8[] AUTOINCREMENT NOT NULL",
+                "expected": {
+                    "name": "int_array",
+                    "type": "integral",
+                    "is_unsigned": False,
+                    "not_null": True,
+                    "has_auto_value": True,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "has_serial_value": False,
+                    "is_primary_key": False,
+                    "is_array": True,
+                }
+            },
         ]
         for td in test_data:
             result = DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
-            cls._check_parsed_column(result, td["expected"])
+            cls._check_parsed_column(result, td["expected"], td["text"])
 
     @staticmethod
-    def _check_parsed_column(column_expr, column_expected):
-        assert column_expr.name == column_expected["name"]
-        assert column_expr.type == column_expected["type"]
-        assert bool(column_expr.is_unsigned) == column_expected["is_unsigned"]
-        assert bool(column_expr.not_null) == column_expected["not_null"]
-        assert bool(column_expr.has_auto_value) == column_expected["has_auto_value"]
-        assert bool(column_expr.has_default_value) == column_expected["has_default_value"]
-        assert bool(column_expr.has_generated_value) == column_expected["has_generated_value"]
-        assert bool(column_expr.has_serial_value) == column_expected["has_serial_value"]
-        assert bool(column_expr.is_primary_key) == column_expected["is_primary_key"]
+    def _check_parsed_column(column_expr, column_expected, text):
+        assert column_expr.name == column_expected["name"], text
+        assert column_expr.type == column_expected["type"], text
+        assert bool(column_expr.is_unsigned) == column_expected["is_unsigned"], text
+        assert bool(column_expr.not_null) == column_expected["not_null"], text
+        assert bool(column_expr.has_auto_value) == column_expected["has_auto_value"], text
+        assert bool(column_expr.has_default_value) == column_expected["has_default_value"], text
+        assert bool(column_expr.has_generated_value) == column_expected["has_generated_value"], text
+        assert bool(column_expr.has_serial_value) == column_expected["has_serial_value"], text
+        assert bool(column_expr.is_primary_key) == column_expected["is_primary_key"], text
+        assert bool(column_expr.is_array) == column_expected["is_array"], text
 
     @staticmethod
     def _test_constraint():
@@ -949,7 +976,8 @@ class SelfTest:
                 "has_default_value": True,
                 "has_generated_value": False,
                 "has_serial_value": False,
-                "is_primary_key": False
+                "is_primary_key": False,
+                "is_array": False,
             },
             {
                 "name": "strange",
@@ -960,7 +988,8 @@ class SelfTest:
                 "has_default_value": False,
                 "has_generated_value": False,
                 "has_serial_value": False,
-                "is_primary_key": False
+                "is_primary_key": False,
+                "is_array": False,
             },
             {
                 "name": "last_update",
@@ -971,12 +1000,13 @@ class SelfTest:
                 "has_default_value": True,
                 "has_generated_value": False,
                 "has_serial_value": False,
-                "is_primary_key": False
+                "is_primary_key": False,
+                "is_array": False,
             },
         ]
         assert len(create_table.columns) == len(column_data)
         for index, expected in enumerate(column_data):
-            cls._check_parsed_column(create_table.columns[index], expected)
+            cls._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
         assert create_table.command_text == input_text.strip()
 
     @staticmethod

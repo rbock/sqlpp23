@@ -92,7 +92,7 @@ if (${Python3_Interpreter_FOUND})
         endforeach()
 
         # Invalid .types names
-        foreach(bad_type "booltype" "invalid" "serial5" "typeint")
+        foreach(bad_type "booltype" "invalid" "serial5" "typeint" "int_array" "int_array2" "int_array3")
             set(bad_type_test_name "sqlpp23.scripts.ddl2cpp.bad_type.${bad_type}")
             add_test(NAME "${bad_type_test_name}"
                 COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
