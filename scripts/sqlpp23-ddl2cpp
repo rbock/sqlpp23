@@ -337,7 +337,7 @@ class DdlParser:
         try:
             return [cls.ddl.parse_file(path) for path in ddl_paths]
         except pp.ParseException as e:
-            print(f"ERROR: Failed to parse {path}")
+            print(f"ERROR: Failed to parse {ddl_paths}")
             print(e.explain(1))
             sys.exit(ExitCode.BAD_DDL_PARSING)
 
