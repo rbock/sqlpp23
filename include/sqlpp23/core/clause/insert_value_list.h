@@ -227,7 +227,7 @@ struct nodes_of<insert_set_t<Assignments...>> {
 
 template <typename Tuple, typename... Assignments>
 concept CorrectAddValuesAssignments = requires(Assignments... assignments) {
-  Tuple{make_insert_value_t<lhs_t<Assignments>>(
+  Tuple{make_insert_value_t<lhs_t<remove_dynamic_t<Assignments>>>(
       get_rhs(std::move(assignments)))...};
 };
 
