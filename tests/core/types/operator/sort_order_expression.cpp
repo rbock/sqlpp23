@@ -34,15 +34,26 @@ void test_order_expression(Value v) {
   // Sort order expressions have no value.
   static_assert(not sqlpp::has_data_type<decltype(v_not_null.asc())>::value,
                 "");
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null.asc().nulls_first())>::value,
+                "");
   static_assert(not sqlpp::has_data_type<decltype(v_not_null.desc())>::value,
                 "");
   static_assert(not sqlpp::has_data_type<decltype(v_not_null.order(
                     sqlpp::sort_type::asc))>::value,
                 "");
 
+  static_assert(not sqlpp::has_data_type<decltype(v_not_null.order(
+                    sqlpp::sort_type::asc, sqlpp::null_position::last))>::value,
+                "");
+
   static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.asc())>::value,
                 "");
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.asc().nulls_last())>::value,
+                "");
   static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.desc())>::value,
+                "");
+  static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.order(
+                    sqlpp::sort_type::asc, sqlpp::null_position::last))>::value,
                 "");
   static_assert(not sqlpp::has_data_type<decltype(v_maybe_null.order(
                     sqlpp::sort_type::asc))>::value,
@@ -70,6 +81,9 @@ void test_order_expression(Value v) {
 
   // Sort order expressions have no name.
   static_assert(not sqlpp::has_name_tag<decltype(v_not_null.asc())>::value, "");
+  static_assert(
+      not sqlpp::has_name_tag<decltype(v_not_null.asc().nulls_first())>::value,
+      "");
   static_assert(not sqlpp::has_name_tag<decltype(v_maybe_null.asc())>::value,
                 "");
   static_assert(
@@ -82,16 +96,27 @@ void test_order_expression(Value v) {
   // Sort order expression do not enable the `as` member function.
   static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.asc())>::value,
                 "");
+  static_assert(
+      not sqlpp::has_enabled_as<decltype(v_not_null.asc().nulls_last())>::value,
+      "");
 
   // Sort order expressions do not enable comparison member functions.
   static_assert(
       not sqlpp::has_enabled_comparison<decltype(v_not_null.asc())>::value, "");
+  static_assert(not sqlpp::has_enabled_comparison<
+                    decltype(v_not_null.asc().nulls_first())>::value,
+                "");
 
   // Sort order expressions have their arguments as nodes.
   using L = typename std::decay<decltype(v_not_null)>::type;
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null.asc())>,
                              sqlpp::detail::type_vector<L>>::value,
                 "");
+  static_assert(
+      std::is_same<
+          sqlpp::nodes_of_t<decltype(v_not_null.asc().nulls_last())>,
+                             sqlpp::detail::type_vector<L>>::value,
+      "");
 }
 
 int main() {

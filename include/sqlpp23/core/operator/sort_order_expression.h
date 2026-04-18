@@ -32,9 +32,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp23/core/reader.h>
 
 namespace sqlpp {
+
+template <typename L, typename Strategy>
+struct sort_order_expression;
+
 template <typename L>
-struct sort_order_expression {
-  constexpr sort_order_expression(L l, sort_type r)
+  struct sort_order_expression<L, sort_order_null> {
+  constexpr sort_order_expression(L l, sort_order_null r)
       : _lhs(std::move(l)), _rhs(std::move(r)) {}
   sort_order_expression(const sort_order_expression&) = default;
   sort_order_expression(sort_order_expression&&) = default;
@@ -45,16 +49,40 @@ struct sort_order_expression {
  private:
   friend reader_t;
   L _lhs;
+  sort_order_null _rhs;
+};
+
+template <typename L>
+struct sort_order_expression<L, sort_type> {
+  constexpr sort_order_expression(L l, sort_type r)
+      : _lhs(std::move(l)), _rhs(std::move(r)) {}
+  sort_order_expression(const sort_order_expression&) = default;
+  sort_order_expression(sort_order_expression&&) = default;
+  sort_order_expression& operator=(const sort_order_expression&) = default;
+  sort_order_expression& operator=(sort_order_expression&&) = default;
+  ~sort_order_expression() = default;
+
+  auto nulls_first() {
+    return sort_order_expression<L, sort_order_null>{_lhs, {_rhs, null_position::first}};
+  }
+
+  auto nulls_last() {
+    return sort_order_expression<L, sort_order_null>{_lhs, {_rhs, null_position::last}};
+  }
+
+ private:
+  friend reader_t;
+  L _lhs;
   sort_type _rhs;
 };
 
-template <typename L>
-struct nodes_of<sort_order_expression<L>> {
+template <typename L, typename Strategy>
+struct nodes_of<sort_order_expression<L, Strategy>> {
   using type = detail::type_vector<L>;
 };
 
-template <typename L>
-struct is_sort_order<sort_order_expression<L>> : std::true_type {};
+template <typename L, typename Strategy>
+struct is_sort_order<sort_order_expression<L, Strategy>> : std::true_type {};
 
 template <typename Context>
 auto to_sql_string(Context&, const sort_type& t) -> std::string {
@@ -64,8 +92,21 @@ auto to_sql_string(Context&, const sort_type& t) -> std::string {
   return " DESC";
 }
 
-template <typename Context, typename L>
-auto to_sql_string(Context& context, const sort_order_expression<L>& t)
+template <typename Context>
+auto to_sql_string(Context&, const null_position& t) -> std::string {
+  if (t == null_position::first) {
+    return " NULLS FIRST";
+  }
+  return " NULLS LAST";
+}
+
+template <typename Context>
+auto to_sql_string(Context& context, const sort_order_null& t) -> std::string {
+  return to_sql_string(context, t.order) + to_sql_string(context, t.null_pos);
+}
+
+template <typename Context, typename L, typename Strategy>
+auto to_sql_string(Context& context, const sort_order_expression<L, Strategy>& t)
     -> std::string {
   return operand_to_sql_string(context, read.lhs(t)) + to_sql_string(context, read.rhs(t));
 }

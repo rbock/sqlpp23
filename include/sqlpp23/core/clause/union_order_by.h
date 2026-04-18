@@ -50,13 +50,13 @@
 // ORDER BY id DESC; -- This must not be table qualified!
 namespace sqlpp {
 
-template <typename T>
+template <typename T, typename Strategy>
 struct sort_order_expression;
 
-template <typename L>
+template <typename L, typename Strategy>
 struct simple_sort_order_expression {
   template<typename Column>
-  constexpr simple_sort_order_expression(sort_order_expression<Column> s)
+  constexpr simple_sort_order_expression(sort_order_expression<Column, Strategy> s)
       : _lhs(read.lhs(s)), _rhs(read.rhs(s)) {}
   simple_sort_order_expression(const simple_sort_order_expression&) = default;
   simple_sort_order_expression(simple_sort_order_expression&&) = default;
@@ -67,11 +67,11 @@ struct simple_sort_order_expression {
  private:
   friend reader_t;
   simple_column_t<L> _lhs;
-  sort_type _rhs;
+  Strategy _rhs;
 };
 
-template <typename Context, typename L>
-auto to_sql_string(Context& context, const simple_sort_order_expression<L>& t)
+template <typename Context, typename L, typename Strategy>
+auto to_sql_string(Context& context, const simple_sort_order_expression<L, Strategy>& t)
     -> std::string {
   return operand_to_sql_string(context, read.lhs(t)) + to_sql_string(context, read.rhs(t));
 }
@@ -81,12 +81,12 @@ template <typename T>
 struct sort_order_base {
   using type = void;
 };
-template <typename T>
-struct sort_order_base<sort_order_expression<T>> {
+template <typename T, typename Strategy>
+struct sort_order_base<sort_order_expression<T, Strategy>> {
   using type = T;
 };
-template <typename T>
-struct sort_order_base<dynamic_t<sort_order_expression<T>>> {
+template <typename T, typename Strategy>
+struct sort_order_base<dynamic_t<sort_order_expression<T, Strategy>>> {
   using type = T;
 };
 template <typename T>
@@ -96,12 +96,12 @@ template <typename T>
 struct simple_sort_order_base {
   using type = void;
 };
-template <typename T>
-struct simple_sort_order_base<simple_sort_order_expression<T>> {
+template <typename T, typename Strategy>
+struct simple_sort_order_base<simple_sort_order_expression<T, Strategy>> {
   using type = T;
 };
-template <typename T>
-struct simple_sort_order_base<dynamic_t<simple_sort_order_expression<T>>> {
+template <typename T, typename Strategy>
+struct simple_sort_order_base<dynamic_t<simple_sort_order_expression<T, Strategy>>> {
   using type = T;
 };
 template <typename T>
@@ -111,13 +111,13 @@ template <typename T>
 struct make_simple_sort_order {
   using type = void;
 };
-template <typename T>
-struct make_simple_sort_order<sort_order_expression<T>> {
-  using type = simple_sort_order_expression<T>;
+template <typename T, typename Strategy>
+struct make_simple_sort_order<sort_order_expression<T, Strategy>> {
+  using type = simple_sort_order_expression<T, Strategy>;
 };
-template <typename T>
-struct make_simple_sort_order<dynamic_t<sort_order_expression<T>>> {
-  using type = dynamic_t<simple_sort_order_expression<T>>;
+template <typename T, typename Strategy>
+struct make_simple_sort_order<dynamic_t<sort_order_expression<T, Strategy>>> {
+  using type = dynamic_t<simple_sort_order_expression<T, Strategy>>;
 };
 template <typename T>
 using make_simple_sort_order_t = typename make_simple_sort_order<T>::type;

@@ -38,6 +38,10 @@ int main(int, char*[]) {
   SQLPP_COMPARE(order_by(foo.textNnD.desc()),
                 " ORDER BY tab_foo.text_nn_d DESC");
   SQLPP_COMPARE(order_by(foo.boolN.desc()), " ORDER BY tab_foo.bool_n DESC");
+  SQLPP_COMPARE(order_by(foo.boolN.desc().nulls_first()),
+                " ORDER BY tab_foo.bool_n DESC NULLS FIRST");
+  SQLPP_COMPARE(order_by(foo.boolN.desc().nulls_last()),
+                " ORDER BY tab_foo.bool_n DESC NULLS LAST");
 
   // Multiple plain columns.
   SQLPP_COMPARE(

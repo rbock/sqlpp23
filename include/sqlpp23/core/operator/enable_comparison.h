@@ -125,6 +125,12 @@ class enable_comparison {
     return ::sqlpp::order(std::forward<Expr>(self), t);
   }
 
+  template <typename Expr>
+  constexpr auto order(this Expr&& self, ::sqlpp::sort_type t, ::sqlpp::null_position s)
+      -> decltype(::sqlpp::order(std::forward<Expr>(self), t, s)) {
+    return ::sqlpp::order(std::forward<Expr>(self), t, s);
+  }
+
   template <typename Expr, typename R>
   constexpr auto like(this Expr&& self, R r)
       -> decltype(::sqlpp::like(std::forward<Expr>(self), std::move(r))) {

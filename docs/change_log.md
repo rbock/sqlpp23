@@ -4,6 +4,8 @@
 
 ## next
 
+- add .nulls_first() and nulls_last support to sort expressions
+
 ## 0.68
 
 Highlight:

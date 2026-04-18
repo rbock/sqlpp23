@@ -5,10 +5,9 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice,
+ *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *  * Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
@@ -25,36 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-module;
+#include <sqlpp23/tests/mysql/all.h>
 
-#include <sqlpp23/mysql/mysql.h>
+int main() {
+  auto db = sqlpp::mysql::make_test_connection();
+  auto ctx = sqlpp::mysql::context_t{&db};
+  using CTX = decltype(ctx);
 
-export module sqlpp23.mysql;
+  // No support for NULLS FIRST or NULLS LAST
+  {
+    auto ca = sqlpp::value(7).asc().nulls_first();
+    auto cb = sqlpp::value(7).asc().nulls_last();
+    auto cc = sqlpp::value(7).asc();
 
-export namespace sqlpp::mysql {
-using ::sqlpp::mysql::bind_parameter;
-using ::sqlpp::mysql::read_field;
-using ::sqlpp::mysql::bind_field;
-using ::sqlpp::mysql::connection;
-using ::sqlpp::mysql::connection_config;
-using ::sqlpp::mysql::connection_pool;
-using ::sqlpp::mysql::pooled_connection;
-using ::sqlpp::mysql::context_t;
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(ca)),
+                               sqlpp::mysql::assert_no_nulls_first_last>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(cb)),
+                               sqlpp::mysql::assert_no_nulls_first_last>::value);
+    static_assert(std::is_same<decltype(check_compatibility<CTX>(cc)),
+                               sqlpp::consistent_t>::value);
+  }
 
-using ::sqlpp::mysql::command_result;
-using ::sqlpp::mysql::exception;
-
-using ::sqlpp::mysql::scoped_library_initializer_t;
-using ::sqlpp::mysql::global_library_init;
-
-using ::sqlpp::mysql::delete_from;
-using ::sqlpp::mysql::update;
-
-using ::sqlpp::mysql::assert_no_bool_cast;
-using ::sqlpp::mysql::assert_no_full_outer_join_t;
-using ::sqlpp::mysql::assert_no_nulls_first_last;
-
-using ::sqlpp::mysql::to_sql_string;
-using ::sqlpp::mysql::quoted_name_to_sql_string;
-using ::sqlpp::mysql::data_type_to_sql_string;
 }
