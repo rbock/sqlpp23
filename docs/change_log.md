@@ -4,6 +4,8 @@
 
 ## next
 
+- add .nulls_first() and nulls_last support to sort expressions, #91
+
 ## 0.69
 
 Fix compilation error in gcc-15 and higher, #111

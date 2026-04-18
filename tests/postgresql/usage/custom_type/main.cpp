@@ -53,7 +53,7 @@ int main(int, char*[]) {
     {
       int count = 0;
       for (const auto& row :
-           db(select(all_of(t)).from(t).order_by(t.id.asc()))) {
+           db(select(all_of(t)).from(t).order_by(t.id.asc().nulls_first()))) {
         static_assert(std::is_same_v<decltype(row.id), PointId>);
         static_assert(std::is_same_v<decltype(row.color), Color>);
         ++count;

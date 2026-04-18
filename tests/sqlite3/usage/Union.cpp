@@ -40,7 +40,7 @@ int Union(int, char*[]) {
     std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 
-  for (const auto& row : db(u.order_by(tab.id.asc()))) {
+  for (const auto& row : db(u.order_by(tab.id.asc().nulls_first()))) {
     std::cout << row.intN << row.textNnD << row.boolN << std::endl;
   }
 

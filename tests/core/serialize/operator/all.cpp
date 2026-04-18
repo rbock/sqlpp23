@@ -405,6 +405,18 @@ int main(int, char*[]) {
     SQLPP_COMPARE(expr.desc(), "(17 + 4) DESC");
     SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc), "(17 + 4) ASC");
     SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc), "(17 + 4) DESC");
+
+    SQLPP_COMPARE(val.asc().nulls_first(), "1 ASC NULLS FIRST");
+    SQLPP_COMPARE(val.desc().nulls_first(), "1 DESC NULLS FIRST");
+    SQLPP_COMPARE(val.order(sqlpp::sort_type::asc).nulls_first(), "1 ASC NULLS FIRST");
+    SQLPP_COMPARE(val.order(sqlpp::sort_type::desc).nulls_first(), "1 DESC NULLS FIRST");
+
+    SQLPP_COMPARE(expr.asc().nulls_last(), "(17 + 4) ASC NULLS LAST");
+    SQLPP_COMPARE(expr.desc().nulls_last(), "(17 + 4) DESC NULLS LAST");
+    SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc).nulls_last(), "(17 + 4) ASC NULLS LAST");
+    SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc).nulls_last(), "(17 + 4) DESC NULLS LAST");
+    SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc, sqlpp::null_position::last), "(17 + 4) ASC NULLS LAST");
+    //SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc, sqlpp::null_position::first), "(17 + 4) DESC NULLS FIRST");
   }
   return 0;
 }

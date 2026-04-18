@@ -61,7 +61,14 @@ int main() {
   static_assert(
       can_call_union_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc()))>,
       "OK, argument a dynamic column");
+  static_assert(can_call_union_order_by_with<decltype(bar.boolNn.asc().nulls_last())>,
+                "OK, argument a column ascending");
+  static_assert(
+      can_call_union_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc().nulls_first()))>,
+      "OK, argument a dynamic column");
   static_assert(cannot_call_union_order_by_with<decltype((bar.id + 7).asc())>,
+                "not a column: bar.id + 7");
+  static_assert(cannot_call_union_order_by_with<decltype((bar.id + 7).asc().nulls_first())>,
                 "not a column: bar.id + 7");
   static_assert(cannot_call_union_order_by_with<decltype(bar.id)>,
                 "not sort order: column");

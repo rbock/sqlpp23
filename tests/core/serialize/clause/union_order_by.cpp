@@ -43,6 +43,9 @@ int main(int, char*[]) {
   SQLPP_COMPARE(
       union_order_by(foo.id.asc(), foo.textNnD.desc(), foo.boolN.desc()),
       " ORDER BY id ASC, text_nn_d DESC, bool_n DESC");
+  SQLPP_COMPARE(union_order_by(foo.id.asc().nulls_first(), foo.textNnD.desc(),
+                               foo.boolN.desc().nulls_last()),
+                " ORDER BY id ASC NULLS FIRST, text_nn_d DESC, bool_n DESC NULLS LAST");
 
   // Single dynamic column (this is odd)
   SQLPP_COMPARE(union_order_by(dynamic(true, foo.id.asc())),

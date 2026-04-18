@@ -299,6 +299,12 @@ expression adorned with `.asc()` or `.desc()`, e.g.
 select(all_of(foo)).from(foo).order_by(foo.name.asc());
 ```
 
+For some databases you can define whether NULLs come first or last:
+
+```C++
+select(all_of(foo)).from(foo).order_by(foo.name.asc().nulls_last());
+```
+
 You can also choose the order at runtime like this:
 
 ```C++
@@ -306,6 +312,13 @@ select(all_of(foo))
     .from(foo)
     .order_by(foo.name.order(wantAsc ? sqlpp::sort_type::asc
                                      : sqlpp::sort_type::desc));
+
+select(all_of(foo))
+    .from(foo)
+    .order_by(foo.name.order(wantAsc ? sqlpp::sort_type::asc
+                                     : sqlpp::sort_type::desc,
+                             wantNullsFirst ? sqlpp::null_position::first
+                                            : sqlpp::null_position::last));
 ```
 
 `order_by` arguments can be [`dynamic`](/docs/dynamic.md). `dynamic` arguments will

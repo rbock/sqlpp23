@@ -55,12 +55,27 @@ class assert_no_bool_cast : public wrapped_static_assert {
     static_assert(wrong<T...>, "MySQL: No support for bool cast");
   }
 };
-}  // namespace postgresql
+}  // namespace mysql
 
 template <typename Expression, typename Type>
   requires(is_boolean<Expression>::value or std::is_same_v<Type, boolean>)
 struct compatibility_check<mysql::context_t, cast_t<Expression, Type>> {
   using type = mysql::assert_no_bool_cast;
+};
+
+namespace mysql {
+class assert_no_nulls_first_last : public wrapped_static_assert {
+ public:
+  template <typename... T>
+  static void verify(T&&...) {
+    static_assert(wrong<T...>, "MySQL: No support for NULLS FIRST or NULLS LAST");
+  }
+};
+}  // namespace mysql
+
+template <typename L>
+struct compatibility_check<mysql::context_t, sort_order_expression<L, sort_order_null>> {
+  using type = mysql::assert_no_nulls_first_last;
 };
 
 }  // namespace sqlpp

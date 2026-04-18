@@ -138,6 +138,7 @@ using ::sqlpp::not_in;
 using ::sqlpp::asc;
 using ::sqlpp::desc;
 using ::sqlpp::sort_type; // enum
+using ::sqlpp::null_position; // enum
 using ::sqlpp::order;
 using ::sqlpp::when_then_pair_t; // TODO: Remove?
 

@@ -39,7 +39,7 @@ struct comparison_expression;
 template <typename L, typename Operator, typename Container>
 struct in_expression;
 
-template <typename L>
+template <typename L, typename Strategy>
 struct sort_order_expression;
 
 struct op_is_null {
@@ -166,22 +166,35 @@ enum class sort_type {
   desc,
 };
 
+enum class null_position { first, last };
+
+struct sort_order_null {
+  sort_type order;
+  null_position null_pos;
+};
+
 template <typename L>
 requires(values_are_comparable<L, L>::value)
-constexpr auto asc(L l) -> sort_order_expression<L> {
+constexpr auto asc(L l) -> sort_order_expression<L, sort_type> {
   return {std::move(l), sort_type::asc};
 }
 
 template <typename L>
 requires(values_are_comparable<L, L>::value)
-constexpr auto desc(L l) -> sort_order_expression<L> {
+constexpr auto desc(L l) -> sort_order_expression<L, sort_type> {
   return {std::move(l), sort_type::desc};
 }
 
 template <typename L>
 requires(values_are_comparable<L, L>::value)
-constexpr auto order(L l, sort_type order) -> sort_order_expression<L> {
+constexpr auto order(L l, sort_type order) -> sort_order_expression<L, sort_type> {
   return {std::move(l), order};
+}
+
+template <typename L>
+requires(values_are_comparable<L, L>::value)
+constexpr auto order(L l, sort_type order, null_position null_pos) -> sort_order_expression<L, sort_order_null> {
+  return {std::move(l), sort_order_null{order, null_pos}};
 }
 
 }  // namespace sqlpp

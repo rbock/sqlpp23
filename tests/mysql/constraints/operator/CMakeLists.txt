@@ -30,4 +30,5 @@ function(create_test name)
 endfunction()
 
 create_test(cast)
+create_test(sort_order)
 
