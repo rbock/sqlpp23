@@ -4,6 +4,10 @@
 
 ## next
 
+## 0.69
+
+Fix compilation error in gcc-15 and higher, #111
+
 ## 0.68
 
 Highlight:
