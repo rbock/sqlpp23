@@ -39,5 +39,14 @@ int main(int, char*[]) {
                     .where(foo.id > 17),
                 "UPDATE tab_foo SET int_n = 7 WHERE tab_foo.id > 17");
 
+  // Update some with alternative spelling of dynamic.
+  const bool maybe = true;
+  SQLPP_COMPARE(update(foo)
+                    .set(maybe ? sqlpp::dynamic(foo.intN = 7) : std::nullopt,
+                         not maybe ? sqlpp::dynamic(foo.textNnD = "cheesecake")
+                                   : std::nullopt)
+                    .where(foo.id > 17),
+                "UPDATE tab_foo SET int_n = 7 WHERE tab_foo.id > 17");
+
   return 0;
 }

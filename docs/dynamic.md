@@ -69,7 +69,7 @@ What if you wanted to do some modifications at runtime? Maybe there is a `blob`
 that we might want to read under some condition? We can use `dynamic` components
 for this. Let's take a look at an example:
 
-```
+```C++
 bool maybe = some_condition;
 // ...
 for (const auto& row : db(select(foo.id,
@@ -104,5 +104,17 @@ runtime:
 - If you are using multiple `dynamic` components, the library *cannot* check if
   the conditions match. For instance, you could join on one condition and add a
   column with another. This might end up in incorrect statements.
+
+Another example, using an alternative construction of the dynamic expression:
+
+```C++
+  db(update(t).set(
+      t.intN = t.id * 2,
+      maybe ? dynamic(t.textN = t.textN + " and cake") : std::nullopt));
+```
+
+This can be useful if the dynamic value is expensive to construct.
+
+Here, if `maybe == false`, `t.textN` will not get updated.
 
 [**\< Index**](/docs/README.md)

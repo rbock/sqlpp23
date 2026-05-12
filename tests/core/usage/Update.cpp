@@ -71,7 +71,9 @@ int Update(int, char*[]) {
   db(update(t).set(t.intN = sqlpp::default_value));
 
   db(update(t).set(t.intN = t.id * 2, t.textN = t.textN + " and cake"));
-  db(update(t).set(t.intN = t.id * 2, dynamic(maybe, t.textN = t.textN + " and cake")));
+  db(update(t).set(
+      t.intN = t.id * 2,
+      maybe ? dynamic(t.textN = t.textN + " and cake") : std::nullopt));
 
   return 0;
 }

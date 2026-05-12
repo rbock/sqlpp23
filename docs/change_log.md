@@ -5,6 +5,9 @@
 ## next
 
 - add .nulls_first() and nulls_last support to sort expressions, #91
+- add factory function to construct dynamic_t from a value, #112
+- add constructor to construct dynamic_t from std::nullopt, #112
+- remove factory functiom to construct dynamic from an optional (this was never used in tests and I suspect it was never used in user code). If you used it, please use `condition ? dynamic(value) : std::nullopt` instead.
 
 ## 0.69
 

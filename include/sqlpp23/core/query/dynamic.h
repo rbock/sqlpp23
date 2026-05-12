@@ -47,6 +47,7 @@ namespace sqlpp {
 template <typename Expr>
 struct dynamic_t {
   dynamic_t(std::optional<Expr> expr) : _expr(std::move(expr)) {}
+  dynamic_t(std::nullopt_t) : _expr(std::nullopt) {}
 
   dynamic_t(const dynamic_t&) = default;
   dynamic_t(dynamic_t&&) = default;
@@ -94,18 +95,17 @@ struct nodes_of<dynamic_t<Expr>> {
 //
 // * a.join(dynamic(false, b)).on(a.id == b.id)
 ///  --> "a"
-// * select(dynamic(maybe, b))
+// * select(dynamic(false, b))
 //   --> "NULL as b"
 
-// Constructing from optional
 template <typename Expr>
   requires((has_data_type<Expr>::value or is_raw_select_flag<Expr>::value or
             is_as_expression<Expr>::value or is_assignment<Expr>::value or
             is_table<Expr>::value or is_sort_order<Expr>::value or
             is_statement<Expr>::value) and
            parameters_of_t<Expr>::empty())
-auto dynamic(std::optional<Expr> t) -> dynamic_t<Expr> {
-  return {std::move(t)};
+auto dynamic(Expr t) -> dynamic_t<Expr> {
+  return {std::optional<Expr>{std::move(t)}};
 }
 
 // Constructing from condition and value
