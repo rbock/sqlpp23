@@ -240,16 +240,29 @@ class DdlParser:
             + cls.ddl_expression
         ).set_results_name("is_constraint")
 
+        def extract_cpp_type(comment):
+            m = re.search(r'cpp_type:\s*(\S+)', comment)
+            if m:
+                return m.group(1)
+            return None
+
         # cpp_type annotation parser: captures type from '-- ... cpp_type:SomeType ...'
         # The trailing .* is required to consume the full comment line, including any
         # text that follows the type (e.g. '-- note cpp_type:XCoord (extra text)').
-        ddl_cpp_type_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*').set_parse_action(
-            lambda t: re.search(r'cpp_type:\s*(\S+)', t[0]).group(1)
+        ddl_cpp_type_from_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*').set_parse_action(
+            lambda t: extract_cpp_type(t[0])
+        )
+
+        ddl_cpp_type_from_column_comment = (
+            pp.CaselessKeyword("COMMENT")
+            + ddl_string.set_results_name("cpp_type_from_column_comment").set_parse_action(
+                lambda t: extract_cpp_type(t[0])
+            )
         )
 
         # Column parser
         cls.ddl_column = pp.Group(
-            pp.Optional(ddl_cpp_type_annotation).set_results_name("cpp_type")
+            pp.Optional(ddl_cpp_type_from_annotation).set_results_name("cpp_type")
             + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
             + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
@@ -263,7 +276,7 @@ class DdlParser:
                 | ddl_default_value
                 | ddl_generated_value
                 | ddl_primary_key
-                | (pp.Suppress(pp.CaselessKeyword("COMMENT")) + ddl_string.set_results_name("column_comment"))
+                | ddl_cpp_type_from_column_comment
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
@@ -322,7 +335,7 @@ class DdlParser:
 
         # Main DDL parser
         # Suppress regular comments but not cpp_type annotations (those are captured in ddl_column)
-        ddl_regular_comment = pp.Regex(r'--(?!.*cpp_type:).*') | pp.Regex(r'#.*')
+        ddl_regular_comment = pp.Regex(rf'(?!{ddl_cpp_type_from_annotation.pattern})--.*') | pp.Regex(r'#.*')
         cls.ddl = (
             pp.OneOrMore(pp.Suppress(pp.SkipTo(ddl_command_basic, False)) + ddl_command_with_loc)
             .ignore(ddl_regular_comment)
@@ -465,11 +478,7 @@ class DdlExecutor:
                 print("WARNING: You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         data_type = col_expr.type
-        cpp_type = col_expr.cpp_type or None
-        if not cpp_type and col_expr.column_comment:
-            m = re.search(r'cpp_type:\s*(\S+)', col_expr.column_comment)
-            if m:
-                cpp_type = m.group(1)
+        cpp_type = col_expr.cpp_type or col_expr.cpp_type_from_column_comment or None
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
@@ -744,7 +753,7 @@ class SelfTest:
         cls._test_rational()
         cls._test_command_create_table()
         cls._test_command_set_default()
-        cls._test_column_comment()
+        cls._test_cpp_type_from_column_comment()
         cls._test_cpp_type_inline_comment()
         cls._test_command_comment_on_column()
         cls._test_cpp_type_executor()
@@ -1027,16 +1036,16 @@ class SelfTest:
         assert result[0].column_name == "mycol"
 
     @staticmethod
-    def _test_column_comment():
+    def _test_cpp_type_from_column_comment():
         # MySQL-style COMMENT clause: value is captured
         result = DdlParser.ddl.parse_string(
             "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
-        assert result[0].columns[0].column_comment == "cpp_type:my::Type"
+        assert result[0].columns[0].cpp_type_from_column_comment == "my::Type"
 
-        # No COMMENT clause: column_comment is absent/empty
+        # No COMMENT clause: cpp_type_from_column_comment is absent/empty
         result = DdlParser.ddl.parse_string(
             "CREATE TABLE t (x int NOT NULL)", parse_all=True)
-        assert not result[0].columns[0].column_comment
+        assert not result[0].columns[0].cpp_type_from_column_comment
 
     @staticmethod
     def _test_cpp_type_inline_comment():
