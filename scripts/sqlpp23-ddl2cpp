@@ -260,9 +260,30 @@ class DdlParser:
             )
         )
 
+        def resolve_column_cpp_type(s, loc, tokens):
+            group_tokens = tokens[0]
+
+            annotation_val = comment_val = group_tokens.pop("cpp_type_from_annotation", None)
+            comment_val = comment_val = group_tokens.pop("cpp_type_from_column_comment", None)
+            cpp_type = annotation_val or comment_val
+
+            if comment_val and annotation_val and annotation_val != comment_val:
+                line_num = pp.lineno(loc, s)
+                col_num = pp.col(loc, s)
+                error_msg = (
+                    f"Mismatched cpp_type annotations found at line {line_num}, col {col_num}! "
+                    f"Annotation says '{annotation_val}' but SQL COMMENT says '{comment_val}'."
+                )
+                raise pp.ParseException(s, loc, error_msg)
+
+            # 4. Assign it back to the group's named results
+            if cpp_type:
+                group_tokens["cpp_type"] = cpp_type
+            return tokens
+
         # Column parser
         cls.ddl_column = pp.Group(
-            pp.Optional(ddl_cpp_type_from_annotation).set_results_name("cpp_type")
+            pp.Optional(ddl_cpp_type_from_annotation).set_results_name("cpp_type_from_annotation")
             + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
             + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
@@ -280,7 +301,7 @@ class DdlParser:
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
-        )
+        ).set_parse_action(resolve_column_cpp_type)
 
         # CREATE TABLE parser
         ddl_create_table = (
@@ -478,7 +499,7 @@ class DdlExecutor:
                 print("WARNING: You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         data_type = col_expr.type
-        cpp_type = col_expr.cpp_type or col_expr.cpp_type_from_column_comment or None
+        cpp_type = col_expr.cpp_type or None
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
@@ -755,6 +776,7 @@ class SelfTest:
         cls._test_command_set_default()
         cls._test_cpp_type_from_column_comment()
         cls._test_cpp_type_inline_comment()
+        cls._test_cpp_type_from_mixed_sources()
         cls._test_command_comment_on_column()
         cls._test_cpp_type_executor()
 
@@ -1040,12 +1062,7 @@ class SelfTest:
         # MySQL-style COMMENT clause: value is captured
         result = DdlParser.ddl.parse_string(
             "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
-        assert result[0].columns[0].cpp_type_from_column_comment == "my::Type"
-
-        # No COMMENT clause: cpp_type_from_column_comment is absent/empty
-        result = DdlParser.ddl.parse_string(
-            "CREATE TABLE t (x int NOT NULL)", parse_all=True)
-        assert not result[0].columns[0].cpp_type_from_column_comment
+        assert result[0].columns[0].cpp_type == "my::Type"
 
     @staticmethod
     def _test_cpp_type_inline_comment():
@@ -1063,6 +1080,24 @@ class SelfTest:
         result = DdlParser.ddl.parse_string(
             "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
         assert not result[0].columns[0].cpp_type
+
+    def _test_cpp_type_from_mixed_sources():
+        # Matching cpp_type from annotation and comment:
+        result = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- cpp_type:my::Type\n x bigint NOT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+        assert result[0].columns[0].cpp_type == "my::Type"
+
+        # Non-matching cpp_type from annotation and comment:
+        try:
+            result = DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
+
+            # If it reaches this line, the test failed because NO exception was thrown!
+            print("Test Failed: Expected ParseException but parsing succeeded.")
+            assert False, "Parsing should have failed due to mismatched cpp_types"
+
+        except pp.ParseException as e:
+            pass # This is the expected exception
 
     @staticmethod
     def _test_command_comment_on_column():
