@@ -261,10 +261,10 @@ class DdlParser:
         )
 
         def resolve_column_cpp_type(s, loc, tokens):
-            group_tokens = tokens[0]
+            column = tokens[0]
 
-            annotation_val = comment_val = group_tokens.pop("cpp_type_from_annotation", None)
-            comment_val = comment_val = group_tokens.pop("cpp_type_from_column_comment", None)
+            annotation_val = comment_val = column.pop("cpp_type_from_annotation", None)
+            comment_val = comment_val = column.pop("cpp_type_from_column_comment", None)
             cpp_type = annotation_val or comment_val
 
             if comment_val and annotation_val and annotation_val != comment_val:
@@ -276,9 +276,8 @@ class DdlParser:
                 )
                 raise pp.ParseException(s, loc, error_msg)
 
-            # 4. Assign it back to the group's named results
             if cpp_type:
-                group_tokens["cpp_type"] = cpp_type
+                column["cpp_type"] = cpp_type
             return tokens
 
         # Column parser
@@ -337,7 +336,9 @@ class DdlParser:
             + pp.CaselessKeyword("COLUMN")
             + ddl_name.set_results_name("qualified_column")
             + pp.CaselessKeyword("IS")
-            + ddl_string.set_results_name("comment_text")
+            + ddl_string.set_results_name("cpp_type_from_comment_text").set_parse_action(
+                lambda t: extract_cpp_type(t[0])
+            )
         )
 
         # DDL command parser
@@ -561,9 +562,12 @@ class DdlExecutor:
         table_def = cls._tables[table_name]
         if col_name not in table_def.columns:
             return
-        cpp_type = re.search(r'cpp_type:\s*(\S+)', command.comment_text)
-        if cpp_type:
-            table_def.columns[col_name].cpp_type = cpp_type.group(1)
+        cpp_type = command.cpp_type_from_comment_text or None
+        if not cpp_type:
+            return
+        if table_def.columns[col_name].cpp_type and table_def.columns[col_name].cpp_type != cpp_type:
+            raise RuntimeError(f"cpp_type in external comment ({cpp_type}) does not match previous annotations ({table_def.columns[col_name].cpp_type}) for {command.qualified_column}")
+        table_def.columns[col_name].cpp_type = cpp_type
 
 
 class ModelWriter:
@@ -1106,14 +1110,14 @@ class SelfTest:
             "COMMENT ON COLUMN t.x IS 'some note'", parse_all=True)
         assert result[0].comment_on_column
         assert result[0].qualified_column == "t.x"
-        assert result[0].comment_text == "some note"
+        assert not result[0].cpp_type
 
         # With schema prefix and cpp_type anywhere in the comment string
         result = DdlParser.ddl.parse_string(
             "COMMENT ON COLUMN public.t.x IS 'note cpp_type:MyType (extra)'", parse_all=True)
         assert result[0].comment_on_column
         assert result[0].qualified_column == "public.t.x"
-        assert result[0].comment_text == "note cpp_type:MyType (extra)"
+        assert result[0].cpp_type_from_comment_text == "MyType"
 
     @classmethod
     def _test_cpp_type_executor(cls):
@@ -1144,7 +1148,18 @@ class SelfTest:
         tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
         assert tables["t"].columns["a"].cpp_type == "MyType"
 
-        # COMMENT ON COLUMN overrides inline comment (higher precedence)
+        # COMMENT ON COLUMN has to match inline comment
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE public.t (
+                -- cpp_type:SharedType
+                a bigint NOT NULL
+            )
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+        assert tables["t"].columns["a"].cpp_type == "SharedType"
+
+        # COMMENT ON COLUMN has to match inline comment
         parsed = DdlParser.ddl.parse_string("""
             CREATE TABLE public.t (
                 -- cpp_type:InlineType
@@ -1152,16 +1167,20 @@ class SelfTest:
             )
             COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
         """)
-        tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        assert tables["t"].columns["a"].cpp_type == "CommentType"
+        try:
+            tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+
+            assert False, "Execution should have failed due to mismatched cpp_types"
+        except RuntimeError as e:
+            pass # this is expected.
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
         parsed = DdlParser.ddl.parse_string("""
             CREATE TABLE public.t (
-                -- cpp_type:InlineType
+                -- cpp_type:SharedType
                 a bigint NOT NULL
             )
-            COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+            COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
         """)
         tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
         assert tables["t"].columns["a"].cpp_type == "CsvType"
