@@ -43,5 +43,29 @@ int main(int, char*[]) {
                 " WHERE tab_foo.id > 17");
   SQLPP_COMPARE(sqlpp::where(dynamic(false, foo.id > 17)), "");
 
+  // Chaining of `and` operands.
+  SQLPP_COMPARE(
+      sqlpp::where((foo.id != 7 and foo.id < 10 and foo.id > 2)),
+      " WHERE (tab_foo.id <> 7) AND (tab_foo.id < 10) AND (tab_foo.id > 2)");
+  SQLPP_COMPARE(
+      sqlpp::where(foo.id != 7 and dynamic(true, foo.id < 10) and
+                   dynamic(true, foo.id > 2)),
+      " WHERE ((tab_foo.id <> 7) AND (tab_foo.id < 10)) AND (tab_foo.id > 2)");
+
+  SQLPP_COMPARE(
+      sqlpp::where(foo.id != 7 and dynamic(false, foo.id < 10) and
+                   dynamic(true, foo.id > 2)),
+      " WHERE (tab_foo.id <> 7) AND (tab_foo.id > 2)");
+
+  SQLPP_COMPARE(
+      sqlpp::where(foo.id != 7 and dynamic(true, foo.id < 10) and
+                   dynamic(false, foo.id > 2)),
+      " WHERE (tab_foo.id <> 7) AND (tab_foo.id < 10)");
+
+  SQLPP_COMPARE(
+      sqlpp::where(foo.id != 7 and dynamic(false, foo.id < 10) and
+                   dynamic(false, foo.id > 2)),
+      " WHERE tab_foo.id <> 7");
+
   return 0;
 }

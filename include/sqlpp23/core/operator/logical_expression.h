@@ -101,6 +101,8 @@ auto to_sql_string(Context& context,
   return to_sql_string(context, read.lhs(t));
 }
 
+// Chaining multiple operands with the same operator allows us to omit some
+// parenthesis.
 template <typename Context,
           typename Lhs,
           typename Operator,
@@ -112,10 +114,16 @@ auto to_sql_string(
                              Operator,
                              R2>& t) -> std::string {
   // Note: Temporary required to enforce parameter ordering.
+  // The expression `Lhs Operator R1` does not need to be enclosed in parenthesis.
   auto ret_val = to_sql_string(context, read.lhs(t)) + Operator::symbol;
   return ret_val + operand_to_sql_string(context, read.rhs(t));
 }
 
+// Chaining multiple operands with the same operator does NOT allow us to omit some
+// parenthesis if R2 is an optional operand.
+// The reason is that R1 could also be an optional operand.
+//
+// TODO: It might make sense to use tuples of operands to model chaining.
 template <typename Context,
           typename Lhs,
           typename Operator,
@@ -128,8 +136,8 @@ auto to_sql_string(
                              dynamic_t<R2>>& t) -> std::string {
   if (read.rhs(t).has_value()) {
     // Note: Temporary required to enforce parameter ordering.
-    auto ret_val = to_sql_string(context, read.lhs(t)) + Operator::symbol;
-    return ret_val + operand_to_sql_string(context, read.rhs(read.rhs(t).value()));
+    auto ret_val = operand_to_sql_string(context, read.lhs(t)) + Operator::symbol;
+    return ret_val + operand_to_sql_string(context, read.rhs(t).value());
   }
 
   // If the dynamic part is inactive ignore it.
