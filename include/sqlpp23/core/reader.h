@@ -54,6 +54,10 @@ struct reader_t {
     return t._expressions;
   }
   template <typename T>
+  auto& non_const_expressions(const T& t) const {
+    return t._expressions;
+  }
+  template <typename T>
   const auto& flags(const T& t) const {
     return t._flags;
   }

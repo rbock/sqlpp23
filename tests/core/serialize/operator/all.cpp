@@ -365,13 +365,13 @@ int main(int, char*[]) {
 
     SQLPP_COMPARE(val and dynamic(false, val), "1");
     SQLPP_COMPARE(val and dynamic(false, expr), "1");
-    SQLPP_COMPARE(expr and dynamic(false, val), "17 > 15");
-    SQLPP_COMPARE(expr and dynamic(false, expr), "17 > 15");
+    SQLPP_COMPARE(expr and dynamic(false, val), "(17 > 15)");
+    SQLPP_COMPARE(expr and dynamic(false, expr), "(17 > 15)");
 
     SQLPP_COMPARE(val or dynamic(false, val), "1");
     SQLPP_COMPARE(val or dynamic(false, expr), "1");
-    SQLPP_COMPARE(expr or dynamic(false, val), "17 > 15");
-    SQLPP_COMPARE(expr or dynamic(false, expr), "17 > 15");
+    SQLPP_COMPARE(expr or dynamic(false, val), "(17 > 15)");
+    SQLPP_COMPARE(expr or dynamic(false, expr), "(17 > 15)");
 
     // Chained partially dynamic expressions
     SQLPP_COMPARE(val and dynamic(true, val) and expr, "1 AND 1 AND (17 > 15)");
@@ -379,6 +379,18 @@ int main(int, char*[]) {
 
     SQLPP_COMPARE(val or dynamic(true, val) or expr, "1 OR 1 OR (17 > 15)");
     SQLPP_COMPARE(val or dynamic(false, val) or expr, "1 OR (17 > 15)");
+
+    SQLPP_COMPARE(val and dynamic(true, val) and dynamic(true, expr), "1 AND 1 AND (17 > 15)");
+    SQLPP_COMPARE(val and dynamic(false, val) and dynamic(true, expr), "1 AND (17 > 15)");
+
+    SQLPP_COMPARE(val or dynamic(true, val) or dynamic(true, expr), "1 OR 1 OR (17 > 15)");
+    SQLPP_COMPARE(val or dynamic(false, val) or dynamic(true, expr), "1 OR (17 > 15)");
+
+    SQLPP_COMPARE(val and dynamic(true, val) and dynamic(false, expr), "1 AND 1");
+    SQLPP_COMPARE(val and dynamic(false, val) and dynamic(false, expr), "1");
+
+    SQLPP_COMPARE(val or dynamic(true, val) or dynamic(false, expr), "1 OR 1");
+    SQLPP_COMPARE(val or dynamic(false, val) or dynamic(false, expr), "1");
 
     // More complex expressions
     SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(true, val),
@@ -388,8 +400,8 @@ int main(int, char*[]) {
     SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(true, val),
                   "(1) OR 1");
     SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(false, val),
-                  "1 AND (17 > 15)");
-    SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(false, val), "1")
+                  "(1 AND (17 > 15))");
+    SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(false, val), "(1)")
   }
   {
     const auto val = sqlpp::value(1);
