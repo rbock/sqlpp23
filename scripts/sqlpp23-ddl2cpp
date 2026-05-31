@@ -42,6 +42,7 @@ class ExitCode(IntEnum):
     BAD_CPP_TYPES = 31
     BAD_DDL_COMMAND = 10
     BAD_DDL_PARSING = 20
+    BAD_COLUMN_ANNOTATION = 40
 
 
 # The following code could be organized as modules instead of classes. However, using modules
@@ -240,48 +241,12 @@ class DdlParser:
             + cls.ddl_expression
         ).set_results_name("is_constraint")
 
-        def extract_cpp_type(comment):
-            m = re.search(r'cpp_type:\s*(\S+)', comment)
-            if m:
-                return m.group(1)
-            return None
-
         ddl_regular_comment = pp.Regex(r'--.*') | pp.Regex(r'#.*')
 
         ddl_column_comment = (
             pp.CaselessKeyword("COMMENT")
             + ddl_string.set_results_name("column_comment")
         )
-
-        def parse_column_annotations(s, loc, tokens):
-            column = tokens[0]
-
-            column_name = column.get("name", None);
-
-            comments = column.pop("comments", [])
-            column_comment = column.pop("column_comment", None)
-            if column_comment:
-                comments.append(column_comment)
-
-            cpp_type =  None
-
-            for comment in comments:
-                new_cpp_type = extract_cpp_type(comment)
-
-                if cpp_type and new_cpp_type and cpp_type != new_cpp_type:
-                    line_num = pp.lineno(loc, s)
-                    error_msg = (
-                        f"Mismatched cpp_type annotations found around line {line_num} for column {column_name}! "
-                        f"One annotation says '{cpp_type}' but another says '{new_cpp_type}'."
-                    )
-                    # Need to raise ParseFatalException here to prevent backtracking that would
-                    # lose this error message.
-                    raise pp.ParseFatalException(s, loc, error_msg)
-                cpp_type = new_cpp_type
-
-            if cpp_type:
-                column["cpp_type"] = cpp_type
-            return tokens
 
         # Column parser
         cls.ddl_column = pp.Group(
@@ -303,7 +268,7 @@ class DdlParser:
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
-        ).set_parse_action(parse_column_annotations)
+        )
 
         # CREATE TABLE parser
         ddl_create_table = (
@@ -339,9 +304,7 @@ class DdlParser:
             + pp.CaselessKeyword("COLUMN")
             + ddl_name.set_results_name("qualified_column")
             + pp.CaselessKeyword("IS")
-            + ddl_string.set_results_name("cpp_type_from_comment_text").set_parse_action(
-                lambda t: extract_cpp_type(t[0])
-            )
+            + ddl_string.set_results_name("column_comment")
         )
 
         # DDL command parser
@@ -359,7 +322,6 @@ class DdlParser:
         ddl_command_with_loc = pp.Located(ddl_command_basic).set_parse_action(rewrap_command_token)
 
         # Main DDL parser
-        # Suppress regular comments but not cpp_type annotations (those are captured in ddl_column)
         cls.ddl = (
             pp.OneOrMore(pp.Suppress(pp.SkipTo(ddl_command_basic, False)) + ddl_command_with_loc)
             .parse_with_tabs()
@@ -373,11 +335,6 @@ class DdlParser:
     def parse_ddls(cls, ddl_paths):
         try:
             return [cls.ddl.parse_file(path) for path in ddl_paths]
-        except pp.ParseFatalException as e:
-            print(f"ERROR: Failed to parse {ddl_paths}")
-            print(e)
-            sys.exit(ExitCode.BAD_DDL_PARSING)
-
         except pp.ParseException as e:
             print(f"ERROR: Failed to parse {ddl_paths}")
             print(e.explain(1))
@@ -395,6 +352,7 @@ class DdlExecutor:
         is_nullable: bool
         has_default: bool
         is_array: bool
+        comments: []
         cpp_type: str = None
 
     @dataclass
@@ -417,6 +375,35 @@ class DdlExecutor:
             return name[len(cls._postgresql_schema) + 1:]
         return name
 
+    # Extract annotations for columns. Currently the only recognized annotation is
+    # - cpp_type: used to map a column to a C++ data type
+    @classmethod
+    def _extract_column_annotations(cls, comment):
+        annotations = {}
+        m = re.search(r'cpp_type:\s*(\S+)', comment)
+        if m:
+            annotations['cpp_type'] = m.group(1)
+        return annotations
+
+    @classmethod
+    def apply_column_annotations(cls, table, column):
+        annotations = {}
+
+        for comment in column.comments:
+            new_annotations = cls._extract_column_annotations(comment)
+
+            for key, value in new_annotations.items():
+                if key in annotations and annotations[key] != value:
+                    print(
+                        f"Mismatched {key} annotations found for {table.name}.{column.name}: "
+                        f"One annotation says '{annotations[key]}' but another says '{value}'."
+                    )
+                    cls._has_error = True
+                annotations[key] = value
+
+        if 'cpp_type' in annotations:
+            column.cpp_type = annotations["cpp_type"]
+
     @classmethod
     def execute(cls, parsed_ddls, args, cpp_type_overrides):
         cls._assume_auto_id = args.assume_auto_id
@@ -430,6 +417,14 @@ class DdlExecutor:
                 cls._execute_command(command)
         if cls._has_error:
             sys.exit(ExitCode.BAD_DDL_COMMAND)
+
+        # Apply all column annotations
+        for table_def in cls._tables.values():
+            for col_def in table_def.columns.values():
+                cls.apply_column_annotations(table_def, col_def)
+        if cls._has_error:
+            sys.exit(ExitCode.BAD_COLUMN_ANNOTATION)
+
         # Apply all cpp_type sources before checking for unresolved UNKNOWN types.
         # Order: COMMENT ON COLUMN (already applied above) < --path-to-cpp-types (applied now).
         validate_cpp_types(cpp_type_overrides, cls._tables)
@@ -506,7 +501,6 @@ class DdlExecutor:
                 print("WARNING: You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         data_type = col_expr.type
-        cpp_type = col_expr.cpp_type or None
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
@@ -518,6 +512,10 @@ class DdlExecutor:
             not col_expr.is_primary_key and
             not col_expr.has_serial_value
         )
+        comments = col_expr.get("comments")
+        column_comment = col_expr.get("column_comment", None)
+        if column_comment:
+            comments.append(column_comment)
         columns[col_name] = cls._ColumnDef(
             name = col_name,
             data_type = data_type,
@@ -532,7 +530,8 @@ class DdlExecutor:
                 is_nullable
             ),
             is_array = col_expr.is_array,
-            cpp_type = cpp_type,
+            comments = comments,
+            cpp_type = None
         )
 
     @classmethod
@@ -568,13 +567,10 @@ class DdlExecutor:
         table_def = cls._tables[table_name]
         if col_name not in table_def.columns:
             return
-        cpp_type = command.cpp_type_from_comment_text or None
-        if not cpp_type:
+        comment = command.column_comment or None
+        if not comment:
             return
-        if table_def.columns[col_name].cpp_type and table_def.columns[col_name].cpp_type != cpp_type:
-            raise RuntimeError(f"cpp_type in external comment ({cpp_type}) does not match previous annotations ({table_def.columns[col_name].cpp_type}) for {command.qualified_column}")
-        table_def.columns[col_name].cpp_type = cpp_type
-
+        table_def.columns[col_name].comments.append(comment)
 
 class ModelWriter:
     """This class writes the database model as C++ headers and/or a module file"""
@@ -784,9 +780,6 @@ class SelfTest:
         cls._test_rational()
         cls._test_command_create_table()
         cls._test_command_set_default()
-        cls._test_cpp_type_from_column_comment()
-        cls._test_cpp_type_inline_comment()
-        cls._test_cpp_type_from_mixed_sources()
         cls._test_command_comment_on_column()
         cls._test_cpp_type_executor()
 
@@ -1068,48 +1061,6 @@ class SelfTest:
         assert result[0].column_name == "mycol"
 
     @staticmethod
-    def _test_cpp_type_from_column_comment():
-        # MySQL-style COMMENT clause: value is captured
-        result = DdlParser.ddl.parse_string(
-            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
-        assert result[0].columns[0].cpp_type == "my::Type"
-
-    @staticmethod
-    def _test_cpp_type_inline_comment():
-        # Annotation directly before the column
-        result = DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
-        assert result[0].columns[0].cpp_type == "MyType"
-
-        # Annotation anywhere in the comment line with surrounding text
-        result = DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
-        assert result[0].columns[0].cpp_type == "MyType"
-
-        # Regular comment without cpp_type: does not set cpp_type
-        result = DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
-        assert not result[0].columns[0].cpp_type
-
-    def _test_cpp_type_from_mixed_sources():
-        # Matching cpp_type from annotation and comment:
-        result = DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- cpp_type:my::Type\n x bigint NOT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
-        assert result[0].columns[0].cpp_type == "my::Type"
-
-        # Non-matching cpp_type from annotation and comment:
-        try:
-            result = DdlParser.ddl.parse_string(
-                "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
-
-            # If it reaches this line, the test failed because NO exception was thrown!
-            print("Test Failed: Expected ParseFatalException but parsing succeeded.")
-            assert False, "Parsing should have failed due to mismatched cpp_types"
-
-        except pp.ParseFatalException as e:
-            pass # This is the expected exception
-
-    @staticmethod
     def _test_command_comment_on_column():
         # Without schema prefix
         result = DdlParser.ddl.parse_string(
@@ -1123,7 +1074,7 @@ class SelfTest:
             "COMMENT ON COLUMN public.t.x IS 'note cpp_type:MyType (extra)'", parse_all=True)
         assert result[0].comment_on_column
         assert result[0].qualified_column == "public.t.x"
-        assert result[0].cpp_type_from_comment_text == "MyType"
+        assert result[0].column_comment == "note cpp_type:MyType (extra)"
 
     @classmethod
     def _test_cpp_type_executor(cls):
@@ -1133,6 +1084,49 @@ class SelfTest:
             defaults = dict(assume_auto_id=False, suppress_timestamp_warning=True, postgresql_schema=None)
             defaults.update(kwargs)
             return argparse.Namespace(**defaults)
+
+        # Annotation directly before the column
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["x"].cpp_type == "MyType"
+
+        # Annotation anywhere in the comment line with surrounding text
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["x"].cpp_type == "MyType"
+
+        # Regular comment without cpp_type: does not set cpp_type
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert not tables["t"].columns["x"].cpp_type
+
+        # MySQL-style COMMENT clause: value is captured
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["x"].cpp_type == "my::Type"
+
+        # Matching cpp_type from annotation and comment:
+        parsed = DdlParser.ddl.parse_string(
+            "CREATE TABLE t (-- cpp_type:my::Type\n x bigint NOT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["x"].cpp_type == "my::Type"
+
+        # Non-matching cpp_type from annotation and comment:
+        try:
+            parsed = DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
+            tables = DdlExecutor.execute([parsed], make_args(), {})
+
+            # If it reaches this line, the test failed because NO exception was thrown!
+            print("Test Failed: Expected SystemExit but parsing and execution succeeded.")
+            assert False, "Execution should have failed due to mismatched cpp_types"
+
+        except SystemExit as e:
+            assert e.code == ExitCode.BAD_COLUMN_ANNOTATION
 
         # Inline comment sets cpp_type; column without annotation is unaffected
         parsed = DdlParser.ddl.parse_string("""
@@ -1177,8 +1171,8 @@ class SelfTest:
             tables = DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
 
             assert False, "Execution should have failed due to mismatched cpp_types"
-        except RuntimeError as e:
-            pass # this is expected.
+        except SystemExit as e:
+            assert e.code == ExitCode.BAD_COLUMN_ANNOTATION
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
         parsed = DdlParser.ddl.parse_string("""
