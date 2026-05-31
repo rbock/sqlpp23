@@ -246,12 +246,9 @@ class DdlParser:
                 return m.group(1)
             return None
 
-        # cpp_type annotation parser: captures type from '-- ... cpp_type:SomeType ...'
-        # The trailing .* is required to consume the full comment line, including any
-        # text that follows the type (e.g. '-- note cpp_type:XCoord (extra text)').
-        ddl_cpp_type_from_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*')
+        ddl_regular_comment = pp.Regex(r'--.*') | pp.Regex(r'#.*')
 
-        ddl_cpp_type_from_column_comment = (
+        ddl_column_comment = (
             pp.CaselessKeyword("COMMENT")
             + ddl_string.set_results_name("column_comment")
         )
@@ -288,7 +285,7 @@ class DdlParser:
 
         # Column parser
         cls.ddl_column = pp.Group(
-            pp.ZeroOrMore(ddl_cpp_type_from_annotation).set_results_name("comments")
+            pp.ZeroOrMore(ddl_regular_comment).set_results_name("comments")
             + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
             + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
@@ -302,7 +299,7 @@ class DdlParser:
                 | ddl_default_value
                 | ddl_generated_value
                 | ddl_primary_key
-                | ddl_cpp_type_from_column_comment
+                | ddl_column_comment
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
@@ -363,10 +360,8 @@ class DdlParser:
 
         # Main DDL parser
         # Suppress regular comments but not cpp_type annotations (those are captured in ddl_column)
-        ddl_regular_comment = pp.Regex(rf'(?!{ddl_cpp_type_from_annotation.pattern})--.*') | pp.Regex(r'#.*')
         cls.ddl = (
             pp.OneOrMore(pp.Suppress(pp.SkipTo(ddl_command_basic, False)) + ddl_command_with_loc)
-            .ignore(ddl_regular_comment)
             .parse_with_tabs()
         )
 
