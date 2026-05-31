@@ -249,32 +249,38 @@ class DdlParser:
         # cpp_type annotation parser: captures type from '-- ... cpp_type:SomeType ...'
         # The trailing .* is required to consume the full comment line, including any
         # text that follows the type (e.g. '-- note cpp_type:XCoord (extra text)').
-        ddl_cpp_type_from_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*').set_parse_action(
-            lambda t: extract_cpp_type(t[0])
-        )
+        ddl_cpp_type_from_annotation = pp.Regex(r'--.*cpp_type:\s*\S+.*')
 
         ddl_cpp_type_from_column_comment = (
             pp.CaselessKeyword("COMMENT")
-            + ddl_string.set_results_name("cpp_type_from_column_comment").set_parse_action(
-                lambda t: extract_cpp_type(t[0])
-            )
+            + ddl_string.set_results_name("column_comment")
         )
 
-        def resolve_column_cpp_type(s, loc, tokens):
+        def parse_column_annotations(s, loc, tokens):
             column = tokens[0]
 
-            annotation_val = comment_val = column.pop("cpp_type_from_annotation", None)
-            comment_val = comment_val = column.pop("cpp_type_from_column_comment", None)
-            cpp_type = annotation_val or comment_val
+            column_name = column.get("name", None);
 
-            if comment_val and annotation_val and annotation_val != comment_val:
-                line_num = pp.lineno(loc, s)
-                col_num = pp.col(loc, s)
-                error_msg = (
-                    f"Mismatched cpp_type annotations found at line {line_num}, col {col_num}! "
-                    f"Annotation says '{annotation_val}' but SQL COMMENT says '{comment_val}'."
-                )
-                raise pp.ParseException(s, loc, error_msg)
+            comments = column.pop("comments", [])
+            column_comment = column.pop("column_comment", None)
+            if column_comment:
+                comments.append(column_comment)
+
+            cpp_type =  None
+
+            for comment in comments:
+                new_cpp_type = extract_cpp_type(comment)
+
+                if cpp_type and new_cpp_type and cpp_type != new_cpp_type:
+                    line_num = pp.lineno(loc, s)
+                    error_msg = (
+                        f"Mismatched cpp_type annotations found around line {line_num} for column {column_name}! "
+                        f"One annotation says '{cpp_type}' but another says '{new_cpp_type}'."
+                    )
+                    # Need to raise ParseFatalException here to prevent backtracking that would
+                    # lose this error message.
+                    raise pp.ParseFatalException(s, loc, error_msg)
+                cpp_type = new_cpp_type
 
             if cpp_type:
                 column["cpp_type"] = cpp_type
@@ -282,7 +288,7 @@ class DdlParser:
 
         # Column parser
         cls.ddl_column = pp.Group(
-            pp.Optional(ddl_cpp_type_from_annotation).set_results_name("cpp_type_from_annotation")
+            pp.ZeroOrMore(ddl_cpp_type_from_annotation).set_results_name("comments")
             + ddl_name.set_results_name("name")
             + cls.ddl_type.set_results_name("type")
             + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
@@ -300,7 +306,7 @@ class DdlParser:
                 | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
                 | pp.Suppress(cls.ddl_expression)
             )
-        ).set_parse_action(resolve_column_cpp_type)
+        ).set_parse_action(parse_column_annotations)
 
         # CREATE TABLE parser
         ddl_create_table = (
@@ -372,6 +378,11 @@ class DdlParser:
     def parse_ddls(cls, ddl_paths):
         try:
             return [cls.ddl.parse_file(path) for path in ddl_paths]
+        except pp.ParseFatalException as e:
+            print(f"ERROR: Failed to parse {ddl_paths}")
+            print(e)
+            sys.exit(ExitCode.BAD_DDL_PARSING)
+
         except pp.ParseException as e:
             print(f"ERROR: Failed to parse {ddl_paths}")
             print(e.explain(1))
@@ -1097,10 +1108,10 @@ class SelfTest:
                 "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
 
             # If it reaches this line, the test failed because NO exception was thrown!
-            print("Test Failed: Expected ParseException but parsing succeeded.")
+            print("Test Failed: Expected ParseFatalException but parsing succeeded.")
             assert False, "Parsing should have failed due to mismatched cpp_types"
 
-        except pp.ParseException as e:
+        except pp.ParseFatalException as e:
             pass # This is the expected exception
 
     @staticmethod
