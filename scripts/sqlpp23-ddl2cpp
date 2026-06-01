@@ -26,6 +26,8 @@
 ##
 
 import argparse
+import logging
+import logging.handlers
 import pyparsing as pp
 import sys
 import re
@@ -336,8 +338,8 @@ class DdlParser:
         try:
             return [cls.ddl.parse_file(path) for path in ddl_paths]
         except pp.ParseException as e:
-            print(f"ERROR: Failed to parse {ddl_paths}")
-            print(e.explain(1))
+            logging.error(f"Failed to parse {ddl_paths}")
+            logging.info(e.explain(1))
             sys.exit(ExitCode.BAD_DDL_PARSING)
 
 
@@ -394,7 +396,7 @@ class DdlExecutor:
 
             for key, value in new_annotations.items():
                 if key in annotations and annotations[key] != value:
-                    print(
+                    logging.error(
                         f"Mismatched {key} annotations found for {table.name}.{column.name}: "
                         f"One annotation says '{annotations[key]}' but another says '{value}'."
                     )
@@ -434,18 +436,18 @@ class DdlExecutor:
         for table_def in cls._tables.values():
             for col_def in table_def.columns.values():
                 if col_def.data_type == "UNKNOWN" and col_def.cpp_type is None:
-                    print(f"ERROR: SQL data type of {table_def.name}.{col_def.name} is not supported.")
+                    logging.error(f"SQL data type of {table_def.name}.{col_def.name} is not supported.")
                     cls._has_error = True
                 if col_def.is_array and col_def.cpp_type is None:
-                    print(f"ERROR: Array type of {table_def.name}.{col_def.name} is not supported.")
+                    logging.error(f"Array type of {table_def.name}.{col_def.name} is not supported.")
                     cls._has_error = True
         if cls._has_error:
-            print("ERROR: Unsupported SQL data type(s).")
-            print("Possible solutions:")
-            print("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
-            print("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
-            print("C) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
-            print("D) Raise an issue on github")
+            logging.error("ERROR: Unsupported SQL data type(s).")
+            logging.info("Possible solutions:")
+            logging.info("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
+            logging.info("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
+            logging.info("C) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
+            logging.info("D) Raise an issue on github")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
 
@@ -458,14 +460,14 @@ class DdlExecutor:
         elif command.comment_on_column:
             cls._execute_comment_on_column(command)
         else:
-            print("Unknown DDL command:" + os.linesep + command.dump())
+            logging.error("Unknown DDL command:" + os.linesep + command.dump())
             raise RuntimeError()
 
     @classmethod
     def _execute_create_table(cls, command):
         table_name = cls._strip_schema(command.table_name)
         if table_name in cls._tables:
-            print(f"ERROR: Duplicate table name {table_name}")
+            logging.error(f"Duplicate table name {table_name}")
             cls._has_error = True
             return
         else:
@@ -491,14 +493,14 @@ class DdlExecutor:
             return
         col_name = col_expr.name
         if col_name in columns:
-            print(f"ERROR: Duplicate column name {table_name}.{col_name}")
+            logging.error(f"Duplicate column name {table_name}.{col_name}")
             cls._has_error = True
             return
         if col_expr.type == "timestamp":
             if cls._warn_on_timestamp:
-                print("WARNING: date and time values are assumed to be without timezone.")
-                print("WARNING: If you are using types WITH timezones, your code has to deal with that.")
-                print("WARNING: You can disable this warning using --suppress-timestamp-warning")
+                logging.warning(f"date and time values are assumed to be without timezone.")
+                logging.warning(f"If you are using types WITH timezones, your code has to deal with that.")
+                logging.info(f"You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         data_type = col_expr.type
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
@@ -538,12 +540,12 @@ class DdlExecutor:
     def _execute_set_default(cls, command):
         table_name = cls._strip_schema(command.table_name)
         if table_name not in cls._tables:
-            print(f"ERROR: Unknown table name in ALTER TABLE {command.table_name}")
+            logging.error(f"Unknown table name in ALTER TABLE {command.table_name}")
             cls._has_error = True
             return
         table_def = cls._tables[table_name]
         if command.column_name not in table_def.columns:
-            print(f"ERROR: Unknown column name in ALTER TABLE {command.table_name} ALTER COLUMN {command.column_name}")
+            logging.error(f"Unknown column name in ALTER TABLE {command.table_name} ALTER COLUMN {command.column_name}")
             cls._has_error = True
             return
         column_def = table_def.columns[command.column_name]
@@ -556,7 +558,7 @@ class DdlExecutor:
         qualified = command.qualified_column
         last_dot = qualified.rfind(".")
         if last_dot == -1:
-            print(f"ERROR: COMMENT ON COLUMN target '{qualified}' is not in table.column format")
+            logging.error(f"COMMENT ON COLUMN target '{qualified}' is not in table.column format")
             cls._has_error = True
             return
         table_name = cls._strip_schema(qualified[:last_dot])
@@ -761,8 +763,8 @@ class SelfTest:
     """Runs a self-test of the parser"""
 
     @classmethod
-    def run(cls):
-        print("Running self-test")
+    def run(cls, buffered_handler):
+        cls.buffered_log_handler = buffered_handler
         DdlParser.initialize()
         cls._test_type_blob()
         cls._test_type_boolean()
@@ -1122,11 +1124,14 @@ class SelfTest:
             tables = DdlExecutor.execute([parsed], make_args(), {})
 
             # If it reaches this line, the test failed because NO exception was thrown!
-            print("Test Failed: Expected SystemExit but parsing and execution succeeded.")
+            logging.error("Test Failed: Expected SystemExit but parsing and execution succeeded.")
             assert False, "Execution should have failed due to mismatched cpp_types"
 
         except SystemExit as e:
             assert e.code == ExitCode.BAD_COLUMN_ANNOTATION
+            assert "Something" in cls.buffered_log_handler.buffer[0].msg
+            assert "Else" in cls.buffered_log_handler.buffer[0].msg
+            cls.buffered_log_handler.flush()
 
         # Inline comment sets cpp_type; column without annotation is unaffected
         parsed = DdlParser.ddl.parse_string("""
@@ -1173,6 +1178,9 @@ class SelfTest:
             assert False, "Execution should have failed due to mismatched cpp_types"
         except SystemExit as e:
             assert e.code == ExitCode.BAD_COLUMN_ANNOTATION
+            assert "InlineType" in cls.buffered_log_handler.buffer[0].msg
+            assert "CommentType" in cls.buffered_log_handler.buffer[0].msg
+            cls.buffered_log_handler.flush()
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
         parsed = DdlParser.ddl.parse_string("""
@@ -1240,22 +1248,22 @@ def parse_commandline_args():
         return args
 
     if not args.path_to_ddl or not len(args.path_to_ddl):
-        print("Missing argument --path-to-ddl")
+        logging.error("Missing argument --path-to-ddl")
         arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     if not args.namespace:
-        print("Missing argument --namespace")
+        logging.error("Missing argument --namespace")
         arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     if not args.path_to_module and not args.path_to_header and not args.path_to_header_directory:
-        print("Missing argument(s): at least one path for code generation")
+        logging.error("Missing argument(s): at least one path for code generation")
         arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
     if args.path_to_module and not args.module_name:
-        print("Missing argument --module-name")
+        logging.error("Missing argument --module-name")
         arg_parser.print_help()
         sys.exit(ExitCode.BAD_ARGS)
 
@@ -1280,7 +1288,7 @@ def get_custom_types(filename):
             name_from_camel = re.sub(r"[A-Z]", lambda m : ("_" if m.start() else "") + m[0].lower(), name_ident)
             if DdlParser.is_base_type(name_from_camel):
                 return name_from_camel
-            print(f"ERROR: Custom types file uses an unknown base type {name_ident}")
+            logging.error(f"Custom types file uses an unknown base type {name_ident}")
             sys.exit(ExitCode.BAD_CUSTOM_TYPES)
         for row in reader:
             values = [cleaned for value in row["custom_types"] if (cleaned := clean_custom_type(value)) != ""]
@@ -1300,12 +1308,12 @@ def get_cpp_types(filename):
             if not row or row[0].strip().startswith("#"):
                 continue
             if len(row) != 2:
-                print(f"ERROR: --path-to-cpp-types file has invalid row: {row}")
+                logging.error(f"--path-to-cpp-types file has invalid row: {row}")
                 sys.exit(ExitCode.BAD_CPP_TYPES)
             key = row[0].strip()
             cpp_type = row[1].strip()
             if ":" not in key:
-                print(f"ERROR: --path-to-cpp-types file has invalid key '{key}' (expected 'table_name:column_name')")
+                logging.error(f"--path-to-cpp-types file has invalid key '{key}' (expected 'table_name:column_name')")
                 sys.exit(ExitCode.BAD_CPP_TYPES)
             table_name, _, col_name = key.partition(":")
             overrides[(table_name.strip(), col_name.strip())] = cpp_type
@@ -1315,18 +1323,28 @@ def get_cpp_types(filename):
 def validate_cpp_types(cpp_type_overrides, tables):
     for (table_name, col_name) in cpp_type_overrides:
         if table_name not in tables:
-            print(f"ERROR: --path-to-cpp-types references unknown table '{table_name}'")
+            logging.error(f"--path-to-cpp-types references unknown table '{table_name}'")
             sys.exit(ExitCode.BAD_CPP_TYPES)
         if col_name not in tables[table_name].columns:
-            print(f"ERROR: --path-to-cpp-types references unknown column '{col_name}' in table '{table_name}'")
+            logging.error(f"--path-to-cpp-types references unknown column '{col_name}' in table '{table_name}'")
             sys.exit(ExitCode.BAD_CPP_TYPES)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+
     args = parse_commandline_args()
 
     if args.self_test:
-        SelfTest.run()
+        logging.info("Running self-test.")
+        logging.info("...")
+        default_handlers = logging.getLogger().handlers.copy()
+        logging.getLogger().handlers.clear()
+        buffered = logging.handlers.BufferingHandler(1000)
+        logging.getLogger().addHandler(buffered)
+        SelfTest.run(buffered)
+        logging.getLogger().handlers = default_handlers
+        logging.info("All tests passed!")
     else:
         custom_types = get_custom_types(args.path_to_custom_types)
         cpp_type_overrides = get_cpp_types(args.path_to_cpp_types)
