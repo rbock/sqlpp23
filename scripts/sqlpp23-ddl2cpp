@@ -726,31 +726,37 @@ class ModelWriter:
 
     @classmethod
     # Prepends optional schema with an `_`
+    # Replaces each space in names with `_`
+    # Interprets `_` and numbers as word separators
     # Depending on naming_style
     #    - returns name as UpperCamelCase
     #    - returns identity
     def _to_class_name(cls, name, args):
         name = name.replace(".", "_")
+        name = name.replace(" ", "_")
         if args.naming_style == "camel-case":
-            return re.sub(r"(^|\s|[_0-9])(\S)", cls._repl_camel_case_func, name)
+            return re.sub(r"(^_*|[_0-9])(\S)", cls._repl_camel_case_func, name)
         # otherwise return identity (except that we concatenate an optional schema with the table name)
         return name
 
     @classmethod
     # Prepends optional schema with an `_`
+    # Replaces each space in names with `_`
+    # Interprets `_` and numbers as word separators
     # Depending on naming_style
     #    - returns name as lowerCamelCase
     #    - returns identity
     def _to_member_name(cls, name, args):
         name = name.replace(".", "_")
+        name = name.replace(" ", "_")
         if args.naming_style == "camel-case":
-            return re.sub(r"(\s|_|[0-9])(\S)", cls._repl_camel_case_func, name)
+            return re.sub(r"(_|[0-9])(\S)", cls._repl_camel_case_func, name)
         # otherwise return identity (except that we concatenate an optional schema with the table name)
         return name
 
     @staticmethod
     def _repl_camel_case_func(m):
-        if m.group(1) == "_":
+        if m.group(1) in ["_", " "]:
             return m.group(2).upper()
         else:
             return m.group(1) + m.group(2).upper()
@@ -1099,7 +1105,8 @@ class SelfTest(unittest.TestCase):
         suite = cls()
         args = make_args(naming_style='camel-case')
         suite.assertEqual(ModelWriter._to_class_name("name", args), "Name")
-        suite.assertEqual(ModelWriter._to_class_name("_name", args), "_name") # TODO: This is questionable
+        suite.assertEqual(ModelWriter._to_class_name("_name", args), "Name")
+        suite.assertEqual(ModelWriter._to_class_name("name part", args), "NamePart")
         suite.assertEqual(ModelWriter._to_class_name("name_part", args), "NamePart")
         suite.assertEqual(ModelWriter._to_class_name("name_part_part", args), "NamePartPart")
         suite.assertEqual(ModelWriter._to_class_name("name2part_part3part", args), "Name2PartPart3Part")
@@ -1107,8 +1114,9 @@ class SelfTest(unittest.TestCase):
         suite.assertEqual(ModelWriter._to_class_name("schema.name_part", args), "SchemaNamePart")
 
         suite.assertEqual(ModelWriter._to_member_name("name", args), "name")
-        suite.assertEqual(ModelWriter._to_member_name("_name", args), "Name") # TODO: This is questionable
+        suite.assertEqual(ModelWriter._to_member_name("_name", args), "Name")
         suite.assertEqual(ModelWriter._to_member_name("name_part", args), "namePart")
+        suite.assertEqual(ModelWriter._to_member_name("name part", args), "namePart")
         suite.assertEqual(ModelWriter._to_member_name("name_part_part", args), "namePartPart")
         suite.assertEqual(ModelWriter._to_member_name("name2part_part3part", args), "name2PartPart3Part")
         suite.assertEqual(ModelWriter._to_member_name("schema.name", args), "schemaName")
@@ -1120,6 +1128,7 @@ class SelfTest(unittest.TestCase):
         suite.assertEqual(ModelWriter._to_class_name("name", args), "name")
         suite.assertEqual(ModelWriter._to_class_name("_name", args), "_name")
         suite.assertEqual(ModelWriter._to_class_name("name_part", args), "name_part")
+        suite.assertEqual(ModelWriter._to_class_name("name part", args), "name_part")
         suite.assertEqual(ModelWriter._to_class_name("name_part_part", args), "name_part_part")
         suite.assertEqual(ModelWriter._to_class_name("name2part_part3part", args), "name2part_part3part")
         suite.assertEqual(ModelWriter._to_class_name("schema.name", args), "schema_name")
@@ -1128,6 +1137,7 @@ class SelfTest(unittest.TestCase):
         suite.assertEqual(ModelWriter._to_member_name("name", args), "name")
         suite.assertEqual(ModelWriter._to_member_name("_name", args), "_name")
         suite.assertEqual(ModelWriter._to_member_name("name_part", args), "name_part")
+        suite.assertEqual(ModelWriter._to_member_name("name part", args), "name_part")
         suite.assertEqual(ModelWriter._to_member_name("name_part_part", args), "name_part_part")
         suite.assertEqual(ModelWriter._to_member_name("name2part_part3part", args), "name2part_part3part")
         suite.assertEqual(ModelWriter._to_member_name("schema.name", args), "schema_name")
