@@ -32,6 +32,7 @@ import pyparsing as pp
 import sys
 import re
 import os
+import unittest
 from dataclasses import dataclass
 from enum import IntEnum
 from typing import Any, Dict, List
@@ -724,19 +725,27 @@ class ModelWriter:
         print("", file=header)
 
     @classmethod
+    # Prepends optional schema with an `_`
+    # Depending on naming_style
+    #    - returns name as UpperCamelCase
+    #    - returns identity
     def _to_class_name(cls, name, args):
+        name = name.replace(".", "_")
         if args.naming_style == "camel-case":
-            name = name.replace(".", "_")
             return re.sub(r"(^|\s|[_0-9])(\S)", cls._repl_camel_case_func, name)
-        # otherwise return identity
+        # otherwise return identity (except that we concatenate an optional schema with the table name)
         return name
 
     @classmethod
+    # Prepends optional schema with an `_`
+    # Depending on naming_style
+    #    - returns name as lowerCamelCase
+    #    - returns identity
     def _to_member_name(cls, name, args):
+        name = name.replace(".", "_")
         if args.naming_style == "camel-case":
-            name = name.replace(".", "_")
             return re.sub(r"(\s|_|[0-9])(\S)", cls._repl_camel_case_func, name)
-        # otherwise return identity
+        # otherwise return identity (except that we concatenate an optional schema with the table name)
         return name
 
     @staticmethod
@@ -759,7 +768,7 @@ class ModelWriter:
         return name
 
 
-class SelfTest:
+class SelfTest(unittest.TestCase):
     """Runs a self-test of the parser"""
 
     @classmethod
@@ -783,6 +792,7 @@ class SelfTest:
         cls._test_command_create_table()
         cls._test_command_set_default()
         cls._test_command_comment_on_column()
+        cls._test_model_writer()
         cls._test_cpp_type_executor()
 
     @staticmethod
@@ -1077,6 +1087,51 @@ class SelfTest:
         assert result[0].comment_on_column
         assert result[0].qualified_column == "public.t.x"
         assert result[0].column_comment == "note cpp_type:MyType (extra)"
+
+    @classmethod
+    def _test_model_writer(cls):
+        import argparse
+
+        def make_args(**kwargs):
+            return argparse.Namespace(**kwargs)
+
+        # Test naming_style camel-case
+        suite = cls()
+        args = make_args(naming_style='camel-case')
+        suite.assertEqual(ModelWriter._to_class_name("name", args), "Name")
+        suite.assertEqual(ModelWriter._to_class_name("_name", args), "_name") # TODO: This is questionable
+        suite.assertEqual(ModelWriter._to_class_name("name_part", args), "NamePart")
+        suite.assertEqual(ModelWriter._to_class_name("name_part_part", args), "NamePartPart")
+        suite.assertEqual(ModelWriter._to_class_name("name2part_part3part", args), "Name2PartPart3Part")
+        suite.assertEqual(ModelWriter._to_class_name("schema.name", args), "SchemaName")
+        suite.assertEqual(ModelWriter._to_class_name("schema.name_part", args), "SchemaNamePart")
+
+        suite.assertEqual(ModelWriter._to_member_name("name", args), "name")
+        suite.assertEqual(ModelWriter._to_member_name("_name", args), "Name") # TODO: This is questionable
+        suite.assertEqual(ModelWriter._to_member_name("name_part", args), "namePart")
+        suite.assertEqual(ModelWriter._to_member_name("name_part_part", args), "namePartPart")
+        suite.assertEqual(ModelWriter._to_member_name("name2part_part3part", args), "name2PartPart3Part")
+        suite.assertEqual(ModelWriter._to_member_name("schema.name", args), "schemaName")
+        suite.assertEqual(ModelWriter._to_member_name("schema.name_part", args), "schemaNamePart")
+
+        # Test naming_style camel-case
+        suite = cls()
+        args = make_args(naming_style='identity')
+        suite.assertEqual(ModelWriter._to_class_name("name", args), "name")
+        suite.assertEqual(ModelWriter._to_class_name("_name", args), "_name")
+        suite.assertEqual(ModelWriter._to_class_name("name_part", args), "name_part")
+        suite.assertEqual(ModelWriter._to_class_name("name_part_part", args), "name_part_part")
+        suite.assertEqual(ModelWriter._to_class_name("name2part_part3part", args), "name2part_part3part")
+        suite.assertEqual(ModelWriter._to_class_name("schema.name", args), "schema_name")
+        suite.assertEqual(ModelWriter._to_class_name("schema.name_part", args), "schema_name_part")
+
+        suite.assertEqual(ModelWriter._to_member_name("name", args), "name")
+        suite.assertEqual(ModelWriter._to_member_name("_name", args), "_name")
+        suite.assertEqual(ModelWriter._to_member_name("name_part", args), "name_part")
+        suite.assertEqual(ModelWriter._to_member_name("name_part_part", args), "name_part_part")
+        suite.assertEqual(ModelWriter._to_member_name("name2part_part3part", args), "name2part_part3part")
+        suite.assertEqual(ModelWriter._to_member_name("schema.name", args), "schema_name")
+        suite.assertEqual(ModelWriter._to_member_name("schema.name_part", args), "schema_name_part")
 
     @classmethod
     def _test_cpp_type_executor(cls):
