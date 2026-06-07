@@ -1,2 +1,4 @@
 .idea
 CMakeLists.txt.user
+__pycache__/
+*.py[cod]
