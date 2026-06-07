@@ -45,93 +45,81 @@ ExitCode = ddl2cpp.ExitCode
 class SelfTest(unittest.TestCase):
     """Runs a unit tests of the parser"""
 
-    @classmethod
-    def run_tests(cls, buffered_handler):
-        cls.buffered_log_handler = buffered_handler
+    def run_tests(self, buffered_handler):
+        self.buffered_log_handler = buffered_handler
         DdlParser.initialize()
-        cls._test_type_blob()
-        cls._test_type_boolean()
-        cls._test_type_date()
-        cls._test_type_floating_point()
-        cls._test_type_integral()
-        cls._test_type_serial()
-        cls._test_type_text()
-        cls._test_type_time()
-        cls._test_type_timestamp()
-        cls._test_type_unknown()
-        cls._test_column()
-        cls._test_constraint()
-        cls._test_math_expression()
-        cls._test_rational()
-        cls._test_command_create_table()
-        cls._test_command_set_default()
-        cls._test_command_comment_on_column()
-        cls._test_model_writer()
-        cls._test_cpp_type_executor()
+        self._test_type_blob()
+        self._test_type_boolean()
+        self._test_type_date()
+        self._test_type_floating_point()
+        self._test_type_integral()
+        self._test_type_serial()
+        self._test_type_text()
+        self._test_type_time()
+        self._test_type_timestamp()
+        self._test_type_unknown()
+        self._test_column()
+        self._test_constraint()
+        self._test_math_expression()
+        self._test_rational()
+        self._test_command_create_table()
+        self._test_command_set_default()
+        self._test_command_comment_on_column()
+        self._test_model_writer()
+        self._test_cpp_type_executor()
 
-    @staticmethod
-    def _test_type_blob():
+    def _test_type_blob(self):
         for t in ddl2cpp.DdlParser.ddl_blob_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "blob"
+            self.assertEqual(result[0], "blob")
 
-    @staticmethod
-    def _test_type_boolean():
+    def _test_type_boolean(self):
         for t in ddl2cpp.DdlParser.ddl_boolean_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "boolean"
+            self.assertEqual(result[0], "boolean")
 
-    @staticmethod
-    def _test_type_date():
+    def _test_type_date(self):
         for t in ddl2cpp.DdlParser.ddl_date_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "date"
+            self.assertEqual(result[0], "date")
 
-    @staticmethod
-    def _test_type_floating_point():
+    def _test_type_floating_point(self):
         for t in ddl2cpp.DdlParser.ddl_floating_point_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "floating_point"
+            self.assertEqual(result[0], "floating_point")
 
-    @staticmethod
-    def _test_type_integral():
+    def _test_type_integral(self):
         for t in ddl2cpp.DdlParser.ddl_integral_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "integral"
+            self.assertEqual(result[0], "integral")
 
-    @staticmethod
-    def _test_type_serial():
+    def _test_type_serial(self):
         for t in ddl2cpp.DdlParser.ddl_serial_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "integral"
-            assert result.has_serial_value
+            self.assertEqual(result[0], "integral")
+            self.assertTrue(result.has_serial_value)
 
-    @staticmethod
-    def _test_type_text():
+    def _test_type_text(self):
         for t in ddl2cpp.DdlParser.ddl_text_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "text"
+            self.assertEqual(result[0], "text")
 
-    @staticmethod
-    def _test_type_time():
+    def _test_type_time(self):
         for t in ddl2cpp.DdlParser.ddl_time_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "time"
+            self.assertEqual(result[0], "time")
 
-    @staticmethod
-    def _test_type_timestamp():
+    def _test_type_timestamp(self):
         for t in ddl2cpp.DdlParser.ddl_timestamp_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "timestamp"
+            self.assertEqual(result[0], "timestamp")
 
-    @staticmethod
-    def _test_type_unknown():
+    def _test_type_unknown(self):
         for t in ["cheesecake", "blueberry"]:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            assert result[0] == "UNKNOWN"
+            self.assertEqual(result[0], "UNKNOWN")
 
-    @classmethod
-    def _test_column(cls):
+    def _test_column(self):
         test_data = [
             {
                 "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
@@ -226,53 +214,48 @@ class SelfTest(unittest.TestCase):
         ]
         for td in test_data:
             result = ddl2cpp.DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
-            cls._check_parsed_column(result, td["expected"], td["text"])
+            self._check_parsed_column(result, td["expected"], td["text"])
 
-    @staticmethod
-    def _check_parsed_column(column_expr, column_expected, text):
-        assert column_expr.name == column_expected["name"], text
-        assert column_expr.type == column_expected["type"], text
-        assert bool(column_expr.is_unsigned) == column_expected["is_unsigned"], text
-        assert bool(column_expr.not_null) == column_expected["not_null"], text
-        assert bool(column_expr.has_auto_value) == column_expected["has_auto_value"], text
-        assert bool(column_expr.has_default_value) == column_expected["has_default_value"], text
-        assert bool(column_expr.has_generated_value) == column_expected["has_generated_value"], text
-        assert bool(column_expr.has_serial_value) == column_expected["has_serial_value"], text
-        assert bool(column_expr.is_primary_key) == column_expected["is_primary_key"], text
-        assert bool(column_expr.is_array) == column_expected["is_array"], text
+    def _check_parsed_column(self, column_expr, column_expected, text):
+        self.assertEqual(column_expr.name, column_expected["name"], text)
+        self.assertEqual(column_expr.type, column_expected["type"], text)
+        self.assertEqual(bool(column_expr.is_unsigned), column_expected["is_unsigned"], text)
+        self.assertEqual(bool(column_expr.not_null), column_expected["not_null"], text)
+        self.assertEqual(bool(column_expr.has_auto_value), column_expected["has_auto_value"], text)
+        self.assertEqual(bool(column_expr.has_default_value), column_expected["has_default_value"], text)
+        self.assertEqual(bool(column_expr.has_generated_value), column_expected["has_generated_value"], text)
+        self.assertEqual(bool(column_expr.has_serial_value), column_expected["has_serial_value"], text)
+        self.assertEqual(bool(column_expr.is_primary_key), column_expected["is_primary_key"], text)
+        self.assertEqual(bool(column_expr.is_array), column_expected["is_array"], text)
 
-    @staticmethod
-    def _test_constraint():
+    def _test_constraint(self):
         for text in [
             "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
             "UNIQUE (id)",
             "UNIQUE (first_name,last_name)"
         ]:
             result = ddl2cpp.DdlParser.ddl_constraint.parse_string(text, parse_all=True)
-            assert result.is_constraint
+            self.assertTrue(result.is_constraint)
 
-    @staticmethod
-    def _test_math_expression():
+    def _test_math_expression(self):
             text = "2 DIV 2"
             result = ddl2cpp.DdlParser.ddl_expression.parse_string(text, parse_all=True)
-            assert len(result) == 3
-            assert result[0] == "2"
-            assert result[1] == "DIV"
-            assert result[2] == "2"
+            self.assertEqual(len(result), 3)
+            self.assertEqual(result[0], "2")
+            self.assertEqual(result[1], "DIV")
+            self.assertEqual(result[2], "2")
 
-    @staticmethod
-    def _test_rational():
+    def _test_rational(self):
         for text in [
             "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
         ]:
             result = ddl2cpp.DdlParser.ddl_column.parse_string(text, parse_all=True)
             column = result[0]
-            assert column.name == "pos"
-            assert column.type == "text"
-            assert column.not_null
+            self.assertEqual(column.name, "pos")
+            self.assertEqual(column.type, "text")
+            self.assertTrue(column.not_null)
 
-    @classmethod
-    def _test_command_create_table(cls):
+    def _test_command_create_table(self):
         input_text = """
             CREATE TABLE "public"."dk" (
                 id int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
@@ -282,10 +265,10 @@ class SelfTest(unittest.TestCase):
             )
         """
         result = ddl2cpp.DdlParser.ddl.parse_string(input_text, parse_all=True)
-        assert len(result) == 1
+        self.assertEqual(len(result), 1)
         create_table = result[0]
-        assert create_table.create_table
-        assert create_table.table_name == "public.dk"
+        self.assertTrue(create_table.create_table)
+        self.assertEqual(create_table.table_name, "public.dk")
         column_data = [
             {
                 "name": "id",
@@ -324,95 +307,89 @@ class SelfTest(unittest.TestCase):
                 "is_array": False,
             },
         ]
-        assert len(create_table.columns) == len(column_data)
+        self.assertEqual(len(create_table.columns), len(column_data))
         for index, expected in enumerate(column_data):
-            cls._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
-        assert create_table.command_text == input_text.strip()
+            self._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
+        self.assertEqual(create_table.command_text, input_text.strip())
 
-    @staticmethod
-    def _test_command_set_default():
+    def _test_command_set_default(self):
         input_text = """ALTER TABLE ONLY mytbl ALTER COLUMN mycol SET DEFAULT 123"""
         result = ddl2cpp.DdlParser.ddl.parse_string(input_text, parse_all=True)
-        assert len(result) == 1
+        self.assertEqual(len(result), 1)
         set_default = result[0]
-        assert set_default.set_default
-        assert set_default.table_name == "mytbl"
-        assert set_default.column_name == "mycol"
+        self.assertTrue(set_default.set_default)
+        self.assertEqual(set_default.table_name, "mytbl")
+        self.assertEqual(set_default.column_name, "mycol")
 
         # Schema-qualified table name
         input_text = """ALTER TABLE ONLY public.mytbl ALTER COLUMN mycol SET DEFAULT 123"""
         result = ddl2cpp.DdlParser.ddl.parse_string(input_text, parse_all=True)
-        assert result[0].set_default
-        assert result[0].table_name == "public.mytbl"
-        assert result[0].column_name == "mycol"
+        self.assertTrue(result[0].set_default)
+        self.assertEqual(result[0].table_name, "public.mytbl")
+        self.assertEqual(result[0].column_name, "mycol")
 
-    @staticmethod
-    def _test_command_comment_on_column():
+    def _test_command_comment_on_column(self):
         # Without schema prefix
         result = ddl2cpp.DdlParser.ddl.parse_string(
             "COMMENT ON COLUMN t.x IS 'some note'", parse_all=True)
-        assert result[0].comment_on_column
-        assert result[0].qualified_column == "t.x"
-        assert not getattr(result[0], 'cpp_type', None) # cpp_type is not a field in the parser result
+        self.assertTrue(result[0].comment_on_column)
+        self.assertEqual(result[0].qualified_column, "t.x")
+        self.assertFalse(getattr(result[0], 'cpp_type', None)) # cpp_type is not a field in the parser result
 
         # With schema prefix and cpp_type anywhere in the comment string
         result = ddl2cpp.DdlParser.ddl.parse_string(
             "COMMENT ON COLUMN public.t.x IS 'note cpp_type:MyType (extra)'", parse_all=True)
-        assert result[0].comment_on_column
-        assert result[0].qualified_column == "public.t.x"
-        assert result[0].column_comment == "note cpp_type:MyType (extra)"
+        self.assertTrue(result[0].comment_on_column)
+        self.assertEqual(result[0].qualified_column, "public.t.x")
+        self.assertEqual(result[0].column_comment, "note cpp_type:MyType (extra)")
 
-    @classmethod
-    def _test_model_writer(cls):
+    def _test_model_writer(self):
         import argparse
 
         def make_args(**kwargs):
             return argparse.Namespace(**kwargs)
 
         # Test naming_style camel-case
-        suite = cls()
         args = make_args(naming_style='camel-case')
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name", args), "Name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("_name", args), "Name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name part", args), "NamePart")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part", args), "NamePart")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part_part", args), "NamePartPart")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name2part_part3part", args), "Name2PartPart3Part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name", args), "SchemaName")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name_part", args), "SchemaNamePart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name", args), "Name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("_name", args), "Name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name part", args), "NamePart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part", args), "NamePart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part_part", args), "NamePartPart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name2part_part3part", args), "Name2PartPart3Part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name", args), "SchemaName")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name_part", args), "SchemaNamePart")
 
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name", args), "name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("_name", args), "Name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part", args), "namePart")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name part", args), "namePart")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part_part", args), "namePartPart")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name2part_part3part", args), "name2PartPart3Part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name", args), "schemaName")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name_part", args), "schemaNamePart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name", args), "name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("_name", args), "Name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part", args), "namePart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name part", args), "namePart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part_part", args), "namePartPart")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name2part_part3part", args), "name2PartPart3Part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name", args), "schemaName")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name_part", args), "schemaNamePart")
 
-        # Test naming_style camel-case
-        suite = cls()
+        # Test naming_style identity
         args = make_args(naming_style='identity')
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name", args), "name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("_name", args), "_name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part", args), "name_part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name part", args), "name_part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part_part", args), "name_part_part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("name2part_part3part", args), "name2part_part3part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name", args), "schema_name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name_part", args), "schema_name_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name", args), "name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("_name", args), "_name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part", args), "name_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name part", args), "name_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name_part_part", args), "name_part_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("name2part_part3part", args), "name2part_part3part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name", args), "schema_name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_class_name("schema.name_part", args), "schema_name_part")
 
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name", args), "name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("_name", args), "_name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part", args), "name_part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name part", args), "name_part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part_part", args), "name_part_part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("name2part_part3part", args), "name2part_part3part")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name", args), "schema_name")
-        suite.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name_part", args), "schema_name_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name", args), "name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("_name", args), "_name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part", args), "name_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name part", args), "name_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name_part_part", args), "name_part_part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("name2part_part3part", args), "name2part_part3part")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name", args), "schema_name")
+        self.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name_part", args), "schema_name_part")
 
-    @classmethod
-    def _test_cpp_type_executor(cls):
+    def _test_cpp_type_executor(self):
         import argparse
 
         def make_args(**kwargs):
@@ -424,31 +401,31 @@ class SelfTest(unittest.TestCase):
         parsed = ddl2cpp.DdlParser.ddl.parse_string(
             "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["x"].cpp_type == "MyType"
+        self.assertEqual(tables["t"].columns["x"].cpp_type, "MyType")
 
         # Annotation anywhere in the comment line with surrounding text
         parsed = ddl2cpp.DdlParser.ddl.parse_string(
             "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["x"].cpp_type == "MyType"
+        self.assertEqual(tables["t"].columns["x"].cpp_type, "MyType")
 
         # Regular comment without cpp_type: does not set cpp_type
         parsed = ddl2cpp.DdlParser.ddl.parse_string(
             "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert not tables["t"].columns["x"].cpp_type
+        self.assertFalse(tables["t"].columns["x"].cpp_type)
 
         # MySQL-style COMMENT clause: value is captured
         parsed = ddl2cpp.DdlParser.ddl.parse_string(
             "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["x"].cpp_type == "my::Type"
+        self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
 
         # Matching cpp_type from annotation and comment:
         parsed = ddl2cpp.DdlParser.ddl.parse_string(
             "CREATE TABLE t (-- cpp_type:my::Type\n x bigint NOT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["x"].cpp_type == "my::Type"
+        self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
 
         # Non-matching cpp_type from annotation and comment:
         try:
@@ -458,13 +435,13 @@ class SelfTest(unittest.TestCase):
 
             # If it reaches this line, the test failed because NO exception was thrown!
             logging.error("Test Failed: Expected SystemExit but parsing and execution succeeded.")
-            assert False, "Execution should have failed due to mismatched cpp_types"
+            self.fail("Execution should have failed due to mismatched cpp_types")
 
         except SystemExit as e:
-            assert e.code == ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION
-            assert "Something" in cls.buffered_log_handler.buffer[0].msg
-            assert "Else" in cls.buffered_log_handler.buffer[0].msg
-            cls.buffered_log_handler.flush()
+            self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+            self.assertIn("Something", self.buffered_log_handler.buffer[0].msg)
+            self.assertIn("Else", self.buffered_log_handler.buffer[0].msg)
+            self.buffered_log_handler.flush()
 
         # Trailing comments are ignored
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -480,9 +457,9 @@ class SelfTest(unittest.TestCase):
         );
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["a"].cpp_type is None
-        assert tables["t"].columns["b"].cpp_type is None
-        assert tables["t"].columns["c"].cpp_type is None
+        self.assertIsNone(tables["t"].columns["a"].cpp_type)
+        self.assertIsNone(tables["t"].columns["b"].cpp_type)
+        self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
         # In-type comments are ignored
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -500,9 +477,9 @@ class SelfTest(unittest.TestCase):
         );
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["a"].cpp_type is None
-        assert tables["t"].columns["b"].cpp_type is None
-        assert tables["t"].columns["c"].cpp_type is None
+        self.assertIsNone(tables["t"].columns["a"].cpp_type)
+        self.assertIsNone(tables["t"].columns["b"].cpp_type)
+        self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
         # Leading, inline, and trailing comments are ignored for constraints
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -523,9 +500,9 @@ class SelfTest(unittest.TestCase):
             );
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["a"].cpp_type is None
-        assert tables["t"].columns["b"].cpp_type is None
-        assert tables["t"].columns["c"].cpp_type is None
+        self.assertIsNone(tables["t"].columns["a"].cpp_type)
+        self.assertIsNone(tables["t"].columns["b"].cpp_type)
+        self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
         # Leading inline comment before a column sets cpp_type.
         # Other comments are ignored.
@@ -552,10 +529,10 @@ class SelfTest(unittest.TestCase):
             )
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["a"].cpp_type == "MyAType"
-        assert tables["t"].columns["b"].cpp_type == "MyBType"
-        assert tables["t"].columns["c"].cpp_type is None
-        assert tables["t"].columns["d"].cpp_type == "MyDType"
+        self.assertEqual(tables["t"].columns["a"].cpp_type, "MyAType")
+        self.assertEqual(tables["t"].columns["b"].cpp_type, "MyBType")
+        self.assertIsNone(tables["t"].columns["c"].cpp_type)
+        self.assertEqual(tables["t"].columns["d"].cpp_type, "MyDType")
 
         # COMMENT ON COLUMN sets cpp_type (schema is stripped via --postgresql-schema)
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -563,7 +540,7 @@ class SelfTest(unittest.TestCase):
             COMMENT ON COLUMN public.t.a IS 'cpp_type:MyType'
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        assert tables["t"].columns["a"].cpp_type == "MyType"
+        self.assertEqual(tables["t"].columns["a"].cpp_type, "MyType")
 
         # COMMENT ON COLUMN has to match inline comment
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -574,7 +551,7 @@ class SelfTest(unittest.TestCase):
             COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        assert tables["t"].columns["a"].cpp_type == "SharedType"
+        self.assertEqual(tables["t"].columns["a"].cpp_type, "SharedType")
 
         # COMMENT ON COLUMN has to match inline comment, also with some quoted identifiers
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -585,7 +562,7 @@ class SelfTest(unittest.TestCase):
             COMMENT ON COLUMN "public"."t"."a" IS 'cpp_type:SharedType'
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        assert tables["t"].columns["a"].cpp_type == "SharedType"
+        self.assertEqual(tables["t"].columns["a"].cpp_type, "SharedType")
 
         # COMMENT ON COLUMN has to match inline comment
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -598,12 +575,12 @@ class SelfTest(unittest.TestCase):
         try:
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
 
-            assert False, "Execution should have failed due to mismatched cpp_types"
+            self.fail("Execution should have failed due to mismatched cpp_types")
         except SystemExit as e:
-            assert e.code == ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION
-            assert "InlineType" in cls.buffered_log_handler.buffer[0].msg
-            assert "CommentType" in cls.buffered_log_handler.buffer[0].msg
-            cls.buffered_log_handler.flush()
+            self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+            self.assertIn("InlineType", self.buffered_log_handler.buffer[0].msg)
+            self.assertIn("CommentType", self.buffered_log_handler.buffer[0].msg)
+            self.buffered_log_handler.flush()
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -614,13 +591,13 @@ class SelfTest(unittest.TestCase):
             COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
-        assert tables["t"].columns["a"].cpp_type == "CsvType"
+        self.assertEqual(tables["t"].columns["a"].cpp_type, "CsvType")
 
         # MySQL COMMENT clause: cpp_type extracted from column comment
         parsed = ddl2cpp.DdlParser.ddl.parse_string(
             "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')")
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["x"].cpp_type == "my::Type"
+        self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
 
         # Unknown SQL type resolved by cpp_type annotation: no error
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -630,7 +607,7 @@ class SelfTest(unittest.TestCase):
             )
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["id"].cpp_type == "MyUuidType"
+        self.assertEqual(tables["t"].columns["id"].cpp_type, "MyUuidType")
 
         # Schema-qualified ALTER TABLE is resolved correctly with --postgresql-schema
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -638,7 +615,7 @@ class SelfTest(unittest.TestCase):
             ALTER TABLE ONLY public.t ALTER COLUMN a SET DEFAULT 42
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        assert tables["t"].columns["a"].has_default
+        self.assertTrue(tables["t"].columns["a"].has_default)
 
         # Schema-qualified ALTER TABLE is resolved correctly without --postgresql-schema
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -646,7 +623,7 @@ class SelfTest(unittest.TestCase):
             ALTER TABLE ONLY "public".t ALTER COLUMN a SET DEFAULT 42
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["public.t"].columns["a"].has_default
+        self.assertTrue(tables["public.t"].columns["a"].has_default)
 
         # Schema-qualified ALTER TABLE is resolved correctly with --postgresql-schema
         parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -654,7 +631,7 @@ class SelfTest(unittest.TestCase):
             ALTER TABLE ONLY "public".t ALTER COLUMN a SET DEFAULT 42
         """)
         tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        assert tables["t"].columns["a"].has_default
+        self.assertTrue(tables["t"].columns["a"].has_default)
 
 
 if __name__ == "__main__":
@@ -667,7 +644,7 @@ if __name__ == "__main__":
     buffered = logging.handlers.BufferingHandler(1000)
     logging.getLogger().addHandler(buffered)
     try:
-        SelfTest.run_tests(buffered)
+        SelfTest().run_tests(buffered)
         logging.getLogger().handlers = default_handlers
         logging.info("All tests passed!")
     except Exception as e:
