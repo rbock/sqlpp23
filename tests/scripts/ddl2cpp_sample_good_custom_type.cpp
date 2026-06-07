@@ -1,5 +1,3 @@
-#include <ddl2cpp_sample_good_custom_type_old.h>
-#include <ddl2cpp_sample_good_custom_type_new.h>
 #include <sqlpp23/core/chrono.h>
 
 namespace my_ns {
@@ -7,6 +5,9 @@ struct uuid {
   bool operator==(const uuid&) const = default;
 };
 }  // namespace my_ns
+
+#include <ddl2cpp_sample_good_custom_type_old.h>
+#include <ddl2cpp_sample_good_custom_type_new.h>
 
 template <typename T>
 void test_db_model() {
