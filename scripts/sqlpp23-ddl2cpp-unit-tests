@@ -45,81 +45,65 @@ ExitCode = ddl2cpp.ExitCode
 class SelfTest(unittest.TestCase):
     """Runs a unit tests of the parser"""
 
-    def run_tests(self, buffered_handler):
-        self.buffered_log_handler = buffered_handler
+    @classmethod
+    def setUpClass(cls):
         DdlParser.initialize()
-        self._test_type_blob()
-        self._test_type_boolean()
-        self._test_type_date()
-        self._test_type_floating_point()
-        self._test_type_integral()
-        self._test_type_serial()
-        self._test_type_text()
-        self._test_type_time()
-        self._test_type_timestamp()
-        self._test_type_unknown()
-        self._test_column()
-        self._test_constraint()
-        self._test_math_expression()
-        self._test_rational()
-        self._test_command_create_table()
-        self._test_command_set_default()
-        self._test_command_comment_on_column()
-        self._test_model_writer()
-        self._test_cpp_type_executor()
+        logging.getLogger().handlers.clear() # prevent unwanted output to the console
+        cls.buffered_log_handler = logging.handlers.BufferingHandler(1000)
+        logging.getLogger().addHandler(cls.buffered_log_handler)
 
-    def _test_type_blob(self):
+    def test_type_blob(self):
         for t in ddl2cpp.DdlParser.ddl_blob_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "blob")
 
-    def _test_type_boolean(self):
+    def test_type_boolean(self):
         for t in ddl2cpp.DdlParser.ddl_boolean_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "boolean")
 
-    def _test_type_date(self):
+    def test_type_date(self):
         for t in ddl2cpp.DdlParser.ddl_date_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "date")
 
-    def _test_type_floating_point(self):
+    def test_type_floating_point(self):
         for t in ddl2cpp.DdlParser.ddl_floating_point_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "floating_point")
 
-    def _test_type_integral(self):
+    def test_type_integral(self):
         for t in ddl2cpp.DdlParser.ddl_integral_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "integral")
 
-    def _test_type_serial(self):
+    def test_type_serial(self):
         for t in ddl2cpp.DdlParser.ddl_serial_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "integral")
             self.assertTrue(result.has_serial_value)
 
-    def _test_type_text(self):
+    def test_type_text(self):
         for t in ddl2cpp.DdlParser.ddl_text_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "text")
 
-    def _test_type_time(self):
+    def test_type_time(self):
         for t in ddl2cpp.DdlParser.ddl_time_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "time")
 
-    def _test_type_timestamp(self):
+    def test_type_timestamp(self):
         for t in ddl2cpp.DdlParser.ddl_timestamp_types:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "timestamp")
 
-    def _test_type_unknown(self):
+    def test_type_unknown(self):
         for t in ["cheesecake", "blueberry"]:
             result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
             self.assertEqual(result[0], "UNKNOWN")
 
-    def _test_column(self):
+    def test_column(self):
         test_data = [
             {
                 "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
@@ -228,7 +212,7 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(bool(column_expr.is_primary_key), column_expected["is_primary_key"], text)
         self.assertEqual(bool(column_expr.is_array), column_expected["is_array"], text)
 
-    def _test_constraint(self):
+    def test_constraint(self):
         for text in [
             "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
             "UNIQUE (id)",
@@ -237,7 +221,7 @@ class SelfTest(unittest.TestCase):
             result = ddl2cpp.DdlParser.ddl_constraint.parse_string(text, parse_all=True)
             self.assertTrue(result.is_constraint)
 
-    def _test_math_expression(self):
+    def test_math_expression(self):
             text = "2 DIV 2"
             result = ddl2cpp.DdlParser.ddl_expression.parse_string(text, parse_all=True)
             self.assertEqual(len(result), 3)
@@ -245,7 +229,7 @@ class SelfTest(unittest.TestCase):
             self.assertEqual(result[1], "DIV")
             self.assertEqual(result[2], "2")
 
-    def _test_rational(self):
+    def test_rational(self):
         for text in [
             "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
         ]:
@@ -255,7 +239,7 @@ class SelfTest(unittest.TestCase):
             self.assertEqual(column.type, "text")
             self.assertTrue(column.not_null)
 
-    def _test_command_create_table(self):
+    def test_command_create_table(self):
         input_text = """
             CREATE TABLE "public"."dk" (
                 id int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
@@ -312,7 +296,7 @@ class SelfTest(unittest.TestCase):
             self._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
         self.assertEqual(create_table.command_text, input_text.strip())
 
-    def _test_command_set_default(self):
+    def test_command_set_default(self):
         input_text = """ALTER TABLE ONLY mytbl ALTER COLUMN mycol SET DEFAULT 123"""
         result = ddl2cpp.DdlParser.ddl.parse_string(input_text, parse_all=True)
         self.assertEqual(len(result), 1)
@@ -328,7 +312,7 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(result[0].table_name, "public.mytbl")
         self.assertEqual(result[0].column_name, "mycol")
 
-    def _test_command_comment_on_column(self):
+    def test_command_comment_on_column(self):
         # Without schema prefix
         result = ddl2cpp.DdlParser.ddl.parse_string(
             "COMMENT ON COLUMN t.x IS 'some note'", parse_all=True)
@@ -343,7 +327,7 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(result[0].qualified_column, "public.t.x")
         self.assertEqual(result[0].column_comment, "note cpp_type:MyType (extra)")
 
-    def _test_model_writer(self):
+    def test_model_writer(self):
         import argparse
 
         def make_args(**kwargs):
@@ -389,7 +373,7 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name", args), "schema_name")
         self.assertEqual(ddl2cpp.ModelWriter._to_member_name("schema.name_part", args), "schema_name_part")
 
-    def _test_cpp_type_executor(self):
+    def test_cpp_type_executor(self):
         import argparse
 
         def make_args(**kwargs):
@@ -636,21 +620,4 @@ class SelfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
-    logging.info("Running unit tests.")
-    logging.info("...")
-    default_handlers = logging.getLogger().handlers.copy()
-    logging.getLogger().handlers.clear()
-    buffered = logging.handlers.BufferingHandler(1000)
-    logging.getLogger().addHandler(buffered)
-    try:
-        SelfTest().run_tests(buffered)
-        logging.getLogger().handlers = default_handlers
-        logging.info("All tests passed!")
-    except Exception as e:
-        logging.getLogger().handlers = default_handlers
-        logging.error(f"Tests failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
-    sys.exit(0)
+    unittest.main()
