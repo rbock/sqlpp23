@@ -178,7 +178,7 @@ class DdlParser:
 
         # Data type parsers
         def get_type_parser(base_type, data_type):
-            type_names = getattr(cls, f"ddl_{base_type}_types")
+            type_names = getattr(cls, f"ddl_{base_type}_types").copy()
             if custom_types and (base_type in custom_types):
                 type_names.extend(custom_types[base_type])
             return pp.Or(
@@ -194,18 +194,31 @@ class DdlParser:
         ddl_date = get_type_parser("date", "date")
         ddl_timestamp = get_type_parser("timestamp", "timestamp")
         ddl_time = get_type_parser("time", "time")
+
+        custom_parsers = []
+        if custom_types:
+            for base_type, sql_types in custom_types.items():
+                if not cls.is_base_type(base_type):
+                    custom_parsers.append(
+                        pp.Or(map(pp.CaselessKeyword, sorted(sql_types, reverse=True)))
+                        .set_parse_action(pp.replace_with(base_type))
+                    )
+
         ddl_unknown = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN"))
-        cls.ddl_type = (
-            ddl_boolean
-            | ddl_integral
-            | ddl_serial
-            | ddl_floating_point
-            | ddl_text
-            | ddl_blob
-            | ddl_timestamp
-            | ddl_date
-            | ddl_time
-            | ddl_unknown
+        cls.ddl_type = pp.MatchFirst(
+            custom_parsers +
+            [
+                ddl_boolean,
+                ddl_integral,
+                ddl_serial,
+                ddl_floating_point,
+                ddl_text,
+                ddl_blob,
+                ddl_timestamp,
+                ddl_date,
+                ddl_time,
+                ddl_unknown,
+            ]
         )
 
         # Constraints parser
@@ -697,7 +710,8 @@ class ModelWriter:
                 + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
             const_prefix = "const " if column.is_const else ""
-            type_str = column.cpp_type if column.cpp_type else "::sqlpp::" + column.data_type
+            raw_type = column.cpp_type if column.cpp_type else column.data_type
+            type_str = raw_type if "::" in raw_type else "::sqlpp::" + raw_type
             if column.is_nullable:
                 print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
             else:
@@ -845,8 +859,7 @@ def get_custom_types(filename):
             name_from_camel = re.sub(r"[A-Z]", lambda m : ("_" if m.start() else "") + m[0].lower(), name_ident)
             if DdlParser.is_base_type(name_from_camel):
                 return name_from_camel
-            logging.error(f"Custom types file uses an unknown base type {name_ident}")
-            sys.exit(ExitCode.BAD_CUSTOM_TYPES)
+            return name_ident
         for row in reader:
             values = [cleaned for value in row["custom_types"] if (cleaned := clean_custom_type(value)) != ""]
             if values:

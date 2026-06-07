@@ -49,6 +49,7 @@ CREATE TABLE tab_foo
 	builtinBlob BINARY,
 	builtinDate DATE,
 	builtinDateTime TIMESTAMPTZ,
-	builtinTime TIME WITH TIME ZONE
+	builtinTime TIME WITH TIME ZONE,
+	myUuid UUID
 
 ) WITH SYSTEM VERSIONING; -- enable System-Versioning for this table

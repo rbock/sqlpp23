@@ -2,6 +2,12 @@
 #include <ddl2cpp_sample_good_custom_type_new.h>
 #include <sqlpp23/core/chrono.h>
 
+namespace my_ns {
+struct uuid {
+  bool operator==(const uuid&) const = default;
+};
+}  // namespace my_ns
+
 template <typename T>
 void test_db_model() {
   T tab_foo;
@@ -29,6 +35,7 @@ void test_db_model() {
   tab_foo.builtinDate = std::chrono::sys_days{};
   tab_foo.builtinDateTime = std::chrono::system_clock::now();
   tab_foo.builtinTime = std::chrono::seconds{10};
+  tab_foo.myUuid = my_ns::uuid{};
 }
 
 int main() {

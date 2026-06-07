@@ -7,3 +7,4 @@ serial, CustomSerialType
 text, CustomTextType, another_text_type
 time, CustomTimeType
 timestamp, CustomTimestampType
+my_ns::uuid, UUID
