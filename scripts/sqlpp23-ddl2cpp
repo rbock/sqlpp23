@@ -697,7 +697,10 @@ class ModelWriter:
                 + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
             const_prefix = "const " if column.is_const else ""
-            type_str = column.cpp_type if column.cpp_type else "::sqlpp::" + column.data_type
+            if column.cpp_type:
+                type_str = column.cpp_type if "::" in column.cpp_type else "::sqlpp::" + column.cpp_type
+            else:
+                type_str = "::sqlpp::" + column.data_type
             if column.is_nullable:
                 print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
             else:

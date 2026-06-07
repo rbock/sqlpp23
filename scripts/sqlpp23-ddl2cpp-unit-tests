@@ -632,6 +632,45 @@ class SelfTest(unittest.TestCase):
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
             self.assertTrue(tables["t"].columns["a"].has_default)
 
+    def test_cpp_type_mapping(self):
+        import argparse
+        import io
+
+        def make_args(**kwargs):
+            defaults = dict(
+                path_to_header="test.h",
+                path_to_module=None,
+                namespace="db",
+                use_import_std=False,
+                use_import_sqlpp23=False,
+                generate_table_creation_helper=False,
+                naming_style="identity"
+            )
+            defaults.update(kwargs)
+            return argparse.Namespace(**defaults)
+
+        # Unqualified cpp_type -> prefixed with ::sqlpp::
+        with self.subTest("Unqualified cpp_type"):
+            col = ddl2cpp.DdlExecutor._ColumnDef(
+                name="col", data_type="integral", is_const=False, is_nullable=False,
+                has_default=False, is_array=False, comments=[], cpp_type="my_type"
+            )
+            table = ddl2cpp.DdlExecutor._TableDef(name="tab", columns={"col": col}, commands=[])
+            f = io.StringIO()
+            ddl2cpp.ModelWriter._write_table(table, f, make_args())
+            self.assertIn("using data_type = ::sqlpp::my_type;", f.getvalue())
+
+        # Qualified cpp_type -> as is
+        with self.subTest("Qualified cpp_type"):
+            col = ddl2cpp.DdlExecutor._ColumnDef(
+                name="col", data_type="integral", is_const=False, is_nullable=False,
+                has_default=False, is_array=False, comments=[], cpp_type="boost::uuid"
+            )
+            table = ddl2cpp.DdlExecutor._TableDef(name="tab", columns={"col": col}, commands=[])
+            f = io.StringIO()
+            ddl2cpp.ModelWriter._write_table(table, f, make_args())
+            self.assertIn("using data_type = boost::uuid;", f.getvalue())
+
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
