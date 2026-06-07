@@ -38,10 +38,10 @@ if (${Python3_Interpreter_FOUND})
         message(STATUS "Pyparsing is installed: Enabling sqlpp23-ddl2cpp tests.")
 
         cmake_path(SET ddl2cpp NORMALIZE "${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp")
+        cmake_path(SET ddl2cpp_unit_tests NORMALIZE "${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp-unit-tests")
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.parser
-            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
-                    "--self-test"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp_unit_tests}"
                     )
 
         add_test(NAME sqlpp23.scripts.ddl2cpp.bad_will_fail

@@ -158,7 +158,6 @@ Add those includes manually to the generated file, or arrange for them to be inc
 | --generate-table-creation-helper | No | False | For each table in the database model create a helper function that drops and creates the table. | N/A |
 | --use-import-sqlpp23 | No | False | Import sqlpp23 as module instead of including the header file. | N/A |
 | --use-import-std | No | False | Import std as module instead of including the respective standard header files. | N/A |
-| --self-test | No[^1] | | Run parser self-test. | -test |
 
 [^1]: Overrides every other option.
 [^2]: To generate a C++ module, both --path-to-module and --module-name should be specified.
