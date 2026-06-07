@@ -54,54 +54,64 @@ class SelfTest(unittest.TestCase):
 
     def test_type_blob(self):
         for t in ddl2cpp.DdlParser.ddl_blob_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "blob")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "blob")
 
     def test_type_boolean(self):
         for t in ddl2cpp.DdlParser.ddl_boolean_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "boolean")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "boolean")
 
     def test_type_date(self):
         for t in ddl2cpp.DdlParser.ddl_date_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "date")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "date")
 
     def test_type_floating_point(self):
         for t in ddl2cpp.DdlParser.ddl_floating_point_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "floating_point")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "floating_point")
 
     def test_type_integral(self):
         for t in ddl2cpp.DdlParser.ddl_integral_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "integral")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "integral")
 
     def test_type_serial(self):
         for t in ddl2cpp.DdlParser.ddl_serial_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "integral")
-            self.assertTrue(result.has_serial_value)
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "integral")
+                self.assertTrue(result.has_serial_value)
 
     def test_type_text(self):
         for t in ddl2cpp.DdlParser.ddl_text_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "text")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "text")
 
     def test_type_time(self):
         for t in ddl2cpp.DdlParser.ddl_time_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "time")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "time")
 
     def test_type_timestamp(self):
         for t in ddl2cpp.DdlParser.ddl_timestamp_types:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "timestamp")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "timestamp")
 
     def test_type_unknown(self):
         for t in ["cheesecake", "blueberry"]:
-            result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-            self.assertEqual(result[0], "UNKNOWN")
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
+                self.assertEqual(result[0], "UNKNOWN")
 
     def test_column(self):
         test_data = [
@@ -197,8 +207,9 @@ class SelfTest(unittest.TestCase):
             },
         ]
         for td in test_data:
-            result = ddl2cpp.DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
-            self._check_parsed_column(result, td["expected"], td["text"])
+            with self.subTest(text=td["text"]):
+                result = ddl2cpp.DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
+                self._check_parsed_column(result, td["expected"], td["text"])
 
     def _check_parsed_column(self, column_expr, column_expected, text):
         self.assertEqual(column_expr.name, column_expected["name"], text)
@@ -218,8 +229,9 @@ class SelfTest(unittest.TestCase):
             "UNIQUE (id)",
             "UNIQUE (first_name,last_name)"
         ]:
-            result = ddl2cpp.DdlParser.ddl_constraint.parse_string(text, parse_all=True)
-            self.assertTrue(result.is_constraint)
+            with self.subTest(text=text):
+                result = ddl2cpp.DdlParser.ddl_constraint.parse_string(text, parse_all=True)
+                self.assertTrue(result.is_constraint)
 
     def test_math_expression(self):
             text = "2 DIV 2"
@@ -233,11 +245,12 @@ class SelfTest(unittest.TestCase):
         for text in [
             "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
         ]:
-            result = ddl2cpp.DdlParser.ddl_column.parse_string(text, parse_all=True)
-            column = result[0]
-            self.assertEqual(column.name, "pos")
-            self.assertEqual(column.type, "text")
-            self.assertTrue(column.not_null)
+            with self.subTest(text=text):
+                result = ddl2cpp.DdlParser.ddl_column.parse_string(text, parse_all=True)
+                column = result[0]
+                self.assertEqual(column.name, "pos")
+                self.assertEqual(column.type, "text")
+                self.assertTrue(column.not_null)
 
     def test_command_create_table(self):
         input_text = """
@@ -293,7 +306,8 @@ class SelfTest(unittest.TestCase):
         ]
         self.assertEqual(len(create_table.columns), len(column_data))
         for index, expected in enumerate(column_data):
-            self._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
+            with self.subTest(index=index, expected=expected):
+                self._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
         self.assertEqual(create_table.command_text, input_text.strip())
 
     def test_command_set_default(self):
@@ -382,240 +396,258 @@ class SelfTest(unittest.TestCase):
             return argparse.Namespace(**defaults)
 
         # Annotation directly before the column
-        parsed = ddl2cpp.DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["x"].cpp_type, "MyType")
+        with self.subTest("Annotation directly before the column"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- cpp_type:MyType\n x bigint NOT NULL)", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "MyType")
 
         # Annotation anywhere in the comment line with surrounding text
-        parsed = ddl2cpp.DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["x"].cpp_type, "MyType")
+        with self.subTest("Annotation anywhere in the comment line with surrounding text"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- note cpp_type:MyType (extra info)\n x bigint NOT NULL)", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "MyType")
 
         # Regular comment without cpp_type: does not set cpp_type
-        parsed = ddl2cpp.DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertFalse(tables["t"].columns["x"].cpp_type)
+        with self.subTest("Regular comment without cpp_type"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertFalse(tables["t"].columns["x"].cpp_type)
 
         # MySQL-style COMMENT clause: value is captured
-        parsed = ddl2cpp.DdlParser.ddl.parse_string(
-            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
+        with self.subTest("MySQL-style COMMENT clause"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
 
         # Matching cpp_type from annotation and comment:
-        parsed = ddl2cpp.DdlParser.ddl.parse_string(
-            "CREATE TABLE t (-- cpp_type:my::Type\n x bigint NOT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
+        with self.subTest("Matching cpp_type from annotation and comment"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- cpp_type:my::Type\n x bigint NOT NULL COMMENT 'cpp_type:my::Type')", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
 
         # Non-matching cpp_type from annotation and comment:
-        try:
-            parsed = ddl2cpp.DdlParser.ddl.parse_string(
-                "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
-            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+        with self.subTest("Non-matching cpp_type from annotation and comment"):
+            try:
+                parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                    "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
+                tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
 
-            # If it reaches this line, the test failed because NO exception was thrown!
-            logging.error("Test Failed: Expected SystemExit but parsing and execution succeeded.")
-            self.fail("Execution should have failed due to mismatched cpp_types")
+                # If it reaches this line, the test failed because NO exception was thrown!
+                logging.error("Test Failed: Expected SystemExit but parsing and execution succeeded.")
+                self.fail("Execution should have failed due to mismatched cpp_types")
 
-        except SystemExit as e:
-            self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
-            self.assertIn("Something", self.buffered_log_handler.buffer[0].msg)
-            self.assertIn("Else", self.buffered_log_handler.buffer[0].msg)
-            self.buffered_log_handler.flush()
+            except SystemExit as e:
+                self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+                self.assertIn("Something", self.buffered_log_handler.buffer[0].msg)
+                self.assertIn("Else", self.buffered_log_handler.buffer[0].msg)
+                self.buffered_log_handler.flush()
 
         # Trailing comments are ignored
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE t (
-                a bigint PRIMARY KEY
-                -- Inline column constraint is processed here
-                -- Multiple trailing comments are perfectly OK
-                ,
-                b bigint NOT NULL,
-                c numeric(10, 2)
-                -- Trailing comments are OK with cpp_type:Something
-                -- Trailing comments are OK without type
-        );
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertIsNone(tables["t"].columns["a"].cpp_type)
-        self.assertIsNone(tables["t"].columns["b"].cpp_type)
-        self.assertIsNone(tables["t"].columns["c"].cpp_type)
+        with self.subTest("Trailing comments are ignored"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    a bigint PRIMARY KEY
+                    -- Inline column constraint is processed here
+                    -- Multiple trailing comments are perfectly OK
+                    ,
+                    b bigint NOT NULL,
+                    c numeric(10, 2)
+                    -- Trailing comments are OK with cpp_type:Something
+                    -- Trailing comments are OK without type
+            );
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertIsNone(tables["t"].columns["a"].cpp_type)
+            self.assertIsNone(tables["t"].columns["b"].cpp_type)
+            self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
         # In-type comments are ignored
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE t (
-                a
-                    -- in-type comments are ignored, even with cpp_type:Something
-                    bigint PRIMARY KEY
-                ,
-                b bigint NOT
-                    -- comments can even break up NOT NULL
-                    NULL
-                    -- in-type comments are ignored, even with cpp_type:Something
-                    DEFAULT 3,
-                c numeric(10, 2)
-        );
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertIsNone(tables["t"].columns["a"].cpp_type)
-        self.assertIsNone(tables["t"].columns["b"].cpp_type)
-        self.assertIsNone(tables["t"].columns["c"].cpp_type)
+        with self.subTest("In-type comments are ignored"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    a
+                        -- in-type comments are ignored, even with cpp_type:Something
+                        bigint PRIMARY KEY
+                    ,
+                    b bigint NOT
+                        -- comments can even break up NOT NULL
+                        NULL
+                        -- in-type comments are ignored, even with cpp_type:Something
+                        DEFAULT 3,
+                    c numeric(10, 2)
+            );
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertIsNone(tables["t"].columns["a"].cpp_type)
+            self.assertIsNone(tables["t"].columns["b"].cpp_type)
+            self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
         # Leading, inline, and trailing comments are ignored for constraints
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE t (
-                a bigint NOT NULL,
-                b bigint NOT NULL,
-                c varchar(255),
+        with self.subTest("Leading, inline, and trailing comments are ignored for constraints"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    a bigint NOT NULL,
+                    b bigint NOT NULL,
+                    c varchar(255),
 
-                -- Now testing table-level constraints:
-                -- Leading comments are ignored, even with cpp_type:Something
-                FOREIGN KEY (user_id)
-                    -- in-constraint comments are ignored, even with cpp_type:Something
-                    REFERENCES users (id),
-                -- A named unique constraint block
-                CONSTRAINT unique_service_env UNIQUE (service_id, environment_id)
-                -- The trailing block here safely ignores this comment text
-                -- And finishes cleanly right before the comma or parenthesis,
-            );
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertIsNone(tables["t"].columns["a"].cpp_type)
-        self.assertIsNone(tables["t"].columns["b"].cpp_type)
-        self.assertIsNone(tables["t"].columns["c"].cpp_type)
+                    -- Now testing table-level constraints:
+                    -- Leading comments are ignored, even with cpp_type:Something
+                    FOREIGN KEY (user_id)
+                        -- in-constraint comments are ignored, even with cpp_type:Something
+                        REFERENCES users (id),
+                    -- A named unique constraint block
+                    CONSTRAINT unique_service_env UNIQUE (service_id, environment_id)
+                    -- The trailing block here safely ignores this comment text
+                    -- And finishes cleanly right before the comma or parenthesis,
+                );
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertIsNone(tables["t"].columns["a"].cpp_type)
+            self.assertIsNone(tables["t"].columns["b"].cpp_type)
+            self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
-        # Leading inline comment before a column sets cpp_type.
-        # Other comments are ignored.
-        # Other columns are unaffected.
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE t (
-                -- cpp_type:MyAType
-                a
-                -- in-column comments are OK, cpp_type:Something
-                bigint NOT NULL
-                -- Trailing comments are OK, cpp_type:Something
-                -- Trailing comments are OK without type
-                ,
-                -- cpp_type:MyBType
-                b text NOT NULL
-                  -- in-type comment without type
-                  -- in-type comment with cpp_type:Something
-                  DEFAULT "",
-                c text NOT NULL,
-                -- cpp_type:MyDType
-                d text NOT NULL
-                -- Trailing comments are OK without type
-                -- Trailing comments are OK with cpp_type:Something
-            )
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["a"].cpp_type, "MyAType")
-        self.assertEqual(tables["t"].columns["b"].cpp_type, "MyBType")
-        self.assertIsNone(tables["t"].columns["c"].cpp_type)
-        self.assertEqual(tables["t"].columns["d"].cpp_type, "MyDType")
+        # Leading inline comment before a column sets cpp_type
+        with self.subTest("Leading inline comment before a column sets cpp_type"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    -- cpp_type:MyAType
+                    a
+                    -- in-column comments are OK, cpp_type:Something
+                    bigint NOT NULL
+                    -- Trailing comments are OK, cpp_type:Something
+                    -- Trailing comments are OK without type
+                    ,
+                    -- cpp_type:MyBType
+                    b text NOT NULL
+                      -- in-type comment without type
+                      -- in-type comment with cpp_type:Something
+                      DEFAULT "",
+                    c text NOT NULL,
+                    -- cpp_type:MyDType
+                    d text NOT NULL
+                    -- Trailing comments are OK without type
+                    -- Trailing comments are OK with cpp_type:Something
+                )
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["a"].cpp_type, "MyAType")
+            self.assertEqual(tables["t"].columns["b"].cpp_type, "MyBType")
+            self.assertIsNone(tables["t"].columns["c"].cpp_type)
+            self.assertEqual(tables["t"].columns["d"].cpp_type, "MyDType")
 
         # COMMENT ON COLUMN sets cpp_type (schema is stripped via --postgresql-schema)
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE public.t (a bigint NOT NULL)
-            COMMENT ON COLUMN public.t.a IS 'cpp_type:MyType'
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        self.assertEqual(tables["t"].columns["a"].cpp_type, "MyType")
+        with self.subTest("COMMENT ON COLUMN sets cpp_type"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (a bigint NOT NULL)
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:MyType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+            self.assertEqual(tables["t"].columns["a"].cpp_type, "MyType")
 
         # COMMENT ON COLUMN has to match inline comment
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE public.t (
-                -- cpp_type:SharedType
-                a bigint NOT NULL
-            )
-            COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        self.assertEqual(tables["t"].columns["a"].cpp_type, "SharedType")
+        with self.subTest("COMMENT ON COLUMN has to match inline comment"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:SharedType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+            self.assertEqual(tables["t"].columns["a"].cpp_type, "SharedType")
 
         # COMMENT ON COLUMN has to match inline comment, also with some quoted identifiers
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE "public".t (
-                -- cpp_type:SharedType
-                a bigint NOT NULL
-            )
-            COMMENT ON COLUMN "public"."t"."a" IS 'cpp_type:SharedType'
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        self.assertEqual(tables["t"].columns["a"].cpp_type, "SharedType")
-
-        # COMMENT ON COLUMN has to match inline comment
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE public.t (
-                -- cpp_type:InlineType
-                a bigint NOT NULL
-            )
-            COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
-        """)
-        try:
+        with self.subTest("COMMENT ON COLUMN has to match inline comment, with quoted identifiers"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE "public".t (
+                    -- cpp_type:SharedType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN "public"."t"."a" IS 'cpp_type:SharedType'
+            """)
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+            self.assertEqual(tables["t"].columns["a"].cpp_type, "SharedType")
 
-            self.fail("Execution should have failed due to mismatched cpp_types")
-        except SystemExit as e:
-            self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
-            self.assertIn("InlineType", self.buffered_log_handler.buffer[0].msg)
-            self.assertIn("CommentType", self.buffered_log_handler.buffer[0].msg)
-            self.buffered_log_handler.flush()
+        # COMMENT ON COLUMN mismatch
+        with self.subTest("COMMENT ON COLUMN mismatch"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:InlineType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+            """)
+            try:
+                tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+
+                self.fail("Execution should have failed due to mismatched cpp_types")
+            except SystemExit as e:
+                self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+                self.assertIn("InlineType", self.buffered_log_handler.buffer[0].msg)
+                self.assertIn("CommentType", self.buffered_log_handler.buffer[0].msg)
+                self.buffered_log_handler.flush()
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE public.t (
-                -- cpp_type:SharedType
-                a bigint NOT NULL
-            )
-            COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
-        self.assertEqual(tables["t"].columns["a"].cpp_type, "CsvType")
+        with self.subTest("--path-to-cpp-types overrides others"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:SharedType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
+            self.assertEqual(tables["t"].columns["a"].cpp_type, "CsvType")
 
         # MySQL COMMENT clause: cpp_type extracted from column comment
-        parsed = ddl2cpp.DdlParser.ddl.parse_string(
-            "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')")
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
+        with self.subTest("MySQL COMMENT clause"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (x int DEFAULT NULL COMMENT 'cpp_type:my::Type')")
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "my::Type")
 
-        # Unknown SQL type resolved by cpp_type annotation: no error
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE t (
-                -- cpp_type:MyUuidType
-                id uuid NOT NULL
-            )
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertEqual(tables["t"].columns["id"].cpp_type, "MyUuidType")
+        # Unknown SQL type resolved by cpp_type annotation
+        with self.subTest("Unknown SQL type resolved by cpp_type annotation"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    -- cpp_type:MyUuidType
+                    id uuid NOT NULL
+                )
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["id"].cpp_type, "MyUuidType")
 
-        # Schema-qualified ALTER TABLE is resolved correctly with --postgresql-schema
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE public.t (a bigint NOT NULL)
-            ALTER TABLE ONLY public.t ALTER COLUMN a SET DEFAULT 42
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        self.assertTrue(tables["t"].columns["a"].has_default)
+        # Schema-qualified ALTER TABLE resolved with --postgresql-schema
+        with self.subTest("Schema-qualified ALTER TABLE resolved with --postgresql-schema"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (a bigint NOT NULL)
+                ALTER TABLE ONLY public.t ALTER COLUMN a SET DEFAULT 42
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+            self.assertTrue(tables["t"].columns["a"].has_default)
 
-        # Schema-qualified ALTER TABLE is resolved correctly without --postgresql-schema
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE "public".t (a bigint NOT NULL);
-            ALTER TABLE ONLY "public".t ALTER COLUMN a SET DEFAULT 42
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-        self.assertTrue(tables["public.t"].columns["a"].has_default)
+        # Schema-qualified ALTER TABLE resolved without --postgresql-schema
+        with self.subTest("Schema-qualified ALTER TABLE resolved without --postgresql-schema"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE "public".t (a bigint NOT NULL);
+                ALTER TABLE ONLY "public".t ALTER COLUMN a SET DEFAULT 42
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertTrue(tables["public.t"].columns["a"].has_default)
 
-        # Schema-qualified ALTER TABLE is resolved correctly with --postgresql-schema
-        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
-            CREATE TABLE public.t (a bigint NOT NULL)
-            ALTER TABLE ONLY "public".t ALTER COLUMN a SET DEFAULT 42
-        """)
-        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-        self.assertTrue(tables["t"].columns["a"].has_default)
+        # Schema-qualified ALTER TABLE resolved with --postgresql-schema and quoted table name
+        with self.subTest("Schema-qualified ALTER TABLE resolved with --postgresql-schema and quoted table"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (a bigint NOT NULL)
+                ALTER TABLE ONLY "public".t ALTER COLUMN a SET DEFAULT 42
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+            self.assertTrue(tables["t"].columns["a"].has_default)
 
 
 if __name__ == "__main__":
