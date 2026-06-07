@@ -31,6 +31,7 @@ import sys
 import os
 import unittest
 import re
+import contextlib
 from importlib.machinery import SourceFileLoader
 
 # Load the sqlpp23-ddl2cpp script as a module
@@ -51,6 +52,15 @@ class SelfTest(unittest.TestCase):
         logging.getLogger().handlers.clear() # prevent unwanted output to the console
         cls.buffered_log_handler = logging.handlers.BufferingHandler(1000)
         logging.getLogger().addHandler(cls.buffered_log_handler)
+
+    def setUp(self):
+        self.buffered_log_handler.flush()
+
+    @contextlib.contextmanager
+    def subTest(self, msg=None, **params):
+        self.buffered_log_handler.flush()
+        with super().subTest(msg=msg, **params):
+            yield
 
     def test_type_blob(self):
         for t in ddl2cpp.DdlParser.ddl_blob_types:
@@ -414,7 +424,7 @@ class SelfTest(unittest.TestCase):
             parsed = ddl2cpp.DdlParser.ddl.parse_string(
                 "CREATE TABLE t (-- regular comment\n x bigint NOT NULL)", parse_all=True)
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-            self.assertFalse(tables["t"].columns["x"].cpp_type)
+            self.assertIsNone(tables["t"].columns["x"].cpp_type)
 
         # MySQL-style COMMENT clause: value is captured
         with self.subTest("MySQL-style COMMENT clause"):
@@ -432,20 +442,13 @@ class SelfTest(unittest.TestCase):
 
         # Non-matching cpp_type from annotation and comment:
         with self.subTest("Non-matching cpp_type from annotation and comment"):
-            try:
-                parsed = ddl2cpp.DdlParser.ddl.parse_string(
-                    "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
-                tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-
-                # If it reaches this line, the test failed because NO exception was thrown!
-                logging.error("Test Failed: Expected SystemExit but parsing and execution succeeded.")
-                self.fail("Execution should have failed due to mismatched cpp_types")
-
-            except SystemExit as e:
-                self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
-                self.assertIn("Something", self.buffered_log_handler.buffer[0].msg)
-                self.assertIn("Else", self.buffered_log_handler.buffer[0].msg)
-                self.buffered_log_handler.flush()
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
+            with self.assertRaises(SystemExit) as cm:
+                ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(cm.exception.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+            self.assertIn("Something", self.buffered_log_handler.buffer[0].msg)
+            self.assertIn("Else", self.buffered_log_handler.buffer[0].msg)
 
         # Trailing comments are ignored
         with self.subTest("Trailing comments are ignored"):
@@ -582,15 +585,11 @@ class SelfTest(unittest.TestCase):
                 )
                 COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
             """)
-            try:
-                tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-
-                self.fail("Execution should have failed due to mismatched cpp_types")
-            except SystemExit as e:
-                self.assertEqual(e.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
-                self.assertIn("InlineType", self.buffered_log_handler.buffer[0].msg)
-                self.assertIn("CommentType", self.buffered_log_handler.buffer[0].msg)
-                self.buffered_log_handler.flush()
+            with self.assertRaises(SystemExit) as cm:
+                ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+            self.assertEqual(cm.exception.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+            self.assertIn("InlineType", self.buffered_log_handler.buffer[0].msg)
+            self.assertIn("CommentType", self.buffered_log_handler.buffer[0].msg)
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
         with self.subTest("--path-to-cpp-types overrides others"):
