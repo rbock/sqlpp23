@@ -236,15 +236,17 @@ class DdlParser:
             "CHECK",
             "PERIOD",
         ]
-        cls.ddl_constraint = (
-            pp.Or(map(
-                pp.CaselessKeyword,
-                sorted(ddl_ignored_keywords + ["PRIMARY"], reverse=True)
-            ))
-            + cls.ddl_expression
-        ).set_results_name("is_constraint")
 
         ddl_regular_comment = pp.Regex(r'--.*') | pp.Regex(r'#.*')
+
+        cls.ddl_constraint = ((
+                pp.Or(map(
+                    pp.CaselessKeyword,
+                    sorted(ddl_ignored_keywords + ["PRIMARY"], reverse=True)
+                ))
+                + cls.ddl_expression
+            ).ignore(ddl_regular_comment).set_results_name("is_constraint")
+        ) + pp.Suppress(pp.ZeroOrMore(ddl_regular_comment)) # eat any trailing comment before the comma or closing parenthesis
 
         ddl_column_comment = (
             pp.CaselessKeyword("COMMENT")
@@ -255,22 +257,25 @@ class DdlParser:
         cls.ddl_column = pp.Group(
             pp.ZeroOrMore(ddl_regular_comment).set_results_name("comments")
             + ddl_name.set_results_name("name")
-            + cls.ddl_type.set_results_name("type")
-            + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
-            + pp.Suppress(pp.Optional(ddl_width))
-            + pp.Suppress(pp.Optional(ddl_timezone))
-            + pp.ZeroOrMore(
-                ddl_unsigned
-                | ddl_not_null
-                | pp.Suppress(pp.CaselessKeyword("NULL"))
-                | ddl_auto_value
-                | ddl_default_value
-                | ddl_generated_value
-                | ddl_primary_key
-                | ddl_column_comment
-                | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
-                | pp.Suppress(cls.ddl_expression)
-            )
+            + (
+                cls.ddl_type.set_results_name("type")
+                + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
+                + pp.Suppress(pp.Optional(ddl_width))
+                + pp.Suppress(pp.Optional(ddl_timezone))
+                + pp.ZeroOrMore(
+                    ddl_unsigned
+                    | ddl_not_null
+                    | pp.Suppress(pp.CaselessKeyword("NULL"))
+                    | ddl_auto_value
+                    | ddl_default_value
+                    | ddl_generated_value
+                    | ddl_primary_key
+                    | ddl_column_comment
+                    | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddl_ignored_keywords, reverse=True)))))
+                    | pp.Suppress(cls.ddl_expression)
+                )
+            ).ignore(ddl_regular_comment) # ignore comments pretty much anywhere within the column spec
+            + pp.Suppress(pp.ZeroOrMore(ddl_regular_comment)) # eat any trailing comment before the comma or closing parenthesis
         )
 
         # CREATE TABLE parser
@@ -1198,17 +1203,96 @@ class SelfTest(unittest.TestCase):
             assert "Else" in cls.buffered_log_handler.buffer[0].msg
             cls.buffered_log_handler.flush()
 
-        # Inline comment sets cpp_type; column without annotation is unaffected
+        # Trailing comments are ignored
         parsed = DdlParser.ddl.parse_string("""
             CREATE TABLE t (
-                -- cpp_type:MyType
+                a bigint PRIMARY KEY
+                -- Inline column constraint is processed here
+                -- Multiple trailing comments are perfectly OK
+                ,
+                b bigint NOT NULL,
+                c numeric(10, 2)
+                -- Trailing comments are OK with cpp_type:Something
+                -- Trailing comments are OK without type
+        );
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["a"].cpp_type is None
+        assert tables["t"].columns["b"].cpp_type is None
+        assert tables["t"].columns["c"].cpp_type is None
+
+        # In-type comments are ignored
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
+                a
+                    -- in-type comments are ignored, even with cpp_type:Something
+                    bigint PRIMARY KEY
+                ,
+                b bigint NOT
+                    -- comments can even break up NOT NULL
+                    NULL
+                    -- in-type comments are ignored, even with cpp_type:Something
+                    DEFAULT 3,
+                c numeric(10, 2)
+        );
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["a"].cpp_type is None
+        assert tables["t"].columns["b"].cpp_type is None
+        assert tables["t"].columns["c"].cpp_type is None
+
+        # Leading, inline, and trailing comments are ignored for constraints
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
                 a bigint NOT NULL,
+                b bigint NOT NULL,
+                c varchar(255),
+
+                -- Now testing table-level constraints:
+                -- Leading comments are ignored, even with cpp_type:Something
+                FOREIGN KEY (user_id)
+                    -- in-constraint comments are ignored, even with cpp_type:Something
+                    REFERENCES users (id),
+                -- A named unique constraint block
+                CONSTRAINT unique_service_env UNIQUE (service_id, environment_id)
+                -- The trailing block here safely ignores this comment text
+                -- And finishes cleanly right before the comma or parenthesis,
+            );
+        """)
+        tables = DdlExecutor.execute([parsed], make_args(), {})
+        assert tables["t"].columns["a"].cpp_type is None
+        assert tables["t"].columns["b"].cpp_type is None
+        assert tables["t"].columns["c"].cpp_type is None
+
+        # Leading inline comment before a column sets cpp_type.
+        # Other comments are ignored.
+        # Other columns are unaffected.
+        parsed = DdlParser.ddl.parse_string("""
+            CREATE TABLE t (
+                -- cpp_type:MyAType
+                a
+                -- in-column comments are OK, cpp_type:Something
+                bigint NOT NULL
+                -- Trailing comments are OK, cpp_type:Something
+                -- Trailing comments are OK without type
+                ,
+                -- cpp_type:MyBType
                 b text NOT NULL
+                  -- in-type comment without type
+                  -- in-type comment with cpp_type:Something
+                  DEFAULT "",
+                c text NOT NULL,
+                -- cpp_type:MyDType
+                d text NOT NULL
+                -- Trailing comments are OK without type
+                -- Trailing comments are OK with cpp_type:Something
             )
         """)
         tables = DdlExecutor.execute([parsed], make_args(), {})
-        assert tables["t"].columns["a"].cpp_type == "MyType"
-        assert tables["t"].columns["b"].cpp_type is None
+        assert tables["t"].columns["a"].cpp_type == "MyAType"
+        assert tables["t"].columns["b"].cpp_type == "MyBType"
+        assert tables["t"].columns["c"].cpp_type is None
+        assert tables["t"].columns["d"].cpp_type == "MyDType"
 
         # COMMENT ON COLUMN sets cpp_type (schema is stripped via --postgresql-schema)
         parsed = DdlParser.ddl.parse_string("""
