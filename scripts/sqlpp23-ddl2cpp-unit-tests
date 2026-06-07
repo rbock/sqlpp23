@@ -26,12 +26,10 @@
 ##
 
 import logging
-import logging.handlers
 import sys
 import os
 import unittest
 import re
-import contextlib
 from importlib.machinery import SourceFileLoader
 
 # Load the sqlpp23-ddl2cpp script as a module
@@ -49,18 +47,6 @@ class SelfTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         DdlParser.initialize()
-        logging.getLogger().handlers.clear() # prevent unwanted output to the console
-        cls.buffered_log_handler = logging.handlers.BufferingHandler(1000)
-        logging.getLogger().addHandler(cls.buffered_log_handler)
-
-    def setUp(self):
-        self.buffered_log_handler.flush()
-
-    @contextlib.contextmanager
-    def subTest(self, msg=None, **params):
-        self.buffered_log_handler.flush()
-        with super().subTest(msg=msg, **params):
-            yield
 
     def test_type_blob(self):
         for t in ddl2cpp.DdlParser.ddl_blob_types:
@@ -219,19 +205,15 @@ class SelfTest(unittest.TestCase):
         for td in test_data:
             with self.subTest(text=td["text"]):
                 result = ddl2cpp.DdlParser.ddl_column.parse_string(td["text"], parse_all=True)[0]
-                self._check_parsed_column(result, td["expected"], td["text"])
+                self.assertColumnMatches(result, td["expected"], td["text"])
 
-    def _check_parsed_column(self, column_expr, column_expected, text):
-        self.assertEqual(column_expr.name, column_expected["name"], text)
-        self.assertEqual(column_expr.type, column_expected["type"], text)
-        self.assertEqual(bool(column_expr.is_unsigned), column_expected["is_unsigned"], text)
-        self.assertEqual(bool(column_expr.not_null), column_expected["not_null"], text)
-        self.assertEqual(bool(column_expr.has_auto_value), column_expected["has_auto_value"], text)
-        self.assertEqual(bool(column_expr.has_default_value), column_expected["has_default_value"], text)
-        self.assertEqual(bool(column_expr.has_generated_value), column_expected["has_generated_value"], text)
-        self.assertEqual(bool(column_expr.has_serial_value), column_expected["has_serial_value"], text)
-        self.assertEqual(bool(column_expr.is_primary_key), column_expected["is_primary_key"], text)
-        self.assertEqual(bool(column_expr.is_array), column_expected["is_array"], text)
+    def assertColumnMatches(self, column_expr, column_expected, text):
+        for field, expected_value in column_expected.items():
+            with self.subTest(field=field):
+                actual_value = getattr(column_expr, field)
+                if isinstance(expected_value, bool):
+                    actual_value = bool(actual_value)
+                self.assertEqual(actual_value, expected_value, f"Field '{field}' mismatch for column expression: {text}")
 
     def test_constraint(self):
         for text in [
@@ -317,7 +299,7 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(len(create_table.columns), len(column_data))
         for index, expected in enumerate(column_data):
             with self.subTest(index=index, expected=expected):
-                self._check_parsed_column(create_table.columns[index], expected, "row: " + str(index))
+                self.assertColumnMatches(create_table.columns[index], expected, "row: " + str(index))
         self.assertEqual(create_table.command_text, input_text.strip())
 
     def test_command_set_default(self):
@@ -444,11 +426,12 @@ class SelfTest(unittest.TestCase):
         with self.subTest("Non-matching cpp_type from annotation and comment"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string(
                 "CREATE TABLE t (-- cpp_type:Something\n x bigint NOT NULL COMMENT 'cpp_type:Else')", parse_all=True)
-            with self.assertRaises(SystemExit) as cm:
-                ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-            self.assertEqual(cm.exception.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
-            self.assertIn("Something", self.buffered_log_handler.buffer[0].msg)
-            self.assertIn("Else", self.buffered_log_handler.buffer[0].msg)
+            with self.assertLogs(level='ERROR') as cm_logs:
+                with self.assertRaises(SystemExit) as cm:
+                    ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+                self.assertEqual(cm.exception.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+            self.assertTrue(any("Something" in output for output in cm_logs.output))
+            self.assertTrue(any("Else" in output for output in cm_logs.output))
 
         # Trailing comments are ignored
         with self.subTest("Trailing comments are ignored"):
@@ -585,11 +568,12 @@ class SelfTest(unittest.TestCase):
                 )
                 COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
             """)
-            with self.assertRaises(SystemExit) as cm:
-                ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
-            self.assertEqual(cm.exception.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
-            self.assertIn("InlineType", self.buffered_log_handler.buffer[0].msg)
-            self.assertIn("CommentType", self.buffered_log_handler.buffer[0].msg)
+            with self.assertLogs(level='ERROR') as cm_logs:
+                with self.assertRaises(SystemExit) as cm:
+                    ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {})
+                self.assertEqual(cm.exception.code, ddl2cpp.ExitCode.BAD_COLUMN_ANNOTATION)
+            self.assertTrue(any("InlineType" in output for output in cm_logs.output))
+            self.assertTrue(any("CommentType" in output for output in cm_logs.output))
 
         # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
         with self.subTest("--path-to-cpp-types overrides others"):
