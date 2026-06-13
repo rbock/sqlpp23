@@ -173,13 +173,13 @@ class DdlParser:
         sql_type_to_cpp = cls.base_sql_type_to_cpp | custom_types
         for sql_type in sorted(sql_type_to_cpp, reverse=True):
             cpp_type = sql_type_to_cpp[sql_type]
-            type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type))
+            type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type)).set_name("SQL type name")
             if cpp_type.endswith("sqlpp::serial"):
                 type_parser = type_parser.set_results_name("has_serial_value")
             type_parsers.append(type_parser)
-        type_parsers.append(pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN")))
 
-        cls.ddl_type = pp.MatchFirst(type_parsers)
+        fallback_parser = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN")).set_name("SQL type name")
+        cls.ddl_type = pp.MatchFirst(type_parsers + [fallback_parser])
 
         # Constraints parser
         ddl_unsigned = pp.CaselessKeyword("UNSIGNED").set_results_name("is_unsigned")
@@ -217,25 +217,25 @@ class DdlParser:
                     pp.CaselessKeyword,
                     sorted(ddl_ignored_keywords + ["PRIMARY"], reverse=True)
                 ))
-                + cls.ddl_expression
+                - cls.ddl_expression
             ).ignore(ddl_regular_comment).set_results_name("is_constraint")
-        ) + pp.Suppress(pp.ZeroOrMore(ddl_regular_comment)) # eat any trailing comment before the comma or closing parenthesis
+        ) - pp.Suppress(pp.ZeroOrMore(ddl_regular_comment)) # eat any trailing comment before the comma or closing parenthesis
 
         ddl_column_comment = (
             pp.CaselessKeyword("COMMENT")
-            + ddl_string.set_results_name("column_comment")
+            - ddl_string.set_results_name("column_comment")
         )
 
         # Column parser
         cls.ddl_column = pp.Group(
             pp.ZeroOrMore(ddl_regular_comment).set_results_name("comments")
             + ddl_name.set_results_name("name")
-            + (
+            - (
                 cls.ddl_type.set_results_name("type")
-                + pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
-                + pp.Suppress(pp.Optional(ddl_width))
-                + pp.Suppress(pp.Optional(ddl_timezone))
-                + pp.ZeroOrMore(
+                - pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
+                - pp.Suppress(pp.Optional(ddl_width))
+                - pp.Suppress(pp.Optional(ddl_timezone))
+                - pp.ZeroOrMore(
                     ddl_unsigned
                     | ddl_not_null
                     | pp.Suppress(pp.CaselessKeyword("NULL"))
@@ -256,25 +256,25 @@ class DdlParser:
             pp.Suppress(pp.CaselessKeyword("CREATE"))
             + pp.Suppress(pp.Optional(pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")))
             + pp.Suppress(pp.CaselessKeyword("TABLE"))
-            + pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")))
-            + ddl_name.set_results_name("table_name")
-            + ddl_left
-            + pp.Group(pp.DelimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).set_results_name("columns")
-            + ddl_right
+            - pp.Suppress(pp.Optional(pp.CaselessKeyword("IF") - pp.CaselessKeyword("NOT") - pp.CaselessKeyword("EXISTS")))
+            - ddl_name.set_results_name("table_name")
+            - ddl_left
+            - pp.Group(pp.DelimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).set_results_name("columns")
+            - ddl_right
         )
 
         # ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ... parser
         ddl_set_default = (
             pp.CaselessKeyword("ALTER")
-            + pp.CaselessKeyword("TABLE")
-            + pp.Optional(pp.CaselessKeyword("ONLY"))
-            + ddl_name.set_results_name("table_name")
-            + pp.CaselessKeyword("ALTER")
-            + pp.CaselessKeyword("COLUMN")
-            + ddl_name.set_results_name("column_name")
-            + pp.CaselessKeyword("SET")
-            + pp.CaselessKeyword("DEFAULT")
-            + cls.ddl_expression
+            - pp.CaselessKeyword("TABLE")
+            - pp.Optional(pp.CaselessKeyword("ONLY"))
+            - ddl_name.set_results_name("table_name")
+            - pp.CaselessKeyword("ALTER")
+            - pp.CaselessKeyword("COLUMN")
+            - ddl_name.set_results_name("column_name")
+            - pp.CaselessKeyword("SET")
+            - pp.CaselessKeyword("DEFAULT")
+            - cls.ddl_expression
         )
 
         # COMMENT ON COLUMN parser (PostgreSQL)
@@ -283,9 +283,9 @@ class DdlParser:
             pp.CaselessKeyword("COMMENT")
             + pp.CaselessKeyword("ON")
             + pp.CaselessKeyword("COLUMN")
-            + ddl_name.set_results_name("qualified_column")
-            + pp.CaselessKeyword("IS")
-            + ddl_string.set_results_name("column_comment")
+            - ddl_name.set_results_name("qualified_column")
+            - pp.CaselessKeyword("IS")
+            - ddl_string.set_results_name("column_comment")
         )
 
         # DDL command parser
@@ -316,11 +316,10 @@ class DdlParser:
     def parse_ddls(cls, ddl_paths):
         try:
             return [cls.ddl.parse_file(path) for path in ddl_paths]
-        except pp.ParseException as e:
+        except pp.ParseBaseException as e:
             logging.error(f"Failed to parse {ddl_paths}")
             logging.info(e.explain(1))
-            sys.exit(ExitCode.BAD_DDL_PARSING)
-
+            raise SystemExit(ExitCode.BAD_DDL_PARSING)
 
 class DdlExecutor:
     """Executes the parsed DDL commands and builds the database model"""
