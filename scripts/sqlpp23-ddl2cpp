@@ -807,46 +807,43 @@ def parse_commandline_args():
     return args
 
 
-def get_custom_types(filename):
-    if not filename:
-        return {}, {}
+def get_custom_types(filename, csv_file):
     import csv
-    with open(filename, newline="") as csv_file:
-        sql_type_to_cpp = {}
-        column_to_cpp_type = {}
-        reader = csv.DictReader(csv_file, fieldnames=["row_type", "entity", "cpp_type"], delimiter=",", skipinitialspace=True)
+    sql_type_to_cpp = {}
+    column_to_cpp_type = {}
+    required_fields = ["row_type", "entity", "cpp_type"]
+    reader = csv.DictReader(csv_file, fieldnames=required_fields, delimiter=",", skipinitialspace=True)
 
-        for row in reader:
-            row_type=row["row_type"]
-            entity=row["entity"].upper()
-            cpp_type=row["cpp_type"]
+    for line_num, row in enumerate(reader, start=1):
+        # Explicitly check if any required column is missing (resolved as None)
+        for field in required_fields:
+            if row[field] is None:
+                raise RuntimeError(
+                    f"Malformed CSV: Missing column '{field}' on line {line_num}"
+                )
 
-            if row_type == "type":
-                sql_type_to_cpp[entity] = cpp_type
-            elif row_type == "column":
-                column_to_cpp_type[entity] = cpp_type
-            else:
-                raise RuntimeError(f"Unknown row type in {filename}: {row_type}")
+        row_type=row["row_type"]
+        entity=row["entity"].upper()
+        cpp_type=row["cpp_type"]
 
-        return sql_type_to_cpp, column_to_cpp_type
+        if row_type == "type":
+            sql_type_to_cpp[entity] = cpp_type
+        elif row_type == "column":
+            column_to_cpp_type[entity] = cpp_type
+        else:
+            raise RuntimeError(f"Unknown row type in {filename}: {row_type}")
 
-
-def validate_cpp_types(cpp_type_overrides, tables):
-    for (table_name, col_name) in cpp_type_overrides:
-        if table_name not in tables:
-            logging.error(f"--path-to-cpp-types references unknown table '{table_name}'")
-            sys.exit(ExitCode.BAD_CPP_TYPES)
-        if col_name not in tables[table_name].columns:
-            logging.error(f"--path-to-cpp-types references unknown column '{col_name}' in table '{table_name}'")
-            sys.exit(ExitCode.BAD_CPP_TYPES)
-
+    return sql_type_to_cpp, column_to_cpp_type
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
     args = parse_commandline_args()
 
-    sql_type_to_cpp, column_to_cpp_type = get_custom_types(args.path_to_custom_types)
+    sql_type_to_cpp, column_to_cpp_type = {}, {}
+    if args.path_to_custom_types:
+        with open(args.path_to_custom_types, newline="") as csv_file:
+            sql_type_to_cpp, column_to_cpp_type = get_custom_types(args.path_to_custom_types, csv_file)
     DdlParser.initialize(sql_type_to_cpp)
     parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
     tables = DdlExecutor.execute(parsed_ddls, args, column_to_cpp_type)

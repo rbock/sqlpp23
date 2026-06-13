@@ -25,6 +25,7 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 
+import io
 import logging
 import sys
 import os
@@ -205,6 +206,34 @@ class SelfTest(unittest.TestCase):
                 self.assertEqual(column.name, "pos")
                 self.assertEqual(column.type, "::sqlpp::text")
                 self.assertTrue(column.not_null)
+
+    def test_parse_valid_custom_types(self):
+        csv_data = (
+            "type,INT2,::my_project::int16_t\n"
+            "column,users.id,::my_project::user_id_t\n"
+        )
+        fake_file = io.StringIO(csv_data)
+
+        sql_type_to_cpp, column_to_cpp_type = ddl2cpp.get_custom_types("<string>", fake_file)
+
+        self.assertEqual(sql_type_to_cpp.get("INT2"), "::my_project::int16_t")
+        self.assertEqual(column_to_cpp_type.get("USERS.ID"), "::my_project::user_id_t")
+
+    def test_invalid_row_type_raises_runtime_error(self):
+        invalid_csv_data = "invalid_marker,some_entity,some_cpp_type\n"
+        fake_file = io.StringIO(invalid_csv_data)
+
+        with self.assertRaises(RuntimeError) as e:
+            ddl2cpp.get_custom_types("<string>", fake_file)
+        self.assertTrue("Unknown row type in" in str(e.exception))
+
+    def test_bad_format_raises_runtime_error(self):
+        invalid_csv_data = "type,some_entity\n"
+        fake_file = io.StringIO(invalid_csv_data)
+
+        with self.assertRaises(RuntimeError) as e:
+            ddl2cpp.get_custom_types("<string>", fake_file)
+        self.assertTrue("Malformed CSV: Missing column 'cpp_type'" in str(e.exception))
 
     def test_command_create_table(self):
         input_text = """
