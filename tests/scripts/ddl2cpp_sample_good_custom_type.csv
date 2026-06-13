@@ -1,0 +1,12 @@
+type, CustomBlobType, sqlpp::blob
+type, CustomBooleanType, sqlpp::boolean
+type, CustomDateType, sqlpp::date
+type, CustomFloatingPointType, sqlpp::floating_point
+type, CustomIntegralType, sqlpp::integral
+type, SPECIAL INT, sqlpp::integral
+type, CustomSerialType, sqlpp::serial
+type, CustomTextType, sqlpp::text
+type, another_text_type, sqlpp::text
+type, CustomTimeType, sqlpp::time
+type, CustomTimestampType, sqlpp::timestamp
+type, UUID, sample::uuid

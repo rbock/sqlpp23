@@ -59,78 +59,70 @@ class DdlParser:
     the database model, while ignoring anything else.
     """
 
-    # Names of data types that can be updated by the custom data types
-    ddl_boolean_types = [
-        "BOOL",
-        "BOOLEAN",
-    ]
-    ddl_integral_types = [
-        "BIGINT",
-        "INT",
-        "INT2",  # PostgreSQL
-        "INT4",  # PostgreSQL
-        "INT8",  # PostgreSQL
-        "INTEGER",
-        "MEDIUMINT",
-        "SMALLINT",
-        "TINYINT",
-    ]
-    ddl_serial_types = [
-        "BIGSERIAL",  # PostgreSQL
-        "SERIAL",  # PostgreSQL
-        "SERIAL2",  # PostgreSQL
-        "SERIAL4",  # PostgreSQL
-        "SERIAL8",  # PostgreSQL
-        "SMALLSERIAL",  # PostgreSQL
-    ]
-    ddl_floating_point_types = [
-        "DECIMAL",  # MYSQL
-        "DOUBLE",
-        "FLOAT8",  # PostgreSQL
-        "FLOAT",
-        "FLOAT4",  # PostgreSQL
-        "NUMERIC",  # PostgreSQL
-        "REAL",
-    ]
-    ddl_text_types = [
-        "CHAR",
-        "VARCHAR",
-        "CHARACTER VARYING",  # PostgreSQL
-        "TEXT",
-        "CLOB",
-        "ENUM",  # MYSQL
-        "SET",
-        "LONGTEXT",  # MYSQL
-        "JSONB",  # PostgreSQL
-        "JSON",  # PostgreSQL
-        "TINYTEXT",  # MYSQL
-        "MEDIUMTEXT",  # MYSQL
-        "RATIONAL", # PostgreSQL pg_rationale extension
-    ]
-    ddl_blob_types = [
-        "BYTEA",
-        "TINYBLOB",
-        "BLOB",
-        "MEDIUMBLOB",
-        "LONGBLOB",
-        "BINARY",  # MYSQL
-        "VARBINARY",  # MYSQL
-    ]
-    ddl_date_types = [
-        "DATE",
-    ]
-    ddl_timestamp_types = [
-        "DATETIME",
-        "TIMESTAMP",
-        "TIMESTAMP WITHOUT TIME ZONE",  # PostgreSQL
-        "TIMESTAMP WITH TIME ZONE",  # PostgreSQL
-        "TIMESTAMPTZ",  # PostgreSQL
-    ]
-    ddl_time_types = [
-        "TIME",
-        "TIME WITHOUT TIME ZONE",  # PostgreSQL
-        "TIME WITH TIME ZONE",  # PostgreSQL
-    ]
+    base_sql_type_to_cpp = {
+    # boolean types
+    "BOOL": "::sqlpp::boolean",
+    "BOOLEAN": "::sqlpp::boolean",
+    # integral types
+    "BIGINT": "::sqlpp::integral",
+    "INT": "::sqlpp::integral",
+    "INT2": "::sqlpp::integral",  # PostgreSQL
+    "INT4": "::sqlpp::integral",  # PostgreSQL
+    "INT8": "::sqlpp::integral",  # PostgreSQL
+    "INTEGER": "::sqlpp::integral",
+    "MEDIUMINT": "::sqlpp::integral",
+    "SMALLINT": "::sqlpp::integral",
+    "TINYINT": "::sqlpp::integral",
+    # serial types
+    "BIGSERIAL": "::sqlpp::serial",  # PostgreSQL
+    "SERIAL": "::sqlpp::serial",  # PostgreSQL
+    "SERIAL2": "::sqlpp::serial",  # PostgreSQL
+    "SERIAL4": "::sqlpp::serial",  # PostgreSQL
+    "SERIAL8": "::sqlpp::serial",  # PostgreSQL
+    "SMALLSERIAL": "::sqlpp::serial",  # PostgreSQL
+    # floating_point types
+    "DECIMAL": "::sqlpp::floating_point",  # MYSQL
+    "DOUBLE": "::sqlpp::floating_point",
+    "FLOAT8": "::sqlpp::floating_point",  # PostgreSQL
+    "FLOAT": "::sqlpp::floating_point",
+    "FLOAT4": "::sqlpp::floating_point",  # PostgreSQL
+    "NUMERIC": "::sqlpp::floating_point",  # PostgreSQL
+    "REAL": "::sqlpp::floating_point",
+    # text types
+    "CHAR": "::sqlpp::text",
+    "VARCHAR": "::sqlpp::text",
+    "CHARACTER VARYING": "::sqlpp::text",  # PostgreSQL
+    "TEXT": "::sqlpp::text",
+    "CLOB": "::sqlpp::text",
+    "ENUM": "::sqlpp::text",  # MYSQL
+    "SET": "::sqlpp::text",
+    "LONGTEXT": "::sqlpp::text",  # MYSQL
+    "JSONB": "::sqlpp::text",  # PostgreSQL
+    "JSON": "::sqlpp::text",  # PostgreSQL
+    "TINYTEXT": "::sqlpp::text",  # MYSQL
+    "MEDIUMTEXT": "::sqlpp::text",  # MYSQL
+    "RATIONAL": "::sqlpp::text", # PostgreSQL pg_rationale extension
+    # blob types
+    "BYTEA": "::sqlpp::blob",
+    "TINYBLOB": "::sqlpp::blob",
+    "BLOB": "::sqlpp::blob",
+    "MEDIUMBLOB": "::sqlpp::blob",
+    "LONGBLOB": "::sqlpp::blob",
+    "BINARY": "::sqlpp::blob",  # MYSQL
+    "VARBINARY": "::sqlpp::blob",  # MYSQL
+    # date types
+    "DATE": "::sqlpp::date",
+    # timestamp types
+    "DATETIME": "::sqlpp::timestamp",
+    "TIMESTAMP": "::sqlpp::timestamp",
+    "TIMESTAMP WITHOUT TIME ZONE": "::sqlpp::timestamp",  # PostgreSQL
+    "TIMESTAMP WITH TIME ZONE": "::sqlpp::timestamp",  # PostgreSQL
+    "TIMESTAMPTZ": "::sqlpp::timestamp",  # PostgreSQL
+    # time types
+    "TIME": "::sqlpp::time",
+    "TIME WITHOUT TIME ZONE": "::sqlpp::time",  # PostgreSQL
+    "TIME WITH TIME ZONE": "::sqlpp::time",  # PostgreSQL
+    }
 
     # Parsers that are initialized later
     ddl_expression = None
@@ -140,7 +132,7 @@ class DdlParser:
     ddl = None
 
     @classmethod
-    def initialize(cls, custom_types=None):
+    def initialize(cls, custom_types={}):
         """Initialize the DDL parser"""
 
         # Basic parsers
@@ -176,37 +168,18 @@ class DdlParser:
         ddl_arguments = pp.Suppress(pp.DelimitedList(cls.ddl_expression))
         ddl_function_call << ddl_name + ddl_left + pp.Optional(ddl_arguments) + ddl_right
 
-        # Data type parsers
-        def get_type_parser(base_type, data_type):
-            type_names = getattr(cls, f"ddl_{base_type}_types")
-            if custom_types and (base_type in custom_types):
-                type_names.extend(custom_types[base_type])
-            return pp.Or(
-                map(pp.CaselessKeyword, sorted(type_names, reverse=True))
-            ).set_parse_action(pp.replace_with(data_type))
+        # Type parser
+        type_parsers = []
+        sql_type_to_cpp = cls.base_sql_type_to_cpp | custom_types
+        for sql_type in sorted(sql_type_to_cpp, reverse=True):
+            cpp_type = sql_type_to_cpp[sql_type]
+            type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type))
+            if cpp_type.endswith("sqlpp::serial"):
+                type_parser = type_parser.set_results_name("has_serial_value")
+            type_parsers.append(type_parser)
+        type_parsers.append(pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN")))
 
-        ddl_boolean = get_type_parser("boolean", "boolean")
-        ddl_integral = get_type_parser("integral", "integral")
-        ddl_serial = get_type_parser("serial", "integral").set_results_name("has_serial_value")
-        ddl_floating_point = get_type_parser("floating_point", "floating_point")
-        ddl_text = get_type_parser("text", "text")
-        ddl_blob = get_type_parser("blob", "blob")
-        ddl_date = get_type_parser("date", "date")
-        ddl_timestamp = get_type_parser("timestamp", "timestamp")
-        ddl_time = get_type_parser("time", "time")
-        ddl_unknown = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN"))
-        cls.ddl_type = (
-            ddl_boolean
-            | ddl_integral
-            | ddl_serial
-            | ddl_floating_point
-            | ddl_text
-            | ddl_blob
-            | ddl_timestamp
-            | ddl_date
-            | ddl_time
-            | ddl_unknown
-        )
+        cls.ddl_type = pp.MatchFirst(type_parsers)
 
         # Constraints parser
         ddl_unsigned = pp.CaselessKeyword("UNSIGNED").set_results_name("is_unsigned")
@@ -413,7 +386,14 @@ class DdlExecutor:
             column.cpp_type = annotations["cpp_type"]
 
     @classmethod
-    def execute(cls, parsed_ddls, args, cpp_type_overrides):
+    def apply_column_to_cpp_type(cls, table, column, column_to_cpp_type):
+        for name in [f"{table.name}.{column.name}", column.name]:
+            if name in column_to_cpp_type:
+                column.cpp_type = column_to_cpp_type[name]
+                return
+
+    @classmethod
+    def execute(cls, parsed_ddls, args, column_to_cpp_type):
         cls._assume_auto_id = args.assume_auto_id
         cls._warn_on_timestamp = not args.suppress_timestamp_warning
         cls._postgresql_schema = args.postgresql_schema
@@ -430,14 +410,10 @@ class DdlExecutor:
         for table_def in cls._tables.values():
             for col_def in table_def.columns.values():
                 cls.apply_column_annotations(table_def, col_def)
+                cls.apply_column_to_cpp_type(table_def, col_def, column_to_cpp_type)
         if cls._has_error:
             sys.exit(ExitCode.BAD_COLUMN_ANNOTATION)
 
-        # Apply all cpp_type sources before checking for unresolved UNKNOWN types.
-        # Order: COMMENT ON COLUMN (already applied above) < --path-to-cpp-types (applied now).
-        validate_cpp_types(cpp_type_overrides, cls._tables)
-        for (table_name, col_name), cpp_type in cpp_type_overrides.items():
-            cls._tables[table_name].columns[col_name].cpp_type = cpp_type
         # Any column that still has UNKNOWN data_type and no cpp_type is a real error.
         for table_def in cls._tables.values():
             for col_def in table_def.columns.values():
@@ -451,8 +427,8 @@ class DdlExecutor:
             logging.error("ERROR: Unsupported SQL data type(s).")
             logging.info("Possible solutions:")
             logging.info("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
-            logging.info("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
             logging.info("C) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
+            logging.info("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
             logging.info("D) Raise an issue on github")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
@@ -513,7 +489,7 @@ class DdlExecutor:
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
         # have been applied.
-        if data_type == "integral" and col_expr.is_unsigned:
+        if data_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
             data_type = "unsigned_" + data_type
         is_nullable = (
             not col_expr.not_null and
@@ -697,7 +673,7 @@ class ModelWriter:
                 + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
             const_prefix = "const " if column.is_const else ""
-            type_str = column.cpp_type if column.cpp_type else "::sqlpp::" + column.data_type
+            type_str = column.cpp_type if column.cpp_type else column.data_type
             if column.is_nullable:
                 print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
             else:
@@ -789,9 +765,10 @@ def parse_commandline_args():
     paths.add_argument("--path-to-module", help="path to generated module file (also requires --module-name)")
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
-    paths.add_argument("--path-to-custom-types", help="path to csv file defining aliases of existing SQL data types")
-    paths.add_argument("--path-to-cpp-types", help="path to csv file mapping table:column pairs to C++ types (format: 'table_name:column_name,FullyQualifiedCppType')")
-
+    paths.add_argument("--path-to-custom-types", help="path to csv file defining aliases of existing SQL data types. Columns: "
+                                                        "'type' or 'column', "
+                                                        "an SQL type or a column or a table.column_name, "
+                                                        "a c++type")
     options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
     options.add_argument("--postgresql-schema", metavar="SCHEMA", help="strip this schema prefix from PostgreSQL table names (e.g. 'public')")
@@ -829,52 +806,26 @@ def parse_commandline_args():
 
 def get_custom_types(filename):
     if not filename:
-        return None
+        return {}, {}
     import csv
     with open(filename, newline="") as csv_file:
-        reader = csv.DictReader(csv_file, fieldnames=["base_type"], restkey="custom_types", delimiter=",")
-        types = {}
-        def strip_garbage(name):
-            return name.strip(" \"'")
-        def clean_custom_type(name):
-            return strip_garbage(name).upper()
-        def clean_base_type(name):
-            name_ident = strip_garbage(name)
-            if DdlParser.is_base_type(name_ident):
-                return name_ident
-            name_from_camel = re.sub(r"[A-Z]", lambda m : ("_" if m.start() else "") + m[0].lower(), name_ident)
-            if DdlParser.is_base_type(name_from_camel):
-                return name_from_camel
-            logging.error(f"Custom types file uses an unknown base type {name_ident}")
-            sys.exit(ExitCode.BAD_CUSTOM_TYPES)
+        sql_type_to_cpp = {}
+        column_to_cpp_type = {}
+        reader = csv.DictReader(csv_file, fieldnames=["row_type", "entity", "cpp_type"], delimiter=",", skipinitialspace=True)
+
         for row in reader:
-            values = [cleaned for value in row["custom_types"] if (cleaned := clean_custom_type(value)) != ""]
-            if values:
-                key = clean_base_type(row["base_type"])
-                types[key] = values
-        return types
+            row_type=row["row_type"]
+            entity=row["entity"].upper()
+            cpp_type=row["cpp_type"]
 
+            if row_type == "type":
+                sql_type_to_cpp[entity] = cpp_type
+            elif row_type == "column":
+                column_to_cpp_type[entity] = cpp_type
+            else:
+                raise RuntimeError(f"Unknown row type in {filename}: {row_type}")
 
-def get_cpp_types(filename):
-    if not filename:
-        return {}
-    import csv
-    overrides = {}
-    with open(filename, newline="") as csv_file:
-        for row in csv.reader(csv_file):
-            if not row or row[0].strip().startswith("#"):
-                continue
-            if len(row) != 2:
-                logging.error(f"--path-to-cpp-types file has invalid row: {row}")
-                sys.exit(ExitCode.BAD_CPP_TYPES)
-            key = row[0].strip()
-            cpp_type = row[1].strip()
-            if ":" not in key:
-                logging.error(f"--path-to-cpp-types file has invalid key '{key}' (expected 'table_name:column_name')")
-                sys.exit(ExitCode.BAD_CPP_TYPES)
-            table_name, _, col_name = key.partition(":")
-            overrides[(table_name.strip(), col_name.strip())] = cpp_type
-    return overrides
+        return sql_type_to_cpp, column_to_cpp_type
 
 
 def validate_cpp_types(cpp_type_overrides, tables):
@@ -892,10 +843,9 @@ if __name__ == "__main__":
 
     args = parse_commandline_args()
 
-    custom_types = get_custom_types(args.path_to_custom_types)
-    cpp_type_overrides = get_cpp_types(args.path_to_cpp_types)
-    DdlParser.initialize(custom_types)
+    sql_type_to_cpp, column_to_cpp_type = get_custom_types(args.path_to_custom_types)
+    DdlParser.initialize(sql_type_to_cpp)
     parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
-    tables = DdlExecutor.execute(parsed_ddls, args, cpp_type_overrides)
+    tables = DdlExecutor.execute(parsed_ddls, args, column_to_cpp_type)
     ModelWriter.write(tables, args)
     sys.exit(ExitCode.SUCCESS)

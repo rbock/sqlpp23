@@ -110,23 +110,21 @@ if (${Python3_Interpreter_FOUND})
         set(custom_type_cpp "${custom_type_stem}.cpp")
         set(custom_type_exe "sqlpp.scripts.compiled.${custom_type_stem}")
         set(custom_type_headers "")
-        foreach(custom_type_suffix "old" "new")
-            set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}_${custom_type_suffix}.csv")
-            set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}_${custom_type_suffix}.h")
-            list(APPEND custom_type_headers "${custom_type_header}")
-            add_custom_command(
-                OUTPUT "${custom_type_header}"
-                COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
-                        "--path-to-custom-types=${custom_type_csv}"
-                        "--path-to-ddl" "${custom_type_sql}"
-                        "--path-to-header" "${custom_type_header}"
-                        "--namespace" "test::dbm_${custom_type_suffix}"
-                        "--suppress-timestamp-warning"
-                DEPENDS "${custom_type_sql}"
-                        "${custom_type_csv}"
-                        "${ddl2cpp}"
-                VERBATIM)
-        endforeach()
+        set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.csv")
+        set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}.h")
+        list(APPEND custom_type_headers "${custom_type_header}")
+        add_custom_command(
+            OUTPUT "${custom_type_header}"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
+                    "--path-to-custom-types=${custom_type_csv}"
+                    "--path-to-ddl" "${custom_type_sql}"
+                    "--path-to-header" "${custom_type_header}"
+                    "--namespace" "test::dbm"
+                    "--suppress-timestamp-warning"
+            DEPENDS "${custom_type_sql}"
+                    "${custom_type_csv}"
+                    "${ddl2cpp}"
+            VERBATIM)
         add_executable("${custom_type_exe}" "${custom_type_cpp}" ${custom_type_headers})
         target_link_libraries("${custom_type_exe}" PRIVATE sqlpp23::core)
     endif()

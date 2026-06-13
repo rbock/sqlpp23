@@ -1,6 +1,11 @@
-#include <ddl2cpp_sample_good_custom_type_old.h>
-#include <ddl2cpp_sample_good_custom_type_new.h>
 #include <sqlpp23/core/chrono.h>
+#include <sqlpp23/core/type_traits.h>
+#include <sqlpp23/core/to_sql_string.h>
+#include <vector>
+#include <cstdint>
+
+#include "custom_types.h"
+#include <ddl2cpp_sample_good_custom_type.h>
 
 template <typename T>
 void test_db_model() {
@@ -29,9 +34,11 @@ void test_db_model() {
   tab_foo.builtinDate = std::chrono::sys_days{};
   tab_foo.builtinDateTime = std::chrono::system_clock::now();
   tab_foo.builtinTime = std::chrono::seconds{10};
+
+  // Custom type assignment
+  tab_foo.myUuid = sample::uuid{};
 }
 
 int main() {
-  test_db_model<test::dbm_old::TabFoo>();
-  test_db_model<test::dbm_new::TabFoo>();
+  test_db_model<test::dbm::TabFoo>();
 }

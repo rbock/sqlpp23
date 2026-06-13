@@ -1,9 +1,0 @@
-blob, CustomBlobType
-boolean, CustomBooleanType
-date, CustomDateType
-floating_point, CustomFloatingPointType
-integral, CustomIntegralType, SPECIAL INT
-serial, CustomSerialType
-text, CustomTextType, another_text_type
-time, CustomTimeType
-timestamp, CustomTimestampType

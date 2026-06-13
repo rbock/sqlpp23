@@ -48,60 +48,13 @@ class SelfTest(unittest.TestCase):
     def setUpClass(cls):
         DdlParser.initialize()
 
-    def test_type_blob(self):
-        for t in ddl2cpp.DdlParser.ddl_blob_types:
+    def test_base_types(self):
+        for t in ddl2cpp.DdlParser.base_sql_type_to_cpp:
             with self.subTest(t=t):
                 result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "blob")
-
-    def test_type_boolean(self):
-        for t in ddl2cpp.DdlParser.ddl_boolean_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "boolean")
-
-    def test_type_date(self):
-        for t in ddl2cpp.DdlParser.ddl_date_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "date")
-
-    def test_type_floating_point(self):
-        for t in ddl2cpp.DdlParser.ddl_floating_point_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "floating_point")
-
-    def test_type_integral(self):
-        for t in ddl2cpp.DdlParser.ddl_integral_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "integral")
-
-    def test_type_serial(self):
-        for t in ddl2cpp.DdlParser.ddl_serial_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "integral")
-                self.assertTrue(result.has_serial_value)
-
-    def test_type_text(self):
-        for t in ddl2cpp.DdlParser.ddl_text_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "text")
-
-    def test_type_time(self):
-        for t in ddl2cpp.DdlParser.ddl_time_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "time")
-
-    def test_type_timestamp(self):
-        for t in ddl2cpp.DdlParser.ddl_timestamp_types:
-            with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "timestamp")
+                self.assertEqual(result[0], ddl2cpp.DdlParser.base_sql_type_to_cpp[t])
+                if "SERIAL" in t:
+                    self.assertTrue(result.has_serial_value)
 
     def test_type_unknown(self):
         for t in ["cheesecake", "blueberry"]:
@@ -109,13 +62,22 @@ class SelfTest(unittest.TestCase):
                 result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
                 self.assertEqual(result[0], "UNKNOWN")
 
+    def test_custom_type(self):
+        DdlParser.initialize({"MY_TYPE_A": "my_custom_base", "MY_TYPE_B": "my::Type"})
+        result = ddl2cpp.DdlParser.ddl_type.parse_string("MY_TYPE_A", parse_all=True)
+        self.assertEqual(result[0], "my_custom_base")
+        result = ddl2cpp.DdlParser.ddl_type.parse_string("MY_TYPE_B", parse_all=True)
+        self.assertEqual(result[0], "my::Type")
+        # Reset parser for other tests
+        DdlParser.initialize()
+
     def test_column(self):
         test_data = [
             {
                 "text": "\"id\" int(8) unsigned NOT NULL DEFAULT nextval('dk_id_seq'::regclass)",
                 "expected": {
                     "name": "id",
-                    "type": "integral",
+                    "type": "::sqlpp::integral",
                     "is_unsigned": True,
                     "not_null": True,
                     "has_auto_value": False,
@@ -130,7 +92,7 @@ class SelfTest(unittest.TestCase):
                 "text": "'fld' int AUTO_INCREMENT",
                 "expected": {
                     "name": "fld",
-                    "type": "integral",
+                    "type": "::sqlpp::integral",
                     "is_unsigned": False,
                     "not_null": False,
                     "has_auto_value": True,
@@ -145,7 +107,7 @@ class SelfTest(unittest.TestCase):
                 "text": "other_field int8 AUTOINCREMENT NOT NULL",
                 "expected": {
                     "name": "other_field",
-                    "type": "integral",
+                    "type": "::sqlpp::integral",
                     "is_unsigned": False,
                     "not_null": True,
                     "has_auto_value": True,
@@ -160,7 +122,7 @@ class SelfTest(unittest.TestCase):
                 "text": "\"new_field\" INT UNSIGNED PRIMARY KEY",
                 "expected": {
                     "name": "new_field",
-                    "type": "integral",
+                    "type": "::sqlpp::integral",
                     "is_unsigned": True,
                     "not_null": False,
                     "has_auto_value": False,
@@ -175,7 +137,7 @@ class SelfTest(unittest.TestCase):
                 "text": "'fld2' int NOT NULL GENERATED ALWAYS AS abc+1",
                 "expected": {
                     "name": "fld2",
-                    "type": "integral",
+                    "type": "::sqlpp::integral",
                     "is_unsigned": False,
                     "not_null": True,
                     "has_auto_value": False,
@@ -190,7 +152,7 @@ class SelfTest(unittest.TestCase):
                 "text": "int_array int8[] AUTOINCREMENT NOT NULL",
                 "expected": {
                     "name": "int_array",
-                    "type": "integral",
+                    "type": "::sqlpp::integral",
                     "is_unsigned": False,
                     "not_null": True,
                     "has_auto_value": True,
@@ -241,7 +203,7 @@ class SelfTest(unittest.TestCase):
                 result = ddl2cpp.DdlParser.ddl_column.parse_string(text, parse_all=True)
                 column = result[0]
                 self.assertEqual(column.name, "pos")
-                self.assertEqual(column.type, "text")
+                self.assertEqual(column.type, "::sqlpp::text")
                 self.assertTrue(column.not_null)
 
     def test_command_create_table(self):
@@ -261,7 +223,7 @@ class SelfTest(unittest.TestCase):
         column_data = [
             {
                 "name": "id",
-                "type": "integral",
+                "type": "::sqlpp::integral",
                 "is_unsigned": False,
                 "not_null": True,
                 "has_auto_value": False,
@@ -273,7 +235,7 @@ class SelfTest(unittest.TestCase):
             },
             {
                 "name": "strange",
-                "type": "floating_point",
+                "type": "::sqlpp::floating_point",
                 "is_unsigned": False,
                 "not_null": False,
                 "has_auto_value": False,
@@ -285,7 +247,7 @@ class SelfTest(unittest.TestCase):
             },
             {
                 "name": "last_update",
-                "type": "timestamp",
+                "type": "::sqlpp::timestamp",
                 "is_unsigned": False,
                 "not_null": False,
                 "has_auto_value": False,
@@ -453,7 +415,7 @@ class SelfTest(unittest.TestCase):
             self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
         # Non-annotation colons are ignored
-        with self.subTest("Trailing comments are ignored"):
+        with self.subTest("Non-annotation colons are ignored"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE t(
                   -- FIXME: We should really make this cpp_type:animal further down the road
@@ -595,7 +557,7 @@ class SelfTest(unittest.TestCase):
                 )
                 COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
             """)
-            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {("t", "a"): "CsvType"})
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {"t.a": "CsvType"})
             self.assertEqual(tables["t"].columns["a"].cpp_type, "CsvType")
 
         # MySQL COMMENT clause: cpp_type extracted from column comment
@@ -615,6 +577,43 @@ class SelfTest(unittest.TestCase):
             """)
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
             self.assertEqual(tables["t"].columns["id"].cpp_type, "MyUuidType")
+
+        # Annotation with qualified vs unqualified type
+        with self.subTest("Annotation with qualified vs unqualified type"):
+            import io
+            from contextlib import redirect_stdout
+
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    -- cpp_type:my::Type
+                    a bigint NOT NULL,
+                    -- cpp_type:unqualified_type
+                    b bigint NOT NULL
+                )
+            """, parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["a"].cpp_type, "my::Type")
+            self.assertEqual(tables["t"].columns["b"].cpp_type, "unqualified_type")
+
+        # Mapping with qualified vs unqualified type
+        with self.subTest("Mapping with qualified vs unqualified type"):
+            import io
+            from contextlib import redirect_stdout
+
+            # Re-initialize with custom mappings
+            DdlParser.initialize({"MY_TYPE_A": "my::Type", "MY_TYPE_B": "unqualified_type"})
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE t (
+                    a MY_TYPE_A NOT NULL,
+                    b MY_TYPE_B NOT NULL
+                )
+            """, parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["a"].data_type, "my::Type")
+            self.assertEqual(tables["t"].columns["b"].data_type, "unqualified_type")
+
+            # Restore parser
+            DdlParser.initialize()
 
         # Schema-qualified ALTER TABLE resolved with --postgresql-schema
         with self.subTest("Schema-qualified ALTER TABLE resolved with --postgresql-schema"):

@@ -26,6 +26,7 @@
 
 CREATE TABLE tab_foo
 (
+        -- Custom types mapped to usual sqlpp C++ types
 	myBoolean CustomBooleanType,
 	myInteger CustomIntegralType,
 	mySerial CustomSerialType,
@@ -49,6 +50,8 @@ CREATE TABLE tab_foo
 	builtinBlob BINARY,
 	builtinDate DATE,
 	builtinDateTime TIMESTAMPTZ,
-	builtinTime TIME WITH TIME ZONE
+	builtinTime TIME WITH TIME ZONE,
+        -- Custom type mapped to custom C++ type
+	myUuid UUID
 
 ) WITH SYSTEM VERSIONING; -- enable System-Versioning for this table
