@@ -109,7 +109,7 @@ if (${Python3_Interpreter_FOUND})
         set(custom_type_sql "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.sql")
         set(custom_type_cpp "${custom_type_stem}.cpp")
         set(custom_type_exe "sqlpp.scripts.compiled.${custom_type_stem}")
-        set(custom_type_headers "")
+        set(custom_type_headers "${CMAKE_CURRENT_LIST_DIR}/custom_types.h")
         set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.csv")
         set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}.h")
         list(APPEND custom_type_headers "${custom_type_header}")
@@ -121,11 +121,13 @@ if (${Python3_Interpreter_FOUND})
                     "--path-to-header" "${custom_type_header}"
                     "--namespace" "test::dbm"
                     "--suppress-timestamp-warning"
+                    "--custom-directives" "#include <custom_types.h>"
             DEPENDS "${custom_type_sql}"
                     "${custom_type_csv}"
                     "${ddl2cpp}"
             VERBATIM)
         add_executable("${custom_type_exe}" "${custom_type_cpp}" ${custom_type_headers})
+        target_include_directories("${custom_type_exe}" PRIVATE ${CMAKE_CURRENT_LIST_DIR})
         target_link_libraries("${custom_type_exe}" PRIVATE sqlpp23::core)
     endif()
 endif()

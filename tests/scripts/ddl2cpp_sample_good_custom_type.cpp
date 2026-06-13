@@ -4,7 +4,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "custom_types.h"
 #include <ddl2cpp_sample_good_custom_type.h>
 
 template <typename T>
