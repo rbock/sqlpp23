@@ -41,10 +41,9 @@ from typing import Any, Dict, List
 class ExitCode(IntEnum):
     SUCCESS = 0
     BAD_ARGS = 1
-    BAD_CUSTOM_TYPES = 30
-    BAD_CPP_TYPES = 31
     BAD_DDL_COMMAND = 10
     BAD_DDL_PARSING = 20
+    BAD_CUSTOM_TYPES = 30
     BAD_COLUMN_ANNOTATION = 40
 
 
@@ -386,9 +385,11 @@ class DdlExecutor:
 
     @classmethod
     def apply_column_to_cpp_type(cls, table, column, column_to_cpp_type):
-        for name in [f"{table.name}.{column.name}", column.name]:
-            if name in column_to_cpp_type:
-                column.cpp_type = column_to_cpp_type[name]
+        schema_qualified_table_name = table.name
+        table_name = table.name.split('.')[-1]
+        for name in [f"{schema_qualified_table_name}.{column.name}", f"{table_name}.{column.name}", column.name]:
+            if name.upper() in column_to_cpp_type:
+                column.cpp_type = column_to_cpp_type[name.upper()]
                 return
 
     @classmethod
@@ -424,11 +425,7 @@ class DdlExecutor:
                     cls._has_error = True
         if cls._has_error:
             logging.error("ERROR: Unsupported SQL data type(s).")
-            logging.info("Possible solutions:")
-            logging.info("A) Use the '--path-to-custom-types' command line argument to map the SQL data type to a known sqlpp23 data type (example: README)")
-            logging.info("C) Implement this data type in sqlpp23 (examples: sqlpp23/data_types) and in sqlpp23-ddl2cpp")
-            logging.info("B) Use a cpp_type annotation (inline comment, COMMENT ON COLUMN, or --path-to-cpp-types) to assign a C++ type to the column")
-            logging.info("D) Raise an issue on github")
+            logging.info("See https://github.com/rbock/sqlpp23/tree/main/docs/custom_type_mapping.md")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
 
@@ -767,11 +764,11 @@ def parse_commandline_args():
     paths.add_argument("--path-to-module", help="path to generated module file (also requires --module-name)")
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
-    options = arg_parser.add_argument_group("Additional options")
-    options.add_argument("--path-to-custom-types", help="path to csv file defining aliases of existing SQL data types. Columns: "
+    paths.add_argument("--path-to-custom-type-mapping", help="path to csv file defining aliases of existing SQL data types. Columns: "
                                                         "'type' or 'column', "
                                                         "an SQL type or a column or a table.column_name, "
                                                         "a c++type")
+    options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
     options.add_argument("--postgresql-schema", metavar="SCHEMA", help="strip this schema prefix from PostgreSQL table names (e.g. 'public')")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
@@ -818,9 +815,8 @@ def get_custom_types(filename, csv_file):
         # Explicitly check if any required column is missing (resolved as None)
         for field in required_fields:
             if row[field] is None:
-                raise RuntimeError(
-                    f"Malformed CSV: Missing column '{field}' on line {line_num}"
-                )
+                logging.error(f"Malformed CSV: Missing column '{field}' on line {line_num}")
+                sys.exit(ExitCode.BAD_CUSTOM_TYPES)
 
         row_type=row["row_type"]
         entity=row["entity"].upper()
@@ -831,7 +827,8 @@ def get_custom_types(filename, csv_file):
         elif row_type == "column":
             column_to_cpp_type[entity] = cpp_type
         else:
-            raise RuntimeError(f"Unknown row type in {filename}: {row_type}")
+            logging.error(f"Unknown row type in {filename}: {row_type} on line {line_num}")
+            sys.exit(ExitCode.BAD_CUSTOM_TYPES)
 
     return sql_type_to_cpp, column_to_cpp_type
 
@@ -841,9 +838,9 @@ if __name__ == "__main__":
     args = parse_commandline_args()
 
     sql_type_to_cpp, column_to_cpp_type = {}, {}
-    if args.path_to_custom_types:
-        with open(args.path_to_custom_types, newline="") as csv_file:
-            sql_type_to_cpp, column_to_cpp_type = get_custom_types(args.path_to_custom_types, csv_file)
+    if args.path_to_custom_type_mapping:
+        with open(args.path_to_custom_type_mapping, newline="") as csv_file:
+            sql_type_to_cpp, column_to_cpp_type = get_custom_types(args.path_to_custom_type_mapping, csv_file)
     DdlParser.initialize(sql_type_to_cpp)
     parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
     tables = DdlExecutor.execute(parsed_ddls, args, column_to_cpp_type)

@@ -116,7 +116,7 @@ if (${Python3_Interpreter_FOUND})
         add_custom_command(
             OUTPUT "${custom_type_header}"
             COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
-                    "--path-to-custom-types=${custom_type_csv}"
+                    "--path-to-custom-type-mapping=${custom_type_csv}"
                     "--path-to-ddl" "${custom_type_sql}"
                     "--path-to-header" "${custom_type_header}"
                     "--namespace" "test::dbm"

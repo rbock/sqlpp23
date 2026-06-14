@@ -69,8 +69,6 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(result[0], "my_custom_base")
         result = ddl2cpp.DdlParser.ddl_type.parse_string("MY_TYPE_B", parse_all=True)
         self.assertEqual(result[0], "my::Type")
-        # Reset parser for other tests
-        DdlParser.initialize()
 
     def test_column(self):
         test_data = [
@@ -223,17 +221,21 @@ class SelfTest(unittest.TestCase):
         invalid_csv_data = "invalid_marker,some_entity,some_cpp_type\n"
         fake_file = io.StringIO(invalid_csv_data)
 
-        with self.assertRaises(RuntimeError) as e:
-            ddl2cpp.get_custom_types("<string>", fake_file)
-        self.assertTrue("Unknown row type in" in str(e.exception))
+        with self.assertLogs(level='ERROR') as cm_logs:
+            with self.assertRaises(SystemExit) as e:
+                ddl2cpp.get_custom_types("<string>", fake_file)
+            self.assertEqual(e.exception.code, ddl2cpp.ExitCode.BAD_CUSTOM_TYPES)
+        self.assertTrue(any("Unknown row type in <string>: invalid_marker" in output for output in cm_logs.output))
 
     def test_bad_format_raises_runtime_error(self):
         invalid_csv_data = "type,some_entity\n"
         fake_file = io.StringIO(invalid_csv_data)
 
-        with self.assertRaises(RuntimeError) as e:
-            ddl2cpp.get_custom_types("<string>", fake_file)
-        self.assertTrue("Malformed CSV: Missing column 'cpp_type'" in str(e.exception))
+        with self.assertLogs(level='ERROR') as cm_logs:
+            with self.assertRaises(SystemExit) as e:
+                ddl2cpp.get_custom_types("<string>", fake_file)
+            self.assertEqual(e.exception.code, ddl2cpp.ExitCode.BAD_CUSTOM_TYPES)
+        self.assertTrue(any("Malformed CSV: Missing column 'cpp_type'" in output for output in cm_logs.output))
 
     def test_command_create_table(self):
         input_text = """
@@ -577,7 +579,20 @@ class SelfTest(unittest.TestCase):
             self.assertTrue(any("InlineType" in output for output in cm_logs.output))
             self.assertTrue(any("CommentType" in output for output in cm_logs.output))
 
-        # --path-to-cpp-types overrides both inline comment and COMMENT ON COLUMN
+        # Comment annotations override --path-to-custom-type-mapping type mapping
+        with self.subTest("--path-to-cpp-types overrides others"):
+            DdlParser.initialize({"a": "my::TypeA"})
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:CommentType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["public.t"].columns["a"].cpp_type, "CommentType")
+
+        # --path-to-custom-type-mapping column mappings overrides both inline comment and COMMENT ON COLUMN
         with self.subTest("--path-to-cpp-types overrides others"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
@@ -586,8 +601,44 @@ class SelfTest(unittest.TestCase):
                 )
                 COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
             """)
-            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(postgresql_schema="public"), {"t.a": "CsvType"})
-            self.assertEqual(tables["t"].columns["a"].cpp_type, "CsvType")
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {"A": "CsvType"})
+            self.assertEqual(tables["public.t"].columns["a"].cpp_type, "CsvType")
+
+        # --path-to-custom-type-mapping table.column overrides column mapping
+        with self.subTest("--path-to-cpp-types overrides others"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:SharedType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {"A": "Column", "T.A": "TableColumn"})
+            self.assertEqual(tables["public.t"].columns["a"].cpp_type, "TableColumn")
+
+        # --path-to-custom-type-mapping schema.table.column overrides table.column mapping
+        with self.subTest("--path-to-cpp-types overrides others"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:SharedType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {"T.A": "TableColumn", "PUBLIC.T.A": "SchemaTableColumn"})
+            self.assertEqual(tables["public.t"].columns["a"].cpp_type, "SchemaTableColumn")
+
+        # --path-to-custom-type-mapping schema.table.column is case insensitive
+        with self.subTest("--path-to-cpp-types overrides others"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                CREATE TABLE public.t (
+                    -- cpp_type:SharedType
+                    a bigint NOT NULL
+                )
+                COMMENT ON COLUMN public.t.a IS 'cpp_type:SharedType'
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {"PUBLIC.T.A": "SchemaTableColumn"})
+            self.assertEqual(tables["public.t"].columns["a"].cpp_type, "SchemaTableColumn")
 
         # MySQL COMMENT clause: cpp_type extracted from column comment
         with self.subTest("MySQL COMMENT clause"):
@@ -640,9 +691,6 @@ class SelfTest(unittest.TestCase):
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
             self.assertEqual(tables["t"].columns["a"].data_type, "my::Type")
             self.assertEqual(tables["t"].columns["b"].data_type, "unqualified_type")
-
-            # Restore parser
-            DdlParser.initialize()
 
         # Schema-qualified ALTER TABLE resolved with --postgresql-schema
         with self.subTest("Schema-qualified ALTER TABLE resolved with --postgresql-schema"):
