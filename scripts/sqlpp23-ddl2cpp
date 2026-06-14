@@ -484,7 +484,7 @@ class DdlExecutor:
         cpp_type = col_expr.cpp_type
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
-        # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
+        # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-custom-type-mapping)
         # have been applied.
         if cpp_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
             cpp_type = "unsigned_" + cpp_type

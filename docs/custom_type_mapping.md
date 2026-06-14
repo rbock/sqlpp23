@@ -33,7 +33,7 @@ All mechanisms can be used in parallel. They are applied in the following order:
 
 ## CSV file
 
-The `--path-to-custom-types` command-line option (see [Command-line options](#command-line-options)) specifies the
+The `--path-to-custom-type-mapping` command-line option (see [Command-line options](#command-line-options)) specifies the
 path to a CSV file. Each line contains three comma-separated fields
 
 1. `row_type`: This can be either `type` or `column`.

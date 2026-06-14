@@ -592,7 +592,7 @@ class SelfTest(unittest.TestCase):
             self.assertTrue(any("CommentType" in output for output in cm_logs.output))
 
         # Comment annotations override --path-to-custom-type-mapping type mapping
-        with self.subTest("--path-to-cpp-types overrides others"):
+        with self.subTest("Comment annotations override --path-to-custom-type-mapping type mapping"):
             DdlParser.initialize({"MY_A": "my::TypeA"})
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
@@ -605,7 +605,7 @@ class SelfTest(unittest.TestCase):
             self.assertEqual(tables["public.t"].columns["a"].cpp_type, "CommentType")
 
         # --path-to-custom-type-mapping column mappings overrides both inline comment and COMMENT ON COLUMN
-        with self.subTest("--path-to-cpp-types overrides others"):
+        with self.subTest("-path-to-custom-type-mapping column mappings overrides both inline comment and COMMENT ON COLUMN"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
                     -- cpp_type:SharedType
@@ -617,7 +617,7 @@ class SelfTest(unittest.TestCase):
             self.assertEqual(tables["public.t"].columns["a"].cpp_type, "CsvType")
 
         # --path-to-custom-type-mapping table.column overrides column mapping
-        with self.subTest("--path-to-cpp-types overrides others"):
+        with self.subTest("--path-to-custom-type-mapping table.column overrides column mapping"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
                     -- cpp_type:SharedType
@@ -629,7 +629,7 @@ class SelfTest(unittest.TestCase):
             self.assertEqual(tables["public.t"].columns["a"].cpp_type, "TableColumn")
 
         # --path-to-custom-type-mapping schema.table.column overrides table.column mapping
-        with self.subTest("--path-to-cpp-types overrides others"):
+        with self.subTest("--path-to-custom-type-mapping schema.table.column overrides table.column mapping overrides others"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
                     -- cpp_type:SharedType
@@ -641,7 +641,7 @@ class SelfTest(unittest.TestCase):
             self.assertEqual(tables["public.t"].columns["a"].cpp_type, "SchemaTableColumn")
 
         # --path-to-custom-type-mapping schema.table.column is case insensitive
-        with self.subTest("--path-to-cpp-types overrides others"):
+        with self.subTest("--path-to-custom-type-mapping schema.table.column is case insensitive"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
                     -- cpp_type:SharedType
