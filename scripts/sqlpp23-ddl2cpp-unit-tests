@@ -54,8 +54,6 @@ class SelfTest(unittest.TestCase):
             with self.subTest(t=t):
                 result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
                 self.assertEqual(result[0], ddl2cpp.DdlParser.base_sql_type_to_cpp[t])
-                if "SERIAL" in t:
-                    self.assertTrue(result.has_serial_value)
 
     def test_type_unknown(self):
         for t in ["cheesecake", "blueberry"]:
@@ -501,6 +499,29 @@ class SelfTest(unittest.TestCase):
             self.assertIsNone(tables["t"].columns["b"].cpp_type)
             self.assertIsNone(tables["t"].columns["c"].cpp_type)
 
+        # Annotations and custom type mappings to ::sqlpp::serial
+        with self.subTest("Annotations and custom type mappings to ::sqlpp::serial"):
+            DdlParser.initialize({"B": "sqlpp::serial"})
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                    """CREATE TABLE t (
+                    -- cpp_type:sqlpp::serial
+                    s1 A NOT NULL,
+                    s2 B NOT NULL,
+                    s3 C NOT NULL,
+                    s4 bigint NOT NULL
+                    )
+                    """, parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {"S3": "::sqlpp::serial"})
+            self.assertEqual(tables["t"].columns["s1"].cpp_type, "sqlpp::serial")
+            self.assertEqual(tables["t"].columns["s2"].data_type, "sqlpp::serial")
+            self.assertEqual(tables["t"].columns["s3"].cpp_type, "::sqlpp::serial")
+            self.assertEqual(tables["t"].columns["s4"].data_type, "::sqlpp::integral")
+
+            self.assertTrue(tables["t"].columns["s1"].has_default)
+            self.assertTrue(tables["t"].columns["s2"].has_default)
+            self.assertTrue(tables["t"].columns["s3"].has_default)
+            self.assertFalse(tables["t"].columns["s4"].has_default)
+
         # Leading inline comment before a column sets cpp_type
         with self.subTest("Leading inline comment before a column sets cpp_type"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
@@ -581,11 +602,11 @@ class SelfTest(unittest.TestCase):
 
         # Comment annotations override --path-to-custom-type-mapping type mapping
         with self.subTest("--path-to-cpp-types overrides others"):
-            DdlParser.initialize({"a": "my::TypeA"})
+            DdlParser.initialize({"MY_A": "my::TypeA"})
             parsed = ddl2cpp.DdlParser.ddl.parse_string("""
                 CREATE TABLE public.t (
                     -- cpp_type:CommentType
-                    a bigint NOT NULL
+                    a MY_A NOT NULL
                 )
                 COMMENT ON COLUMN public.t.a IS 'cpp_type:CommentType'
             """)

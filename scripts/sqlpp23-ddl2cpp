@@ -173,8 +173,6 @@ class DdlParser:
         for sql_type in sorted(sql_type_to_cpp, reverse=True):
             cpp_type = sql_type_to_cpp[sql_type]
             type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type)).set_name("SQL type name")
-            if cpp_type.endswith("sqlpp::serial"):
-                type_parser = type_parser.set_results_name("has_serial_value")
             type_parsers.append(type_parser)
 
         fallback_parser = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN")).set_name("SQL type name")
@@ -411,6 +409,9 @@ class DdlExecutor:
             for col_def in table_def.columns.values():
                 cls.apply_column_annotations(table_def, col_def)
                 cls.apply_column_to_cpp_type(table_def, col_def, column_to_cpp_type)
+                if ((col_def.cpp_type and col_def.cpp_type.endswith("sqlpp::serial")) or
+                    (col_def.data_type and col_def.data_type.endswith("sqlpp::serial"))):
+                    col_def.has_default = True
         if cls._has_error:
             sys.exit(ExitCode.BAD_COLUMN_ANNOTATION)
 
