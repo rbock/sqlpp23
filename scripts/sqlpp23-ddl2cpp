@@ -342,13 +342,13 @@ class DdlExecutor:
     _has_error = None
     _has_unknown_type = None
     _tables = None
-    _postgresql_schema = None
+    _strip_sql_schema = None
 
     @classmethod
     def _strip_schema(cls, name):
-        """Strip the --postgresql-schema prefix from a table name if present."""
-        if cls._postgresql_schema and name.startswith(cls._postgresql_schema + "."):
-            return name[len(cls._postgresql_schema) + 1:]
+        """Strip the --strip-sql-schema prefix from a table name if present."""
+        if cls._strip_sql_schema and name.startswith(cls._strip_sql_schema + "."):
+            return name[len(cls._strip_sql_schema) + 1:]
         return name
 
     # Extract annotations for columns. Currently the only recognized annotation is
@@ -395,7 +395,7 @@ class DdlExecutor:
     def execute(cls, parsed_ddls, args, column_to_cpp_type):
         cls._assume_auto_id = args.assume_auto_id
         cls._warn_on_timestamp = not args.suppress_timestamp_warning
-        cls._postgresql_schema = args.postgresql_schema
+        cls._strip_sql_schema = args.strip_sql_schema
         cls._has_error = False
         cls._has_unknown_type = False
         cls._tables = {}
@@ -768,7 +768,7 @@ def parse_commandline_args():
                                                         "a c++type")
     options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
-    options.add_argument("--postgresql-schema", metavar="SCHEMA", help="strip this schema prefix from PostgreSQL table names (e.g. 'public')")
+    options.add_argument("--strip-sql-schema", help="strip this schema prefix from table names (e.g. 'public')")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
     options.add_argument("--assume-auto-id", action="store_true", help="assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)")
     options.add_argument("--naming-style", choices=["camel-case", "identity"], default="camel-case", help="naming style for generated tables and columns.\n\n\n\n 'camel-case' (default): interprets '_' as word separator and translates table names to UpperCamelCase and column names to lowerCamelCase, e.g. 'my_cool_table.important_column' will be represented as 'MyCoolTable{}.importantColumn' in generated code.\n 'identity' uses table and column names as is in generated code (default: 'camel-case')")

@@ -9,6 +9,7 @@ Breaking changes:
 - sqlpp23-ddl2cpp changes:
   - merged --path-to-custom-types and --path-to-cpp-types into --path-to-custom-type-mapping \
     This can now map SQL types and columns to C++ types, see [custom type mapping](/docs/custom_type_mapping.md), #130, #115
+  - renamed --postgresql-schema to --strip-sql-schema
 
 Other changes:
 

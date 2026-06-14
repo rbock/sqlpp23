@@ -91,7 +91,7 @@ COMMENT ON COLUMN public.tab_point.x IS 'x coordinate cpp_type:XCoord (horizonta
 COMMENT ON COLUMN public.tab_point.y IS 'cpp_type:YCoord';
 ```
 
-Use `--postgresql-schema` together with this option so that schema-qualified table names
+Use `--strip-sql-schema` together with this option so that schema-qualified table names
 (e.g. `public.tab_point`) are resolved correctly against the generated table definitions
 (see [sqlpp23-ddl2cpp](/docs/ddl2cpp.md)).
 

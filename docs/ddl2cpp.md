@@ -46,7 +46,7 @@ For detailed instructions refer to the documentation of your database.
 | Option | Required | Default | Description |
 | ------ | -------- | ------- | ----------- |
 | --module-name MODULE_NAME | No[^2] | | Name of the generated C++ module |
-| --postgresql-schema SCHEMA | No | | Strip this schema prefix from PostgreSQL table names (e.g. `public`). Required when using `COMMENT ON COLUMN` annotations from a PostgreSQL dump (see [C++ type overrides](#c-type-overrides)). |
+| --strip-sql-schema STRIP_SQL_SCHEMA | No | | Strip this schema prefix from table names (e.g. `public`). Required when using `COMMENT ON COLUMN` annotations from a PostgreSQL dump (see [custom type mapping](/docs/custom_type_mapping.md)). |
 | --suppress-timestamp-warning | No | False | Don't display a warning when date/time data types are used. |
 | --assume-auto-id | No | False | Treat columns called *id* as if they have a default auto-increment value. |
 | --naming-style {camel-case,identity} | No | camel-case | Naming style for generated tables and columns. *camel-case* interprets *_* as word separator and translates table names to *UpperCamelCase* and column names to *lowerCamelCase*. *identity* uses table and column names as-is in generated code. |
