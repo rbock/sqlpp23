@@ -228,7 +228,7 @@ class DdlParser:
             pp.ZeroOrMore(ddl_regular_comment).set_results_name("comments")
             + ddl_name.set_results_name("name")
             - (
-                cls.ddl_type.set_results_name("type")
+                cls.ddl_type.set_results_name("cpp_type")
                 - pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
                 - pp.Suppress(pp.Optional(ddl_width))
                 - pp.Suppress(pp.Optional(ddl_timezone))
@@ -324,7 +324,6 @@ class DdlExecutor:
     @dataclass
     class _ColumnDef:
         name: str
-        data_type: str
         is_const: bool
         is_nullable: bool
         has_default: bool
@@ -380,6 +379,7 @@ class DdlExecutor:
 
         if 'cpp_type' in annotations:
             column.cpp_type = annotations["cpp_type"]
+            column.is_array = False
 
     @classmethod
     def apply_column_to_cpp_type(cls, table, column, column_to_cpp_type):
@@ -388,6 +388,7 @@ class DdlExecutor:
         for name in [f"{schema_qualified_table_name}.{column.name}", f"{table_name}.{column.name}", column.name]:
             if name.upper() in column_to_cpp_type:
                 column.cpp_type = column_to_cpp_type[name.upper()]
+                column.is_array = False
                 return
 
     @classmethod
@@ -409,23 +410,22 @@ class DdlExecutor:
             for col_def in table_def.columns.values():
                 cls.apply_column_annotations(table_def, col_def)
                 cls.apply_column_to_cpp_type(table_def, col_def, column_to_cpp_type)
-                if ((col_def.cpp_type and col_def.cpp_type.endswith("sqlpp::serial")) or
-                    (col_def.data_type and col_def.data_type.endswith("sqlpp::serial"))):
+                if col_def.cpp_type and col_def.cpp_type.endswith("sqlpp::serial"):
                     col_def.has_default = True
         if cls._has_error:
             sys.exit(ExitCode.BAD_COLUMN_ANNOTATION)
 
-        # Any column that still has UNKNOWN data_type and no cpp_type is a real error.
+        # Any column that still has UNKNOWN cpp_type is a real error.
         for table_def in cls._tables.values():
             for col_def in table_def.columns.values():
-                if col_def.data_type == "UNKNOWN" and col_def.cpp_type is None:
+                if col_def.cpp_type == "UNKNOWN":
                     logging.error(f"SQL data type of {table_def.name}.{col_def.name} is not supported.")
                     cls._has_error = True
-                if col_def.is_array and col_def.cpp_type is None:
+                if col_def.is_array:
                     logging.error(f"Array type of {table_def.name}.{col_def.name} is not supported.")
                     cls._has_error = True
         if cls._has_error:
-            logging.error("ERROR: Unsupported SQL data type(s).")
+            logging.error("Unsupported SQL data type(s).")
             logging.info("See https://github.com/rbock/sqlpp23/tree/main/docs/custom_type_mapping.md")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
@@ -481,17 +481,16 @@ class DdlExecutor:
                 logging.warning(f"If you are using types WITH timezones, your code has to deal with that.")
                 logging.info(f"You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
-        data_type = col_expr.type
+        cpp_type = col_expr.cpp_type
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-cpp-types)
         # have been applied.
-        if data_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
-            data_type = "unsigned_" + data_type
+        if cpp_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
+            cpp_type = "unsigned_" + cpp_type
         is_nullable = (
             not col_expr.not_null and
-            not col_expr.is_primary_key and
-            not col_expr.has_serial_value
+            not col_expr.is_primary_key
         )
         comments = col_expr.get("comments")
         column_comment = col_expr.get("column_comment", None)
@@ -499,12 +498,10 @@ class DdlExecutor:
             comments.append(column_comment)
         columns[col_name] = cls._ColumnDef(
             name = col_name,
-            data_type = data_type,
             is_const = col_expr.has_generated_value,
             is_nullable = is_nullable,
             has_default = (
                 col_expr.has_default_value or
-                col_expr.has_serial_value or
                 col_expr.has_auto_value or
                 (cls._assume_auto_id and col_name == "id") or
                 col_expr.has_generated_value or
@@ -512,7 +509,7 @@ class DdlExecutor:
             ),
             is_array = col_expr.is_array,
             comments = comments,
-            cpp_type = None
+            cpp_type = cpp_type
         )
 
     @classmethod
@@ -673,7 +670,7 @@ class ModelWriter:
                 + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
                 , file=header)
             const_prefix = "const " if column.is_const else ""
-            type_str = column.cpp_type if column.cpp_type else column.data_type
+            type_str = column.cpp_type
             if column.is_nullable:
                 print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
             else:
