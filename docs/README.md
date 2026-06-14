@@ -30,9 +30,10 @@ The following pages will tell you how to use it:
 - **Basics**
   - [Setup](/docs/setup.md)
   - [Code generation](/docs/ddl2cpp.md)
+  - [Custom type mapping](/docs/custom_type_mapping.md)
 - **Statements**
-  - [Database connectors](connectors.md)
-  - [Debug logging](logging.md)
+  - [Database connectors](/docs/connectors.md)
+  - [Debug logging](/docs/logging.md)
   - [Select](/docs/select.md), see also [`with`](/docs/with.md)
   - [Union](/docs/union.md)
   - [Insert](/docs/insert.md)

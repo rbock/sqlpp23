@@ -4,14 +4,23 @@
 
 ## next
 
+Breaking changes:
+
+- sqlpp23-ddl2cpp changes:
+  - merged --path-to-custom-type and --path-to-cpp into --path-to-custom-type-mapping \
+    This can now map SQL types and columns to C++ types, see [custom type mapping](/docs/custom_type_mapping.md), #130, #115
+
+Other changes:
+
 - add .nulls_first() and nulls_last support to sort expressions, #91
 - add factory function to construct dynamic_t from a value, #112
 - add constructor to construct dynamic_t from std::nullopt, #112
 - remove factory functiom to construct dynamic from an optional (this was never used in tests and I suspect it was never used in user code). If you used it, please use `condition ? dynamic(value) : std::nullopt` instead.
-- ddl2cpp:
+- sqlpp23-ddl2cpp:
    - major cleanup of annotation parsing code
    - unit tests extracted into separate file
-   - more idionmatic code, e.g. by using logging and unittest modules
+   - more idiomatic code, e.g. by using logging and unittest modules
+   - much better parsing error messsage (at least for the cases I tested :-))
 
 ## 0.69
 
