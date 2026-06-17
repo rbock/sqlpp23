@@ -376,6 +376,13 @@ class SelfTest(unittest.TestCase):
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
             self.assertEqual(tables["t"].columns["x"].cpp_type, "::sqlpp::unsigned_integral")
 
+        # Unsigned int
+        with self.subTest("unsigned integral overridden by signed integral"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                    "CREATE TABLE t (-- cpp_type:::sqlpp::integral\n x bigint unsigned NOT NULL)", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "::sqlpp::integral")
+
         # Annotation directly before the column
         with self.subTest("Annotation directly before the column"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string(
