@@ -11,6 +11,7 @@ This section contains some recipes for doing so.
 * [Optimistic concurrency control](/docs/recipes/optimistic_concurrency_control.md)
 * [Thread-local connection](/docs/recipes/thread_local_connection.md)
 * [Custom types](/docs/recipes/custom_types.md)
+* [Working with enums](/docs/recipes/enums.md)
 
 Additional ideas are welcome, of course. Please file issues or pull requests.
 
