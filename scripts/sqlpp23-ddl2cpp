@@ -482,12 +482,12 @@ class DdlExecutor:
                 logging.info(f"You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         cpp_type = col_expr.cpp_type
+        if cpp_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
+            cpp_type = cpp_type.replace("sqlpp::integral", "sqlpp::unsigned_integral")
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-custom-type-mapping)
         # have been applied.
-        if cpp_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
-            cpp_type = "unsigned_" + cpp_type
         is_nullable = (
             not col_expr.not_null and
             not col_expr.is_primary_key

@@ -369,6 +369,13 @@ class SelfTest(unittest.TestCase):
             defaults.update(kwargs)
             return argparse.Namespace(**defaults)
 
+        # Unsigned int
+        with self.subTest("unsigned integral"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string(
+                "CREATE TABLE t (x bigint unsigned NOT NULL)", parse_all=True)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "::sqlpp::unsigned_integral")
+
         # Annotation directly before the column
         with self.subTest("Annotation directly before the column"):
             parsed = ddl2cpp.DdlParser.ddl.parse_string(

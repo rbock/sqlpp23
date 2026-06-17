@@ -44,6 +44,7 @@ CREATE TABLE tab_foo
 	-- Ensuring built in types still function
 	builtinBoolean BOOLEAN,
 	builtinInteger INTEGER,
+	builtinUnsignedInteger INTEGER UNSIGNED,
 	builtinSerial SERIAL,
 	builtinFloatingPoint NUMERIC,
 	builtinText TEXT,
