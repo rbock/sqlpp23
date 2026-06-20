@@ -762,15 +762,16 @@ def parse_commandline_args():
     required.add_argument("--path-to-ddl", nargs="*", help="one or more path(s) to DDL input file(s)")
     required.add_argument("--namespace", help="namespace for generated table classes")
 
-    paths = arg_parser.add_argument_group("Paths", "Choose one or more paths for code generation:")
+    paths = arg_parser.add_argument_group("Choose one or more paths for code generation")
     paths.add_argument("--path-to-module", help="path to generated module file (also requires --module-name)")
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
-    paths.add_argument("--path-to-custom-type-mapping", help="path to csv file defining aliases of existing SQL data types. Columns: "
+
+    options = arg_parser.add_argument_group("Additional options")
+    options.add_argument("--path-to-custom-type-mapping", help="path to csv file defining aliases of existing SQL data types. Columns: "
                                                         "'type' or 'column', "
                                                         "an SQL type or a column or a table.column_name, "
                                                         "a c++type")
-    options = arg_parser.add_argument_group("Additional options")
     options.add_argument("--module-name", help="name of the generated module (to be used with --path-to-module)")
     options.add_argument("--strip-sql-schema", help="strip this schema prefix from table names (e.g. 'public')")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
