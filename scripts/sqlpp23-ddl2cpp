@@ -172,10 +172,10 @@ class DdlParser:
         sql_type_to_cpp = cls.base_sql_type_to_cpp | custom_types
         for sql_type in sorted(sql_type_to_cpp, reverse=True):
             cpp_type = sql_type_to_cpp[sql_type]
-            type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type)).set_name("SQL type name")
+            type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type))
             type_parsers.append(type_parser)
 
-        fallback_parser = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN")).set_name("SQL type name")
+        fallback_parser = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN"))
         cls.ddl_type = pp.MatchFirst(type_parsers + [fallback_parser])
 
         # Constraints parser
