@@ -163,16 +163,23 @@ class DdlParser:
         ddl_arguments = pp.Suppress(pp.DelimitedList(cls.ddl_expression))
         ddl_function_call << ddl_name + ddl_left + pp.Optional(ddl_arguments) + ddl_right
 
-        # Type parser
-        type_parsers = []
+        # Type parser:
+        # Use `set_name` to make error messages more readable
+        # Use the reverse order to favor longer matches, e.g. SERIAL8 over SERIAL
+        # Use a fallback to match custom types (that might be annotated with cpp_type).
         sql_type_to_cpp = cls.base_sql_type_to_cpp | custom_types
-        for sql_type in sorted(sql_type_to_cpp, reverse=True):
-            cpp_type = sql_type_to_cpp[sql_type]
-            type_parser = pp.CaselessKeyword(sql_type).set_parse_action(pp.replace_with(cpp_type))
-            type_parsers.append(type_parser)
+        type_parsers = [
+            pp.CaselessKeyword(sql_type).set_name("SQL type name") # Use set_name to make error messages more readable
+            for sql_type in sorted(sql_type_to_cpp, reverse=True) # reverse order to favor longer matches, e.g. SERIAL8 over SERIAL
+        ]
+        fallback_parser = pp.Word(pp.alphanums).set_name("SQL type name")
 
-        fallback_parser = pp.Word(pp.alphanums).set_parse_action(pp.replace_with("UNKNOWN"))
         cls.ddl_type = pp.MatchFirst(type_parsers + [fallback_parser])
+
+        def translate_type(tokens):
+            sql_type = tokens[0]
+            tokens["cpp_type"] = sql_type_to_cpp.get(sql_type.upper(), "UNKNOWN")
+            return tokens
 
         # Constraints parser
         ddl_unsigned = pp.CaselessKeyword("UNSIGNED").set_results_name("is_unsigned")
@@ -224,7 +231,7 @@ class DdlParser:
             pp.ZeroOrMore(ddl_regular_comment).set_results_name("comments")
             + ddl_name.set_results_name("name")
             - (
-                cls.ddl_type.set_results_name("cpp_type")
+                cls.ddl_type.copy().set_parse_action(translate_type)
                 - pp.Optional(pp.Literal("[") + pp.Word(pp.nums + "[]")).set_results_name("is_array")
                 - pp.Suppress(pp.Optional(ddl_width))
                 - pp.Suppress(pp.Optional(ddl_timezone))
