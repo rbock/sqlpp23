@@ -114,13 +114,9 @@ class DdlParser:
     # timestamp types
     "DATETIME": "::sqlpp::timestamp",
     "TIMESTAMP": "::sqlpp::timestamp",
-    "TIMESTAMP WITHOUT TIME ZONE": "::sqlpp::timestamp",  # PostgreSQL
-    "TIMESTAMP WITH TIME ZONE": "::sqlpp::timestamp",  # PostgreSQL
     "TIMESTAMPTZ": "::sqlpp::timestamp",  # PostgreSQL
     # time types
     "TIME": "::sqlpp::time",
-    "TIME WITHOUT TIME ZONE": "::sqlpp::time",  # PostgreSQL
-    "TIME WITH TIME ZONE": "::sqlpp::time",  # PostgreSQL
     }
 
     # Parsers that are initialized later
