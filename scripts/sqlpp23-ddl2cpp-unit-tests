@@ -154,6 +154,34 @@ class SelfTest(unittest.TestCase):
                     "is_array": True,
                 }
             },
+            {
+                "text": "ts TIME WITH TIME ZONE",
+                "expected": {
+                    "name": "ts",
+                    "cpp_type": "::sqlpp::time",
+                    "is_unsigned": False,
+                    "not_null": False,
+                    "has_auto_value": False,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "is_primary_key": False,
+                    "is_array": False,
+                }
+            },
+            {
+                "text": "ts TIME WITHOUT TIME ZONE NOT NULL",
+                "expected": {
+                    "name": "ts",
+                    "cpp_type": "::sqlpp::time",
+                    "is_unsigned": False,
+                    "not_null": True,
+                    "has_auto_value": False,
+                    "has_default_value": False,
+                    "has_generated_value": False,
+                    "is_primary_key": False,
+                    "is_array": False,
+                }
+            },
         ]
         for td in test_data:
             with self.subTest(text=td["text"]):
