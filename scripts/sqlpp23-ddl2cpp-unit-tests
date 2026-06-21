@@ -52,21 +52,22 @@ class SelfTest(unittest.TestCase):
     def test_base_types(self):
         for t in ddl2cpp.DdlParser.base_sql_type_to_cpp:
             with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], ddl2cpp.DdlParser.base_sql_type_to_cpp[t])
+                result = ddl2cpp.DdlParser.ddl_column.parse_string(f"x {t}", parse_all=True)
+                self.assertEqual(result[0].cpp_type, ddl2cpp.DdlParser.base_sql_type_to_cpp[t])
 
     def test_type_unknown(self):
         for t in ["cheesecake", "blueberry"]:
             with self.subTest(t=t):
-                result = ddl2cpp.DdlParser.ddl_type.parse_string(t, parse_all=True)
-                self.assertEqual(result[0], "UNKNOWN")
+                result = ddl2cpp.DdlParser.ddl_column.parse_string(f"x {t}", parse_all=True)
+                self.assertEqual(result[0].cpp_type, "UNKNOWN")
 
     def test_custom_type(self):
-        DdlParser.initialize({"MY_TYPE_A": "my_custom_base", "MY_TYPE_B": "my::Type"})
-        result = ddl2cpp.DdlParser.ddl_type.parse_string("MY_TYPE_A", parse_all=True)
-        self.assertEqual(result[0], "my_custom_base")
-        result = ddl2cpp.DdlParser.ddl_type.parse_string("MY_TYPE_B", parse_all=True)
-        self.assertEqual(result[0], "my::Type")
+        custom_types = {"MY_TYPE_A": "my_custom_base", "MY_TYPE_B": "my::Type"}
+        DdlParser.initialize(custom_types)
+        for t in custom_types:
+            with self.subTest(t=t):
+                result = ddl2cpp.DdlParser.ddl_column.parse_string(f"x {t}", parse_all=True)
+                self.assertEqual(result[0].cpp_type, custom_types[t])
 
     def test_column(self):
         test_data = [
