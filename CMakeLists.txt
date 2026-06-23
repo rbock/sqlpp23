@@ -60,7 +60,14 @@ add_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp23.mock_db.c
 
 ### Connector components
 if(BUILD_SQLITE3_CONNECTOR)
-    add_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES SQLite::SQLite3 HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
+    # As documented here https://github.com/Kitware/CMake/blob/master/Modules/FindSQLite3.cmake
+    # starting with CMake 4.3.0, SQLite::SQLite3 is deprecated in favor of SQLite3::SQLite3
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.3.0")
+        set(SQLITE_DEPS "SQLite3::SQLite3")
+    else()
+        set(SQLITE_DEPS "SQLite::SQLite3")
+    endif()
+    add_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES ${SQLITE_DEPS} HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
 endif()
 if(BUILD_SQLCIPHER_CONNECTOR)
     add_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
