@@ -28,14 +28,15 @@
 //
 // For details on the actual pattern see /docs/recipes/enum.md
 
+#include <ranges>
+#include <utility>
+
 #include <sqlpp23/tests/postgresql/all.h>
 
 // The enum definitions must be included before the database model
 #include <enum_animal.h>
 #include <enum_shape.h>
 #include <db_model.h>
-
-#include <ranges>
 
 namespace sql = ::sqlpp::postgresql;
 
