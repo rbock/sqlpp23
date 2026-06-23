@@ -49,7 +49,6 @@ void test_enum_rw(sql::connection& db) {
       {animal::cat, shape::circle},
       {animal::dog, shape::square},
       {static_cast<animal>(10), shape::circle}};
-  std::ranges::sort(val_write);
   // Write the enums vector to the database
   delete_from(te);
   for (const auto v : val_write) {
