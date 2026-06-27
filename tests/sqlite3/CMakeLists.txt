@@ -23,37 +23,35 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 if(BUILD_WITH_MODULES)
-    add_library(sqlpp23.test.sqlite3.tables.module)
-    target_sources(sqlpp23.test.sqlite3.tables.module
-      PUBLIC
-        FILE_SET all_my_modules TYPE CXX_MODULES FILES
-        modules/sqlpp23.test.sqlite3.tables.cppm
-    )
-    target_link_libraries(sqlpp23.test.sqlite3.tables.module PUBLIC sqlpp23::core_module)
-endif()
-
-add_library(sqlpp23_sqlite3_testing INTERFACE)
-target_include_directories(sqlpp23_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
-if(BUILD_WITH_MODULES)
-    target_link_libraries(sqlpp23_sqlite3_testing INTERFACE
-      sqlpp23_testing
-      sqlpp23::sqlite3_module
-      sqlpp23.test.sqlite3.tables.module
-    )
+    set(LIB_TYPE)
+    set(LIB_PROP_SCOPE PUBLIC)
 else()
-    target_link_libraries(sqlpp23_sqlite3_testing INTERFACE
-      sqlpp23_testing
+    set(LIB_TYPE INTERFACE)
+    set(LIB_PROP_SCOPE INTERFACE)
+endif()
+add_library(sqlpp23_sqlite3_testing ${LIB_TYPE})
+target_include_directories(sqlpp23_sqlite3_testing ${LIB_PROP_SCOPE} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(sqlpp23_sqlite3_testing ${LIB_PROP_SCOPE} sqlpp23_testing)
+if(BUILD_WITH_MODULES)
+    target_sources(
+        sqlpp23_sqlite3_testing
+        PUBLIC
+            FILE_SET CXX_MODULES FILES modules/sqlpp23.test.sqlite3.tables.cppm
+    )
+    target_link_libraries(
+        sqlpp23_sqlite3_testing PUBLIC
+        sqlpp23::core_module
+        sqlpp23::sqlite3_module
     )
 endif()
 
 function(sqlpp_slite3_test_add_target_link_libraries name)
-target_link_libraries(${name} PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
-if (BUILD_SQLCIPHER_CONNECTOR)
-    target_link_libraries(${name} PRIVATE sqlpp23::sqlcipher)
-else()
-    target_link_libraries(${name} PRIVATE sqlpp23::sqlite3)
-endif()
+    target_link_libraries(${name} PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
+    if (BUILD_SQLCIPHER_CONNECTOR)
+        target_link_libraries(${name} PRIVATE sqlpp23::sqlcipher)
+    else()
+        target_link_libraries(${name} PRIVATE sqlpp23::sqlite3)
+    endif()
 endfunction()
 
 add_subdirectory(asserts)
