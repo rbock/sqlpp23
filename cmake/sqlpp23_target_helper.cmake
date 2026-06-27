@@ -130,11 +130,15 @@ function(add_common)
     # Initialize helper variables based on target type (regular or module)
     if(ARG_MODULE_INTERFACE)
         set(TARGET_SUFFIX "_module")
-        # FILE_SETs of type CXX_MODULES cannot have the INTERFACE scope (exept
-        # on IMPORTED targets) and INTERFACE libraries only allow INTERFACE
-        # scope on their properties. That's why we cannot use the INTERFACE
-        # library type. For details see the discussion at
-        # https://discourse.cmake.org/t/header-only-libraries-and-c-20-modules/10680/11
+        # CMake has the following two limitations:
+        # - FILE_SETs of type CXX_MODULES cannot have the INTERFACE scope (except on IMPORTED targets).
+        # - INTERFACE libraries only allow INTERFACE scope on their properties.
+        # From these two limitations it follows that INTERFACE libraries cannot have FILE_SETs of type
+        # CXX_MODULES. That's why, as a workaround, we use an OBJECT library.
+        #
+        # For details see the discussion at
+        # https://discourse.cmake.org/t/header-only-libraries-and-c-20-modules/10680
+        # where the CMake devs explain that this limitation exists to prevent possible ODR violations.
         set(LIB_TYPE OBJECT)
         set(LIB_PROP_SCOPE PUBLIC)
     else()
