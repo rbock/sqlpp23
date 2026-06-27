@@ -22,29 +22,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-if(BUILD_WITH_MODULES)
-    set(LIB_TYPE)
-    set(LIB_PROP_SCOPE PUBLIC)
-else()
-    set(LIB_TYPE INTERFACE)
-    set(LIB_PROP_SCOPE INTERFACE)
-endif()
-add_library(sqlpp23_postgresql_testing ${LIB_TYPE})
-target_include_directories(sqlpp23_postgresql_testing ${LIB_PROP_SCOPE} ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(sqlpp23_postgresql_testing ${LIB_PROP_SCOPE} sqlpp23_testing)
-if(BUILD_WITH_MODULES)
-    target_sources(
-        sqlpp23_postgresql_testing
-        PUBLIC
-            FILE_SET CXX_MODULES FILES modules/sqlpp23.test.postgresql.tables.cppm
-    )
-    target_link_libraries(
-        sqlpp23_postgresql_testing
-        PUBLIC
-            sqlpp23::core_module
-            sqlpp23::postgresql_module
-    )
-endif()
+include(sqlpp23_testing_helper)
+
+add_testing_target(NAME postgresql MOD_DEPS sqlpp23::postgresql_module)
 
 add_subdirectory(asserts)
 add_subdirectory(constraints)
