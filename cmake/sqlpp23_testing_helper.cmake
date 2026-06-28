@@ -28,7 +28,6 @@ function(add_testing_target)
     set(multiValueArgs DEFINES MOD_DEPS)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    set(BASE_DIR "${PROJECT_SOURCE_DIR}/tests/${ARG_NAME}")
     if(BUILD_WITH_MODULES)
         # We are building with modules, so the _testing target created by this function MUST be a regular
         # (non-INTERFACE) library. Otherwise, the object files owned by the OBJECT library dependencies
@@ -52,14 +51,10 @@ function(add_testing_target)
     if(ARG_DEFINES)
         target_compile_definitions(${TARGET_NAME} ${LIB_PROP_SCOPE} ${ARG_DEFINES})
     endif()
-    target_include_directories(${TARGET_NAME} ${LIB_PROP_SCOPE} "${BASE_DIR}")
     target_link_libraries(${TARGET_NAME} ${LIB_PROP_SCOPE} sqlpp23_testing)
     if(BUILD_WITH_MODULES)
-        target_sources(
-            ${TARGET_NAME}
-            PUBLIC
-                FILE_SET CXX_MODULES FILES "${BASE_DIR}/modules/sqlpp23.test.${ARG_NAME}.tables.cppm"
-        )
+        set(MOD_FILE "${PROJECT_SOURCE_DIR}/tests/${ARG_NAME}/modules/sqlpp23.test.${ARG_NAME}.tables.cppm")
+        target_sources(${TARGET_NAME} PUBLIC FILE_SET CXX_MODULES FILES "${MOD_FILE}")
         target_link_libraries(${TARGET_NAME} PUBLIC sqlpp23::core_module ${ARG_MOD_DEPS})
     endif()
 endfunction()
