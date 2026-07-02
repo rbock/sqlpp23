@@ -753,6 +753,18 @@ class SelfTest(unittest.TestCase):
             """)
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(strip_sql_schema="public"), {})
 
+        # Comments are ignored
+        with self.subTest("comments are ignored"):
+            parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+                # CREATE TABLE public.t (a bigint NOT NULL)
+                CREATE TABLE public.t (b bigint NOT NULL)
+                -- CREATE TABLE public.t (c bigint NOT NULL)
+            """)
+            tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(strip_sql_schema="public"), {})
+            self.assertFalse("a" in tables["t"].columns)
+            self.assertTrue("b" in tables["t"].columns)
+            self.assertFalse("c" in tables["t"].columns)
+
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
