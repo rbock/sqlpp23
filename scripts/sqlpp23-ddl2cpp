@@ -263,14 +263,14 @@ class DdlParser:
         # ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ... parser
         ddl_set_default = (
             pp.CaselessKeyword("ALTER")
-            - pp.CaselessKeyword("TABLE")
-            - pp.Optional(pp.CaselessKeyword("ONLY"))
-            - ddl_name.set_results_name("table_name")
-            - pp.CaselessKeyword("ALTER")
-            - pp.CaselessKeyword("COLUMN")
-            - ddl_name.set_results_name("column_name")
-            - pp.CaselessKeyword("SET")
-            - pp.CaselessKeyword("DEFAULT")
+            + pp.CaselessKeyword("TABLE")
+            + pp.Optional(pp.CaselessKeyword("ONLY"))
+            + ddl_name.set_results_name("table_name")
+            + pp.CaselessKeyword("ALTER")
+            + pp.CaselessKeyword("COLUMN")
+            + ddl_name.set_results_name("column_name")
+            + pp.CaselessKeyword("SET")
+            + pp.CaselessKeyword("DEFAULT")
             - cls.ddl_expression
         )
 
