@@ -258,7 +258,7 @@ class DdlParser:
             - ddl_left
             - pp.Group(pp.DelimitedList(pp.Suppress(cls.ddl_constraint) | cls.ddl_column)).set_results_name("columns")
             - ddl_right
-        )
+        ).set_name("CREATE [OR REPLACE] TABLE ...")
 
         # ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ... parser
         ddl_set_default = (
@@ -272,7 +272,7 @@ class DdlParser:
             + pp.CaselessKeyword("SET")
             + pp.CaselessKeyword("DEFAULT")
             - cls.ddl_expression
-        )
+        ).set_name("ALTER TABLE ...ALTER COLUMN ... SET DEFAULT ...")
 
         # COMMENT ON COLUMN parser (PostgreSQL)
         # Captures: schema.table.column or table.column, and the quoted comment string
@@ -283,7 +283,7 @@ class DdlParser:
             - ddl_name.set_results_name("qualified_column")
             - pp.CaselessKeyword("IS")
             - ddl_string.set_results_name("column_comment")
-        )
+        ).set_name("COMMENT ON COLUMN ...")
 
         # DDL command parser
         ddl_command_basic = (
