@@ -256,7 +256,7 @@ void test_join() {
     using ExpectedParameters = sqlpp::detail::type_vector<
         sqlpp::parameter_t<sqlpp::integral, test::TabFoo_::Id::_sqlpp_name_tag>,
         sqlpp::parameter_t<sqlpp::integral,
-                           sqlpp::alias::a_t::_sqlpp_name_tag>>;
+                           decltype(sqlpp::alias::a)::_sqlpp_name_tag>>;
     static_assert(
         std::is_same<sqlpp::parameters_of_t<J>, ExpectedParameters>::value, "");
   }

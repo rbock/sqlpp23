@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,20 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/schema_qualified_table.h>
-#include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/core/clause/insert.h>
-#include <sqlpp23/core/clause/on_conflict.h>
-#include <sqlpp23/core/clause/returning.h>
-#include <sqlpp23/core/clause/select.h>
-#include <sqlpp23/core/clause/truncate.h>
-#include <sqlpp23/core/clause/update.h>
-#include <sqlpp23/core/clause/using.h>
-#include <sqlpp23/core/clause/verbatim_clause.h>
-#include <sqlpp23/core/clause/with.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/core/function.h>
-#include <sqlpp23/core/name/common_aliases.h>
 #include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/operator.h>
+
+namespace sqlpp::alias {
+SQLPP_CREATE_NAME_TAG(a);
+SQLPP_CREATE_NAME_TAG(b);
+SQLPP_CREATE_NAME_TAG(c);
+SQLPP_CREATE_NAME_TAG(d);
+SQLPP_CREATE_NAME_TAG(e);
+SQLPP_CREATE_NAME_TAG(f);
+SQLPP_CREATE_NAME_TAG(g);
+SQLPP_CREATE_NAME_TAG(h);
+SQLPP_CREATE_NAME_TAG(i);
+SQLPP_CREATE_NAME_TAG(j);
+SQLPP_CREATE_NAME_TAG(k);
+SQLPP_CREATE_NAME_TAG(l);
+SQLPP_CREATE_NAME_TAG(m);
+SQLPP_CREATE_NAME_TAG(n);
+SQLPP_CREATE_NAME_TAG(o);
+SQLPP_CREATE_NAME_TAG(p);
+SQLPP_CREATE_NAME_TAG(q);
+SQLPP_CREATE_NAME_TAG(r);
+SQLPP_CREATE_NAME_TAG(s);
+SQLPP_CREATE_NAME_TAG(t);
+SQLPP_CREATE_NAME_TAG(u);
+SQLPP_CREATE_NAME_TAG(v);
+SQLPP_CREATE_NAME_TAG(w);
+SQLPP_CREATE_NAME_TAG(x);
+SQLPP_CREATE_NAME_TAG(y);
+SQLPP_CREATE_NAME_TAG(z);
+SQLPP_CREATE_NAME_TAG(left);
+SQLPP_CREATE_NAME_TAG(right);
+}  // namespace sqlpp::alias
