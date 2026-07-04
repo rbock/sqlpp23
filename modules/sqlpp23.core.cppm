@@ -400,6 +400,35 @@ using ::sqlpp::alias::exists_;
 using ::sqlpp::alias::max_;
 using ::sqlpp::alias::min_;
 using ::sqlpp::alias::sum_;
+
+using ::sqlpp::alias::a;
+using ::sqlpp::alias::b;
+using ::sqlpp::alias::c;
+using ::sqlpp::alias::d;
+using ::sqlpp::alias::e;
+using ::sqlpp::alias::f;
+using ::sqlpp::alias::g;
+using ::sqlpp::alias::h;
+using ::sqlpp::alias::i;
+using ::sqlpp::alias::j;
+using ::sqlpp::alias::k;
+using ::sqlpp::alias::l;
+using ::sqlpp::alias::m;
+using ::sqlpp::alias::n;
+using ::sqlpp::alias::o;
+using ::sqlpp::alias::p;
+using ::sqlpp::alias::q;
+using ::sqlpp::alias::r;
+using ::sqlpp::alias::s;
+using ::sqlpp::alias::t;
+using ::sqlpp::alias::u;
+using ::sqlpp::alias::v;
+using ::sqlpp::alias::w;
+using ::sqlpp::alias::x;
+using ::sqlpp::alias::y;
+using ::sqlpp::alias::z;
+using ::sqlpp::alias::left;
+using ::sqlpp::alias::right;
 }
 
 export namespace sqlpp::chrono {
