@@ -50,7 +50,7 @@ function(add_build_core)
     )
 endfunction()
 
-function(add_component)
+function(add_build_component)
     set(options NO_INSTALL)
     set(oneValueArgs HEADER_DIR MODULE_INTERFACE NAME PACKAGE)
     set(multiValueArgs DEFINES DEPENDENCIES)
