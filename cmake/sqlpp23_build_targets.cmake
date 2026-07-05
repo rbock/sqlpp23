@@ -35,7 +35,7 @@ macro(set_if OPTION CONDITION)
     endif()
 endmacro()
 
-function(add_core)
+function(add_build_core)
     # The core library needs the core headers plus all the headers in the top include directory
     file(GLOB_RECURSE HDR_COMPONENT LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
     file(GLOB HDR_COMMON LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)

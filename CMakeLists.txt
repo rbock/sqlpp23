@@ -53,7 +53,7 @@ if(NOT BUILD_WITH_MODULES)
 endif()
 
 ### Main (core) library
-add_core()
+add_build_core()
 
 ### Mock Database
 add_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp23.mock_db.cppm NO_INSTALL)
