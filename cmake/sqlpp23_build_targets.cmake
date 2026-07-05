@@ -25,22 +25,12 @@
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-# Helper macro that is used to forward option arguments in function calls
-# Taken from https://stackoverflow.com/a/75994425/5689371
-macro(set_if OPTION CONDITION)
-    if(${CONDITION})
-        set(${OPTION} "${OPTION}")
-    else()
-        set(${OPTION})
-    endif()
-endmacro()
-
 function(add_build_core)
     # The core library needs the core headers plus all the headers in the top include directory
     file(GLOB_RECURSE HDR_COMPONENT LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
     file(GLOB HDR_COMMON LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
     set(HEADERS ${HDR_COMPONENT} ${HDR_COMMON})
-    add_regular_and_module(
+    _add_build_regular_and_module(
         CONFIG_SCRIPT Sqlpp23Config.cmake
         HEADERS ${HEADERS}
         MODULE_INTERFACE sqlpp23.core.cppm
@@ -58,8 +48,8 @@ function(add_build_component)
 
     file(GLOB_RECURSE HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
     string(TOLOWER ${ARG_NAME} LC_NAME)
-    set_if(NO_INSTALL ARG_NO_INSTALL)
-    add_regular_and_module(
+    _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
+    _add_build_regular_and_module(
         CONFIG_SCRIPT Sqlpp23${ARG_NAME}Config.cmake
         DEFINES ${ARG_DEFINES}
         DEPENDENCIES sqlpp23::core ${ARG_DEPENDENCIES}
@@ -73,7 +63,7 @@ function(add_build_component)
     )
 endfunction()
 
-function(add_regular_and_module)
+function(_add_build_regular_and_module)
     set(options NO_INSTALL)
     set(oneValueArgs CONFIG_SCRIPT MODULE_INTERFACE PACKAGE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED)
     set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
@@ -97,8 +87,8 @@ function(add_regular_and_module)
             DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
         )
     endif()
-    set_if(NO_INSTALL ARG_NO_INSTALL)
-    add_common(
+    _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
+    _add_build_common(
         DEFINES ${ARG_DEFINES}
         DEPENDENCIES ${ARG_DEPENDENCIES}
         HEADERS ${ARG_HEADERS}
@@ -108,7 +98,7 @@ function(add_regular_and_module)
         ${NO_INSTALL}
     )
     if(BUILD_WITH_MODULES AND ARG_MODULE_INTERFACE)
-        add_common(
+        _add_build_common(
             DEFINES ${ARG_DEFINES}
             DEPENDENCIES ${ARG_DEPENDENCIES}
             HEADERS ${ARG_HEADERS}
@@ -121,7 +111,7 @@ function(add_regular_and_module)
     endif()
 endfunction()
 
-function(add_common)
+function(_add_build_common)
     set(options NO_INSTALL)
     set(oneValueArgs MODULE_INTERFACE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED)
     set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
@@ -195,3 +185,13 @@ function(add_common)
         )
     endif()
 endfunction()
+
+# Helper macro that is used to forward option arguments in function calls
+# Taken from https://stackoverflow.com/a/75994425/5689371
+macro(_add_build_set_if OPTION CONDITION)
+    if(${CONDITION})
+        set(${OPTION} "${OPTION}")
+    else()
+        set(${OPTION})
+    endif()
+endmacro()
