@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS tab_foo;
 
 CREATE TABLE tab_foo
 (
-	id bigint AUTO_INCREMENT PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
 	text_nn_d varchar(255) NOT NULL DEFAULT "",
 	int_n bigint,
         int_c_n bigint GENERATED ALWAYS AS (int_n * 2) STORED,
