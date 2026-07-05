@@ -14,7 +14,7 @@ namespace test {
   struct TabFoo_ {
     struct Id {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-      using data_type = ::sqlpp::serial;
+      using data_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct TextNnD {

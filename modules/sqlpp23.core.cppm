@@ -67,7 +67,6 @@ using ::sqlpp::wrapped_static_assert; // TODO: Move
 // data types
 using ::sqlpp::boolean;
 using ::sqlpp::integral;
-using ::sqlpp::serial;
 using ::sqlpp::unsigned_integral;
 using ::sqlpp::floating_point;
 using ::sqlpp::text;

@@ -403,8 +403,9 @@ class SelfTest(unittest.TestCase):
             parsed = ddl2cpp.DdlParser.ddl.parse_string(
                 "CREATE TABLE t (x BIGSERIAL)", parse_all=True)
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
-            self.assertEqual(tables["t"].columns["x"].cpp_type, "::sqlpp::serial")
+            self.assertEqual(tables["t"].columns["x"].cpp_type, "::sqlpp::integral")
             self.assertFalse(tables["t"].columns["x"].is_nullable)
+            self.assertTrue(tables["t"].columns["x"].has_default)
 
         # Unsigned int
         with self.subTest("unsigned integral"):
@@ -554,10 +555,9 @@ class SelfTest(unittest.TestCase):
                     )
                     """, parse_all=True)
             tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {"S3": "::sqlpp::serial"})
-            self.assertEqual(tables["t"].columns["s1"].cpp_type, "sqlpp::serial")
-            self.assertEqual(tables["t"].columns["s2"].cpp_type, "sqlpp::serial")
-            self.assertEqual(tables["t"].columns["s3"].cpp_type, "::sqlpp::serial")
-            self.assertEqual(tables["t"].columns["s4"].cpp_type, "::sqlpp::integral")
+            for col in ["s1", "s2", "s3", "s4"]:
+                self.assertEqual(tables["t"].columns[col].cpp_type, "::sqlpp::integral")
+                self.assertFalse(tables["t"].columns[col].is_nullable)
 
             self.assertTrue(tables["t"].columns["s1"].has_default)
             self.assertTrue(tables["t"].columns["s2"].has_default)

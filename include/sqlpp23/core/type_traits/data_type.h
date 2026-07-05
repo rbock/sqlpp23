@@ -77,7 +77,6 @@ struct data_type_of<bool> {
 };
 
 struct integral {};
-using serial = integral;
 template <>
 struct is_data_type<integral> : std::true_type {};
 
