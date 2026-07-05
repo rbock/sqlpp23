@@ -56,7 +56,7 @@ endif()
 add_build_core()
 
 ### Mock Database
-add_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp23.mock_db.cppm NO_INSTALL)
+add_build_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp23.mock_db.cppm NO_INSTALL)
 
 ### Connector components
 if(BUILD_SQLITE3_CONNECTOR)
@@ -67,19 +67,19 @@ if(BUILD_SQLITE3_CONNECTOR)
     else()
         set(SQLITE_DEPS "SQLite::SQLite3")
     endif()
-    add_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES ${SQLITE_DEPS} HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
+    add_build_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES ${SQLITE_DEPS} HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
 endif()
 if(BUILD_SQLCIPHER_CONNECTOR)
-    add_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
+    add_build_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
 endif()
 if(BUILD_MYSQL_CONNECTOR)
-    add_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
+    add_build_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
 endif()
 if(BUILD_MARIADB_CONNECTOR)
-    add_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
+    add_build_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
 endif()
 if(BUILD_POSTGRESQL_CONNECTOR)
-    add_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql MODULE_INTERFACE sqlpp23.postgresql.cppm)
+    add_build_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql MODULE_INTERFACE sqlpp23.postgresql.cppm)
 endif()
 
 # Utility programs
