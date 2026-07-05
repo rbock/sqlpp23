@@ -33,7 +33,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 include(GNUInstallDirs)
 include(CTest)
-include(sqlpp23_target_helper)
+include(sqlpp23_build_targets)
 
 option(BUILD_MYSQL_CONNECTOR "Build MySQL Connector" OFF)
 option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
