@@ -22,24 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test_for_setup name)
-    set(target sqlpp23_sqlite3_asserts_setup_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlite3 sqlpp23_testing sqlpp23_sqlite3_testing)
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
 function(test_assert name pattern)
-    create_test_for_setup(${name})
-    set(test sqlpp23_sqlite3_asserts_${name})
-    set(target sqlpp23_sqlite3_asserts_${name})
-    add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::sqlite3 sqlpp23_testing sqlpp23_sqlite3_testing)
-    target_compile_definitions(${target} PRIVATE SQLPP_CHECK_STATIC_ASSERT)
-    add_test(NAME ${test}
-        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
-    )
-    set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
+    create_test_assert(sqlite3 ${name} "${pattern}")
 endfunction()
 
 # Compiling these is required to fail (testing some static_assert)

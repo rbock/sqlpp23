@@ -72,3 +72,27 @@ function(add_testing_target)
         target_link_libraries(${TARGET_NAME} PUBLIC sqlpp23::core_module ${ARG_MOD_DEPS})
     endif()
 endfunction()
+
+function(create_test_assert component name pattern)
+    _create_test_assert_setup(${component} ${name})
+    _create_test_assert_main(${component} ${name} "${pattern}")
+endfunction()
+
+function(_create_test_assert_setup component name)
+    set(target sqlpp23_${component}_asserts_setup_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp23::${component} sqlpp23_testing sqlpp23_${component}_testing)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+function(_create_test_assert_main component name pattern)
+    set(test sqlpp23_${component}_asserts_${name})
+    set(target sqlpp23_${component}_asserts_${name})
+    add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp23::${component} sqlpp23_testing sqlpp23_${component}_testing)
+    target_compile_definitions(${target} PRIVATE SQLPP_CHECK_STATIC_ASSERT)
+    add_test(NAME ${test}
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
+    )
+    set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION "${pattern}")
+endfunction()
