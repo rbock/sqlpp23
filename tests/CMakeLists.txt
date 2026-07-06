@@ -22,6 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+include(sqlpp23_testing_helper)
+
 add_library(sqlpp23_testing INTERFACE)
 target_include_directories(sqlpp23_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

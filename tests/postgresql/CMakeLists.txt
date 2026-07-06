@@ -22,8 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include(sqlpp23_testing_helper)
-
 add_testing_target(NAME postgresql MOD_DEPS sqlpp23::postgresql_module)
 
 add_subdirectory(asserts)
