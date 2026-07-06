@@ -24,19 +24,7 @@
 
 include(sqlpp23_testing_helper)
 
-add_library(sqlpp23_testing INTERFACE)
-target_include_directories(sqlpp23_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-if(BUILD_WITH_MODULES)
-  target_link_libraries(sqlpp23_testing INTERFACE sqlpp23::core_module)
-  target_compile_definitions(sqlpp23_testing INTERFACE BUILD_WITH_MODULES)
-else()
-  target_link_libraries(sqlpp23_testing INTERFACE sqlpp23::core)
-endif()
-
-if (NOT MSVC)
-  target_compile_options(sqlpp23_testing INTERFACE -Wall -Wextra -pedantic -Wshadow -Wconversion)
-endif ()
+add_testing_base()
 
 add_subdirectory(core)
 
