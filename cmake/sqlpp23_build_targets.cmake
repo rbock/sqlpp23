@@ -27,12 +27,12 @@ include(CMakePackageConfigHelpers)
 
 function(add_build_core)
     # The core library needs the core headers plus all the headers in the top include directory
-    file(GLOB_RECURSE HDR_COMPONENT LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
-    file(GLOB HDR_COMMON LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
-    set(HEADERS ${HDR_COMPONENT} ${HDR_COMMON})
+    file(GLOB_RECURSE hdr_component LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
+    file(GLOB hdr_common LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
+    set(headers ${hdr_component} ${hdr_common})
     _add_build_regular_and_module(
         CONFIG_SCRIPT Sqlpp23Config.cmake
-        HEADERS ${HEADERS}
+        HEADERS ${headers}
         MODULE_INTERFACE sqlpp23.core.cppm
         TARGET_NAME sqlpp23
         TARGET_ALIAS sqlpp23::core
@@ -46,19 +46,19 @@ function(add_build_component)
     set(multiValueArgs DEFINES DEPENDENCIES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    file(GLOB_RECURSE HEADERS LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
-    string(TOLOWER ${ARG_NAME} LC_NAME)
+    file(GLOB_RECURSE headers LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
+    string(TOLOWER ${ARG_NAME} lc_name)
     _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
     _add_build_regular_and_module(
         CONFIG_SCRIPT Sqlpp23${ARG_NAME}Config.cmake
         DEFINES ${ARG_DEFINES}
         DEPENDENCIES sqlpp23::core ${ARG_DEPENDENCIES}
-        HEADERS ${HEADERS}
+        HEADERS ${headers}
         MODULE_INTERFACE ${ARG_MODULE_INTERFACE}
         PACKAGE ${ARG_PACKAGE}
-        TARGET_NAME sqlpp23_${LC_NAME}
-        TARGET_ALIAS sqlpp23::${LC_NAME}
-        TARGET_EXPORTED ${LC_NAME}
+        TARGET_NAME sqlpp23_${lc_name}
+        TARGET_ALIAS sqlpp23::${lc_name}
+        TARGET_EXPORTED ${lc_name}
         ${NO_INSTALL}
     )
 endfunction()
@@ -75,9 +75,9 @@ function(_add_build_regular_and_module)
         endif()
         if(NOT ARG_NO_INSTALL)
             # If the package needs a special find script, copy it to the destination scripts directory
-            set(FIND_SCRIPT ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_PACKAGE}.cmake)
-            if(EXISTS ${FIND_SCRIPT})
-                install(FILES ${FIND_SCRIPT} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
+            set(find_script ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_PACKAGE}.cmake)
+            if(EXISTS ${find_script})
+                install(FILES ${find_script} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
             endif()
         endif()
     endif()
@@ -119,7 +119,7 @@ function(_add_build_common)
 
     # Initialize helper variables based on target type (regular or module)
     if(ARG_MODULE_INTERFACE)
-        set(TARGET_SUFFIX "_module")
+        set(target_suffix "_module")
         # CMake has the following two limitations:
         # - FILE_SETs of type CXX_MODULES cannot have the INTERFACE scope (except on IMPORTED targets).
         # - INTERFACE libraries only allow INTERFACE scope on their properties.
@@ -129,37 +129,37 @@ function(_add_build_common)
         # For details see the discussion at
         # https://discourse.cmake.org/t/header-only-libraries-and-c-20-modules/10680
         # where the CMake devs explain that this limitation exists to prevent possible ODR violations.
-        set(LIB_TYPE OBJECT)
-        set(LIB_PROP_SCOPE PUBLIC)
+        set(lib_type OBJECT)
+        set(lib_prop_scope PUBLIC)
     else()
-        set(TARGET_SUFFIX "")
-        set(LIB_TYPE INTERFACE)
-        set(LIB_PROP_SCOPE INTERFACE)
+        set(target_suffix "")
+        set(lib_type INTERFACE)
+        set(lib_prop_scope INTERFACE)
     endif()
-    set(TARGET_NAME ${ARG_TARGET_NAME}${TARGET_SUFFIX})
-    set(TARGET_ALIAS ${ARG_TARGET_ALIAS}${TARGET_SUFFIX})
-    set(TARGET_EXPORTED ${ARG_TARGET_EXPORTED}${TARGET_SUFFIX})
+    set(target_name ${ARG_TARGET_NAME}${target_suffix})
+    set(target_alias ${ARG_TARGET_ALIAS}${target_suffix})
+    set(target_exported ${ARG_TARGET_EXPORTED}${target_suffix})
 
     # Create the component targets
-    add_library(${TARGET_NAME} ${LIB_TYPE})
-    add_library(${TARGET_ALIAS} ALIAS ${TARGET_NAME})
-    set_target_properties(${TARGET_NAME} PROPERTIES EXPORT_NAME ${TARGET_EXPORTED})
-    target_compile_features(${TARGET_NAME} ${LIB_PROP_SCOPE} cxx_std_23)
+    add_library(${target_name} ${lib_type})
+    add_library(${target_alias} ALIAS ${target_name})
+    set_target_properties(${target_name} PROPERTIES EXPORT_NAME ${target_exported})
+    target_compile_features(${target_name} ${lib_prop_scope} cxx_std_23)
     if(ARG_DEFINES)
-        target_compile_definitions(${TARGET_NAME} ${LIB_PROP_SCOPE} ${ARG_DEFINES})
+        target_compile_definitions(${target_name} ${lib_prop_scope} ${ARG_DEFINES})
     endif()
-    foreach(DEP ${ARG_DEPENDENCIES})
-        if(DEP MATCHES "^sqlpp23::")
-            set(DEP ${DEP}${TARGET_SUFFIX})
+    foreach(dep ${ARG_DEPENDENCIES})
+        if(dep MATCHES "^sqlpp23::")
+            set(dep ${dep}${target_suffix})
         endif()
-        target_link_libraries(${TARGET_NAME} ${LIB_PROP_SCOPE} ${DEP})
+        target_link_libraries(${target_name} ${lib_prop_scope} ${dep})
     endforeach()
 
     # Add the component headers to the HEADERS file set. This also adds the base directory to the
     # target's build interface include directories.
     target_sources(
-        ${TARGET_NAME}
-        ${LIB_PROP_SCOPE}
+        ${target_name}
+        ${lib_prop_scope}
         FILE_SET HEADERS
             BASE_DIRS ${PROJECT_SOURCE_DIR}/include
             FILES ${ARG_HEADERS}
@@ -167,7 +167,7 @@ function(_add_build_common)
     if(ARG_MODULE_INTERFACE)
         # Add the component module interface file to the CXX_MODULES file set
         target_sources(
-            ${TARGET_NAME}
+            ${target_name}
             PUBLIC
             FILE_SET CXX_MODULES
                 BASE_DIRS ${PROJECT_SOURCE_DIR}/modules
@@ -177,7 +177,7 @@ function(_add_build_common)
     if(NOT ARG_NO_INSTALL)
         # Install the component output artifacts
         install(
-            TARGETS ${TARGET_NAME}
+            TARGETS ${target_name}
             EXPORT Sqlpp23Targets
             FILE_SET HEADERS
             FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_PREFIX}/modules/sqlpp23
@@ -188,10 +188,10 @@ endfunction()
 
 # Helper macro that is used to forward option arguments in function calls
 # Taken from https://stackoverflow.com/a/75994425/5689371
-macro(_add_build_set_if OPTION CONDITION)
-    if(${CONDITION})
-        set(${OPTION} "${OPTION}")
+macro(_add_build_set_if option condition)
+    if(${condition})
+        set(${option} "${option}")
     else()
-        set(${OPTION})
+        set(${option})
     endif()
 endmacro()
