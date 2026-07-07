@@ -22,17 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test name)
-    set(target sqlpp23_core_serialize_data_type_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
-create_test(blob)
-create_test(date)
-create_test(float)
-create_test(text)
-create_test(time)
-create_test(timestamp)
-
+create_tests_group(
+    blob
+    date
+    float
+    text
+    time
+    timestamp
+)

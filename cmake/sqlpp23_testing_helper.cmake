@@ -96,3 +96,37 @@ function(_create_test_assert_main component name pattern)
     )
     set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION "${pattern}")
 endfunction()
+
+function(create_tests_group)
+    _create_tests_get_component_and_group(component group)
+    foreach(name ${ARGV})
+        _create_tests_item(${component} ${group} ${name})
+    endforeach()
+endfunction()
+
+function(_create_tests_item component group name)
+    set(target sqlpp23_${component}_${group}_${name})
+    add_executable(${target} ${name}.cpp)
+    if((${component} STREQUAL sqlite3) AND BUILD_SQLCIPHER_CONNECTOR)
+        set(dep sqlcipher)
+    else()
+        set(dep ${component})
+    endif()
+    target_link_libraries(${target} PRIVATE sqlpp23::${dep} sqlpp23_${component}_testing)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+function(_create_tests_get_component_and_group component_var group_var)
+    cmake_path(APPEND PROJECT_SOURCE_DIR "tests" OUTPUT_VARIABLE tests_dir)
+    cmake_path(
+        RELATIVE_PATH
+        CMAKE_CURRENT_SOURCE_DIR
+        BASE_DIRECTORY "${tests_dir}"
+        OUTPUT_VARIABLE relative_path
+    )
+    string(REPLACE "/" ";" relative_dirs "${relative_path}")
+    list(POP_FRONT relative_dirs component)
+    list(JOIN relative_dirs "_" group)
+    set("${component_var}" "${component}" PARENT_SCOPE)
+    set("${group_var}" "${group}" PARENT_SCOPE)
+endfunction()

@@ -22,38 +22,32 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test name)
-    set(target sqlpp23_core_serialize_clause_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
-create_test(cte)
-create_test(delete_from)
-create_test(group_by)
-create_test(for_update)
-create_test(from)
-create_test(having)
-create_test(insert)
-create_test(insert_columns)
-create_test(insert_default_values)
-create_test(insert_set)
-create_test(limit)
-create_test(offset)
-create_test(on_conflict)
-create_test(order_by)
-create_test(returning)
-create_test(select)
-create_test(select_as)
-create_test(select_columns)
-create_test(single_table)
-create_test(truncate)
-create_test(union)
-create_test(union_order_by)
-create_test(update)
-create_test(update_set)
-create_test(where)
-create_test(using)
-create_test(with)
-
+create_tests_group(
+    cte
+    delete_from
+    group_by
+    for_update
+    from
+    having
+    insert
+    insert_columns
+    insert_default_values
+    insert_set
+    limit
+    offset
+    on_conflict
+    order_by
+    returning
+    select
+    select_as
+    select_columns
+    single_table
+    truncate
+    union
+    union_order_by
+    update
+    update_set
+    where
+    using
+    with
+)

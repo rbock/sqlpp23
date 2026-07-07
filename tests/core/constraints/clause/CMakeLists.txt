@@ -22,32 +22,26 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test name)
-    set(target sqlpp23_core_constraints_clause_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
-create_test(cte)
-create_test(from)
-create_test(group_by)
-create_test(having)
-create_test(insert_value_list)
-create_test(into)
-create_test(limit)
-create_test(offset)
-create_test(on_conflict)
-create_test(order_by)
-create_test(returning)
-create_test(select_as)
-create_test(select_column_list)
-create_test(single_table)
-create_test(truncate)
-create_test(update_set_list)
-create_test(using)
-create_test(union)
-create_test(union_order_by)
-create_test(where)
-create_test(with)
-
+create_tests_group(
+    cte
+    from
+    group_by
+    having
+    insert_value_list
+    into
+    limit
+    offset
+    on_conflict
+    order_by
+    returning
+    select_as
+    select_column_list
+    single_table
+    truncate
+    update_set_list
+    using
+    union
+    union_order_by
+    where
+    with
+)
