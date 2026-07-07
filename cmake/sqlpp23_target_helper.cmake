@@ -101,7 +101,7 @@ function(add_regular_and_module)
     add_common(
         DEFINES ${ARG_DEFINES}
         DEPENDENCIES ${ARG_DEPENDENCIES}
-        HEADERS ${HEADERS}
+        HEADERS ${ARG_HEADERS}
         TARGET_NAME ${ARG_TARGET_NAME}
         TARGET_ALIAS ${ARG_TARGET_ALIAS}
         TARGET_EXPORTED ${ARG_TARGET_EXPORTED}
@@ -111,7 +111,7 @@ function(add_regular_and_module)
         add_common(
             DEFINES ${ARG_DEFINES}
             DEPENDENCIES ${ARG_DEPENDENCIES}
-            HEADERS ${HEADERS}
+            HEADERS ${ARG_HEADERS}
             MODULE_INTERFACE ${ARG_MODULE_INTERFACE}
             TARGET_NAME ${ARG_TARGET_NAME}
             TARGET_ALIAS ${ARG_TARGET_ALIAS}
