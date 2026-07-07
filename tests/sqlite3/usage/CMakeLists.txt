@@ -22,17 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+create_tests_group(
+    exceptions
+    exists
+    operator
+)
 
-function(create_test name)
-    set(target sqlpp23_sqlite3_usage_${name})
-    add_executable(${target} ${name}.cpp)
-    sqlpp_slite3_test_add_target_link_libraries(${target})
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
-create_test(exceptions)
-create_test(exists)
-create_test(operator)
 add_subdirectory(aggregate_function)
 add_subdirectory(statement)
 
@@ -72,5 +67,3 @@ foreach(test_file IN LISTS test_files)
         COMMAND sqlpp23_sqlite3_tests ${test}
     )
 endforeach()
-
-

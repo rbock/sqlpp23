@@ -22,17 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(create_test name)
-    set(target sqlpp23_sqlite3_serialize_data_types_${name})
-    add_executable(${target} ${name}.cpp)
-    sqlpp_slite3_test_add_target_link_libraries(${target})
-    add_test(NAME ${target} COMMAND ${target})
-endfunction()
-
-create_test(date)
-create_test(float)
-create_test(text)
-create_test(time)
-create_test(timestamp)
-create_test(uint64_t)
-
+create_tests_group(
+    date
+    float
+    text
+    time
+    timestamp
+    uint64_t
+)

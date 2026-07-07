@@ -29,4 +29,3 @@ function(test_compile name)
 endfunction()
 
 test_compile(flatten)
-
