@@ -51,25 +51,25 @@ function(add_testing_target)
         # For details on how OBJECT libraries are linked see
         # https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#object-libraries
         # https://cmake.org/cmake/help/latest/command/target_link_libraries.html#linking-object-libraries
-        set(LIB_TYPE)
-        set(LIB_PROP_SCOPE PUBLIC)
+        set(lib_type)
+        set(lib_prop_scope PUBLIC)
     else()
         # We are building without modules and the _testing target created by this function won't have any
         # compiled files, and CMake will not let us build a empty regular (non-INTERFACE) library. So in
         # this case we have to use an INTERFACE library.
-        set(LIB_TYPE INTERFACE)
-        set(LIB_PROP_SCOPE INTERFACE)
+        set(lib_type INTERFACE)
+        set(lib_prop_scope INTERFACE)
     endif()
-    set(TARGET_NAME "sqlpp23_${ARG_NAME}_testing")
-    add_library(${TARGET_NAME} ${LIB_TYPE})
+    set(target_name "sqlpp23_${ARG_NAME}_testing")
+    add_library(${target_name} ${lib_type})
     if(ARG_DEFINES)
-        target_compile_definitions(${TARGET_NAME} ${LIB_PROP_SCOPE} ${ARG_DEFINES})
+        target_compile_definitions(${target_name} ${lib_prop_scope} ${ARG_DEFINES})
     endif()
-    target_link_libraries(${TARGET_NAME} ${LIB_PROP_SCOPE} sqlpp23_testing)
+    target_link_libraries(${target_name} ${lib_prop_scope} sqlpp23_testing)
     if(BUILD_WITH_MODULES)
-        set(MOD_FILE "${PROJECT_SOURCE_DIR}/tests/${ARG_NAME}/modules/sqlpp23.test.${ARG_NAME}.tables.cppm")
-        target_sources(${TARGET_NAME} PUBLIC FILE_SET CXX_MODULES FILES "${MOD_FILE}")
-        target_link_libraries(${TARGET_NAME} PUBLIC sqlpp23::core_module ${ARG_MOD_DEPS})
+        set(mod_file "${PROJECT_SOURCE_DIR}/tests/${ARG_NAME}/modules/sqlpp23.test.${ARG_NAME}.tables.cppm")
+        target_sources(${target_name} PUBLIC FILE_SET CXX_MODULES FILES "${mod_file}")
+        target_link_libraries(${target_name} PUBLIC sqlpp23::core_module ${ARG_MOD_DEPS})
     endif()
 endfunction()
 
