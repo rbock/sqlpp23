@@ -667,14 +667,13 @@ namespace {args.namespace} {{""", file=module)
         table_required_insert_columns = ""
         if args.generate_table_creation_helper:
             creation_helper_func = "create" + ("" if args.naming_style == "camel-case" else "_") + table_class
-            print("  " + export + "template<typename Db>", file=header)
-            print("  void " + creation_helper_func + "(Db& db) {", file=header)
-            print("    db(R\"+++(DROP TABLE IF EXISTS " + table.name + ")+++\");", file=header)
+            print(f"""  {export}template<typename Db>
+  void {creation_helper_func}(Db& db) {{
+    db(R"+++(DROP TABLE IF EXISTS {table.name})+++");""", file=header)
             for command in table.commands:
-                print("    db(R\"+++(" + command + ")+++\");", file=header)
-            print("  }", file=header)
-            print("", file=header)
-        print("  " + export + "struct " + table_spec + " {", file=header)
+                print(f"    db(R\"+++({command})+++\");", file=header)
+            print("  }\n", file=header)
+        print(f"  {export}struct {table_spec} {{", file=header)
         for column in table.columns.values():
             column_class = cls._to_class_name(column.name, args)
             column_member = cls._to_member_name(column.name, args)
