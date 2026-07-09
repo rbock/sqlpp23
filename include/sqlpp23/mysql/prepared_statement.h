@@ -103,8 +103,6 @@ class prepared_statement_t {
     return native_handle() == rhs.native_handle();
   }
 
-  void _pre_bind();
-
   void bind_parameter(size_t parameter_index, const bool& value) {
     stmt_param_is_null[parameter_index] = false;
     MYSQL_BIND& param{stmt_params[parameter_index]};
