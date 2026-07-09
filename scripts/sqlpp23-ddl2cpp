@@ -566,9 +566,9 @@ class ModelWriter:
     def write(cls, tables, args):
         if args.path_to_header:
             cls._create_header(tables, args)
-        if args.path_to_header_directory:
+        elif args.path_to_header_directory:
             cls._create_split_headers(tables, args)
-        if args.path_to_module:
+        elif args.path_to_module:
             cls._create_module(tables, args)
 
     @classmethod
@@ -771,7 +771,8 @@ def parse_commandline_args():
     required.add_argument("--path-to-ddl", nargs="*", help="one or more path(s) to DDL input file(s)")
     required.add_argument("--namespace", help="namespace for generated table classes")
 
-    paths = arg_parser.add_argument_group("Choose one or more paths for code generation")
+    paths_wrap = arg_parser.add_argument_group("Choose one path for code generation")
+    paths = paths_wrap.add_mutually_exclusive_group(required=True)
     paths.add_argument("--path-to-module", help="path to generated module file (also requires --module-name)")
     paths.add_argument("--path-to-header", help="path to generated header file (one file for all tables)")
     paths.add_argument("--path-to-header-directory", help="path to directory for generated header files (one file per table)")
