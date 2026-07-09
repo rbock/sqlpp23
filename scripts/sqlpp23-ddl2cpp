@@ -678,21 +678,18 @@ namespace {args.namespace} {{""", file=module)
         for column in table.columns.values():
             column_class = cls._to_class_name(column.name, args)
             column_member = cls._to_member_name(column.name, args)
-            print("    struct " + column_class + " {", file=header)
-            print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
-                + cls._escape_if_reserved(column.name) + ", " + column_member + ");"
-                , file=header)
-            const_prefix = "const " if column.is_const else ""
-            type_str = column.cpp_type
+            sql_name = cls._escape_if_reserved(column.name)
+            cpp_type = column.cpp_type
             if column.is_nullable:
-                print("      using data_type = " + const_prefix + "std::optional<" + type_str + ">;", file=header)
-            else:
-                print("      using data_type = " + const_prefix + type_str + ";", file=header)
-            if column.has_default:
-                print("      using has_default = std::true_type;", file=header)
-            else:
-                print("      using has_default = std::false_type;", file=header)
-            print("    };", file=header)
+                cpp_type = f"std::optional<{cpp_type}>"
+            if column.is_const:
+                cpp_type = f"const {cpp_type}"
+            has_default = "std::true_type" if column.has_default else "std::false_type"
+            print(f"""    struct {column_class} {{
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP({sql_name}, {column_member});
+      using data_type = {cpp_type};
+      using has_default = {has_default};
+    }};""", file=header)
             if table_template_parameters:
                 table_template_parameters += ","
             table_template_parameters += "\n               " + column_class
