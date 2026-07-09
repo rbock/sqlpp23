@@ -662,6 +662,7 @@ namespace {args.namespace} {{""", file=module)
         export = "export " if args.path_to_module else ""
         table_class = cls._to_class_name(table.name, args)
         table_member = cls._to_member_name(table.name, args)
+        table_sql_name = cls._escape_if_reserved(table.name)
         table_spec = table_class + "_"
         table_template_parameters = ""
         table_required_insert_columns = ""
@@ -677,7 +678,7 @@ namespace {args.namespace} {{""", file=module)
         for column in table.columns.values():
             column_class = cls._to_class_name(column.name, args)
             column_member = cls._to_member_name(column.name, args)
-            sql_name = cls._escape_if_reserved(column.name)
+            column_sql_name = cls._escape_if_reserved(column.name)
             cpp_type = column.cpp_type
             if column.is_nullable:
                 cpp_type = f"std::optional<{cpp_type}>"
@@ -685,7 +686,7 @@ namespace {args.namespace} {{""", file=module)
                 cpp_type = f"const {cpp_type}"
             has_default = "std::true_type" if column.has_default else "std::false_type"
             print(f"""    struct {column_class} {{
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP({sql_name}, {column_member});
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP({column_sql_name}, {column_member});
       using data_type = {cpp_type};
       using has_default = {has_default};
     }};""", file=header)
@@ -695,21 +696,14 @@ namespace {args.namespace} {{""", file=module)
             if not column.has_default:
                 if table_required_insert_columns:
                     table_required_insert_columns += ","
-                table_required_insert_columns += "\n               sqlpp::column_t<sqlpp::table_t<" + table_spec + ">, " + column_class + ">";
-        print("    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
-            + cls._escape_if_reserved(table.name) + ", " + table_member + ");"
-            , file=header)
-        print("    template<typename T>", file=header)
-        print("    using _table_columns = sqlpp::table_columns<T,"
-            + table_template_parameters
-            + ">;", file=header)
-        print("    using _required_insert_columns = sqlpp::detail::type_set<"
-            + table_required_insert_columns
-            + ">;", file=header)
-        print("  };", file=header)
-        print(
-            "  " + export + "using " + table_class + " = ::sqlpp::table_t<" + table_spec + ">;", file=header)
-        print("", file=header)
+                table_required_insert_columns += f"\n               sqlpp::column_t<sqlpp::table_t<{table_spec}>, {column_class}>";
+        print(f"""    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP({table_sql_name}, {table_member});
+    template<typename T>
+    using _table_columns = sqlpp::table_columns<T,{table_template_parameters}>;
+    using _required_insert_columns = sqlpp::detail::type_set<{table_required_insert_columns}>;
+  }};
+  {export}using {table_class} = ::sqlpp::table_t<{table_spec}>;
+""", file=header)
 
     @classmethod
     # Prepends optional schema with an `_`
