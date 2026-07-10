@@ -271,4 +271,5 @@ namespace test {
   };
   using TabDepartment = ::sqlpp::table_t<TabDepartment_>;
 
+
 } // namespace test
