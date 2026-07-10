@@ -22,11 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_compile name)
-    set(target sqlpp23_postgresql_types_function_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
-endfunction()
-
-test_compile(flatten)
-
+create_tests_compiles(
+    flatten
+)

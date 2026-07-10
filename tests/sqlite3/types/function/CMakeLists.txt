@@ -22,10 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_compile name)
-    set(target sqlpp23_sqlite3_types_function_${name})
-    add_executable(${target} ${name}.cpp)
-    sqlpp_slite3_test_add_target_link_libraries(${target})
-endfunction()
-
-test_compile(flatten)
+create_tests_compiles(
+    flatten
+)

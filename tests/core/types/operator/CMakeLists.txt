@@ -22,22 +22,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_compile name)
-    set(target sqlpp23_core_types_operator_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
-endfunction()
-
-test_compile(any)
-test_compile(arithmetic_expression)
-test_compile(assign_expression)
-test_compile(between_expression)
-test_compile(bit_expression)
-test_compile(case_expression)
-test_compile(comparison_expression)
-test_compile(exists_expression)
-test_compile(as_expression)
-test_compile(in_expression)
-test_compile(logical_expression)
-test_compile(sort_order_expression)
-
+create_tests_compiles(
+    any
+    arithmetic_expression
+    assign_expression
+    between_expression
+    bit_expression
+    case_expression
+    comparison_expression
+    exists_expression
+    as_expression
+    in_expression
+    logical_expression
+    sort_order_expression
+)
