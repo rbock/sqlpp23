@@ -22,15 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_assert name pattern)
-    create_test_assert(sqlite3 ${name} "${pattern}")
-endfunction()
+create_tests_assert(
+    # Connection
+    bad_execute "cannot execute statements with parameters directly"
+    bad_prepare "at least one selected column requires a table"
 
-# Compiling these is required to fail (testing some static_assert)
-
-# Connection
-test_assert(bad_execute "cannot execute statements with parameters directly")
-test_assert(bad_prepare "at least one selected column requires a table")
-
-test_assert(incompatible_execute "No support for using incompatible expression")
-test_assert(incompatible_prepare "No support for using incompatible expression")
+    incompatible_execute "No support for using incompatible expression"
+    incompatible_prepare "No support for using incompatible expression"
+)
