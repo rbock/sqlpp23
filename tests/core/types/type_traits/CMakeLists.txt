@@ -22,14 +22,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_compile name)
-    set(target sqlpp23_core_types_type_traits_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing)
-endfunction()
-
-test_compile(aggregates)
-test_compile(ctes_of)
-test_compile(tables_of)
-test_compile(type_traits)
-
+create_tests_compiles(
+    aggregates
+    ctes_of
+    tables_of
+    type_traits
+)
