@@ -92,17 +92,24 @@ endfunction()
 
 function(_create_tests_assert_setup component group name)
     set(target sqlpp23_${component}_${group}_setup_${name})
-    add_executable(${target} ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::${component} sqlpp23_testing sqlpp23_${component}_testing)
+    _create_tests_add_exe_target(
+        COMPONENT ${component}
+        SOURCES ${name}.cpp
+        TARGET ${target}
+    )
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
 function(_create_tests_assert_main component group name pattern)
     set(test sqlpp23_${component}_${group}_${name})
     set(target sqlpp23_${component}_${group}_${name})
-    add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp23::${component} sqlpp23_testing sqlpp23_${component}_testing)
-    target_compile_definitions(${target} PRIVATE SQLPP_CHECK_STATIC_ASSERT)
+    _create_tests_add_exe_target(
+        COMPONENT ${component}
+        DEFINES SQLPP_CHECK_STATIC_ASSERT
+        EXCLUDE_FROM_ALL
+        SOURCES ${name}.cpp
+        TARGET ${target}
+    )
     add_test(NAME ${test}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
     )
@@ -117,13 +124,11 @@ function(create_tests_combined)
         list(APPEND test_files "${name}.cpp")
     endforeach()
     create_test_sourcelist(all_sources test_main.cpp ${test_files})
-    add_executable(${target} ${all_sources})
-    if((${component} STREQUAL sqlite3) AND BUILD_SQLCIPHER_CONNECTOR)
-        set(dep sqlcipher)
-    else()
-        set(dep ${component})
-    endif()
-    target_link_libraries(${target} PRIVATE sqlpp23::${dep} sqlpp23_${component}_testing)
+    _create_tests_add_exe_target(
+        COMPONENT ${component}
+        SOURCES ${all_sources}
+        TARGET ${target}
+    )
     foreach(name IN LISTS ARGV)
         add_test(
             NAME sqlpp23_${component}_${group}_${name}
@@ -140,14 +145,11 @@ function(create_tests_compiles)
 endfunction()
 
 function(_create_tests_compiles_item component group name)
-    set(target sqlpp23_${component}_${group}_${name})
-    add_executable(${target} ${name}.cpp)
-    if((${component} STREQUAL sqlite3) AND BUILD_SQLCIPHER_CONNECTOR)
-        set(dep sqlcipher)
-    else()
-        set(dep ${component})
-    endif()
-    target_link_libraries(${target} PRIVATE sqlpp23::${dep} sqlpp23_${component}_testing)
+    _create_tests_add_exe_target(
+        COMPONENT ${component}
+        SOURCES ${name}.cpp
+        TARGET sqlpp23_${component}_${group}_${name}
+    )
 endfunction()
 
 function(create_tests_group)
@@ -159,13 +161,11 @@ endfunction()
 
 function(_create_tests_group_item component group name)
     set(target sqlpp23_${component}_${group}_${name})
-    add_executable(${target} ${name}.cpp)
-    if((${component} STREQUAL sqlite3) AND BUILD_SQLCIPHER_CONNECTOR)
-        set(dep sqlcipher)
-    else()
-        set(dep ${component})
-    endif()
-    target_link_libraries(${target} PRIVATE sqlpp23::${dep} sqlpp23_${component}_testing)
+    _create_tests_add_exe_target(
+        COMPONENT ${component}
+        SOURCES ${name}.cpp
+        TARGET ${target}
+    )
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
@@ -182,4 +182,25 @@ function(_create_tests_get_component_and_group component_var group_var)
     list(JOIN relative_dirs "_" group)
     set("${component_var}" "${component}" PARENT_SCOPE)
     set("${group_var}" "${group}" PARENT_SCOPE)
+endfunction()
+
+function(_create_tests_add_exe_target)
+    set(options EXCLUDE_FROM_ALL)
+    set(oneValueArgs COMPONENT TARGET)
+    set(multiValueArgs DEFINES SOURCES)
+    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    add_executable(${ARG_TARGET} ${EXCLUDE_FROM_ALL} ${ARG_SOURCES})
+    if(ARG_EXCLUDE_FROM_ALL)
+        set_property(TARGET ${ARG_TARGET} PROPERTY EXCLUDE_FROM_ALL TRUE)
+    endif()
+    if(ARG_DEFINES)
+        target_compile_definitions(${ARG_TARGET} PRIVATE ${ARG_DEFINES})
+    endif()
+    if((${ARG_COMPONENT} STREQUAL sqlite3) AND BUILD_SQLCIPHER_CONNECTOR)
+        set(dep sqlcipher)
+    else()
+        set(dep ${ARG_COMPONENT})
+    endif()
+    target_link_libraries(${ARG_TARGET} PRIVATE sqlpp23::${dep} sqlpp23_${ARG_COMPONENT}_testing)
 endfunction()
