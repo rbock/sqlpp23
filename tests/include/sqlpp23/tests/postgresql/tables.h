@@ -13,8 +13,6 @@
 #include <sqlpp23/core/basic/table_columns.h>
 #include <sqlpp23/core/type_traits.h>
 
-
-
 namespace test {
   template<typename Db>
   void createTabFoo(Db& db) {

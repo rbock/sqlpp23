@@ -111,6 +111,7 @@ if (${Python3_Interpreter_FOUND})
         set(custom_type_exe "sqlpp.scripts.compiled.${custom_type_stem}")
         set(custom_type_headers "${CMAKE_CURRENT_LIST_DIR}/custom_types.h")
         set(custom_type_csv "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.csv")
+        set(custom_type_template "${CMAKE_CURRENT_LIST_DIR}/${custom_type_stem}.template")
         set(custom_type_header "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_stem}.h")
         list(APPEND custom_type_headers "${custom_type_header}")
         add_custom_command(
@@ -121,8 +122,9 @@ if (${Python3_Interpreter_FOUND})
                     "--path-to-header" "${custom_type_header}"
                     "--namespace" "test::dbm"
                     "--suppress-timestamp-warning"
-                    "--custom-directives" "#include <custom_types.h>"
-            DEPENDS "${custom_type_sql}"
+                    "--path-to-custom-template" "${custom_type_template}"
+            DEPENDS "${custom_type_template}"
+                    "${custom_type_sql}"
                     "${custom_type_csv}"
                     "${ddl2cpp}"
             VERBATIM)

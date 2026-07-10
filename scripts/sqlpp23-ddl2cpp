@@ -576,8 +576,6 @@ class ModelWriter:
 {import_core}
 {include_core}
 
-{custom_directives}
-
 namespace {namespace} {{
 {tables}
 }} // namespace {namespace}"""
@@ -594,14 +592,15 @@ export module {module_name};
 {import_std}
 import sqlpp23.core;
 
-{custom_directives}
-
 namespace {namespace} {{
 {tables}
 }} // namespace {namespace}"""
 
+    custom_template = None
+
     @classmethod
-    def write(cls, tables, args):
+    def write(cls, custom_template, tables, args):
+        cls.custom_template = custom_template
         if args.path_to_header:
             cls._create_header(tables, args)
         elif args.path_to_header_directory:
@@ -629,8 +628,11 @@ namespace {namespace} {{
             serialized_tables = cls._create_tables(tables.values(), args)
             cls._write_header(ostream, cls.module_template, serialized_tables, args)
 
-    @staticmethod
-    def _write_header(ostream, template, serialized_tables, args):
+    @classmethod
+    def _write_header(cls, ostream, template, serialized_tables, args):
+
+        if cls.custom_template:
+            template = custom_template
 
         print(template.format(
         commandline = ' '.join(sys.argv),
@@ -640,7 +642,6 @@ namespace {namespace} {{
         include_core = "" if args.use_import_sqlpp23 else """#include <sqlpp23/core/basic/table.h>
 #include <sqlpp23/core/basic/table_columns.h>
 #include <sqlpp23/core/type_traits.h>""",
-        custom_directives = '\n'.join(args.custom_directives.split(",")) if args.custom_directives else "",
         namespace = args.namespace,
         module_name = args.module_name,
         tables = serialized_tables
@@ -776,7 +777,7 @@ def parse_commandline_args():
     options.add_argument("--generate-table-creation-helper", action="store_true", help="create a helper function for each table that drops and creates the table")
     options.add_argument("--use-import-sqlpp23", action="store_true", help="import sqlpp23 as module instead of including the header file (default: False)")
     options.add_argument("--use-import-std", action="store_true", help="import std as module instead of including the respective standard header files (default: False)")
-    options.add_argument("--custom-directives", help="One or more custom lines to be added after the default include / import directives in the generated file")
+    options.add_argument("--path-to-custom-template", help="path to a file containing template for header generation, e.g. to include custom headers")
 
     args = arg_parser.parse_args()
 
@@ -840,8 +841,12 @@ if __name__ == "__main__":
     if args.path_to_custom_type_mapping:
         with open(args.path_to_custom_type_mapping, newline="") as csv_file:
             sql_type_to_cpp, column_to_cpp_type = get_custom_types(args.path_to_custom_type_mapping, csv_file)
+    custom_template = None
+    if args.path_to_custom_template:
+        with open(args.path_to_custom_template, "r") as template_file:
+            custom_template = template_file.read()
     DdlParser.initialize(sql_type_to_cpp)
     parsed_ddls = DdlParser.parse_ddls(args.path_to_ddl)
     tables = DdlExecutor.execute(parsed_ddls, args, column_to_cpp_type)
-    ModelWriter.write(tables, args)
+    ModelWriter.write(custom_template, tables, args)
     sys.exit(ExitCode.SUCCESS)

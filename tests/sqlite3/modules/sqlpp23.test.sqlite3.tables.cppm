@@ -10,8 +10,6 @@ export module sqlpp23.test.sqlite3.tables;
 
 import sqlpp23.core;
 
-
-
 namespace test {
   export template<typename Db>
   void createTabFoo(Db& db) {
