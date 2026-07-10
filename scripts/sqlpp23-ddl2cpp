@@ -590,7 +590,7 @@ class ModelWriter:
         commandline = ' '.join(sys.argv)
         import_std = "import std;" if args.use_import_std else ""
         include_optional = "" if args.use_import_std else "#include <optional>"
-        import_core = "import import sqlpp23.core;" if args.use_import_sqlpp23 else ""
+        import_core = "import sqlpp23.core;" if args.use_import_sqlpp23 else ""
         include_core = "" if args.use_import_sqlpp23 else """#include <sqlpp23/core/basic/table.h>
 #include <sqlpp23/core/basic/table_columns.h>
 #include <sqlpp23/core/type_traits.h>"""
