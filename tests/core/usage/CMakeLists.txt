@@ -22,38 +22,22 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(test_files
-    CustomQuery.cpp
-    CustomType.cpp
-    DateTime.cpp
-    DateTimeParser.cpp
-    Insert.cpp
-    delete_from.cpp
-    Update.cpp
-    Select.cpp
-    Function.cpp
-    Prepared.cpp
-    Minimalistic.cpp
-    Result.cpp
-    Union.cpp
-    With.cpp
+create_tests_combined(
+    CustomQuery
+    CustomType
+    DateTime
+    DateTimeParser
+    Insert
+    delete_from
+    Update
+    Select
+    Function
+    Prepared
+    Minimalistic
+    Result
+    Union
+    With
 )
-
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp23_core_tests ${test_sources})
-target_link_libraries(sqlpp23_core_tests PRIVATE sqlpp23::core sqlpp23_testing sqlpp23_core_testing sqlpp23_core_testing)
-if (BUILD_WITH_MODULES)
-  target_compile_definitions(sqlpp23_core_tests PRIVATE SQLPP23_USE_MODULES)
-endif()
-
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp23.core.usage.${test}
-        COMMAND sqlpp23_core_tests ${test}
-    )
-endforeach()
 
 add_subdirectory(aggregate_function)
 add_subdirectory(statement)
-

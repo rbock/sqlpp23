@@ -29,34 +29,23 @@ create_tests_group(
     operator
 )
 
+create_tests_combined(
+    Basic
+    BasicConstConfig
+    Blob
+    Connection
+    ConnectionPool
+    Date
+    DateTime
+    InsertOnConflict
+    Returning
+    Select
+    TimeZone
+    Transaction
+    truncate
+    Type
+)
+
 add_subdirectory(aggregate_function)
 add_subdirectory(custom_type)
 add_subdirectory(statement)
-
-set(test_files
-    Basic.cpp
-    BasicConstConfig.cpp
-    Blob.cpp
-    Connection.cpp
-    ConnectionPool.cpp
-    Date.cpp
-    DateTime.cpp
-    InsertOnConflict.cpp
-    Returning.cpp
-    Select.cpp
-    TimeZone.cpp
-    Transaction.cpp
-    truncate.cpp
-    Type.cpp
-)
-
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp23_postgresql_tests ${test_sources})
-target_link_libraries(sqlpp23_postgresql_tests PRIVATE sqlpp23::postgresql sqlpp23_postgresql_testing)
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp23.postgresql.usage.${test}
-        COMMAND sqlpp23_postgresql_tests ${test}
-    )
-endforeach()

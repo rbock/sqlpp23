@@ -28,42 +28,25 @@ create_tests_group(
     operator
 )
 
-add_subdirectory(aggregate_function)
-add_subdirectory(statement)
-
-set(test_files
-    Attach.cpp
-    AutoIncrement.cpp
-    Blob.cpp
-    Connection.cpp
-    ConnectionPool.cpp
-    DateTime.cpp
-    DynamicSelect.cpp
-    Execute.cpp
-    FloatingPoint.cpp
-    InsertOnConflict.cpp
-    Integral.cpp
-    Returning.cpp
-    Sample.cpp
-    Select.cpp
-    Transaction.cpp
-    Union.cpp
-    With.cpp
+create_tests_combined(
+    Attach
+    AutoIncrement
+    Blob
+    Connection
+    ConnectionPool
+    DateTime
+    DynamicSelect
+    Execute
+    FloatingPoint
+    InsertOnConflict
+    Integral
+    Returning
+    Sample
+    Select
+    Transaction
+    Union
+    With
 )
 
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-
-add_executable(sqlpp23_sqlite3_tests ${test_sources})
-target_link_libraries(sqlpp23_sqlite3_tests PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
-if (BUILD_SQLCIPHER_CONNECTOR)
-    target_link_libraries(sqlpp23_sqlite3_tests PRIVATE sqlpp23::sqlcipher)
-else()
-    target_link_libraries(sqlpp23_sqlite3_tests PRIVATE sqlpp23::sqlite3)
-endif()
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp23.sqlite3.usage.${test}
-        COMMAND sqlpp23_sqlite3_tests ${test}
-    )
-endforeach()
+add_subdirectory(aggregate_function)
+add_subdirectory(statement)
