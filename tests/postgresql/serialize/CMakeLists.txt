@@ -22,20 +22,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(test_files
-    Float.cpp
+create_tests_combined(
+    Float
 )
-
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp23_postgresql_serialize_tests ${test_sources})
-target_link_libraries(sqlpp23_postgresql_serialize_tests PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp23.postgresql.serialize.${test}
-        COMMAND sqlpp23_postgresql_serialize_tests ${test}
-    )
-endforeach()
 
 add_subdirectory(basic)
 add_subdirectory(function)

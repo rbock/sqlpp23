@@ -29,32 +29,21 @@ create_tests_group(
     operator
 )
 
-add_subdirectory(aggregate_function)
-add_subdirectory(statement)
-
-set(test_files
-    CustomQuery.cpp
-    DateTime.cpp
-    Sample.cpp
-    Select.cpp
-    Union.cpp
-    DynamicSelect.cpp
-    MoveConstructor.cpp
-    Prepared.cpp
-    Truncated.cpp
-    Update.cpp
-    DeleteFrom.cpp
-    Connection.cpp
-    ConnectionPool.cpp
+create_tests_combined(
+    CustomQuery
+    DateTime
+    Sample
+    Select
+    Union
+    DynamicSelect
+    MoveConstructor
+    Prepared
+    Truncated
+    Update
+    DeleteFrom
+    Connection
+    ConnectionPool
 )
 
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp23_mysql_tests ${test_sources})
-target_link_libraries(sqlpp23_mysql_tests PRIVATE sqlpp23::mysql sqlpp23_mysql_testing Threads::Threads)
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp23.mysql.usage.${test}
-        COMMAND sqlpp23_mysql_tests ${test}
-    )
-endforeach()
+add_subdirectory(aggregate_function)
+add_subdirectory(statement)
