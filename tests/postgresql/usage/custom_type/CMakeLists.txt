@@ -22,8 +22,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(target sqlpp23_postgresql_usage_custom_type)
-add_executable(${target} main.cpp)
-target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${target} PRIVATE sqlpp23::postgresql sqlpp23_testing sqlpp23_postgresql_testing)
-add_test(NAME ${target} COMMAND ${target})
+create_test_from_dir(
+    INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+    SOURCES main.cpp
+)
