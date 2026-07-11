@@ -142,6 +142,24 @@ function(create_tests_group)
     endforeach()
 endfunction()
 
+function(create_test_from_dir)
+    set(options)
+    set(oneValueArgs)
+    set(multiValueArgs INCLUDE_DIRS SOURCES)
+    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    _create_tests_get_component_and_group(component group)
+    _create_tests_get_name_target(target ${component} ${group})
+    _create_tests_add_exe_target(
+        COMPONENT ${component}
+        INCLUDE_DIRS ${ARG_INCLUDE_DIRS}
+        SOURCES ${ARG_SOURCES}
+        TARGET ${target}
+    )
+    _create_tests_get_name_test(test ${component} ${group})
+    add_test(NAME ${test} COMMAND ${target})
+endfunction()
+
 function(_create_tests_get_component_and_group component_var group_var)
     cmake_path(APPEND PROJECT_SOURCE_DIR "tests" OUTPUT_VARIABLE tests_dir)
     cmake_path(
@@ -172,7 +190,7 @@ endmacro()
 function(_create_tests_add_exe_target)
     set(options EXCLUDE_FROM_ALL)
     set(oneValueArgs COMPONENT TARGET)
-    set(multiValueArgs DEFINES SOURCES)
+    set(multiValueArgs DEFINES INCLUDE_DIRS SOURCES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     add_executable(${ARG_TARGET} ${EXCLUDE_FROM_ALL} ${ARG_SOURCES})
@@ -181,6 +199,9 @@ function(_create_tests_add_exe_target)
     endif()
     if(ARG_DEFINES)
         target_compile_definitions(${ARG_TARGET} PRIVATE ${ARG_DEFINES})
+    endif()
+    if(ARG_INCLUDE_DIRS)
+        target_include_directories(${ARG_TARGET} PRIVATE ${ARG_INCLUDE_DIRS})
     endif()
     if((${ARG_COMPONENT} STREQUAL sqlite3) AND BUILD_SQLCIPHER_CONNECTOR)
         set(dep sqlcipher)
