@@ -92,11 +92,7 @@ endfunction()
 
 function(_create_tests_assert_setup component group name)
     _create_tests_get_name_target(target ${component} ${group} setup ${name})
-    _create_tests_add_exe_target(
-        COMPONENT ${component}
-        SOURCES ${name}.cpp
-        TARGET ${target}
-    )
+    _create_tests_add_exe_target(COMPONENT ${component} SOURCES ${name}.cpp TARGET ${target})
     _create_tests_get_name_test(test ${component} ${group} setup ${name})
     add_test(NAME ${test} COMMAND ${target})
 endfunction()
@@ -125,11 +121,7 @@ function(create_tests_combined)
         list(APPEND test_files "${name}.cpp")
     endforeach()
     create_test_sourcelist(all_sources test_main.cpp ${test_files})
-    _create_tests_add_exe_target(
-        COMPONENT ${component}
-        SOURCES ${all_sources}
-        TARGET ${target}
-    )
+    _create_tests_add_exe_target(COMPONENT ${component} SOURCES ${all_sources} TARGET ${target})
     foreach(name IN LISTS ARGV)
         _create_tests_get_name_test(test ${component} ${group} ${name})
         add_test(NAME ${test} COMMAND ${target} ${name})
@@ -145,11 +137,7 @@ endfunction()
 
 function(_create_tests_compiles_item component group name)
     _create_tests_get_name_target(target ${component} ${group} ${name})
-    _create_tests_add_exe_target(
-        COMPONENT ${component}
-        SOURCES ${name}.cpp
-        TARGET ${target}
-    )
+    _create_tests_add_exe_target(COMPONENT ${component} SOURCES ${name}.cpp TARGET ${target})
 endfunction()
 
 function(create_tests_group)
@@ -161,11 +149,7 @@ endfunction()
 
 function(_create_tests_group_item component group name)
     _create_tests_get_name_target(target ${component} ${group} ${name})
-    _create_tests_add_exe_target(
-        COMPONENT ${component}
-        SOURCES ${name}.cpp
-        TARGET ${target}
-    )
+    _create_tests_add_exe_target(COMPONENT ${component} SOURCES ${name}.cpp TARGET ${target})
     _create_tests_get_name_test(test ${component} ${group} ${name})
     add_test(NAME ${test} COMMAND ${target})
 endfunction()
