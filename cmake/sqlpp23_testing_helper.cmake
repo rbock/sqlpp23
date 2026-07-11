@@ -91,18 +91,18 @@ function(_create_tests_assert_item component group name pattern)
 endfunction()
 
 function(_create_tests_assert_setup component group name)
-    set(target sqlpp23_${component}_${group}_setup_${name})
+    _create_tests_get_name_target(target ${component} ${group} setup ${name})
     _create_tests_add_exe_target(
         COMPONENT ${component}
         SOURCES ${name}.cpp
         TARGET ${target}
     )
-    add_test(NAME ${target} COMMAND ${target})
+    _create_tests_get_name_test(test ${component} ${group} setup ${name})
+    add_test(NAME ${test} COMMAND ${target})
 endfunction()
 
 function(_create_tests_assert_main component group name pattern)
-    set(test sqlpp23_${component}_${group}_${name})
-    set(target sqlpp23_${component}_${group}_${name})
+    _create_tests_get_name_target(target ${component} ${group} ${name})
     _create_tests_add_exe_target(
         COMPONENT ${component}
         DEFINES SQLPP_CHECK_STATIC_ASSERT
@@ -110,6 +110,7 @@ function(_create_tests_assert_main component group name pattern)
         SOURCES ${name}.cpp
         TARGET ${target}
     )
+    _create_tests_get_name_test(test ${component} ${group} ${name})
     add_test(NAME ${test}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
     )
@@ -118,7 +119,7 @@ endfunction()
 
 function(create_tests_combined)
     _create_tests_get_component_and_group(component group)
-    set(target sqlpp23_${component}_${group}_combined)
+    _create_tests_get_name_target(target ${component} ${group} "combined")
     set(test_files)
     foreach(name IN LISTS ARGV)
         list(APPEND test_files "${name}.cpp")
@@ -130,10 +131,8 @@ function(create_tests_combined)
         TARGET ${target}
     )
     foreach(name IN LISTS ARGV)
-        add_test(
-            NAME sqlpp23_${component}_${group}_${name}
-            COMMAND ${target} ${name}
-        )
+        _create_tests_get_name_test(test ${component} ${group} ${name})
+        add_test(NAME ${test} COMMAND ${target} ${name})
     endforeach()
 endfunction()
 
@@ -145,10 +144,11 @@ function(create_tests_compiles)
 endfunction()
 
 function(_create_tests_compiles_item component group name)
+    _create_tests_get_name_target(target ${component} ${group} ${name})
     _create_tests_add_exe_target(
         COMPONENT ${component}
         SOURCES ${name}.cpp
-        TARGET sqlpp23_${component}_${group}_${name}
+        TARGET ${target}
     )
 endfunction()
 
@@ -160,13 +160,14 @@ function(create_tests_group)
 endfunction()
 
 function(_create_tests_group_item component group name)
-    set(target sqlpp23_${component}_${group}_${name})
+    _create_tests_get_name_target(target ${component} ${group} ${name})
     _create_tests_add_exe_target(
         COMPONENT ${component}
         SOURCES ${name}.cpp
         TARGET ${target}
     )
-    add_test(NAME ${target} COMMAND ${target})
+    _create_tests_get_name_test(test ${component} ${group} ${name})
+    add_test(NAME ${test} COMMAND ${target})
 endfunction()
 
 function(_create_tests_get_component_and_group component_var group_var)
@@ -183,6 +184,19 @@ function(_create_tests_get_component_and_group component_var group_var)
     set("${component_var}" "${component}" PARENT_SCOPE)
     set("${group_var}" "${group}" PARENT_SCOPE)
 endfunction()
+
+macro(_create_tests_get_name_target name_var)
+    _create_tests_get_name_common(${name_var} "_" ${ARGN})
+endmacro()
+
+macro(_create_tests_get_name_test name_var)
+    _create_tests_get_name_common(${name_var} "." ${ARGN})
+endmacro()
+
+macro(_create_tests_get_name_common name_var delimiter)
+    string(JOIN ${delimiter} combined sqlpp23 ${ARGN})
+    set("${name_var}" "${combined}")
+endmacro()
 
 function(_create_tests_add_exe_target)
     set(options EXCLUDE_FROM_ALL)
