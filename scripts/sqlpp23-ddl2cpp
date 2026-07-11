@@ -578,7 +578,8 @@ class ModelWriter:
 
 namespace {namespace} {{
 {tables}
-}} // namespace {namespace}"""
+}} // namespace {namespace}
+"""
 
     _MODULE_TEMPLATE = """module;
 
@@ -594,7 +595,8 @@ import sqlpp23.core;
 
 namespace {namespace} {{
 {tables}
-}} // namespace {namespace}"""
+}} // namespace {namespace}
+"""
 
     _custom_template = None
     _args = None
@@ -644,7 +646,7 @@ namespace {namespace} {{
         namespace = self._args.namespace,
         module_name = self._args.module_name,
         tables = serialized_tables
-    ), file=ostream)
+    ), file=ostream, end='')
 
     def create_table(self, table, ostream):
         export = "export " if self._args.path_to_module else ""
