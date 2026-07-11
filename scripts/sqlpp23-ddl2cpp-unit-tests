@@ -352,7 +352,7 @@ class SelfTest(unittest.TestCase):
 
         # Test naming_style camel-case
         args = make_args(naming_style='camel-case')
-        model_writer = ddl2cpp.ModelWriter(None, args)
+        model_writer = ModelWriter(None, args)
         self.assertEqual(model_writer._to_class_name("name"), "Name")
         self.assertEqual(model_writer._to_class_name("_name"), "Name")
         self.assertEqual(model_writer._to_class_name("name part"), "NamePart")
@@ -373,7 +373,7 @@ class SelfTest(unittest.TestCase):
 
         # Test naming_style identity
         args = make_args(naming_style='identity')
-        model_writer = ddl2cpp.ModelWriter(None, args)
+        model_writer = ModelWriter(None, args)
         self.assertEqual(model_writer._to_class_name("name"), "name")
         self.assertEqual(model_writer._to_class_name("_name"), "_name")
         self.assertEqual(model_writer._to_class_name("name_part"), "name_part")
@@ -803,6 +803,152 @@ class SelfTest(unittest.TestCase):
             self.assertFalse("a" in tables["t"].columns)
             self.assertTrue("b" in tables["t"].columns)
             self.assertFalse("c" in tables["t"].columns)
+
+    def test_create_tables(self):
+        import argparse
+
+        def make_args(**kwargs):
+            defaults = dict(assume_auto_id=False,
+                            suppress_timestamp_warning=True,
+                            strip_sql_schema=None,
+                            path_to_module=None,
+                            generate_table_creation_helper=None)
+            defaults.update(kwargs)
+            return argparse.Namespace(**defaults)
+
+        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+            CREATE TABLE my_table (
+              id bigint NOT NULL,
+              some_thing float,
+              name text NOT NULL = "doe"
+            )""")
+        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+
+        with self.subTest("camel-case"):
+            args = make_args(naming_style='camel-case')
+            model_writer = ModelWriter(None, args)
+            serialized_tables = model_writer.create_tables(tables.values())
+            self.assertEqual(serialized_tables, """  struct MyTable_ {
+    struct Id {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
+      using data_type = ::sqlpp::integral;
+      using has_default = std::false_type;
+    };
+    struct SomeThing {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(some_thing, someThing);
+      using data_type = std::optional<::sqlpp::floating_point>;
+      using has_default = std::true_type;
+    };
+    struct Name {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(name, name);
+      using data_type = ::sqlpp::text;
+      using has_default = std::false_type;
+    };
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(my_table, myTable);
+    template<typename T>
+    using _table_columns = sqlpp::table_columns<T,
+               Id,
+               SomeThing,
+               Name>;
+    using _required_insert_columns = sqlpp::detail::type_set<
+               sqlpp::column_t<sqlpp::table_t<MyTable_>, Id>,
+               sqlpp::column_t<sqlpp::table_t<MyTable_>, Name>>;
+  };
+  using MyTable = ::sqlpp::table_t<MyTable_>;
+
+""")
+
+        with self.subTest("identity"):
+            args = make_args(naming_style='identity')
+            model_writer = ModelWriter(None, args)
+            serialized_tables = model_writer.create_tables(tables.values())
+            self.maxDiff = None
+            self.assertEqual(serialized_tables, """  struct my_table_ {
+    struct id {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
+      using data_type = ::sqlpp::integral;
+      using has_default = std::false_type;
+    };
+    struct some_thing {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(some_thing, some_thing);
+      using data_type = std::optional<::sqlpp::floating_point>;
+      using has_default = std::true_type;
+    };
+    struct name {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(name, name);
+      using data_type = ::sqlpp::text;
+      using has_default = std::false_type;
+    };
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(my_table, my_table);
+    template<typename T>
+    using _table_columns = sqlpp::table_columns<T,
+               id,
+               some_thing,
+               name>;
+    using _required_insert_columns = sqlpp::detail::type_set<
+               sqlpp::column_t<sqlpp::table_t<my_table_>, id>,
+               sqlpp::column_t<sqlpp::table_t<my_table_>, name>>;
+  };
+  using my_table = ::sqlpp::table_t<my_table_>;
+
+""")
+
+        parsed = ddl2cpp.DdlParser.ddl.parse_string("""
+            CREATE TABLE my_table (
+              id bigint NOT NULL
+            )""")
+        tables = ddl2cpp.DdlExecutor.execute([parsed], make_args(), {})
+        with self.subTest("module"):
+            args = make_args(naming_style='identity', path_to_module="something")
+            model_writer = ModelWriter(None, args)
+            serialized_tables = model_writer.create_tables(tables.values())
+            self.maxDiff = None
+            self.assertEqual(serialized_tables, """  export struct my_table_ {
+    struct id {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
+      using data_type = ::sqlpp::integral;
+      using has_default = std::false_type;
+    };
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(my_table, my_table);
+    template<typename T>
+    using _table_columns = sqlpp::table_columns<T,
+               id>;
+    using _required_insert_columns = sqlpp::detail::type_set<
+               sqlpp::column_t<sqlpp::table_t<my_table_>, id>>;
+  };
+  export using my_table = ::sqlpp::table_t<my_table_>;
+
+""")
+
+        with self.subTest("module"):
+            args = make_args(naming_style='identity', generate_table_creation_helper=True)
+            model_writer = ModelWriter(None, args)
+            serialized_tables = model_writer.create_tables(tables.values())
+            self.maxDiff = None
+            self.assertEqual(serialized_tables, """  template<typename Db>
+  void create_my_table(Db& db) {
+    db(R"+++(DROP TABLE IF EXISTS my_table)+++");
+    db(R"+++(CREATE TABLE my_table (
+              id bigint NOT NULL
+            ))+++");
+  }
+
+  struct my_table_ {
+    struct id {
+      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
+      using data_type = ::sqlpp::integral;
+      using has_default = std::false_type;
+    };
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(my_table, my_table);
+    template<typename T>
+    using _table_columns = sqlpp::table_columns<T,
+               id>;
+    using _required_insert_columns = sqlpp::detail::type_set<
+               sqlpp::column_t<sqlpp::table_t<my_table_>, id>>;
+  };
+  using my_table = ::sqlpp::table_t<my_table_>;
+
+""")
 
 
 if __name__ == "__main__":
