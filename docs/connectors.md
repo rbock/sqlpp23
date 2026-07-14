@@ -29,6 +29,8 @@ See the links below for details:
 
 [MySQL & MariaDB](/docs/connectors/mysql.md)
 
+[ODBC](/docs/connectors/odbc.md)
+
 [PostgreSQL](/docs/connectors/postgresql.md)
 
 [Sqlite3 and SQLCipher](/docs/connectors/sqlite3.md)
