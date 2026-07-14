@@ -47,14 +47,18 @@ Select results are read through an ODBC block cursor where possible: the
 connector binds the result columns to fixed-size buffers and fetches
 `connection_config::row_array_size` rows per driver round trip (default: 64).
 
-This requires that the size of each row is known up front. Text and blob
-columns qualify if their declared maximum size fits into
+This requires that the size of each row is known up front. Text columns
+qualify if their declared maximum size fits into
 `connection_config::max_bound_column_size` bytes per row (default: 4096,
-text columns are budgeted with 4 bytes per character for UTF-8). If any
-column exceeds the limit — or the driver cannot tell its size, as with
-unbounded `TEXT` columns — the result transparently falls back to fetching
-one row at a time and streaming each value with `SQLGetData`, which has no
-size limit.
+budgeted with 4 bytes per character for UTF-8). If any column exceeds the
+limit — or its size cannot be trusted, as with unbounded `TEXT` columns and
+blobs — the result transparently falls back to fetching one row at a time
+and streaming each value with `SQLGetData`, which has no size limit.
+
+Setting `max_bound_column_size = 0` always streams results that contain
+text or blob columns. This is useful for databases that do not enforce
+declared column sizes (e.g. SQLite, where a `varchar(255)` column may hold
+longer values).
 
 ```c++
 auto config = std::make_shared<sqlpp::odbc::connection_config>();
@@ -87,6 +91,32 @@ ODBC has no portable way to report the id of the last inserted row, so the
 connector does not offer `last_insert_id`. Use a select with the appropriate
 function of your database (e.g. `last_insert_rowid()`, `lastval()`,
 `SCOPE_IDENTITY()`) if you need it.
+
+## Running the tests
+
+The ODBC tests live in `tests/odbc` and are built with
+`-DBUILD_ODBC_CONNECTOR=ON`. The serialization and configuration tests run
+without any ODBC driver:
+
+```sh
+cmake -S . -B build -DBUILD_ODBC_CONNECTOR=ON
+cmake --build build
+ctest --test-dir build -R odbc
+```
+
+The statement test (`sqlpp23.odbc.usage.Statements`) only checks compilation
+by default. When `SQLPP_ODBC_CONNECTION_STRING` is set, it additionally runs
+all statement types against the configured database and verifies the results,
+e.g. with the serverless [SQLite ODBC driver](http://www.ch-werner.de/sqliteodbc/)
+(`brew install sqliteodbc`):
+
+```sh
+SQLPP_ODBC_CONNECTION_STRING="Driver=/opt/homebrew/lib/libsqlite3odbc.dylib;Database=/tmp/sqlpp23_odbc_test.db;" \
+  ctest --test-dir build -R odbc
+```
+
+The DDL in `tests/include/sqlpp23/tests/odbc/tables.h` is written for SQLite;
+it may need adjustment for other databases.
 
 ## Exceptions
 

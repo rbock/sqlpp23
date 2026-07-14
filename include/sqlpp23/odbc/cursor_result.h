@@ -37,6 +37,7 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include <sqlucode.h>
 
 #include <sqlpp23/core/chrono.h>
 #include <sqlpp23/core/query/result_row.h>
@@ -272,6 +273,13 @@ class cursor_result_t {
       if (column.buffer_size != 0) {
         continue;  // fixed-size column
       }
+      if (column.type == column_type::blob) {
+        // Blob values are typically large and drivers do not reliably report
+        // sizes for binary columns (e.g. the SQLite driver claims 255 bytes
+        // for any blob), so blobs are always streamed.
+        all_columns_bindable = false;
+        continue;
+      }
       SQLULEN declared_size{0};
       SQLSMALLINT sql_type{}, decimal_digits{}, nullable{}, name_length{};
       SQLCHAR name[256];
@@ -281,12 +289,15 @@ class cursor_result_t {
                          &declared_size, &decimal_digits, &nullable),
           "ODBC: could not describe result column", SQL_HANDLE_STMT,
           native_handle());
+      // Values of the long types can exceed the reported column size, e.g.
+      // unbounded TEXT columns.
+      const bool unbounded_type = sql_type == SQL_LONGVARCHAR or
+                                  sql_type == SQL_WLONGVARCHAR or
+                                  sql_type == SQL_LONGVARBINARY;
       // Text sizes are reported in characters which can take up to 4 bytes
       // each (UTF-8), plus the terminating NUL.
-      const size_t required_bytes = column.type == column_type::text
-                                        ? declared_size * 4 + 1
-                                        : declared_size;
-      if (declared_size == 0 or
+      const size_t required_bytes = declared_size * 4 + 1;
+      if (unbounded_type or declared_size == 0 or
           required_bytes > _config->max_bound_column_size) {
         all_columns_bindable = false;
       } else {
@@ -406,16 +417,15 @@ class cursor_result_t {
       if (indicator == SQL_NULL_DATA) {
         return {};
       }
-      // Text buffers reserve one byte for the terminating NUL.
-      const size_t max_value_size = column.type == column_type::text
-                                        ? column.buffer_size - 1
-                                        : column.buffer_size;
+      // The buffer reserves one byte for the terminating NUL. Only text
+      // columns are bound (blobs are always streamed).
       if (indicator == SQL_NO_TOTAL or
-          static_cast<size_t>(indicator) > max_value_size) {
+          static_cast<size_t>(indicator) >= column.buffer_size) {
         throw exception{
-            "ODBC: result value did not fit into the bound column buffer; "
-            "increase connection_config::max_bound_column_size or fix the "
-            "column's declared size",
+            "ODBC: a text value was longer than the column's declared maximum "
+            "size suggests; fix the column's declared size or set "
+            "connection_config::max_bound_column_size to 0 to always stream "
+            "variable-size columns",
             "01004"};
       }
       return {column.buffer.data() + _current_row * column.buffer_size,
