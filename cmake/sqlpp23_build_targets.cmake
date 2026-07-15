@@ -75,7 +75,7 @@ function(_add_build_regular_and_module)
         endif()
         if(NOT ARG_NO_INSTALL)
             # If the package needs a special find script, copy it to the destination scripts directory
-            set(find_script ${PROJECT_SOURCE_DIR}/cmake/modules/Find{ARG_PACKAGE}.cmake)
+            set(find_script ${PROJECT_SOURCE_DIR}/cmake/modules/Find${ARG_PACKAGE}.cmake)
             if(EXISTS ${find_script})
                 install(FILES ${find_script} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
             endif()
