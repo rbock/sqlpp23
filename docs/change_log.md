@@ -21,10 +21,10 @@ Other changes:
 - remove factory functiom to construct dynamic from an optional (this was never used in tests and I suspect it was never used in user code). If you used it, please use `condition ? dynamic(value) : std::nullopt` instead.
 - sqlpp23-ddl2cpp:
   - major cleanup of annotation parsing code
-  - unit tests extracted into separate file
-  - more idiomatic code, e.g. by using logging and unittest modules
-  - much better parsing error messsage (at least for the cases I tested :-))
-  - added `--path-to-custom-template` in case you need to deviate from the default templates for headers or modules
+  - unit tests extracted into separate file, #119
+  - more idiomatic code, e.g. by using logging and unittest modules, #120
+  - much better parsing error messsage (at least for the cases I tested :-)), #129
+  - added `--path-to-custom-template` in case you need to deviate from the default templates for headers or modules, #131
 
 ## 0.69
 
