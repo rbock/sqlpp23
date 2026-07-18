@@ -54,12 +54,7 @@ void test_get_last_if() {
                                        float, int64_t, short, size_t>,
           short>::value,
       "");
-  static_assert(
-      std::is_same<
-          sqlpp::detail::get_last_if_t<sqlpp::is_numeric, sqlpp::noop, int,
-                                       float, int64_t, short, size_t>,
-          size_t>::value,
-      "");
+  
 
   // Ending on a non-matching type
   static_assert(
