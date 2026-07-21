@@ -26,6 +26,7 @@
  */
 
 #include <sqlpp26/ranges/ranges.h>
+#include <sqlpp26/ranges/to_filter_expression.h>
 
 namespace test {
 struct Foo {
@@ -46,4 +47,7 @@ int main() {
   constexpr auto foo = test::Foo{1234, "ferdinand"};
   constexpr auto resultId = filter(foo);
   static_assert(resultId == foo.id);
+
+  constexpr auto value_filter = sqlpp::to_filter_expression(174);
+  static_assert(value_filter(foo) == 174);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,21 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <type_traits>
-
 namespace sqlpp {
-namespace detail {
-// A template that always returns false
-// To be used with static assert, for instance, to ensure it
-// fires only when the template is instantiated.
-template <typename... T>
-struct wrong {
-  using type = std::false_type;
-};
-}  // namespace detail
-template <typename... T>
-using wrong_t = typename detail::wrong<T...>::type;
-
-template <typename... T>
+template <typename...>
 constexpr bool wrong = false;
 }  // namespace sqlpp

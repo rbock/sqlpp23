@@ -33,7 +33,7 @@ template <typename TableSpec, size_t Idx>
 struct accessor {
   using data_struct = typename TableSpec::generator::data_struct;
   static constexpr auto data_members = std::define_static_array(std::meta::nonstatic_data_members_of(^^data_struct, std::meta::access_context::current()));
-  constexpr const auto& operator()(const data_struct& t) {
+  constexpr const auto& operator()(const data_struct& t) const {
     return t.[:data_members[Idx]:];
   }
 };
