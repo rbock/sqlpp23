@@ -100,7 +100,7 @@ struct type_set {
 
 template <typename E, typename SET>
 struct is_element_of {
-  static_assert(wrong_t<is_element_of>::value, "SET has to be a type set");
+  static_assert(wrong<is_element_of>, "SET has to be a type set");
 };
 
 template <typename E, typename... Elements>
@@ -153,7 +153,7 @@ using has_duplicates =
 
 template <typename... T>
 struct make_joined_set {
-  static_assert(wrong_t<make_joined_set>::value,
+  static_assert(wrong<make_joined_set>,
                 "invalid argument for joined set");
 };
 
@@ -184,7 +184,7 @@ using make_joined_set_t = typename make_joined_set<Sets...>::type;
 
 template <typename Minuend, typename Subtrahend>
 struct make_difference_set {
-  static_assert(wrong_t<make_difference_set>::value,
+  static_assert(wrong<make_difference_set>,
                 "invalid argument for difference set");
 };
 
@@ -201,7 +201,7 @@ using make_difference_set_t =
 
 template <typename Lhs, typename Rhs>
 struct make_intersect_set {
-  static_assert(wrong_t<make_intersect_set>::value,
+  static_assert(wrong<make_intersect_set>,
                 "invalid argument for intersect set");
 };
 
@@ -219,7 +219,7 @@ using make_intersect_set_t = typename make_intersect_set<Lhs, Rhs>::type;
 
 template <typename T, template <typename> class Transformation>
 struct transform_set {
-  static_assert(wrong_t<transform_set>::value,
+  static_assert(wrong<transform_set>,
                 "invalid arguments for transform_set");
 };
 

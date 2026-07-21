@@ -35,7 +35,7 @@ namespace sqlpp {
 
 template <typename Result, typename Value>
 void bind_field(Result&, size_t /*field_index*/, Value&) {
-  static_assert(wrong_t<Value>::value, "Missing specialization");
+  static_assert(wrong<Value>, "Missing specialization");
 }
 
 template <typename Result, typename Value>

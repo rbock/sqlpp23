@@ -1,7 +1,5 @@
-#pragma once
-
-/**
- * Copyright © 2026, Roland Bock
+/*
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,34 +25,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <optional>
-#include <string>
-#include <string_view>
+#include <sqlpp26/core/operator/comparison_expression.h>
 
-#include <sqlpp26/core/wrong.h>
+namespace sqlpp::filter {
 
-namespace sqlpp {
+template <typename Operator>
+struct comparison_expression{
+template <typename Struct>
+  constexpr const auto& operator()(const Struct& t) const {
+    return Operator{}(_lhs(t), _rhs(t));
+  }
+  
+  Lhs _lhs;
+  Rhs _rhs;
+};
 
-template <typename Statement, typename Value>
-void bind_parameter(const Statement&, size_t /*parameter_index*/, const Value&) {
-  static_assert(wrong<Value>, "Missing specialization");
-}
-
-template <typename Statement>
-auto bind_parameter(Statement& statement, size_t parameter_index, const std::string& parameter)
-    -> void {
-    bind_parameter(statement, parameter_index, std::string_view{parameter});
-}
-
-template <typename Statement, typename Value>
-auto bind_parameter(Statement& statement, size_t parameter_index, const std::optional<Value>& parameter)
-    -> void {
-    if (parameter.has_value()) {
-      bind_parameter(statement, parameter_index, parameter.value());
-      return;
-    }
-
-    statement.bind_null(parameter_index);
+template <typename Lhs, typename Operator, typename Rhs>
+constexpr auto to_filter_expression(const ::sqlpp::comparison_expression<Lhs, Operator, Rhs>& expr) {
+  return comparison_expression{to_filter_expression(reader.lhs(expr)),
+                               to_filter_expression(reader.rhs(expr))};
 }
 
 }  // namespace sqlpp

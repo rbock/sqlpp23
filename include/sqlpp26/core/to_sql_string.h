@@ -38,11 +38,12 @@
 #include <sqlpp26/core/chrono.h>
 #include <sqlpp26/core/database/exception.h>
 #include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
 template <typename Context, typename X = void>
 auto to_sql_string(Context&, ...) -> std::string {
-  static_assert(wrong_t<X>::value, "Missing specialization");
+  static_assert(wrong<X>, "Missing specialization");
   return {};
 }
 

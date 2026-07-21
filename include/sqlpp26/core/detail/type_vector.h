@@ -65,7 +65,7 @@ struct type_vector {
 
 template <typename... T>
 struct type_vector_cat_impl {
-  static_assert(wrong_t<type_vector_cat_impl>::value,
+  static_assert(wrong<type_vector_cat_impl>,
                 "type_vector_cat must be called with type_vector arguments");
 };
 

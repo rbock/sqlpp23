@@ -39,7 +39,7 @@ namespace sqlpp {
 template <typename T>
 struct parameter_list_t {
   static_assert(
-      wrong_t<parameter_list_t>::value,
+      wrong<parameter_list_t>,
       "Template parameter for parameter_list_t has to be a type_vector");
 };
 
