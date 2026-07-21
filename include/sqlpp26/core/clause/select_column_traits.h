@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/detail/flat_tuple.h>
-#include <sqlpp23/core/operator/as_expression.h>
-#include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/detail/flat_tuple.h>
+#include <sqlpp26/core/operator/as_expression.h>
+#include <sqlpp26/core/query/dynamic.h>
+#include <sqlpp26/core/type_traits.h>
 
 // Select columns require a value type and a name.
 // They can be dynamic values and they can be as_expressions.

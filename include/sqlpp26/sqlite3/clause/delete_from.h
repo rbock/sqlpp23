@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/core/clause/using.h>
-#include <sqlpp23/core/clause/returning.h>
+#include <sqlpp26/core/clause/delete_from.h>
+#include <sqlpp26/core/clause/using.h>
+#include <sqlpp26/core/clause/returning.h>
 
 namespace sqlpp::sqlite3 {
 using blank_delete_t = statement_t<delete_t,

@@ -27,8 +27,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/database/connection_pool.h>
-#include <sqlpp23/mysql/database/connection.h>
+#include <sqlpp26/core/database/connection_pool.h>
+#include <sqlpp26/mysql/database/connection.h>
 
 namespace sqlpp::mysql {
 using connection_pool = sqlpp::connection_pool<connection_base>;

@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/detail/type_vector.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/query/dynamic_fwd.h>
-#include <sqlpp23/core/type_traits/nodes_of.h>
+#include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/query/dynamic_fwd.h>
+#include <sqlpp26/core/type_traits/nodes_of.h>
 
 namespace sqlpp {
 // We don't want to mix aggregate and non-aggregate expressions as the results

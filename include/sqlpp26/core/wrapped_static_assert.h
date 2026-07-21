@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/wrong.h>
-#include <sqlpp23/core/consistent.h>
+#include <sqlpp26/core/wrong.h>
+#include <sqlpp26/core/consistent.h>
 #include <type_traits>
 
 namespace sqlpp {

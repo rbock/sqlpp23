@@ -27,15 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/enable_join.h>
-#include <sqlpp23/core/basic/table_ref.h>
-#include <sqlpp23/core/clause/select_flags.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement_fwd.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/table_ref.h>
+#include <sqlpp26/core/clause/select_flags.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/statement_fwd.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Flag, typename Lhs, typename Rhs>

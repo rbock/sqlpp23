@@ -31,7 +31,7 @@
 #include <functional>
 #include <string>
 
-#include <sqlpp23/core/log_category.h>
+#include <sqlpp26/core/log_category.h>
 
 namespace sqlpp {
 #ifdef SQLPP23_DISABLE_DEBUG

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/database/exception.h>
+#include <sqlpp26/core/database/exception.h>
 
 namespace sqlpp::sqlite3 {
 inline constexpr char fallback[] = "no message";

@@ -27,17 +27,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/union_flags.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/clause/union_order_by.h>
-#include <sqlpp23/core/clause/limit.h>
-#include <sqlpp23/core/clause/offset.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/query/dynamic_fwd.h>
+#include <sqlpp26/core/clause/union_flags.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/clause/union_order_by.h>
+#include <sqlpp26/core/clause/limit.h>
+#include <sqlpp26/core/clause/offset.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/query/dynamic_fwd.h>
 
 namespace sqlpp {
 // There is no order by or limit or offset in union, use it as a pseudo table to

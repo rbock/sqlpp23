@@ -27,11 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/operator/comparison_expression.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/type_traits/data_type.h>
-#include <sqlpp23/mysql/database/connection.h>
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp26/core/operator/comparison_expression.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/type_traits/data_type.h>
+#include <sqlpp26/mysql/database/connection.h>
+#include <sqlpp26/sqlpp23.h>
 
 namespace sqlpp::mysql {
 template <typename L, typename R>

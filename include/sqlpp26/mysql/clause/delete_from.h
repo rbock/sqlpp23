@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/core/clause/limit.h>
-#include <sqlpp23/core/clause/order_by.h>
-#include <sqlpp23/core/clause/using.h>
+#include <sqlpp26/core/clause/delete_from.h>
+#include <sqlpp26/core/clause/limit.h>
+#include <sqlpp26/core/clause/order_by.h>
+#include <sqlpp26/core/clause/using.h>
 
 namespace sqlpp::mysql {
 using blank_delete_t = statement_t<delete_t,

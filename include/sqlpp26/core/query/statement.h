@@ -27,22 +27,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/value.h>
-#include <sqlpp23/core/database/parameter_list.h>
-#include <sqlpp23/core/database/prepared_select.h>
-#include <sqlpp23/core/detail/get_first.h>
-#include <sqlpp23/core/detail/get_last.h>
-#include <sqlpp23/core/detail/pick_arg.h>
-#include <sqlpp23/core/hidden.h>
-#include <sqlpp23/core/noop.h>
-#include <sqlpp23/core/query/statement_constructor_arg.h>
-#include <sqlpp23/core/query/statement_fwd.h>
-#include <sqlpp23/core/result.h>
-#include <sqlpp23/core/result_type_provider.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/wrapped_static_assert.h>
+#include <sqlpp26/core/basic/value.h>
+#include <sqlpp26/core/database/parameter_list.h>
+#include <sqlpp26/core/database/prepared_select.h>
+#include <sqlpp26/core/detail/get_first.h>
+#include <sqlpp26/core/detail/get_last.h>
+#include <sqlpp26/core/detail/pick_arg.h>
+#include <sqlpp26/core/hidden.h>
+#include <sqlpp26/core/noop.h>
+#include <sqlpp26/core/query/statement_constructor_arg.h>
+#include <sqlpp26/core/query/statement_fwd.h>
+#include <sqlpp26/core/result.h>
+#include <sqlpp26/core/result_type_provider.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/wrapped_static_assert.h>
 #include <type_traits>
-#include <sqlpp23/core/detail/type_vector.h>
+#include <sqlpp26/core/detail/type_vector.h>
 
 namespace sqlpp {
 class assert_no_unknown_ctes_t : public wrapped_static_assert {

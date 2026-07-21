@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/parameter.h>
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
+#include <sqlpp26/core/basic/parameter.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/postgresql/database/serializer_context.h>
 
 namespace sqlpp::postgresql {
 // Serialize parameters

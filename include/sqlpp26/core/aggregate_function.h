@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/star.h>
-#include <sqlpp23/core/aggregate_function/avg.h>
-#include <sqlpp23/core/aggregate_function/count.h>
-#include <sqlpp23/core/aggregate_function/max.h>
-#include <sqlpp23/core/aggregate_function/min.h>
-#include <sqlpp23/core/aggregate_function/sum.h>
+#include <sqlpp26/core/basic/star.h>
+#include <sqlpp26/core/aggregate_function/avg.h>
+#include <sqlpp26/core/aggregate_function/count.h>
+#include <sqlpp26/core/aggregate_function/max.h>
+#include <sqlpp26/core/aggregate_function/min.h>
+#include <sqlpp26/core/aggregate_function/sum.h>

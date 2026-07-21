@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 struct for_update_t {};

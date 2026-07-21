@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/single_table.h>
-#include <sqlpp23/core/clause/where.h>
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/clause/single_table.h>
+#include <sqlpp26/core/clause/where.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 struct truncate_t {};

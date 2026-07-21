@@ -29,14 +29,14 @@
 
 #include <optional>
 
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/operator/as_expression_fwd.h>
-#include <sqlpp23/core/operator/assign_expression.h>
-#include <sqlpp23/core/operator/sort_order_expression.h>
-#include <sqlpp23/core/query/dynamic_fwd.h>
-#include <sqlpp23/core/query/statement_fwd.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/operator/as_expression_fwd.h>
+#include <sqlpp26/core/operator/assign_expression.h>
+#include <sqlpp26/core/operator/sort_order_expression.h>
+#include <sqlpp26/core/query/dynamic_fwd.h>
+#include <sqlpp26/core/query/statement_fwd.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
   template<typename L, typename R>

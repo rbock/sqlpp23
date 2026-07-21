@@ -27,24 +27,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/aggregate_function.h>
-#include <sqlpp23/core/basic/parameter.h>
-#include <sqlpp23/core/basic/parameterized_verbatim.h>
-#include <sqlpp23/core/basic/value.h>
-#include <sqlpp23/core/basic/verbatim.h>
-#include <sqlpp23/core/basic/verbatim_table.h>
-#include <sqlpp23/core/data_type.h>
-#include <sqlpp23/core/database/parameter_list.h>
-#include <sqlpp23/core/function/coalesce.h>
-#include <sqlpp23/core/function/concat.h>
-#include <sqlpp23/core/function/current_date.h>
-#include <sqlpp23/core/function/current_time.h>
-#include <sqlpp23/core/function/current_timestamp.h>
-#include <sqlpp23/core/function/lower.h>
-#include <sqlpp23/core/function/trim.h>
-#include <sqlpp23/core/function/upper.h>
-#include <sqlpp23/core/operator/case.h>
-#include <sqlpp23/core/query/dynamic.h>
+#include <sqlpp26/core/aggregate_function.h>
+#include <sqlpp26/core/basic/parameter.h>
+#include <sqlpp26/core/basic/parameterized_verbatim.h>
+#include <sqlpp26/core/basic/value.h>
+#include <sqlpp26/core/basic/verbatim.h>
+#include <sqlpp26/core/basic/verbatim_table.h>
+#include <sqlpp26/core/data_type.h>
+#include <sqlpp26/core/database/parameter_list.h>
+#include <sqlpp26/core/function/coalesce.h>
+#include <sqlpp26/core/function/concat.h>
+#include <sqlpp26/core/function/current_date.h>
+#include <sqlpp26/core/function/current_time.h>
+#include <sqlpp26/core/function/current_timestamp.h>
+#include <sqlpp26/core/function/lower.h>
+#include <sqlpp26/core/function/trim.h>
+#include <sqlpp26/core/function/upper.h>
+#include <sqlpp26/core/operator/case.h>
+#include <sqlpp26/core/query/dynamic.h>
 
 namespace sqlpp {
 template <typename Context, typename Expression>

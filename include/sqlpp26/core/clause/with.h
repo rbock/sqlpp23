@@ -27,15 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/column_fwd.h>
-#include <sqlpp23/core/clause/cte.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/no_data.h>
-#include <sqlpp23/core/operator/assign_expression.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/detail/type_vector.h>
+#include <sqlpp26/core/basic/column_fwd.h>
+#include <sqlpp26/core/clause/cte.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/no_data.h>
+#include <sqlpp26/core/operator/assign_expression.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/detail/type_vector.h>
 
 namespace sqlpp {
 struct no_with_t;

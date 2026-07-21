@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/detail/type_vector.h>
-#include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/unconditional.h>
-#include <sqlpp23/core/detail/type_set.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/query/dynamic.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/unconditional.h>
+#include <sqlpp26/core/detail/type_set.h>
 
 namespace sqlpp {
 // Join types.

@@ -27,11 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/value.h>
-#include <sqlpp23/core/default_value.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/value.h>
+#include <sqlpp26/core/default_value.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/query/dynamic.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Column>

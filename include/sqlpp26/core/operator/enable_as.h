@@ -26,10 +26,10 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/operator/as_expression.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/operator/as_expression.h>
+#include <sqlpp26/core/type_traits.h>
 
-#include <sqlpp23/core/name/create_reflection_name_tag.h>
+#include <sqlpp26/core/name/create_reflection_name_tag.h>
 
 namespace sqlpp {
 // To be used as CRTP base for expressions that should offer the as() member

@@ -35,20 +35,20 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <sqlpp23/core/basic/schema.h>
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/sqlite3/bind_result.h>
-#include <sqlpp23/sqlite3/constraints.h>
-#include <sqlpp23/sqlite3/database/connection_config.h>
-#include <sqlpp23/sqlite3/database/connection_handle.h>
-#include <sqlpp23/sqlite3/database/exception.h>
-#include <sqlpp23/sqlite3/database/serializer_context.h>
-#include <sqlpp23/sqlite3/prepared_statement.h>
-#include <sqlpp23/sqlite3/to_sql_string.h>
+#include <sqlpp26/core/basic/schema.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/database/transaction.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/sqlite3/bind_result.h>
+#include <sqlpp26/sqlite3/constraints.h>
+#include <sqlpp26/sqlite3/database/connection_config.h>
+#include <sqlpp26/sqlite3/database/connection_handle.h>
+#include <sqlpp26/sqlite3/database/exception.h>
+#include <sqlpp26/sqlite3/database/serializer_context.h>
+#include <sqlpp26/sqlite3/prepared_statement.h>
+#include <sqlpp26/sqlite3/to_sql_string.h>
 
 namespace sqlpp::sqlite3 {
 

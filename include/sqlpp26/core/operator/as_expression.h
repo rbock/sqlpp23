@@ -29,10 +29,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <optional>
 #include <type_traits>
 
-#include <sqlpp23/core/operator/as_expression_fwd.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/operator/as_expression_fwd.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Expression, typename NameTag>

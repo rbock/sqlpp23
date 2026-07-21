@@ -29,8 +29,8 @@
 
 #include <type_traits>
 
-#include <sqlpp23/core/clause/select_column_traits.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/clause/select_column_traits.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename NameTag, typename DataType>

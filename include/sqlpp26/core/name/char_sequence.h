@@ -30,7 +30,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <sqlpp23/core/name/name_tag.h>
+#include <sqlpp26/core/name/name_tag.h>
 
 namespace sqlpp {
 template <char... Cs>

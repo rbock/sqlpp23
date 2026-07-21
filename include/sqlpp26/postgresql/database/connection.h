@@ -29,22 +29,22 @@
  */
 
 #include <memory>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/type_traits.h>
 
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/query/statement_constructor_arg.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/postgresql/database/connection_config.h>
-#include <sqlpp23/postgresql/database/connection_handle.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/postgresql/pg_result.h>
-#include <sqlpp23/postgresql/prepared_statement.h>
-#include <sqlpp23/postgresql/text_result.h>
-#include <sqlpp23/postgresql/to_sql_string.h>
-#include <sqlpp23/postgresql/constraints.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/database/exception.h>
+#include <sqlpp26/core/database/transaction.h>
+#include <sqlpp26/core/query/statement_constructor_arg.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/postgresql/database/connection_config.h>
+#include <sqlpp26/postgresql/database/connection_handle.h>
+#include <sqlpp26/postgresql/database/serializer_context.h>
+#include <sqlpp26/postgresql/pg_result.h>
+#include <sqlpp26/postgresql/prepared_statement.h>
+#include <sqlpp26/postgresql/text_result.h>
+#include <sqlpp26/postgresql/to_sql_string.h>
+#include <sqlpp26/postgresql/constraints.h>
 
 struct pg_conn;
 typedef struct pg_conn PGconn;

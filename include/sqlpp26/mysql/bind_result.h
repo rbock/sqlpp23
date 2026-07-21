@@ -30,11 +30,11 @@
 #include <span>
 #include <string_view>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/mysql/database/connection_config.h>
-#include <sqlpp23/mysql/database/exception.h>
-#include <sqlpp23/mysql/sqlpp_mysql.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/mysql/database/connection_config.h>
+#include <sqlpp26/mysql/database/exception.h>
+#include <sqlpp26/mysql/sqlpp_mysql.h>
 
 namespace sqlpp::mysql {
 class bind_result_t {

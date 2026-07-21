@@ -28,12 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 
-#include <sqlpp23/core/default_value.h>
-#include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/default_value.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/operator/enable_comparison.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Expression, typename DataType>

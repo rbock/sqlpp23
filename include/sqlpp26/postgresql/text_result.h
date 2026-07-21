@@ -33,12 +33,12 @@
 #include <libpq-fe.h>
 #include <pg_config.h>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/detail/parse_date_time.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/postgresql/database/connection_config.h>
-#include <sqlpp23/postgresql/database/exception.h>
-#include <sqlpp23/postgresql/pg_result.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/detail/parse_date_time.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/postgresql/database/connection_config.h>
+#include <sqlpp26/postgresql/database/exception.h>
+#include <sqlpp26/postgresql/pg_result.h>
 
 namespace sqlpp::postgresql {
 namespace detail {

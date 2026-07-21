@@ -27,11 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/clause/on_conflict_do_nothing.h>
-#include <sqlpp23/core/clause/on_conflict_do_update.h>
-#include <sqlpp23/core/reader.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/clause/on_conflict_do_nothing.h>
+#include <sqlpp26/core/clause/on_conflict_do_update.h>
+#include <sqlpp26/core/reader.h>
 
 namespace sqlpp {
 

@@ -32,17 +32,17 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <sqlpp23/core/basic/join.h>
-#include <sqlpp23/core/basic/parameter.h>
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/clause/on_conflict.h>
-#include <sqlpp23/core/clause/returning.h>
-#include <sqlpp23/core/clause/using.h>
-#include <sqlpp23/core/clause/with.h>
-#include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/sqlite3/database/serializer_context.h>
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp26/core/basic/join.h>
+#include <sqlpp26/core/basic/parameter.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/clause/on_conflict.h>
+#include <sqlpp26/core/clause/returning.h>
+#include <sqlpp26/core/clause/using.h>
+#include <sqlpp26/core/clause/with.h>
+#include <sqlpp26/core/database/exception.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/sqlite3/database/serializer_context.h>
+#include <sqlpp26/sqlpp23.h>
 
 #include <cmath>
 

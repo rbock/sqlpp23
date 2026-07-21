@@ -27,14 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/aggregate_function/enable_over.h>
-#include <sqlpp23/core/clause/select_flags.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/aggregate_function/enable_over.h>
+#include <sqlpp26/core/clause/select_flags.h>
+#include <sqlpp26/core/name/create_name_tag.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/operator/enable_comparison.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(min_);

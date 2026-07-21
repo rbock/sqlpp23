@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 class assert_select_columns_with_group_by_are_aggregates_t

@@ -33,11 +33,11 @@
 #include <string_view>
 #include <vector>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/core/detail/parse_date_time.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/mock_db/database/connection_config.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/database/exception.h>
+#include <sqlpp26/core/detail/parse_date_time.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/mock_db/database/connection_config.h>
 
 struct MockRes {
   std::vector<std::vector<std::optional<std::string>>> rows;

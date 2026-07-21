@@ -27,16 +27,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/insert_value_list.h>
-#include <sqlpp23/core/clause/into.h>
-#include <sqlpp23/core/database/parameter_list.h>
-#include <sqlpp23/core/database/prepared_insert.h>
-#include <sqlpp23/core/default_value.h>
-#include <sqlpp23/core/noop.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/sqlite3/database/serializer_context.h>
+#include <sqlpp26/core/clause/insert_value_list.h>
+#include <sqlpp26/core/clause/into.h>
+#include <sqlpp26/core/database/parameter_list.h>
+#include <sqlpp26/core/database/prepared_insert.h>
+#include <sqlpp26/core/default_value.h>
+#include <sqlpp26/core/noop.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/sqlite3/database/serializer_context.h>
 
 namespace sqlpp {
 namespace sqlite3 {

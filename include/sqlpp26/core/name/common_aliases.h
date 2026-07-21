@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/name/create_name_tag.h>
+#include <sqlpp26/core/name/create_name_tag.h>
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(a);

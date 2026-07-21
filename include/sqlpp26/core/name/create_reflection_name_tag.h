@@ -40,7 +40,7 @@
 #include <meta>
 #include <optional>
 
-#include <sqlpp23/core/detail/fixed_string.h>
+#include <sqlpp26/core/detail/fixed_string.h>
 
 namespace sqlpp::meta {
 

@@ -29,7 +29,7 @@
 
 #include <string>
 
-#include <sqlpp23/core/debug_logger.h>
+#include <sqlpp26/core/debug_logger.h>
 
 namespace sqlpp::mock_db {
 struct connection_config {

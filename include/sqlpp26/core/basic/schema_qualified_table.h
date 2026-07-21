@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/column_fwd.h>
-#include <sqlpp23/core/basic/schema.h>
-#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/basic/table_as.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/column_fwd.h>
+#include <sqlpp26/core/basic/schema.h>
+#include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/basic/table_as.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 #include <utility>
 

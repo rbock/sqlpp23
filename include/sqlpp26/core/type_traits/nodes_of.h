@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/detail/type_vector.h>
+#include <sqlpp26/core/detail/type_vector.h>
 
 namespace sqlpp {
 

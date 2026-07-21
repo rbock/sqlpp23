@@ -100,15 +100,15 @@ struct make_table {
 }  // namespace sqlpp
 
 #if 0
-#include <sqlpp23/core/basic/all_of.h>
-#include <sqlpp23/core/basic/column.h>
-#include <sqlpp23/core/basic/enable_join.h>
-#include <sqlpp23/core/basic/join.h>
-#include <sqlpp23/core/basic/table_as.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/all_of.h>
+#include <sqlpp26/core/basic/column.h>
+#include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/join.h>
+#include <sqlpp26/core/basic/table_as.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/type_traits.h>
 
-#include <sqlpp23/core/name/create_reflection_name_tag.h>
+#include <sqlpp26/core/name/create_reflection_name_tag.h>
 
 namespace sqlpp {
 template <typename TableSpec>

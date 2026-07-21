@@ -28,8 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp23/core/operator/comparison_functions.h>
-#include <sqlpp23/core/reader.h>
+#include <sqlpp26/core/operator/comparison_functions.h>
+#include <sqlpp26/core/reader.h>
 
 namespace sqlpp {
 

@@ -29,7 +29,7 @@
 
 #include <string>
 
-#include <sqlpp23/core/database/exception.h>
+#include <sqlpp26/core/database/exception.h>
 
 namespace sqlpp::mysql {
 inline constexpr char fallback[] = "no message";

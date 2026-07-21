@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/limit.h>
-#include <sqlpp23/core/clause/order_by.h>
-#include <sqlpp23/core/clause/update.h>
+#include <sqlpp26/core/clause/limit.h>
+#include <sqlpp26/core/clause/order_by.h>
+#include <sqlpp26/core/clause/update.h>
 
 namespace sqlpp::mysql {
 using blank_update_t = statement_t<update_t,

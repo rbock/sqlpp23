@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/enable_join.h>
-#include <sqlpp23/core/basic/join_fwd.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/join_fwd.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 // Join representation including condition
@@ -214,7 +214,7 @@ struct provided_static_tables_of<pre_join_t<Lhs, JoinType, Rhs>>
 template <typename Lhs, typename JoinType, typename Rhs>
 struct is_pre_join<pre_join_t<Lhs, JoinType, Rhs>> : public std::true_type {};
 
-// Note: See sqlpp23/core/basic/join_fwd.h for forward declarations.
+// Note: See sqlpp26/core/basic/join_fwd.h for forward declarations.
 
 template <StaticTable Lhs, DynamicTable Rhs>
   requires(can_be_joined_v<Lhs, Rhs>)

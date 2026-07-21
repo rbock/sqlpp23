@@ -31,7 +31,7 @@
 #include <string>
 #include <string_view>
 
-#include <sqlpp23/core/wrong.h>
+#include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
 

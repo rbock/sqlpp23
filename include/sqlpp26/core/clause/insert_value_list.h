@@ -27,19 +27,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/column_fwd.h>
-#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/clause/insert_value.h>
-#include <sqlpp23/core/clause/simple_column.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/no_data.h>
-#include <sqlpp23/core/operator/assign_expression.h>
-#include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/wrapped_static_assert.h>
+#include <sqlpp26/core/basic/column_fwd.h>
+#include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/clause/insert_value.h>
+#include <sqlpp26/core/clause/simple_column.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/no_data.h>
+#include <sqlpp26/core/operator/assign_expression.h>
+#include <sqlpp26/core/query/dynamic.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/wrapped_static_assert.h>
 
 namespace sqlpp {
 namespace detail {

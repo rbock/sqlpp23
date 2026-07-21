@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/database/prepared_insert.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/no_data.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/database/prepared_insert.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/no_data.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename _Table>

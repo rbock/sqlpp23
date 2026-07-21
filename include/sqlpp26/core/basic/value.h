@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/operator/enable_comparison.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename T>

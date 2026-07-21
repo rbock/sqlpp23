@@ -29,17 +29,17 @@
 
 #include <tuple>
 
-#include <sqlpp23/core/clause/expression_static_check.h>
-#include <sqlpp23/core/clause/simple_column.h>
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/field_spec.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/clause/expression_static_check.h>
+#include <sqlpp26/core/clause/simple_column.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/field_spec.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 // union_order_by is to be used with union, only.
 // It is used to represent expressions like

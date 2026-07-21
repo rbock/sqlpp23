@@ -37,11 +37,11 @@
 #include <sqlite3.h>
 #endif
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/detail/parse_date_time.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/sqlite3/database/connection_config.h>
-#include <sqlpp23/sqlite3/database/exception.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/detail/parse_date_time.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/sqlite3/database/connection_config.h>
+#include <sqlpp26/sqlite3/database/exception.h>
 
 namespace sqlpp::sqlite3 {
 class bind_result_t {

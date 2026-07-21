@@ -26,19 +26,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/schema.h>
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/mock_db/text_result.h>
-#include <sqlpp23/mock_db/prepared_statement.h>
-#include <sqlpp23/mock_db/database/connection_config.h>
-#include <sqlpp23/mock_db/database/connection_handle.h>
-#include <sqlpp23/mock_db/database/serializer_context.h>
+#include <sqlpp26/core/basic/schema.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/database/transaction.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/mock_db/text_result.h>
+#include <sqlpp26/mock_db/prepared_statement.h>
+#include <sqlpp26/mock_db/database/connection_config.h>
+#include <sqlpp26/mock_db/database/connection_handle.h>
+#include <sqlpp26/mock_db/database/serializer_context.h>
 
 // an object to store internal Mock flags and values to validate in tests
 namespace sqlpp::mock_db {

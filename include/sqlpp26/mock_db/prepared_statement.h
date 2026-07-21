@@ -28,9 +28,9 @@
 
 #include <cstddef>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/mock_db/database/connection_config.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/debug_logger.h>
+#include <sqlpp26/mock_db/database/connection_config.h>
 
 namespace sqlpp::mock_db {
 class prepared_statement_t {

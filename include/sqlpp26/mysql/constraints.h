@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mysql/database/serializer_context.h>
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp26/mysql/database/serializer_context.h>
+#include <sqlpp26/sqlpp23.h>
 
 namespace sqlpp {
 namespace mysql {

@@ -26,11 +26,11 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/name/create_name_tag.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp::alias {
 SQLPP_CREATE_NAME_TAG(exists_);

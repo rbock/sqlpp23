@@ -35,9 +35,9 @@
 #include <string>
 #include <string_view>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/database/exception.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Context, typename X = void>

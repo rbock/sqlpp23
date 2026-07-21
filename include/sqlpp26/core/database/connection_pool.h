@@ -27,8 +27,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/detail/circular_buffer.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/detail/circular_buffer.h>
 
 #include <memory>
 #include <mutex>

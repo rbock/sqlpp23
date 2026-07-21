@@ -32,14 +32,14 @@
 
 #include <libpq-fe.h>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/postgresql/database/connection_handle.h>
-#include <sqlpp23/postgresql/database/serializer_context.h>
-#include <sqlpp23/core/database/parameter_list.h>
-#include <sqlpp23/postgresql/pg_result.h>
-#include <sqlpp23/postgresql/to_sql_string.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/debug_logger.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/postgresql/database/connection_handle.h>
+#include <sqlpp26/postgresql/database/serializer_context.h>
+#include <sqlpp26/core/database/parameter_list.h>
+#include <sqlpp26/postgresql/pg_result.h>
+#include <sqlpp26/postgresql/to_sql_string.h>
 
 namespace sqlpp::postgresql {
 // Forward declaration

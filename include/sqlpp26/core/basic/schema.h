@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp26/core/to_sql_string.h>
 #include <string>
 
 namespace sqlpp {

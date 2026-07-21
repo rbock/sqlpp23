@@ -26,8 +26,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename L, typename R1, typename R2>

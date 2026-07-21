@@ -27,14 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/insert_value_list.h>
-#include <sqlpp23/core/clause/into.h>
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/database/prepared_insert.h>
-#include <sqlpp23/core/default_value.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/clause/insert_value_list.h>
+#include <sqlpp26/core/clause/into.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/database/prepared_insert.h>
+#include <sqlpp26/core/default_value.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 struct insert_t {};

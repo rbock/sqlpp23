@@ -27,4 +27,4 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/mock_db/database/connection.h>
+#include <sqlpp26/mock_db/database/connection.h>

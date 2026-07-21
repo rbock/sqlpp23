@@ -27,6 +27,7 @@
 
 #include <sqlpp26/ranges/ranges.h>
 #include <sqlpp26/ranges/to_filter_expression.h>
+#include <sqlpp26/ranges/operator/comparison_expression.h>
 
 namespace test {
 struct Foo {

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 struct default_value_t {};

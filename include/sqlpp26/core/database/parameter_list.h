@@ -30,10 +30,10 @@
 #include <tuple>
 #include <utility>
 
-#include <sqlpp23/core/detail/type_vector.h>
-#include <sqlpp23/core/query/bind_parameter.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/wrong.h>
+#include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/query/bind_parameter.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
 template <typename T>

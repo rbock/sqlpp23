@@ -26,8 +26,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/aggregate_function/over.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/aggregate_function/over.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 // To be used as CRTP base for aggregate expressions that should offer the

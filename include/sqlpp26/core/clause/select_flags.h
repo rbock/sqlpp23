@@ -27,11 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
-#include <sqlpp23/core/log_category.h> // include to prevent shadow warning for log_category::all
+#include <sqlpp26/core/log_category.h> // include to prevent shadow warning for log_category::all
 
 namespace sqlpp {
 // standard select flags

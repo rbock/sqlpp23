@@ -27,17 +27,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/clause/select_as.h>
-#include <sqlpp23/core/clause/select_column_traits.h>
-#include <sqlpp23/core/detail/flat_tuple.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/field_spec.h>
-#include <sqlpp23/core/noop.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/clause/select_as.h>
+#include <sqlpp26/core/clause/select_column_traits.h>
+#include <sqlpp26/core/detail/flat_tuple.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/field_spec.h>
+#include <sqlpp26/core/noop.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
 #include <tuple>
 
 namespace sqlpp {

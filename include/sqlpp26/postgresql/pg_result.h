@@ -33,7 +33,7 @@
 #include <libpq-fe.h>
 #include <pg_config.h>
 
-#include <sqlpp23/postgresql/database/exception.h>
+#include <sqlpp26/postgresql/database/exception.h>
 
 namespace sqlpp::postgresql {
 

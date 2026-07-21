@@ -27,8 +27,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/database/connection_pool.h>
-#include <sqlpp23/sqlite3/database/connection.h>
+#include <sqlpp26/core/database/connection_pool.h>
+#include <sqlpp26/sqlite3/database/connection.h>
 
 namespace sqlpp::sqlite3 {
 using connection_pool = sqlpp::connection_pool<connection_base>;

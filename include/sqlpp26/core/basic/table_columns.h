@@ -29,7 +29,7 @@
 
 #include <tuple>
 
-#include <sqlpp23/core/basic/column_fwd.h>
+#include <sqlpp26/core/basic/column_fwd.h>
 
 namespace sqlpp {
 template <typename _Table, typename... ColumnSpec>

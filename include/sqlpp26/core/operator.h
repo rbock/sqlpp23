@@ -27,25 +27,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // logical
-#include <sqlpp23/core/operator/logical_expression.h>
+#include <sqlpp26/core/operator/logical_expression.h>
 
 // comparison
-#include <sqlpp23/core/operator/any.h>
-#include <sqlpp23/core/operator/between_expression.h>
-#include <sqlpp23/core/operator/comparison_expression.h>
-#include <sqlpp23/core/operator/in_expression.h>
+#include <sqlpp26/core/operator/any.h>
+#include <sqlpp26/core/operator/between_expression.h>
+#include <sqlpp26/core/operator/comparison_expression.h>
+#include <sqlpp26/core/operator/in_expression.h>
 
 // arithmetic
-#include <sqlpp23/core/operator/arithmetic_expression.h>
+#include <sqlpp26/core/operator/arithmetic_expression.h>
 
 // binary
-#include <sqlpp23/core/operator/bit_expression.h>
+#include <sqlpp26/core/operator/bit_expression.h>
 
 // assignment
-#include <sqlpp23/core/operator/assign_expression.h>
+#include <sqlpp26/core/operator/assign_expression.h>
 
 // misc
-#include <sqlpp23/core/operator/as_expression.h>
-#include <sqlpp23/core/operator/cast.h>
-#include <sqlpp23/core/operator/exists_expression.h>
-#include <sqlpp23/core/operator/sort_order_expression.h>
+#include <sqlpp26/core/operator/as_expression.h>
+#include <sqlpp26/core/operator/cast.h>
+#include <sqlpp26/core/operator/exists_expression.h>
+#include <sqlpp26/core/operator/sort_order_expression.h>

@@ -31,23 +31,23 @@
 #include <memory>
 #include <string>
 
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/mysql/bind_result.h>
-#include <sqlpp23/mysql/clause/delete_from.h>
-#include <sqlpp23/mysql/clause/update.h>
-#include <sqlpp23/mysql/constraints.h>
-#include <sqlpp23/mysql/database/connection_config.h>
-#include <sqlpp23/mysql/database/connection_handle.h>
-#include <sqlpp23/mysql/database/exception.h>
-#include <sqlpp23/mysql/database/serializer_context.h>
-#include <sqlpp23/mysql/prepared_statement.h>
-#include <sqlpp23/mysql/sqlpp_mysql.h>
-#include <sqlpp23/mysql/text_result.h>
-#include <sqlpp23/mysql/to_sql_string.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/mysql/bind_result.h>
+#include <sqlpp26/mysql/clause/delete_from.h>
+#include <sqlpp26/mysql/clause/update.h>
+#include <sqlpp26/mysql/constraints.h>
+#include <sqlpp26/mysql/database/connection_config.h>
+#include <sqlpp26/mysql/database/connection_handle.h>
+#include <sqlpp26/mysql/database/exception.h>
+#include <sqlpp26/mysql/database/serializer_context.h>
+#include <sqlpp26/mysql/prepared_statement.h>
+#include <sqlpp26/mysql/sqlpp_mysql.h>
+#include <sqlpp26/mysql/text_result.h>
+#include <sqlpp26/mysql/to_sql_string.h>
 
 namespace sqlpp::mysql {
 namespace detail {

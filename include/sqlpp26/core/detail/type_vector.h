@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/wrong.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/wrong.h>
 #include <stddef.h>
 
 namespace sqlpp::detail {

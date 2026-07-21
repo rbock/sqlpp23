@@ -35,8 +35,8 @@
 #include <string>
 #include <string_view>
 
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/type_traits/optional.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/type_traits/optional.h>
 
 namespace sqlpp {
 struct no_value_t;

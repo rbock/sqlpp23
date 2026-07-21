@@ -29,8 +29,8 @@
 
 #include <utility>
 
-#include <sqlpp23/core/basic/enable_join.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename NameTag>

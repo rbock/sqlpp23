@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/clause/insert.h>
-#include <sqlpp23/core/clause/on_conflict.h>
-#include <sqlpp23/core/clause/returning.h>
+#include <sqlpp26/core/clause/insert.h>
+#include <sqlpp26/core/clause/on_conflict.h>
+#include <sqlpp26/core/clause/returning.h>
 
 namespace sqlpp::sqlite3 {
 using blank_insert_t = statement_t<insert_t,

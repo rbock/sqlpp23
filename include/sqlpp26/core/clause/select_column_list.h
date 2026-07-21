@@ -29,24 +29,24 @@
 
 #include <tuple>
 
-#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/clause/expression_static_check.h>
-#include <sqlpp23/core/clause/select_as.h>
-#include <sqlpp23/core/clause/select_column_traits.h>
-#include <sqlpp23/core/clause/select_columns_aggregate_check.h>
-#include <sqlpp23/core/clause/select_flags.h>
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/database/prepared_select.h>
-#include <sqlpp23/core/detail/flat_tuple.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/field_spec.h>
-#include <sqlpp23/core/operator/as_expression.h>
-#include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/query/result_row.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/clause/expression_static_check.h>
+#include <sqlpp26/core/clause/select_as.h>
+#include <sqlpp26/core/clause/select_column_traits.h>
+#include <sqlpp26/core/clause/select_columns_aggregate_check.h>
+#include <sqlpp26/core/clause/select_flags.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/database/prepared_select.h>
+#include <sqlpp26/core/detail/flat_tuple.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/field_spec.h>
+#include <sqlpp26/core/operator/as_expression.h>
+#include <sqlpp26/core/query/dynamic.h>
+#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
 
 namespace sqlpp {
 namespace detail {

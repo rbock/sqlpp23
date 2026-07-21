@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/join_fwd.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/join_fwd.h>
+#include <sqlpp26/core/type_traits.h>
 #include <utility>
 
 namespace sqlpp {

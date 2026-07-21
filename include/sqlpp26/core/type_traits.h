@@ -70,20 +70,20 @@ static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <type_traits>
 #include <vector>
 
-#include <sqlpp23/core/consistent.h>
-#include <sqlpp23/core/detail/get_first.h>
-#include <sqlpp23/core/detail/type_set.h>
-#include <sqlpp23/core/detail/type_vector.h>
-#include <sqlpp23/core/name/name_tag.h>
-#include <sqlpp23/core/operator/as_expression_fwd.h>
-#include <sqlpp23/core/query/dynamic_fwd.h>
-#include <sqlpp23/core/type_traits/aggregates.h>
-#include <sqlpp23/core/type_traits/ctes_of.h>
-#include <sqlpp23/core/type_traits/nodes_of.h>
-#include <sqlpp23/core/type_traits/optional.h>
-#include <sqlpp23/core/type_traits/tables_of.h>
-#include <sqlpp23/core/type_traits/data_type.h>
-#include <sqlpp23/core/wrapped_static_assert.h>
+#include <sqlpp26/core/consistent.h>
+#include <sqlpp26/core/detail/get_first.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/name/name_tag.h>
+#include <sqlpp26/core/operator/as_expression_fwd.h>
+#include <sqlpp26/core/query/dynamic_fwd.h>
+#include <sqlpp26/core/type_traits/aggregates.h>
+#include <sqlpp26/core/type_traits/ctes_of.h>
+#include <sqlpp26/core/type_traits/nodes_of.h>
+#include <sqlpp26/core/type_traits/optional.h>
+#include <sqlpp26/core/type_traits/tables_of.h>
+#include <sqlpp26/core/type_traits/data_type.h>
+#include <sqlpp26/core/wrapped_static_assert.h>
 
 namespace sqlpp {
 template <typename T>

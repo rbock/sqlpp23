@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/chrono.h>
+#include <sqlpp26/core/chrono.h>
 
 #include <cctype>
 

@@ -32,7 +32,7 @@
 
 #include <libpq-fe.h>
 
-#include <sqlpp23/core/database/exception.h>
+#include <sqlpp26/core/database/exception.h>
 
 namespace sqlpp::postgresql {
 inline constexpr char fallback[] = "no message";

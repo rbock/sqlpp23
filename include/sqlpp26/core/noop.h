@@ -29,9 +29,9 @@
 
 #include <type_traits>
 
-#include <sqlpp23/core/database/prepared_execute.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp26/core/database/prepared_execute.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/to_sql_string.h>
 
 namespace sqlpp {
 struct noop {};

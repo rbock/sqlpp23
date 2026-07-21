@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp::detail {
 // If an expression (or sub-expression) is statically selected, the respective

@@ -32,8 +32,8 @@
 
 #include <libpq-fe.h>
 
-#include <sqlpp23/postgresql/database/connection_config.h>
-#include <sqlpp23/postgresql/database/exception.h>
+#include <sqlpp26/postgresql/database/connection_config.h>
+#include <sqlpp26/postgresql/database/exception.h>
 
 namespace sqlpp::postgresql::detail {
 struct connection_handle {

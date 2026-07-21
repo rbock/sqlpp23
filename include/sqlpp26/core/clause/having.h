@@ -27,14 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/value.h>
-#include <sqlpp23/core/clause/expression_static_check.h>
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/query/statement.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/value.h>
+#include <sqlpp26/core/clause/expression_static_check.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Expression>

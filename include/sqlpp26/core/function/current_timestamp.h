@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/operator/enable_comparison.h>
-#include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/operator/enable_comparison.h>
+#include <sqlpp26/core/to_sql_string.h>
 
 namespace sqlpp {
 struct current_timestamp_t : public enable_comparison, public enable_as {};

@@ -26,8 +26,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/core/operator/comparison_functions.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/operator/comparison_functions.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 // To be used as CRTP base for expressions that should offer the comparison

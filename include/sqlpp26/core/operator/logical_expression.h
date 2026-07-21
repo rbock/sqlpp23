@@ -28,15 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp23/core/concepts.h>
-#include <sqlpp23/core/logic.h>
-#include <sqlpp23/core/noop.h>
-#include <sqlpp23/core/operator/enable_as.h>
-#include <sqlpp23/core/query/dynamic.h>
-#include <sqlpp23/core/reader.h>
-#include <sqlpp23/core/to_sql_string.h>
-#include <sqlpp23/core/tuple_to_sql_string.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/concepts.h>
+#include <sqlpp26/core/logic.h>
+#include <sqlpp26/core/noop.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/query/dynamic.h>
+#include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/to_sql_string.h>
+#include <sqlpp26/core/tuple_to_sql_string.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 struct logical_and {

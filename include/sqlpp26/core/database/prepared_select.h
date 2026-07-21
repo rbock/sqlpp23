@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/database/parameter_list.h>
-#include <sqlpp23/core/query/statement_handler.h>
-#include <sqlpp23/core/result.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/database/parameter_list.h>
+#include <sqlpp26/core/query/statement_handler.h>
+#include <sqlpp26/core/result.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Database, typename _Statement>

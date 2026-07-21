@@ -27,20 +27,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/schema_qualified_table.h>
-#include <sqlpp23/core/clause/delete_from.h>
-#include <sqlpp23/core/clause/insert.h>
-#include <sqlpp23/core/clause/on_conflict.h>
-#include <sqlpp23/core/clause/returning.h>
-#include <sqlpp23/core/clause/select.h>
-#include <sqlpp23/core/clause/truncate.h>
-#include <sqlpp23/core/clause/update.h>
-#include <sqlpp23/core/clause/using.h>
-#include <sqlpp23/core/clause/verbatim_clause.h>
-#include <sqlpp23/core/clause/with.h>
-#include <sqlpp23/core/database/transaction.h>
-#include <sqlpp23/core/debug_logger.h>
-#include <sqlpp23/core/function.h>
-#include <sqlpp23/core/name/common_aliases.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/operator.h>
+#include <sqlpp26/core/basic/schema_qualified_table.h>
+#include <sqlpp26/core/clause/delete_from.h>
+#include <sqlpp26/core/clause/insert.h>
+#include <sqlpp26/core/clause/on_conflict.h>
+#include <sqlpp26/core/clause/returning.h>
+#include <sqlpp26/core/clause/select.h>
+#include <sqlpp26/core/clause/truncate.h>
+#include <sqlpp26/core/clause/update.h>
+#include <sqlpp26/core/clause/using.h>
+#include <sqlpp26/core/clause/verbatim_clause.h>
+#include <sqlpp26/core/clause/with.h>
+#include <sqlpp26/core/database/transaction.h>
+#include <sqlpp26/core/debug_logger.h>
+#include <sqlpp26/core/function.h>
+#include <sqlpp26/core/name/common_aliases.h>
+#include <sqlpp26/core/name/create_name_tag.h>
+#include <sqlpp26/core/operator.h>

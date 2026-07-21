@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/postgresql/clause/delete_from.h>
-#include <sqlpp23/postgresql/clause/insert.h>
-#include <sqlpp23/postgresql/clause/update.h>
-#include <sqlpp23/postgresql/database/connection.h>
-#include <sqlpp23/postgresql/database/connection_pool.h>
+#include <sqlpp26/postgresql/clause/delete_from.h>
+#include <sqlpp26/postgresql/clause/insert.h>
+#include <sqlpp26/postgresql/clause/update.h>
+#include <sqlpp26/postgresql/database/connection.h>
+#include <sqlpp26/postgresql/database/connection_pool.h>

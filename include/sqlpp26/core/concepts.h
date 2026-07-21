@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/operator/as_expression_fwd.h>
-#include <sqlpp23/core/query/dynamic_fwd.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/operator/as_expression_fwd.h>
+#include <sqlpp26/core/query/dynamic_fwd.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename T>

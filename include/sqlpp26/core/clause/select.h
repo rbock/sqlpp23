@@ -27,20 +27,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/query/statement.h>
+#include <sqlpp26/core/query/statement.h>
 
-#include <sqlpp23/core/clause/for_update.h>
-#include <sqlpp23/core/clause/from.h>
-#include <sqlpp23/core/clause/group_by.h>
-#include <sqlpp23/core/clause/having.h>
-#include <sqlpp23/core/clause/limit.h>
-#include <sqlpp23/core/clause/offset.h>
-#include <sqlpp23/core/clause/order_by.h>
-#include <sqlpp23/core/clause/select_column_list.h>
-#include <sqlpp23/core/clause/union.h>
-#include <sqlpp23/core/clause/where.h>
-#include <sqlpp23/core/database/connection.h>
-#include <sqlpp23/core/wrong.h>
+#include <sqlpp26/core/clause/for_update.h>
+#include <sqlpp26/core/clause/from.h>
+#include <sqlpp26/core/clause/group_by.h>
+#include <sqlpp26/core/clause/having.h>
+#include <sqlpp26/core/clause/limit.h>
+#include <sqlpp26/core/clause/offset.h>
+#include <sqlpp26/core/clause/order_by.h>
+#include <sqlpp26/core/clause/select_column_list.h>
+#include <sqlpp26/core/clause/union.h>
+#include <sqlpp26/core/clause/where.h>
+#include <sqlpp26/core/database/connection.h>
+#include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
 struct select_t {};
