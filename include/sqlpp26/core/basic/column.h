@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/column_fwd.h>
+#include <sqlpp26/core/basic/column_fwd.h>
+#include <sqlpp26/core/basic/column_spec.h>
+#include <sqlpp26/core/type_traits.h>
+/* TODO
 #include <sqlpp23/core/default_value.h>
 #include <sqlpp23/core/detail/type_vector.h>
 #include <sqlpp23/core/operator/as_expression.h>
@@ -37,13 +40,33 @@
 #include <sqlpp23/core/type_traits.h>
 #include <sqlpp23/core/wrong.h>
 #include <type_traits>
+*/
 
 namespace sqlpp {
+template <typename Table, std::size_t index>
+struct column // : public enable_as, public enable_comparison
+{
+};
+
+template <typename Table, size_t index>
+struct column_spec_of<column<Table, index>> {
+  using type = typename table_spec_of_t<Table>::generator::template column_spec<index>;
+};
+
+template <typename Table, size_t index>
+struct data_type_of<column<Table, index>> {
+  using type = typename column_spec_of_t<column<Table, index>>::data_type;
+};
+
+template <typename Table, size_t index>
+struct has_default<column<Table, index>> {
+  static constexpr bool value = column_spec_of_t<column<Table, index>>::has_default;
+};
+
+/*
 // _Table can be a table_t or a cte_ref_t or a select_ref_t
-template <typename _Table, typename ColumnSpec>
+template <typename Table, typename ColumnSpec>
 struct column_t : public enable_as, public enable_comparison {
-  using _spec_t = ColumnSpec;
-  using _table = _Table;
 
   column_t() = default;
   column_t(const column_t&) = default;
@@ -107,4 +130,5 @@ auto to_sql_string(Context& context, const column_t<_Table, ColumnSpec>&)
   return name_to_sql_string(context, name_tag_of_t<_Table>{}) + "." +
          name_to_sql_string(context, name_tag_of_t<T>{});
 }
+*/
 }  // namespace sqlpp

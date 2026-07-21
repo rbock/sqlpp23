@@ -27,15 +27,15 @@ include(CMakePackageConfigHelpers)
 
 function(add_build_core)
     # The core library needs the core headers plus all the headers in the top include directory
-    file(GLOB_RECURSE hdr_component LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
-    file(GLOB hdr_common LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
+    file(GLOB_RECURSE hdr_component LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp26/core/*.h)
+    file(GLOB hdr_common LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp26/*.h)
     set(headers ${hdr_component} ${hdr_common})
     _add_build_regular_and_module(
-        CONFIG_SCRIPT Sqlpp23Config.cmake
+        CONFIG_SCRIPT Sqlpp26Config.cmake
         HEADERS ${headers}
-        MODULE_INTERFACE sqlpp23.core.cppm
-        TARGET_NAME sqlpp23
-        TARGET_ALIAS sqlpp23::core
+        MODULE_INTERFACE sqlpp26.core.cppm
+        TARGET_NAME sqlpp26
+        TARGET_ALIAS sqlpp26::core
         TARGET_EXPORTED core
     )
 endfunction()
@@ -46,18 +46,18 @@ function(add_build_component)
     set(multiValueArgs DEFINES DEPENDENCIES)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    file(GLOB_RECURSE headers LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
+    file(GLOB_RECURSE headers LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp26/${ARG_HEADER_DIR}/*.h)
     string(TOLOWER ${ARG_NAME} lc_name)
     _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
     _add_build_regular_and_module(
-        CONFIG_SCRIPT Sqlpp23${ARG_NAME}Config.cmake
+        CONFIG_SCRIPT Sqlpp26${ARG_NAME}Config.cmake
         DEFINES ${ARG_DEFINES}
-        DEPENDENCIES sqlpp23::core ${ARG_DEPENDENCIES}
+        DEPENDENCIES sqlpp26::core ${ARG_DEPENDENCIES}
         HEADERS ${headers}
         MODULE_INTERFACE ${ARG_MODULE_INTERFACE}
         PACKAGE ${ARG_PACKAGE}
-        TARGET_NAME sqlpp23_${lc_name}
-        TARGET_ALIAS sqlpp23::${lc_name}
+        TARGET_NAME sqlpp26_${lc_name}
+        TARGET_ALIAS sqlpp26::${lc_name}
         TARGET_EXPORTED ${lc_name}
         ${NO_INSTALL}
     )
@@ -77,14 +77,14 @@ function(_add_build_regular_and_module)
             # If the package needs a special find script, copy it to the destination scripts directory
             set(find_script ${PROJECT_SOURCE_DIR}/cmake/modules/Find${ARG_PACKAGE}.cmake)
             if(EXISTS ${find_script})
-                install(FILES ${find_script} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
+                install(FILES ${find_script} DESTINATION ${SQLPP26_INSTALL_CMAKEDIR})
             endif()
         endif()
     endif()
     if(NOT ARG_NO_INSTALL)
         install(
             FILES ${PROJECT_SOURCE_DIR}/cmake/configs/${ARG_CONFIG_SCRIPT}
-            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+            DESTINATION ${SQLPP26_INSTALL_CMAKEDIR}
         )
     endif()
     _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
@@ -144,12 +144,12 @@ function(_add_build_common)
     add_library(${target_name} ${lib_type})
     add_library(${target_alias} ALIAS ${target_name})
     set_target_properties(${target_name} PROPERTIES EXPORT_NAME ${target_exported})
-    target_compile_features(${target_name} ${lib_prop_scope} cxx_std_23)
+    target_compile_features(${target_name} ${lib_prop_scope} cxx_std_26)
     if(ARG_DEFINES)
         target_compile_definitions(${target_name} ${lib_prop_scope} ${ARG_DEFINES})
     endif()
     foreach(dep ${ARG_DEPENDENCIES})
-        if(dep MATCHES "^sqlpp23::")
+        if(dep MATCHES "^sqlpp26::")
             set(dep ${dep}${target_suffix})
         endif()
         target_link_libraries(${target_name} ${lib_prop_scope} ${dep})
@@ -178,9 +178,9 @@ function(_add_build_common)
         # Install the component output artifacts
         install(
             TARGETS ${target_name}
-            EXPORT Sqlpp23Targets
+            EXPORT Sqlpp26Targets
             FILE_SET HEADERS
-            FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_PREFIX}/modules/sqlpp23
+            FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_PREFIX}/modules/sqlpp26
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         )
     endif()

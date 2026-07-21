@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Roland Bock
+# Copyright (c) 2026, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,26 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include(sqlpp26_testing_helper)
+add_testing_target(NAME ranges MOD_DEPS sqlpp23::ranges_module)
 
-add_testing_base()
-
-add_subdirectory(core)
-
-if(BUILD_MYSQL_CONNECTOR OR BUILD_MARIADB_CONNECTOR)
-    add_subdirectory(mysql)
-endif()
-
-if(BUILD_POSTGRESQL_CONNECTOR)
-    add_subdirectory(postgresql)
-endif()
-
-if(BUILD_SQLITE3_CONNECTOR OR BUILD_SQLCIPHER_CONNECTOR)
-    add_subdirectory(sqlite3)
-endif()
-
-if(BUILD_RANGES_CONNECTOR)
-    add_subdirectory(ranges)
-endif()
-
-add_subdirectory(scripts)
+add_subdirectory(filter_expression)

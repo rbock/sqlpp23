@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,79 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <meta>
+#include <vector>
+#include <ranges>
+#include <algorithm>
+
+#include <sqlpp26/core/basic/column.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/basic/fixed_string.h>
+#include <sqlpp26/core/basic/column_spec.h>
+
+namespace sqlpp {
+
+template <typename TableSpec, fixed_string Alias>
+struct table_as : public TableSpec::generator::template table_as_columns<Alias>::type {};
+
+template <typename TableSpec, fixed_string Alias>
+struct table_spec_of<table_as<TableSpec, Alias>>
+{
+  using type = TableSpec;
+};
+
+class enable_table_as {
+ public:
+  template <fixed_string Alias, typename Table>
+  constexpr auto as(this Table self) {
+    return table_as<table_spec_of_t<Table>, Alias>{};
+  }
+};
+
+template <typename TableSpec>
+struct table : public TableSpec::generator::columns, public enable_table_as {};
+
+template <typename TableSpec>
+struct table_spec_of<table<TableSpec>>
+{
+  using type = TableSpec;
+};
+
+// Table generator
+template <typename TableSpec, fixed_string Name, typename... ColumnSpecs>
+struct make_table {
+  struct columns;
+  consteval {
+    std::vector<std::meta::info> column_data_members;
+    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(ColumnSpecs))) {
+      column_data_members.push_back(std::meta::data_member_spec(
+          substitute(^^sqlpp::column, {^^table<TableSpec>, ^^index}),
+          {.name = ColumnSpecs...[index]::name}));
+    }
+    define_aggregate(^^columns, column_data_members);
+  }
+
+  template <fixed_string Alias>
+  struct table_as_columns {
+    struct type;
+    consteval {
+      std::vector<std::meta::info> column_data_members;
+      template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(ColumnSpecs))) {
+        column_data_members.push_back(std::meta::data_member_spec(
+            substitute(^^sqlpp::column, {^^table_as<TableSpec, Alias>, ^^index}),
+            {.name = ColumnSpecs...[index]::name}));
+      }
+      define_aggregate(^^type, column_data_members);
+    }
+  };
+
+  template<size_t Idx>
+  using column_spec = ColumnSpecs...[Idx];
+};
+
+}  // namespace sqlpp
+
+#if 0
 #include <sqlpp23/core/basic/all_of.h>
 #include <sqlpp23/core/basic/column.h>
 #include <sqlpp23/core/basic/enable_join.h>
@@ -82,3 +155,4 @@ auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/)
   return name_to_sql_string(context, name_tag_of_t<TableSpec>{});
 }
 }  // namespace sqlpp
+#endif

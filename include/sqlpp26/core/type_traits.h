@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+namespace sqlpp {
+
+template <typename TableSpec>
+struct table_spec_of;
+
+template <typename Table>
+using table_spec_of_t = typename table_spec_of<Table>::type;
+
+template <typename T>
+struct data_type_of {
+  using type = void;
+};
+template<typename T> using data_type_of_t = typename data_type_of<T>::type;
+
+template<typename T> struct name_of
+{
+  static constexpr std::string_view value = "";
+};
+template<typename T> inline constexpr auto name_of_v = name_of<T>::value;
+
+template<typename T> struct sql_name_of;
+template<typename T> inline constexpr auto sql_name_of_v = sql_name_of<T>::value;
+
+template <typename T>
+struct has_default : public std::false_type {};
+template<typename T> inline constexpr auto has_default_v = has_default<T>::value;
+
+template <typename T>
+struct is_raw_table : public std::false_type {};
+
+template <typename T>
+static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
+
+}
+
+#if 0
 #include <optional>
 #include <span>
 #include <string_view>
@@ -583,3 +619,4 @@ template <typename T>
 inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
 
 }  // namespace sqlpp
+#endif

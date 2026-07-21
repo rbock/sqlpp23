@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -11,8 +11,8 @@
  *   list of conditions and the following disclaimer.
  *
  *   Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,7 +27,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+#include <string_view>
+
 namespace sqlpp {
-template <typename _Table, typename ColumnSpec>
-struct column_t;
+template <size_t N>
+struct fixed_string {
+  char data[N];
+
+  constexpr fixed_string(char const (&s)[N]) { std::copy(s, s + N, data); }
+  constexpr fixed_string(std::string_view s) { std::copy(s.data(), s.data() + N, data); }
+};
+
 }  // namespace sqlpp
+

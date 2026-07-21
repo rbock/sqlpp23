@@ -25,7 +25,7 @@
 
 ### Preamble
 cmake_minimum_required(VERSION 3.28)
-project(sqlpp23 VERSION 0.1 LANGUAGES CXX)
+project(sqlpp26 VERSION 0.1 LANGUAGES CXX)
 
 ### Project-wide setup
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -33,18 +33,19 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 include(GNUInstallDirs)
 include(CTest)
-include(sqlpp23_build_targets)
+include(sqlpp26_build_targets)
 
 option(BUILD_MYSQL_CONNECTOR "Build MySQL Connector" OFF)
 option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
 option(BUILD_POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
 option(BUILD_SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
 option(BUILD_SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
-option(BUILD_WITH_MODULES "Build tests with sqlpp23 modules" OFF)
+option(BUILD_RANGES_CONNECTOR "Build Ranges Connector" OFF)
+option(BUILD_WITH_MODULES "Build tests with sqlpp26 modules" OFF)
 
 option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON)
 
-set(SQLPP23_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp23 CACHE STRING "Path to sqlpp23 cmake files")
+set(SQLPP26_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp26 CACHE STRING "Path to sqlpp26 cmake files")
 
 # If we are building without C++20 modules, don't scan the sources for module dependencies
 # This speeds up the build process.
@@ -56,7 +57,7 @@ endif()
 add_build_core()
 
 ### Mock Database
-add_build_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp23.mock_db.cppm NO_INSTALL)
+add_build_component(NAME mock_db HEADER_DIR mock_db MODULE_INTERFACE sqlpp26.mock_db.cppm NO_INSTALL)
 
 ### Connector components
 if(BUILD_SQLITE3_CONNECTOR)
@@ -67,37 +68,40 @@ if(BUILD_SQLITE3_CONNECTOR)
     else()
         set(SQLITE_DEPS "SQLite::SQLite3")
     endif()
-    add_build_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES ${SQLITE_DEPS} HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
+    add_build_component(NAME SQLite3 PACKAGE SQLite3 DEPENDENCIES ${SQLITE_DEPS} HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp26.sqlite3.cppm)
 endif()
 if(BUILD_SQLCIPHER_CONNECTOR)
-    add_build_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp23.sqlite3.cppm)
+    add_build_component(NAME SQLCipher PACKAGE SQLCipher DEPENDENCIES SQLCipher::SQLCipher DEFINES SQLPP_USE_SQLCIPHER HEADER_DIR sqlite3 MODULE_INTERFACE sqlpp26.sqlite3.cppm)
 endif()
 if(BUILD_MYSQL_CONNECTOR)
-    add_build_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
+    add_build_component(NAME MySQL PACKAGE MySQL DEPENDENCIES MySQL::MySQL HEADER_DIR mysql MODULE_INTERFACE sqlpp26.mysql.cppm)
 endif()
 if(BUILD_MARIADB_CONNECTOR)
-    add_build_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql MODULE_INTERFACE sqlpp23.mysql.cppm)
+    add_build_component(NAME MariaDB PACKAGE MariaDB DEPENDENCIES MariaDB::MariaDB HEADER_DIR mysql MODULE_INTERFACE sqlpp26.mysql.cppm)
 endif()
 if(BUILD_POSTGRESQL_CONNECTOR)
-    add_build_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql MODULE_INTERFACE sqlpp23.postgresql.cppm)
+    add_build_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql MODULE_INTERFACE sqlpp26.postgresql.cppm)
+endif()
+if(BUILD_RANGES_CONNECTOR)
+  add_build_component(NAME Ranges HEADER_DIR ranges MODULE_INTERFACE sqlpp26.ranges.cppm)
 endif()
 
 # Utility programs
-install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/sqlpp23-ddl2cpp
+install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/sqlpp26-ddl2cpp
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 ### Packaging
-write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
+write_basic_package_version_file(Sqlpp26ConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
-    DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp26ConfigVersion.cmake
+    DESTINATION ${SQLPP26_INSTALL_CMAKEDIR}
 )
-install(EXPORT Sqlpp23Targets
-    DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    NAMESPACE   sqlpp23::
+install(EXPORT Sqlpp26Targets
+    DESTINATION ${SQLPP26_INSTALL_CMAKEDIR}
+    NAMESPACE   sqlpp26::
     CXX_MODULES_DIRECTORY .
 )
 

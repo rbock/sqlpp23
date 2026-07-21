@@ -37,35 +37,35 @@ endif()
 
 # Check all required components are available before trying to load any
 foreach(comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_comps)
-    if(${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${comp} AND NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/Sqlpp23${comp}Config.cmake)
-        set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Sqlpp23 missing required component: ${comp}")
+    if(${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${comp} AND NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/Sqlpp26${comp}Config.cmake)
+        set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Sqlpp26 missing required component: ${comp}")
         set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
         return()
     endif()
 endforeach()
 
 # Add the target file
-include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp23Targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp26Targets.cmake)
 
 # Load any optional components
 foreach(comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_comps)
-    include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp23${comp}Config.cmake OPTIONAL)
+    include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp26${comp}Config.cmake OPTIONAL)
 endforeach()
 
-# Add the target sqlpp23::sqlpp23 as an alias for sqlpp23::core
-add_library(sqlpp23::sqlpp23 ALIAS sqlpp23::core)
+# Add the target sqlpp26::sqlpp26 as an alias for sqlpp26::core
+add_library(sqlpp26::sqlpp26 ALIAS sqlpp26::core)
 
 # Import "ddl2cpp" script
-if(NOT TARGET sqlpp23::ddl2cpp)
-    get_filename_component(sqlpp23_ddl2cpp_location "${CMAKE_CURRENT_LIST_DIR}/../../../bin/sqlpp23-ddl2cpp" REALPATH)
-    if(NOT EXISTS "${sqlpp23_ddl2cpp_location}")
-        message(FATAL_ERROR "The imported target sqlpp23::ddl2cpp references the file '${sqlpp23_ddl2cpp_location}' but this file does not exists.")
+if(NOT TARGET sqlpp26::ddl2cpp)
+    get_filename_component(sqlpp26_ddl2cpp_location "${CMAKE_CURRENT_LIST_DIR}/../../../bin/sqlpp26-ddl2cpp" REALPATH)
+    if(NOT EXISTS "${sqlpp26_ddl2cpp_location}")
+        message(FATAL_ERROR "The imported target sqlpp26::ddl2cpp references the file '${sqlpp26_ddl2cpp_location}' but this file does not exists.")
     endif()
-    add_executable(sqlpp23::ddl2cpp IMPORTED)
-    set_target_properties(sqlpp23::ddl2cpp PROPERTIES
-        IMPORTED_LOCATION "${sqlpp23_ddl2cpp_location}"
+    add_executable(sqlpp26::ddl2cpp IMPORTED)
+    set_target_properties(sqlpp26::ddl2cpp PROPERTIES
+        IMPORTED_LOCATION "${sqlpp26_ddl2cpp_location}"
     )
-    unset(sqlpp23_ddl2cpp_location)
+    unset(sqlpp26_ddl2cpp_location)
 endif()
 
 # Resture module path
