@@ -30,15 +30,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp26/core/noop.h>
 #include <sqlpp26/core/operator/any.h>
-#include <sqlpp26/core/operator/enable_as.h>
-#include <sqlpp26/core/operator/enable_comparison.h>
+//#include <sqlpp26/core/operator/enable_as.h>
+//#include <sqlpp26/core/operator/enable_comparison.h>
+#include <sqlpp26/core/operator/comparison_functions.h>
 #include <sqlpp26/core/reader.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename Lhs, typename Operator, typename Rhs>
 struct comparison_expression
-    : public enable_as, enable_comparison{
+  /* TODO  : public enable_as, enable_comparison*/{
   constexpr comparison_expression(Lhs l, Rhs r)
       : _lhs(std::move(l)), _rhs(std::move(r)) {}
   comparison_expression(const comparison_expression&) = default;

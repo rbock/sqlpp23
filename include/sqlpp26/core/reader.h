@@ -62,11 +62,11 @@ struct reader_t {
     return t._flags;
   }
   template <typename T>
-  const auto& lhs(const T& t) const {
+  constexpr const auto& lhs(const T& t) const {
     return t._lhs;
   }
   template <typename T>
-  const auto& rhs(const T& t) const {
+  constexpr const auto& rhs(const T& t) const {
     return t._rhs;
   }
   template <typename T>

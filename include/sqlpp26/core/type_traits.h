@@ -27,6 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <optional>
+#include <type_traits>
+
+#include <sqlpp26/core/type_traits/data_type.h>
+#include <sqlpp26/core/type_traits/nodes_of.h>
+#include <sqlpp26/core/type_traits/optional.h>
 namespace sqlpp {
 
 template <typename TableSpec>
@@ -34,12 +40,6 @@ struct table_spec_of;
 
 template <typename Table>
 using table_spec_of_t = typename table_spec_of<Table>::type;
-
-template <typename T>
-struct data_type_of {
-  using type = void;
-};
-template<typename T> using data_type_of_t = typename data_type_of<T>::type;
 
 template<typename T> struct name_of
 {
@@ -60,10 +60,7 @@ struct is_raw_table : public std::false_type {};
 template <typename T>
 static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 
-}
-
 #if 0
-#include <optional>
 #include <span>
 #include <string_view>
 #include <tuple>
@@ -79,10 +76,7 @@ static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <sqlpp26/core/query/dynamic_fwd.h>
 #include <sqlpp26/core/type_traits/aggregates.h>
 #include <sqlpp26/core/type_traits/ctes_of.h>
-#include <sqlpp26/core/type_traits/nodes_of.h>
-#include <sqlpp26/core/type_traits/optional.h>
 #include <sqlpp26/core/type_traits/tables_of.h>
-#include <sqlpp26/core/type_traits/data_type.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
 
 namespace sqlpp {
@@ -115,6 +109,7 @@ struct can_be_null : public is_optional<data_type_of_t<T>> {};
 template <>
 struct can_be_null<std::nullopt_t> : public std::true_type {};
 
+#endif
 template <typename T>
 struct dynamic_t;
 
@@ -162,6 +157,7 @@ struct values_are_assignable
               (is_date<L>::value and is_date<R>::value) or
               (is_timestamp<L>::value and is_timestamp<R>::value) or
               (is_time<L>::value and is_time<R>::value)> {};
+#if 0
 
 template <typename T>
 struct result_data_type_of {};
@@ -308,6 +304,7 @@ struct rhs<dynamic_t<T>> {
 
 template <typename T>
 using rhs_t = typename rhs<T>::type;
+#endif
 
 template <typename T>
 struct parameters_of {
@@ -321,6 +318,7 @@ struct parameters_of<detail::type_vector<T...>> {
 
 template <typename T>
 using parameters_of_t = typename parameters_of<T>::type;
+#if 0
 
 // Something that can be used as a table
 template <typename T>
@@ -395,8 +393,10 @@ struct get_result_row {
 template <typename T>
 using get_result_row_t = typename get_result_row<T>::type;
 
+#endif
 template <typename T>
 struct requires_parentheses : public std::false_type {};
+#if 0
 
 template <typename T>
 struct table_ref {
@@ -617,6 +617,6 @@ using table_of_t = typename table_of<T>::type;
 
 template <typename T>
 inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
+#endif
 
 }  // namespace sqlpp
-#endif

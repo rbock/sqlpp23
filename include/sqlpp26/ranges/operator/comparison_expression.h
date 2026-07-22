@@ -29,21 +29,39 @@
 
 namespace sqlpp::filter {
 
-template <typename Operator>
+template <typename Lhs, typename Operator, typename Rhs>
 struct comparison_expression{
 template <typename Struct>
-  constexpr const auto& operator()(const Struct& t) const {
-    return Operator{}(_lhs(t), _rhs(t));
+  constexpr auto operator()(const Struct& t) const {
+    return _operator(_lhs(t), _rhs(t));
   }
-  
+
   Lhs _lhs;
+  Operator _operator;
   Rhs _rhs;
 };
 
+template<typename Operator>
+struct filter_operator_of;
+
+template<typename Operator>
+using filter_operator_of_t = typename filter_operator_of<Operator>::type;
+
+template<> struct filter_operator_of<::sqlpp::less> { using type = std::less<void>; };
+template<> struct filter_operator_of<::sqlpp::less_equal> { using type = std::less_equal<void>; };
+template<> struct filter_operator_of<::sqlpp::equal_to> { using type = std::equal_to<void>; };
+template<> struct filter_operator_of<::sqlpp::not_equal_to> { using type = std::not_equal_to<void>; };
+template<> struct filter_operator_of<::sqlpp::greater_equal> { using type = std::greater_equal<void>; };
+template<> struct filter_operator_of<::sqlpp::greater> { using type = std::greater<void>; };
+
+}
+
+namespace sqlpp {
+
 template <typename Lhs, typename Operator, typename Rhs>
-constexpr auto to_filter_expression(const ::sqlpp::comparison_expression<Lhs, Operator, Rhs>& expr) {
-  return comparison_expression{to_filter_expression(reader.lhs(expr)),
-                               to_filter_expression(reader.rhs(expr))};
+constexpr auto to_filter_expression(const comparison_expression<Lhs, Operator, Rhs>& expr) {
+  return filter::comparison_expression{to_filter_expression(read.lhs(expr)), filter::filter_operator_of_t<Operator>{},
+                               to_filter_expression(read.rhs(expr))};
 }
 
 }  // namespace sqlpp

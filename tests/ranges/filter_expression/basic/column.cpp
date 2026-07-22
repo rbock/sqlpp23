@@ -51,4 +51,9 @@ int main() {
 
   constexpr auto value_filter = sqlpp::to_filter_expression(174);
   static_assert(value_filter(foo) == 174);
+
+  constexpr auto less_expression = tab_foo.id < 12345;
+  constexpr auto less_filter = to_filter_expression(less_expression);
+
+  static_assert(less_filter(foo));
 }

@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <type_traits>
 
+// TODO replace with actual set
 namespace sqlpp::detail {
 // some forward declarations and helpers
 template <typename... T>
