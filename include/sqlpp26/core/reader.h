@@ -50,7 +50,7 @@ struct reader_t {
     return t._expression;
   }
   template <typename T>
-  const auto& expressions(const T& t) const {
+  constexpr const auto& expressions(const T& t) const {
     return t._expressions;
   }
   template <typename T>

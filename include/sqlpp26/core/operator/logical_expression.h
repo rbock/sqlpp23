@@ -48,7 +48,7 @@ struct logical_or {
 };
 
 template <typename Operator, typename... Expressions>
-struct logical_expression : public enable_as {
+struct logical_expression /* TODO : public enable_as*/ {
   logical_expression() = delete;
   constexpr logical_expression(std::tuple<Expressions...> expressions)
       : _expressions(std::move(expressions)) {}

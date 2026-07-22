@@ -25,41 +25,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/ranges/ranges.h>
-#include <sqlpp26/ranges/to_filter_expression.h>
-#include <sqlpp26/ranges/operator/comparison_expression.h>
-#include <sqlpp26/ranges/operator/logical_expression.h>
+#include <sqlpp26/core/operator/logical_expression.h>
 
-namespace test {
-struct Foo {
-  int id;
-  std::string_view something;
+namespace sqlpp::filter {
+
+template <typename Lhs, typename Operator, typename Rhs>
+struct logical_expression{
+template <typename Struct>
+  constexpr auto operator()(const Struct& t) const {
+    return _operator(_lhs(t), _rhs(t));
+  }
+
+  Lhs _lhs;
+  Operator _operator;
+  Rhs _rhs;
 };
 
-struct _TabFoo {
-  using generator = sqlpp::make_stl_table<_TabFoo, Foo>;
-};
-using TabFoo = sqlpp::table<_TabFoo>;
+template<typename Operator>
+struct filter_operator_of;
+
+template<typename Operator>
+using filter_operator_of_t = typename filter_operator_of<Operator>::type;
+
+template<> struct filter_operator_of<::sqlpp::logical_and> { using type = std::logical_and<void>; };
+template<> struct filter_operator_of<::sqlpp::logical_or> { using type = std::logical_or<void>; };
+
+// TODO logical_not
+
 }
 
+namespace sqlpp {
 
-int main() {
-  auto tab_foo = test::TabFoo{};
-  auto filter = to_filter_expression(tab_foo.id);
-  constexpr auto foo = test::Foo{1234, "ferdinand"};
-  constexpr auto resultId = filter(foo);
-  static_assert(resultId == foo.id);
-
-  constexpr auto value_filter = sqlpp::to_filter_expression(174);
-  static_assert(value_filter(foo) == 174);
-
-  constexpr auto less_expression = tab_foo.id < 12345;
-  constexpr auto less_filter = to_filter_expression(less_expression);
-
-  static_assert(less_filter(foo));
-
-  constexpr auto and_expression = tab_foo.id < 12345 and tab_foo.id > 17;
-  constexpr auto and_filter = to_filter_expression(and_expression);
-
-  static_assert(and_filter(foo));
+template <typename Operator, typename Lhs, typename Rhs>
+constexpr auto to_filter_expression(const logical_expression<Operator, Lhs, Rhs>& expr) {
+    // TODO: What to do with multiple elements?
+  return filter::logical_expression{to_filter_expression(std::get<0>(read.expressions(expr))), filter::filter_operator_of_t<Operator>{},
+                               to_filter_expression(std::get<1>(read.expressions(expr)))};
 }
+
+}  // namespace sqlpp
+

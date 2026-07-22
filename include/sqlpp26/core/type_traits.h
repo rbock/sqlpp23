@@ -33,6 +33,9 @@
 #include <sqlpp26/core/type_traits/data_type.h>
 #include <sqlpp26/core/type_traits/nodes_of.h>
 #include <sqlpp26/core/type_traits/optional.h>
+#include <sqlpp26/core/type_traits/tables_of.h>
+#include <sqlpp26/core/operator/as_expression_fwd.h> // TODO: That is too much, remove_as_t is enough here, I think
+
 namespace sqlpp {
 
 template <typename TableSpec>
@@ -54,6 +57,7 @@ template <typename T>
 struct has_default : public std::false_type {};
 template<typename T> inline constexpr auto has_default_v = has_default<T>::value;
 
+// Really a table, not a `table AS ...`, `JOIN` or `CTE` or `SELECT ... AS`
 template <typename T>
 struct is_raw_table : public std::false_type {};
 
@@ -72,11 +76,9 @@ static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/name/name_tag.h>
-#include <sqlpp26/core/operator/as_expression_fwd.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
 #include <sqlpp26/core/type_traits/aggregates.h>
 #include <sqlpp26/core/type_traits/ctes_of.h>
-#include <sqlpp26/core/type_traits/tables_of.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
 
 namespace sqlpp {
@@ -103,13 +105,13 @@ auto has_value(const std::optional<T>& t) -> bool {
 template <typename T>
 struct has_default : public std::false_type {};
 
+#endif
 template <typename T>
 struct can_be_null : public is_optional<data_type_of_t<T>> {};
 
 template <>
 struct can_be_null<std::nullopt_t> : public std::true_type {};
 
-#endif
 template <typename T>
 struct dynamic_t;
 
@@ -272,6 +274,7 @@ struct parameter_value<timestamp> {
   using type = std::chrono::time_point<std::chrono::system_clock,
                                        std::chrono::microseconds>;
 };
+#endif
 
 template <typename T>
 struct is_assignment : public std::false_type {};
@@ -304,7 +307,6 @@ struct rhs<dynamic_t<T>> {
 
 template <typename T>
 using rhs_t = typename rhs<T>::type;
-#endif
 
 template <typename T>
 struct parameters_of {
@@ -318,7 +320,6 @@ struct parameters_of<detail::type_vector<T...>> {
 
 template <typename T>
 using parameters_of_t = typename parameters_of<T>::type;
-#if 0
 
 // Something that can be used as a table
 template <typename T>
@@ -327,19 +328,13 @@ struct is_table : public std::false_type {};
 template <typename T>
 inline constexpr bool is_table_v = is_table<T>::value;
 
-// Really a table, not a `table AS ...`, `JOIN` or `CTE` or `SELECT ... AS`
-template <typename T>
-struct is_raw_table : public std::false_type {};
-
-template <typename T>
-inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
-
 template <typename T>
 struct is_column : public std::false_type {};
 
 template <typename T>
 inline constexpr bool is_column_v = is_column<T>::value;
 
+#if 0
 template <typename NameTagProvider, typename Member>
 using member_t =
     typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
@@ -367,11 +362,13 @@ class assert_prepare_statement_t : public wrapped_static_assert {
   }
 };
 
+#endif
 template <typename T>
 struct is_statement : public std::false_type {};
 
 template <typename T>
 inline constexpr bool is_statement_v =  is_statement<T>::value;
+#if 0
 
 template <typename T>
 struct is_prepared_statement : public std::false_type {};
@@ -405,6 +402,7 @@ struct table_ref {
 
 template <typename T>
 using table_ref_t = typename table_ref<T>::type;
+#endif
 
 template <typename T>
 struct is_raw_select_flag : public std::false_type {};
@@ -414,10 +412,12 @@ struct is_sort_order : public std::false_type {};
 
 template <typename T>
 inline constexpr bool is_sort_order_v = is_sort_order<T>::value;
+#if 0
 
 template <typename T>
 struct is_result_clause : public std::false_type {};
 
+#endif
 template <typename T>
 struct is_cte : public std::false_type {};
 
@@ -426,6 +426,7 @@ inline constexpr bool is_cte_v = is_cte<T>::value;
 
 template <typename T>
 struct is_as_expression : public std::false_type {};
+#if 0
 
 template <typename T>
 struct is_recursive_cte : public std::false_type {};
@@ -527,6 +528,7 @@ struct result_row_of {
 
 template <typename Statement, typename Clause>
 using result_row_of_t = typename result_row_of<Statement, Clause>::type;
+#endif
 
 template <typename T>
 struct is_select_flag : public is_raw_select_flag<remove_dynamic_t<T>> {};
@@ -548,6 +550,7 @@ template <typename... T>
 struct is_select_column<std::tuple<T...>> {
   static constexpr bool value = (true and ... and is_select_column_v<T>);
 };
+#if 0
 
 template <typename Statement>
 struct can_be_used_as_table : public std::false_type {};
@@ -557,9 +560,11 @@ struct no_of_result_columns {
   static constexpr size_t value = 0;
 };
 
+#endif
 template <typename Column>
 struct is_const : public std::false_type {};
 
+#if 0
 template <typename Context, typename T>
 struct compatibility_check
     : public compatibility_check<Context, nodes_of_t<T>> {};
