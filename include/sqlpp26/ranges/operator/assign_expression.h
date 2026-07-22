@@ -25,27 +25,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/basic/column.h>
+#include <sqlpp26/core/operator/assign_expression.h>
+
+namespace sqlpp::filter {
+
+template <typename Lhs, typename Rhs>
+struct assign_expression{
+template <typename Struct>
+  constexpr void operator()(Struct& t) const {
+    _lhs(t) = _rhs(t);
+  }
+
+  Lhs _lhs;
+  Rhs _rhs;
+};
+
+}
 
 namespace sqlpp {
 
-template <typename TableSpec, size_t Idx>
-struct accessor {
-  using data_struct = typename TableSpec::generator::data_struct;
-  static constexpr auto data_members = std::define_static_array(std::meta::nonstatic_data_members_of(^^data_struct, std::meta::access_context::current()));
-
-  constexpr const auto& operator()(const data_struct& t) const {
-    return t.[:data_members[Idx]:];
-  }
-
-  constexpr auto& operator()(data_struct& t) const {
-    return t.[:data_members[Idx]:];
-  }
-};
-
-template <typename TableSpec, size_t Idx>
-constexpr auto to_filter_expression(const column<table<TableSpec>, Idx>) {
-  return accessor<TableSpec, Idx>{};
+template <typename Lhs, typename Operator, typename Rhs>
+constexpr auto to_filter_expression(const assign_expression<Lhs, Operator, Rhs>& expr) {
+  return filter::assign_expression{to_filter_expression(read.lhs(expr)), 
+                               to_filter_expression(read.rhs(expr))};
 }
 
 }  // namespace sqlpp

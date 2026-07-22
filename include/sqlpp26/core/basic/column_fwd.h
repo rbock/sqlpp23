@@ -31,5 +31,5 @@
 
 namespace sqlpp {
 template <typename Table, size_t Index>
-struct column_t;
+struct column;
 }  // namespace sqlpp

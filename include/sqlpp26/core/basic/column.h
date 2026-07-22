@@ -30,11 +30,11 @@
 #include <sqlpp26/core/basic/column_fwd.h>
 #include <sqlpp26/core/basic/column_spec.h>
 #include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/operator/assign_expression.h>
 /* TODO
 #include <sqlpp26/core/default_value.h>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/operator/as_expression.h>
-#include <sqlpp26/core/operator/assign_expression.h>
 #include <sqlpp26/core/operator/enable_as.h>
 #include <sqlpp26/core/operator/enable_comparison.h>
 #include <sqlpp26/core/type_traits.h>
@@ -46,6 +46,11 @@ namespace sqlpp {
 template <typename Table, std::size_t index>
 struct column // : public enable_as, public enable_comparison
 {
+  template <typename T>
+    requires(are_correct_assignment_args<column, T>)
+  constexpr auto operator=(T value) const -> assign_expression<column, op_assign, T> {
+    return assign(*this, std::move(value));
+  }
 };
 
 template <typename Table, size_t index>

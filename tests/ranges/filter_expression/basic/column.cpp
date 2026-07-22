@@ -29,6 +29,7 @@
 #include <sqlpp26/ranges/to_filter_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
 #include <sqlpp26/ranges/operator/logical_expression.h>
+#include <sqlpp26/ranges/operator/assign_expression.h>
 
 namespace test {
 struct Foo {
@@ -46,7 +47,16 @@ using TabFoo = sqlpp::table<_TabFoo>;
 int main() {
   auto tab_foo = test::TabFoo{};
   auto filter = to_filter_expression(tab_foo.id);
-  constexpr auto foo = test::Foo{1234, "ferdinand"};
+  constexpr auto foo = [tab_foo]() {
+    auto afoo = test::Foo{};
+    {
+    constexpr auto assign_expression = tab_foo.id = 1234;
+    constexpr auto assign_filter = to_filter_expression(assign_expression);
+    assign_filter(afoo);
+    }
+
+    return afoo;
+  }();
   constexpr auto resultId = filter(foo);
   static_assert(resultId == foo.id);
 
@@ -62,4 +72,6 @@ int main() {
   constexpr auto and_filter = to_filter_expression(and_expression);
 
   static_assert(and_filter(foo));
+
+
 }

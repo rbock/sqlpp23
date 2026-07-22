@@ -102,13 +102,11 @@ struct op_assign {
   static constexpr auto symbol = " = ";
 };
 
-/* TODO
-template <typename _Table, typename ColumnSpec, typename Rhs>
-  requires(are_correct_assignment_args<column_t<_Table, ColumnSpec>, Rhs>)
-constexpr auto assign(column_t<_Table, ColumnSpec> column, Rhs value)
-    -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, Rhs> {
-  return {std::move(column), std::move(value)};
+template <typename Table, std::size_t Idx, typename Rhs>
+  requires(are_correct_assignment_args<column<Table, Idx>, Rhs>)
+constexpr auto assign(column<Table, Idx> col, Rhs value)
+    -> assign_expression<column<Table, Idx>, op_assign, Rhs> {
+  return {std::move(col), std::move(value)};
 }
-*/
 
 }  // namespace sqlpp
