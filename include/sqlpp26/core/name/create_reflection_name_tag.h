@@ -40,11 +40,11 @@
 #include <meta>
 #include <optional>
 
-#include <sqlpp26/core/detail/fixed_string.h>
+#include <sqlpp26/core/basic/fixed_string.h>
 
 namespace sqlpp::meta {
 
-template <::sqlpp::detail::fixed_string Alias>
+template <::sqlpp::fixed_string Alias>
 struct reflection_alias {
   struct _sqlpp_name_tag {
     [[maybe_unused]] static constexpr bool require_quotes = false;
@@ -87,7 +87,7 @@ struct reflection_alias {
   };
 };
 
-template <::sqlpp::detail::fixed_string Alias>
+template <::sqlpp::fixed_string Alias>
 consteval auto make_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
   return {};
 }
@@ -95,7 +95,7 @@ consteval auto make_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
 }  // namespace sqlpp::meta
 
 namespace sqlpp::literals {
-template <::sqlpp::detail::fixed_string Alias>
+template <::sqlpp::fixed_string Alias>
 consteval auto operator""_alias() -> ::sqlpp::meta::reflection_alias<Alias> {
   return {};
 }

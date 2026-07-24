@@ -34,11 +34,11 @@ struct reader_t {
     return t._assignments;
   }
   template <typename T>
-  const auto& column(const T& t) const {
+  constexpr const auto& column(const T& t) const {
     return t._column;
   }
   template <typename T>
-  const auto& columns(const T& t) const {
+  constexpr const auto& columns(const T& t) const {
     return t._columns;
   }
   template <typename T>

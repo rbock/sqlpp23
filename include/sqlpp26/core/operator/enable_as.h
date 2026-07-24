@@ -43,7 +43,7 @@ class enable_as {
   }
 
 #if SQLPP_INCLUDE_REFLECTION == 1
-  template <::sqlpp::detail::fixed_string Alias, typename Expr>
+  template <::sqlpp::fixed_string Alias, typename Expr>
   constexpr auto as(this Expr&& self)
       -> decltype(::sqlpp::as(::std::forward<Expr>(self),
                               ::sqlpp::meta::make_alias<Alias>())) {

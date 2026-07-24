@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * Copyright (c) 2026, Roland Bock
  * All rights reserved.
@@ -27,35 +25,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cstddef>
-#include <format>
-#include <stdexcept>
-#include <string_view>
+#include <ranges>
+#include <numeric>
+#include <array>
 
-namespace sqlpp::detail {
-template <::std::size_t Size>
-struct fixed_string {
-  static constexpr ::std::size_t size = Size;
+namespace sqlpp {
 
-  consteval fixed_string(const char (&str)[Size]) noexcept {
-    for (::std::size_t i = 0; i < Size; ++i) {
-      value[i] = str[i];
-    }
-  }
+// use as
+// constexpr auto [...Is] = indices<N>;
+template <size_t N>
+static inline constexpr std::array<size_t, N> indices = [] {
+    std::array<size_t, N> indices;
+    std::ranges::iota(indices, size_t{});
+    return indices;
+}();
 
-  constexpr operator ::std::string_view() const {
-    return ::std::string_view(value, Size);
-  }
+}  // namespace sqlpp
 
-  constexpr operator const char*() const { return value; }
-
-  consteval auto operator[](::std::size_t index) -> char {
-    if (index >= Size) {
-      throw ::std::out_of_range("index is out of range of fixed_string");
-    }
-    return value[index];
-  }
-
-  char value[Size]{};
-};
-}  // namespace sqlpp::detail

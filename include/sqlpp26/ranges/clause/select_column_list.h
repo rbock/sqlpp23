@@ -28,14 +28,45 @@
  */
 
 #include <sqlpp26/core/clause/select_column_list.h>
+#include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
+
+template <typename Struct, typename... Accessors>
+struct result_row {
+  struct type;
+  consteval {
+    std::vector<std::meta::info> row_data_members;
+    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(Accessors))) {
+      using T = std::decay_t<decltype(std::declval<Accessors...[index]>()(std::declval<Struct>()))>;
+      row_data_members.push_back(std::meta::data_member_spec(
+          ^^T,
+          {.name = ::sqlpp::name_of_v<Accessors...[index]>}));
+    }
+    define_aggregate(^^type, row_data_members);
+  }
+};
+template <typename Struct, typename... Accessors>
+using result_row_t = typename result_row<Struct, Accessors...>::type;
+
+template <typename... Accessors>
+struct select_column_list {
+  template <typename Struct>
+  constexpr auto operator()(const Struct& s) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    return result_row_t<Struct, Accessors...>{std::get<Idx>(_accessors)(s)...};
+  }
+
+  std::tuple<Accessors...> _accessors;
+};
+
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
 template <typename... Flags, typename... Columns>
 constexpr auto to_filter_expression(
-    const select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>&) {
-  // create filter expression
+    const select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>& t) {
+  static constexpr auto [...Idx] = indices<sizeof...(Columns)>;
+  return ranges::select_column_list{std::make_tuple(to_filter_expression(std::get<Idx>(read.columns(t)))...)};
 }
 }  // namespace sqlpp::ranges
