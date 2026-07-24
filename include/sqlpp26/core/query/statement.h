@@ -29,11 +29,9 @@
 
 #include <sqlpp26/core/basic/value.h>
 #include <sqlpp26/core/database/parameter_list.h>
-#include <sqlpp26/core/database/prepared_select.h>
 #include <sqlpp26/core/detail/get_first.h>
 #include <sqlpp26/core/detail/get_last.h>
 #include <sqlpp26/core/detail/pick_arg.h>
-#include <sqlpp26/core/hidden.h>
 #include <sqlpp26/core/noop.h>
 #include <sqlpp26/core/query/statement_constructor_arg.h>
 #include <sqlpp26/core/query/statement_fwd.h>
@@ -106,13 +104,16 @@ class assert_no_parameters_t : public wrapped_static_assert {
   }
 };
 
+/*
 template <typename... Clauses>
 using result_methods_t =
     result_methods_of_t<result_type_provider_t<Clauses...>>;
+    */
 
 template <typename... Clauses>
-struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
+struct statement_t : public Clauses.../*, public result_methods_t<Clauses...>*/ {
   // Calculate provided/required CTEs and tables across all clauses
+  /*
   using _all_provided_tables =
       detail::make_joined_set_t<provided_tables_of_t<Clauses>...>;
   using _all_provided_static_tables =
@@ -175,17 +176,20 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
                      assert_no_unknown_ctes_t>,
       static_check_t<_unknown_required_static_ctes_of::empty(),
                      assert_no_unknown_static_ctes_t>>;
+                     */
 
+  /*
   using _parameters = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
 
   using _parameter_check =
       static_check_t<_parameters::empty(), assert_no_parameters_t>;
+      */
 
   // Constructors
   statement_t() = default;
 
   template <typename... Fragments>
-  statement_t(statement_constructor_arg<Fragments...> arg) : Clauses{arg}... {}
+  constexpr statement_t(statement_constructor_arg<Fragments...> arg) : Clauses{arg}... {}
 
   statement_t(const statement_t& r) = default;
   statement_t(statement_t&& r) = default;
@@ -197,6 +201,7 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
 
 
 
+/*
 template <typename... Clauses>
 struct can_be_used_as_table<statement_t<Clauses...>> {
   // A select can be used as a pseudo table if
@@ -217,10 +222,12 @@ template <typename... Clauses>
 struct result_methods_of<statement_t<Clauses...>> {
   using type = result_methods_t<Clauses...>;
 };
+*/
 
 template <typename... Clauses>
 struct is_statement<statement_t<Clauses...>> : public std::true_type {};
 
+/*
 template <typename... Clauses>
 struct contains_order_by<statement_t<Clauses...>>
 {
@@ -261,7 +268,8 @@ struct is_result_clause<statement_t<Clauses...>> {
       noop,
       typename statement_t<Clauses...>::_result_type_provider>::value;
 };
-
+*/
+/*
 template <typename... Clauses>
 struct data_type_of<statement_t<Clauses...>> {
   using type = std::conditional_t<
@@ -269,6 +277,7 @@ struct data_type_of<statement_t<Clauses...>> {
       data_type_of_t<result_type_provider_t<Clauses...>>,
       no_value_t>;
 };
+*/
 
 // statements explicitly do not expose any nodes as most recursive traits
 // should not traverse into sub queries, e.g.
@@ -278,6 +287,7 @@ template <typename... Clauses>
 struct nodes_of<statement_t<Clauses...>> : public no_nodes {
 };
 
+/*
 template <typename Context, typename... Clauses>
 struct compatibility_check<Context, statement_t<Clauses...>> {
   using type = compatibility_check_t<Context, detail::type_vector<Clauses...>>;
@@ -324,12 +334,14 @@ struct required_static_ctes_of<statement_t<Clauses...>> {
 
 template <typename... Clauses>
 struct requires_parentheses<statement_t<Clauses...>> : public std::true_type {};
-
+*/
+/*
 template <typename... Clauses>
 struct statement_consistency_check<statement_t<Clauses...>> {
   using type = static_combined_check_t<
       consistency_check_t<statement_t<Clauses...>, Clauses>...>;
 };
+*/
 
 template <typename... Clauses>
 [[nodiscard]] auto check_table_consistency(const statement_t<Clauses...>&) {
@@ -343,6 +355,7 @@ template <typename... Clauses>
   return typename S::_parameter_check{};
 }
 
+/*
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_basic_consistency(const statement_t<Clauses...>&) {
   return (consistent_t{} && ... &&
@@ -383,8 +396,9 @@ struct statement_run_check<statement_t<Clauses...>> {
       typename statement_t<Clauses...>::_parameter_check>;
 };
 
+*/
 template <typename OldClause, typename... Clauses, typename NewClause>
-auto new_statement(statement_t<Clauses...> oldStatement, NewClause newClause)
+constexpr auto new_statement(statement_t<Clauses...> oldStatement, NewClause newClause)
     -> statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value,
                                       NewClause,
                                       Clauses>...> {

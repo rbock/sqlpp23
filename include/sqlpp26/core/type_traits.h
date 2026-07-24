@@ -35,6 +35,7 @@
 #include <sqlpp26/core/type_traits/optional.h>
 #include <sqlpp26/core/type_traits/tables_of.h>
 #include <sqlpp26/core/operator/as_expression_fwd.h> // TODO: That is too much, remove_as_t is enough here, I think
+#include <sqlpp26/core/type_traits/aggregates.h>
 
 namespace sqlpp {
 
@@ -77,7 +78,6 @@ static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/name/name_tag.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
-#include <sqlpp26/core/type_traits/aggregates.h>
 #include <sqlpp26/core/type_traits/ctes_of.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
 
@@ -412,12 +412,10 @@ struct is_sort_order : public std::false_type {};
 
 template <typename T>
 inline constexpr bool is_sort_order_v = is_sort_order<T>::value;
-#if 0
 
 template <typename T>
 struct is_result_clause : public std::false_type {};
 
-#endif
 template <typename T>
 struct is_cte : public std::false_type {};
 
@@ -442,9 +440,11 @@ template <typename T>
 using required_insert_columns_of_t =
     typename required_insert_columns_of<T>::type;
 
+#endif
 template <typename T>
 struct is_clause : public std::false_type {};
 
+#if 0
 // Check if a clause makes sense in the context of the whole statement.
 // Note: This should /not/ be checking for missing tables as the statement might
 // be used as a sub-select that /might/ be using columns from the enclosing
@@ -537,10 +537,16 @@ template <typename T>
 inline constexpr bool is_select_flag_v = is_select_flag<T>::value;
 
 template <typename T>
+struct has_name : public std::true_type {};
+
+template <typename T>
+inline constexpr bool has_name_v = has_name<T>::value;
+
+template <typename T>
 struct is_select_column {
   static constexpr bool value =
       has_data_type_v<remove_as_t<remove_dynamic_t<T>>> and
-      has_name_tag_v<remove_dynamic_t<T>>;
+      has_name_v<remove_dynamic_t<T>>;
 };
 
 template <typename T>

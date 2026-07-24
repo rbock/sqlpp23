@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,39 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <tuple>
-#include <utility>
+#include <sqlpp26/core/clause/select_column_list.h>
 
-namespace sqlpp::detail {
-template <template<typename> typename Predicate, typename T>
-  requires(Predicate<T>::value)
-constexpr auto tupelize(T t) -> std::tuple<T> {
-  return std::make_tuple(std::move(t));
+namespace sqlpp::ranges {
+}  // namespace sqlpp::ranges
+
+namespace sqlpp {
+template <typename... Flags, typename... Columns>
+constexpr auto to_filter_expression(
+    const select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>&) {
+  // create filter expression
 }
-
-template <template<typename> typename Predicate, typename... Args>
-  requires((Predicate<Args>::value && ...))
-constexpr auto tupelize(std::tuple<Args...> t) -> std::tuple<Args...> {
-  return t;
-}
-
-template <template<typename> typename Predicate, typename T>
-  requires(not Predicate<T>::value)
-constexpr auto tupelize(T) -> std::tuple<> {
-  return {};
-}
-
-template <template<typename> typename Predicate, typename... Args>
-  requires(not (Predicate<Args>::value && ...))
-constexpr auto tupelize(std::tuple<Args...>) -> std::tuple<> {
-  return {};
-}
-
-template <template<typename> typename Predicate, typename... Args>
-struct flat_tuple {
-  using type = decltype(std::tuple_cat(tupelize<Predicate>(std::declval<Args>())...));
-};
-
-template <template<typename> typename Predicate, typename... Args>
-using flat_tuple_t = typename flat_tuple<Predicate, Args...>::type;
-}  // namespace sqlpp::detail
+}  // namespace sqlpp::ranges

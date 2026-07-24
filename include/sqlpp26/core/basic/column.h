@@ -69,6 +69,11 @@ struct has_default<column<Table, index>> {
   static constexpr bool value = column_spec_of_t<column<Table, index>>::has_default;
 };
 
+template <typename Table, size_t index>
+struct has_name<column<Table, index>> {
+  static constexpr bool value = true;
+};
+
 /*
 // _Table can be a table_t or a cte_ref_t or a select_ref_t
 template <typename Table, typename ColumnSpec>

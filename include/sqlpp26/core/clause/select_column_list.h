@@ -30,19 +30,19 @@
 #include <tuple>
 
 #include <sqlpp26/core/basic/table.h>
-#include <sqlpp26/core/clause/expression_static_check.h>
-#include <sqlpp26/core/clause/select_as.h>
+//#include <sqlpp26/core/clause/expression_static_check.h>
+//#include <sqlpp26/core/clause/select_as.h>
 #include <sqlpp26/core/clause/select_column_traits.h>
-#include <sqlpp26/core/clause/select_columns_aggregate_check.h>
+//#include <sqlpp26/core/clause/select_columns_aggregate_check.h>
 #include <sqlpp26/core/clause/select_flags.h>
 #include <sqlpp26/core/concepts.h>
-#include <sqlpp26/core/database/prepared_select.h>
+//#include <sqlpp26/core/database/prepared_select.h>
 #include <sqlpp26/core/detail/flat_tuple.h>
 #include <sqlpp26/core/detail/type_set.h>
-#include <sqlpp26/core/field_spec.h>
+//#include <sqlpp26/core/field_spec.h>
 #include <sqlpp26/core/operator/as_expression.h>
 #include <sqlpp26/core/query/dynamic.h>
-#include <sqlpp26/core/query/result_row.h>
+//#include <sqlpp26/core/query/result_row.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/query/statement_handler.h>
 #include <sqlpp26/core/reader.h>
@@ -98,7 +98,7 @@ struct select_column_list_t;
 
 template <typename... Flags, typename... Columns>
 struct select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>> {
-  select_column_list_t(std::tuple<Flags...> flags, std::tuple<Columns...> columns)
+  constexpr select_column_list_t(std::tuple<Flags...> flags, std::tuple<Columns...> columns)
       : _flags(std::move(flags)),
         _columns(std::move(columns)) {}
 
@@ -133,18 +133,23 @@ struct is_clause<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
     : public std::true_type {};
 
+/*
 template <typename... Flags, typename... Columns>
 struct has_result_row<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
     : public std::true_type {};
+    */
 
+/* TODO
 template <typename Statement, typename... Flags, typename... Columns>
 struct result_row_of<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
 };
+*/
 
+/* TODO
 template <typename... Columns>
 struct select_result_methods_t {
   template <typename Statement, typename NameTagProvider>
@@ -182,7 +187,9 @@ struct select_result_methods_t {
                                              db)};
   }
 };
+*/
 
+/*
 template <typename... Flags, typename... Columns>
 struct no_of_result_columns<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
@@ -194,7 +201,9 @@ struct result_methods_of<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = select_result_methods_t<Columns...>;
 };
+*/
 
+/* TODO
 template <typename Statement, typename... Flags, typename... Columns>
 struct consistency_check<
     Statement,
@@ -229,6 +238,7 @@ struct prepare_check<
                      assert_no_unknown_static_tables_in_selected_columns_t>>;
   constexpr auto operator()() { return type{}; }
 };
+*/
 
 template <typename... Flags, typename Column>
 struct data_type_of<
@@ -246,6 +256,7 @@ struct nodes_of<
   using type = detail::type_vector<Columns...>;
 };
 
+/*
 class assert_columns_selected_t : public wrapped_static_assert {
  public:
   template <typename... T>
@@ -253,6 +264,7 @@ class assert_columns_selected_t : public wrapped_static_assert {
     static_assert(wrong<T...>, "selecting columns required");
   }
 };
+*/
 
 template <typename... Args>
 struct make_select_column_list {
@@ -268,7 +280,7 @@ struct no_select_column_list_t {
   template <typename Statement, DynamicSelectArg... Args>
     requires(detail::count_columns<Args...>() > 0 and
              detail::all_flags_are_before_all_columns<Args...>())
-  auto columns(this Statement&& self, Args... args) {
+  constexpr auto columns(this Statement&& self, Args... args) {
     return new_statement<no_select_column_list_t>(
         std::forward<Statement>(self),
         make_select_column_list_t<Args...>{
@@ -283,6 +295,7 @@ auto to_sql_string(Context&, const no_select_column_list_t&) -> std::string {
   return "";
 }
 
+/*TODO: Throw exception instead!
 template <typename Statement>
 struct consistency_check<Statement, no_select_column_list_t> {
   using type = assert_columns_selected_t;
@@ -290,11 +303,12 @@ struct consistency_check<Statement, no_select_column_list_t> {
     return type{};
   }
 };
+*/
 
 template <DynamicSelectArg... Args>
   requires(detail::count_columns<Args...>() > 0 and
            detail::all_flags_are_before_all_columns<Args...>())
-auto select_columns(Args... args) {
+constexpr auto select_columns(Args... args) {
   return statement_t<no_select_column_list_t>().columns(std::move(args)...);
 }
 

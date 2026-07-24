@@ -30,6 +30,7 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
+  /* TODO: Use exceptions instead
 class assert_select_columns_with_group_by_are_aggregates_t
     : public wrapped_static_assert {
  public:
@@ -62,6 +63,7 @@ class assert_select_columns_all_aggregates_t : public wrapped_static_assert {
                         "mix of aggregate and non-aggregate expressions");
   }
 };
+*/
 
 namespace detail {
 // Columns can be

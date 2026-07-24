@@ -30,6 +30,11 @@
 #include <sqlpp26/ranges/operator/comparison_expression.h>
 #include <sqlpp26/ranges/operator/logical_expression.h>
 #include <sqlpp26/ranges/operator/assign_expression.h>
+#include <sqlpp26/ranges/clause/select_column_list.h>
+#include <sqlpp26/ranges/query/statement.h>
+
+#include <type_traits>
+#include "sqlpp26/core/type_traits.h"
 
 namespace test {
 struct Foo {
@@ -72,6 +77,12 @@ int main() {
   constexpr auto and_filter = to_filter_expression(and_expression);
 
   static_assert(and_filter(foo));
+
+  using T = std::decay_t<decltype(tab_foo.id)>;
+
+  constexpr auto select_expression = select_columns(tab_foo.id);
+  //TODO: Remove the sqlpp::
+  constexpr auto select_filter = sqlpp::to_filter_expression(select_expression);
 
 
 }
