@@ -25,14 +25,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/ranges/ranges.h>
 #include <sqlpp26/ranges/to_filter_expression.h>
+
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/ranges/clause/insert_value_list.h>
+#include <sqlpp26/ranges/clause/select_column_list.h>
+#include <sqlpp26/ranges/operator/assign_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
 #include <sqlpp26/ranges/operator/logical_expression.h>
-#include <sqlpp26/ranges/operator/assign_expression.h>
-#include <sqlpp26/ranges/clause/select_column_list.h>
 #include <sqlpp26/ranges/query/statement.h>
-#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/ranges/ranges.h>
 
 namespace test {
 struct Foo {
@@ -52,11 +54,10 @@ int main() {
   auto filter = to_filter_expression(tab_foo.id);
   constexpr auto foo = [tab_foo]() {
     auto afoo = test::Foo{};
-    {
-    constexpr auto assign_expression = tab_foo.id = 1234;
-    constexpr auto assign_filter = to_filter_expression(assign_expression);
-    assign_filter(afoo);
-    }
+
+    constexpr auto set_expression = insert_set(tab_foo.id = 1234, tab_foo.something = "cheesecake");
+    constexpr auto set_filter = to_filter_expression(set_expression);
+    set_filter(afoo);
 
     return afoo;
   }();
@@ -76,14 +77,13 @@ int main() {
 
   static_assert(and_filter(foo));
 
-  using T = std::decay_t<decltype(tab_foo.id)>;
-
-  constexpr auto select_expression = select_columns(tab_foo.id);
+  constexpr auto select_expression = select_columns(tab_foo.id, tab_foo.something);
   constexpr auto select_filter = to_filter_expression(select_expression);
 
   constexpr auto result = select_filter(foo);
 
   static_assert(result.id == 1234);
+  static_assert(result.something == "cheesecake");
 
 
 }

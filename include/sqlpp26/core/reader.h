@@ -30,7 +30,7 @@
 namespace sqlpp {
 struct reader_t {
   template <typename T>
-  const auto& assignments(const T& t) const {
+  constexpr const auto& assignments(const T& t) const {
     return t._assignments;
   }
   template <typename T>

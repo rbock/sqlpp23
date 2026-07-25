@@ -27,20 +27,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ranges>
-#include <numeric>
-#include <array>
+#include <sqlpp26/core/clause/insert_value_list.h>
+#include <sqlpp26/core/indices.h>
+
+namespace sqlpp::ranges {
+
+template <typename... Assignments>
+struct insert_assignments {
+  template <typename Struct>
+  constexpr auto operator()(Struct& s) const {
+    static constexpr auto& [... Idx] = indices<sizeof...(Assignments)>;
+    (std::get<Idx>(_assignments)(s), ...);
+    return s;
+  }
+
+  std::tuple<Assignments...> _assignments;
+};
+
+}  // namespace sqlpp::ranges
 
 namespace sqlpp {
-
-// use as
-// constexpr auto [...Is] = indices<N>;
-template <size_t N>
-static inline constexpr std::array<size_t, N> indices = [] {
-    std::array<size_t, N> indices;
-    std::ranges::iota(indices, size_t{});
-    return indices;
-}();
-
-}  // namespace sqlpp
-
+template <typename... Assignments>
+constexpr auto to_filter_expression(
+    const insert_set_t<Assignments...>& t) {
+  static constexpr auto [...Idx] = indices<sizeof...(Assignments)>;
+  return ranges::insert_assignments{std::make_tuple(to_filter_expression(std::get<Idx>(read.assignments(t)))...)};
+}
+}  // namespace sqlpp::ranges
