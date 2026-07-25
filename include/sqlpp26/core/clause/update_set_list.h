@@ -37,7 +37,7 @@
 namespace sqlpp {
 template <typename... Assignments>
 struct update_set_list_t {
-  update_set_list_t(std::tuple<Assignments...> assignments)
+  constexpr update_set_list_t(std::tuple<Assignments...> assignments)
       : _assignments(std::move(assignments)) {}
   update_set_list_t(const update_set_list_t&) = default;
   update_set_list_t(update_set_list_t&&) = default;
@@ -71,6 +71,7 @@ class assert_no_unknown_tables_in_update_assignments_t
 template <typename... Assignments>
 struct is_clause<update_set_list_t<Assignments...>> : public std::true_type {};
 
+/*
 template <typename Statement, typename... Assignments>
 struct consistency_check<Statement, update_set_list_t<Assignments...>> {
   using type = std::conditional_t<
@@ -81,6 +82,7 @@ struct consistency_check<Statement, update_set_list_t<Assignments...>> {
     return type{};
   }
 };
+*/
 
 template <typename... Assignments>
 struct nodes_of<update_set_list_t<Assignments...>> {
@@ -99,8 +101,8 @@ inline constexpr bool are_valid_update_assignments =
 
 struct no_update_set_list_t {
   template <typename Statement, DynamicAssignment... Assignments>
-    requires(are_valid_update_assignments<Assignments...>)
-  auto set(this Statement&& self, Assignments... assignments)
+    // TODO requires(are_valid_update_assignments<Assignments...>)
+  constexpr auto set(this Statement&& self, Assignments... assignments)
 
   {
     return new_statement<no_update_set_list_t>(
@@ -124,6 +126,7 @@ class assert_update_assignments_t : public wrapped_static_assert {
   }
 };
 
+/*
 template <typename Statement>
 struct consistency_check<Statement, no_update_set_list_t> {
   using type = assert_update_assignments_t;
@@ -131,10 +134,11 @@ struct consistency_check<Statement, no_update_set_list_t> {
     return type{};
   }
 };
+*/
 
 template <DynamicAssignment... Assignments>
-    requires(are_valid_update_assignments<Assignments...>)
-auto update_set(Assignments... assignments) {
+    // TODO requires(are_valid_update_assignments<Assignments...>)
+constexpr auto update_set(Assignments... assignments) {
   return statement_t<no_update_set_list_t>().set(std::move(assignments)...);
 }
 

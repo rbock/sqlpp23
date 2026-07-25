@@ -27,15 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/insert_value_list.h>
+#include <sqlpp26/core/clause/update_set_list.h>
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
 
 template <typename... Assignments>
-struct insert_assignments {
+struct update_assignments {
   template <typename Struct>
-  constexpr auto operator()(Struct s) const {
+  constexpr auto operator()(Struct& s) const {
     static constexpr auto& [... Idx] = indices<sizeof...(Assignments)>;
     (std::get<Idx>(_assignments)(s), ...);
     return s;
@@ -49,7 +49,7 @@ struct insert_assignments {
 namespace sqlpp {
 template <typename... Assignments>
 constexpr auto to_filter_expression(
-    const insert_set_t<Assignments...>& t) {
+    const update_set_list_t<Assignments...>& t) {
   static constexpr auto [...Idx] = indices<sizeof...(Assignments)>;
   return ranges::insert_assignments{std::make_tuple(to_filter_expression(std::get<Idx>(read.assignments(t)))...)};
 }
