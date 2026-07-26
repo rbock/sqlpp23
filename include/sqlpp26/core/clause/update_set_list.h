@@ -89,15 +89,17 @@ struct nodes_of<update_set_list_t<Assignments...>> {
   using type = detail::type_vector<Assignments...>;
 };
 
+/*
 template <DynamicAssignment... Assignments>
 inline constexpr bool are_valid_update_assignments =
     (sizeof...(Assignments) > 0 and
      // unique assignment columns
-     not detail::has_duplicates<
-         lhs_t<remove_dynamic_t<Assignments>>...>::value and
+     detail::are_unique_v<
+         lhs_t<remove_dynamic_t<Assignments>>...> and
      // assignment columns from exactly one table
-     detail::make_joined_set_t<
-         required_tables_of_t<lhs_t<Assignments>>...>::size() == 1);
+     detail::make_joined_type_info_set(
+         required_tables_of_v<lhs_t<Assignments>>...).size() == 1);
+         */
 
 struct no_update_set_list_t {
   template <typename Statement, DynamicAssignment... Assignments>

@@ -60,21 +60,13 @@ struct contains_aggregate_function<detail::type_vector<T...>>
 // Obtain known aggregate columns, i.e. GROUP BY columns.
 template <typename T>
 struct known_aggregate_columns_of {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
-
-template <typename T>
-using known_aggregate_columns_of_t =
-    typename known_aggregate_columns_of<T>::type;
 
 template <typename T>
 struct known_static_aggregate_columns_of {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
-
-template <typename T>
-using known_static_aggregate_columns_of_t =
-    typename known_static_aggregate_columns_of<T>::type;
 
 template <typename T>
 struct is_aggregate_neutral : public std::true_type {};
@@ -85,7 +77,7 @@ struct is_aggregate_neutral : public std::true_type {};
 //  - T is aggregate-neutral, or
 //  - T exclusively exists of aggregate expressions.
 // @KnownAggregateColumns: type_set as obtained through
-// known_aggregate_columns_of_t
+// known_aggregate_columns_of
 template <typename KnownAggregateColumns, typename T>
 struct is_aggregate_expression
     : public std::integral_constant<
@@ -137,7 +129,7 @@ struct static_part_is_aggregate_expression<KnownStaticAggregateColumns,
 //  - T exclusively exists of non-aggregate expressions, or
 //  - T is aggregate-neutral
 // @KnownAggregateColumns: type_set as obtained through
-// known_aggregate_columns_of_t
+// known_aggregate_columns_of
 template <typename KnownAggregateColumns, typename T>
 struct is_non_aggregate_expression
     : public std::integral_constant<

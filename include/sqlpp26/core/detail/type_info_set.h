@@ -27,41 +27,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/detail/type_info_set.h>
+#include <flat_set>
+#include <meta>
 
 namespace sqlpp::detail {
+struct type_info_less {
+  // Enable heterogeneous lookups (unclear if that would ever be useful).
+  using is_transparent =void;
 
-// TODO: Would prefer to use flat_set::insert_range(), but that currently fails to compile
-// See http://wg21.link/P3372
-constexpr void insert_type_info_set(auto& sink, const auto& data) {
-  for (const auto& entry : data) {
-    sink.insert(entry);
+  consteval bool operator()(std::meta::info lhs,
+                            std::meta::info rhs) const noexcept {
+    // std::meta::type_order returns a std::strong_ordering.
+    return std::meta::type_order(lhs, rhs) < 0;
   }
-}
-
-constexpr type_info_set make_joined_type_info_set(const auto&... Sets) {
-  type_info_set all;
-
-  (insert_type_info_set(all, Sets), ...);
-
-  return all;
-}
-
-template <typename... T>
-consteval type_info_set make_type_info_set() {
-  type_info_set all;
-
-  (all.insert(^^T), ...);
-
-  return all;
-}
-
-template <typename... T>
-struct are_unique {
-  static constexpr bool value = (make_type_info_set<T...>().size() == sizeof...(T));
 };
 
-template <typename... T>
-static inline constexpr bool are_unique_v = are_unique<T...>::value;
+using type_info_set = std::flat_set<std::meta::info, type_info_less>;
 
 }  // namespace sqlpp::detail
+

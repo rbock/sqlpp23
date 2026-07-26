@@ -79,6 +79,20 @@ struct name_of<column<Table, index>> {
   static constexpr std::string_view value = column_spec_of_t<column<Table, index>>::name;
 };
 
+template <typename Table, size_t index>
+struct required_tables_of<column<Table, index>> {
+  static consteval detail::type_info_set func() {
+    // TODO Can this be a 1-liner?
+    detail::type_info_set v;
+    v.insert(^^Table);
+    return v;
+  }
+};
+
+template <typename Table, size_t index>
+struct required_static_tables_of<column<Table, index>>
+    : public required_tables_of<column<Table, index>> {};
+
 /*
 // _Table can be a table_t or a cte_ref_t or a select_ref_t
 template <typename Table, typename ColumnSpec>
@@ -119,15 +133,6 @@ template <typename _Table, typename ColumnSpec>
 struct table_of<column_t<_Table, ColumnSpec>> {
   using type = _Table;
 };
-
-template <typename _Table, typename ColumnSpec>
-struct required_tables_of<column_t<_Table, ColumnSpec>> {
-  using type = detail::type_set<_Table>;
-};
-
-template <typename _Table, typename ColumnSpec>
-struct required_static_tables_of<column_t<_Table, ColumnSpec>>
-    : public required_tables_of<column_t<_Table, ColumnSpec>> {};
 
 template <typename _Table, typename ColumnSpec>
 struct data_type_of<column_t<_Table, ColumnSpec>> {

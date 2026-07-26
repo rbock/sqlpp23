@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
 #include <sqlpp26/core/basic/column_fwd.h>
 #include <sqlpp26/core/basic/table.h>
 //#include <sqlpp26/core/clause/insert_value.h>
@@ -44,20 +45,21 @@
 
 namespace sqlpp {
 namespace detail {
-  /*
-template <typename Clauses, typename... Columns>
-struct have_all_required_columns {
-  static constexpr bool value =
-      detail::make_type_set_t<Columns...>::contains_all(
-          required_insert_columns_of_t<Clauses>{});
+
+template <typename Statement, typename... Columns>
+consteval bool have_all_required_columns(){
+  sqlpp::detail::type_info_set provided;
+  (provided.insert(^^Columns),...);
+  return std::ranges::includes(provided,
+                               required_insert_columns_of<Statement>::func(),
+                               sqlpp::detail::type_info_less{});
 };
 
-template <typename Clauses, typename... Assignments>
-struct have_all_required_assignments {
-  static constexpr bool value =
-      have_all_required_columns<Clauses, lhs_t<Assignments>...>::value;
+template <typename Statement, typename... Assignments>
+consteval bool have_all_required_assignments() {
+  return
+      have_all_required_columns<Statement, lhs_t<Assignments>...>();
 };
-*/
 
 // Used to serialize left hand side of assignment tuple that should ignore
 // dynamic elements.
@@ -185,18 +187,15 @@ struct is_clause<insert_set_t<Assignments...>> : public std::true_type {};
 template <typename Statement, typename... Assignments>
 struct basic_consistency_check<Statement, insert_set_t<Assignments...>> {
   static constexpr void verify() {
-    /*
-    if constexpr (not std::ranges::includes(
+    if constexpr (false/*not std::ranges::includes(
                       provided_tables_of_v<Statement>,
-                      required_tables_of_v<insert_set_t<Assignments...>>)) {
+                      required_tables_of_v<insert_set_t<Assignments...>>)*/) {
       throw std::domain_error("at least one insert assignment requires a table "
                           "which is otherwise not known in the statement");
-    } else if constexpr (not have_all_required_assignments<Statement, Assignments...>){
+    } else if constexpr (not detail::have_all_required_assignments<Statement, Assignments...>()){
       throw std::domain_error(
           "at least one required column is missing in set()");
     }
-    */
-    throw std::domain_error("check not implemented yet");
   }
 };
 
@@ -352,13 +351,13 @@ auto insert_default_values() {
 }
 
 template <DynamicAssignment... Assignments>
-  requires(
-      sizeof...(Assignments) > 0 /*and
-      detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
-      detail::are_same<
-          table_of_t<lhs_t<remove_dynamic_t<Assignments>>>...>::value
-          */
-          )
+  requires(sizeof...(Assignments) > 0 and
+           // unique assignment columns
+           detail::are_unique_v<lhs_t<remove_dynamic_t<Assignments>>...> and
+           // assignment columns from exactly one table
+           detail::make_joined_type_info_set(
+               required_tables_of<lhs_t<remove_dynamic_t<Assignments>>>::func()...)
+                   .size() == 1)
 constexpr auto insert_set(Assignments... assignments) {
   return statement_t<no_insert_value_list_t>().set(std::move(assignments)...);
 }

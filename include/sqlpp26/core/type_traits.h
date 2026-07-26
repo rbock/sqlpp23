@@ -37,6 +37,7 @@
 #include <sqlpp26/core/operator/as_expression_fwd.h> // TODO: That is too much, remove_as_t is enough here, I think
 #include <sqlpp26/core/type_traits/aggregates.h>
 
+#include <sqlpp26/core/name/name_tag.h> // TODO Need to remove
 namespace sqlpp {
 
 template <typename TableSpec>
@@ -431,16 +432,13 @@ struct is_recursive_cte : public std::false_type {};
 
 template <typename T>
 struct is_pre_join : public std::false_type {};
+#endif
 
 template <typename T>
 struct required_insert_columns_of {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
-template <typename T>
-using required_insert_columns_of_t =
-    typename required_insert_columns_of<T>::type;
 
-#endif
 template <typename T>
 struct is_clause : public std::false_type {};
 

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,17 +38,17 @@ namespace sqlpp {
 // table shall specialize this template to indicate their table requirement.
 template <typename T>
 struct required_tables_of {
-  using type = typename required_tables_of<nodes_of_t<T>>::type;
+  static consteval detail::type_info_set func() {
+    return required_tables_of<nodes_of_t<T>>::func();
+  }
 };
 
 template <typename... T>
 struct required_tables_of<detail::type_vector<T...>> {
-  using type =
-      detail::make_joined_set_t<typename required_tables_of<T>::type...>;
+  static consteval detail::type_info_set func() {
+    return detail::make_joined_type_info_set(required_tables_of<T>::func()...);
+  }
 };
-
-template <typename T>
-using required_tables_of_t = typename required_tables_of<T>::type;
 
 // `required_static_tables_of` recursively determines the type_set of tables
 // statically referenced by columns within `T`. `column_t` or other structs that
@@ -58,22 +58,23 @@ using required_tables_of_t = typename required_tables_of<T>::type;
 // Dynamic query parts are ignored.
 template <typename T>
 struct required_static_tables_of {
-  using type = typename required_static_tables_of<nodes_of_t<T>>::type;
+  static consteval detail::type_info_set func() {
+    return required_static_tables_of<nodes_of_t<T>>::func();
+  }
 };
 
 template <typename T>
 struct required_static_tables_of<dynamic_t<T>> {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
 
 template <typename... T>
 struct required_static_tables_of<detail::type_vector<T...>> {
-  using type =
-      detail::make_joined_set_t<typename required_static_tables_of<T>::type...>;
+  static consteval detail::type_info_set func() {
+    return detail::make_joined_type_info_set(
+        required_static_tables_of<T>::func()...);
+  }
 };
-
-template <typename T>
-using required_static_tables_of_t = typename required_static_tables_of<T>::type;
 
 // `provided_tables_of` determines the type_set of tables provided by a clause,
 // e.g. by FROM. `table_t`, `cte_ref_t`, or other structs that might provide a
@@ -84,14 +85,11 @@ using required_static_tables_of_t = typename required_static_tables_of<T>::type;
 // leak from `select_column_list`.
 template <typename T>
 struct provided_tables_of {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
 
 template <typename T>
 struct provided_tables_of<dynamic_t<T>> : public provided_tables_of<T> {};
-
-template <typename T>
-using provided_tables_of_t = typename provided_tables_of<T>::type;
 
 // `provided_static_tables_of` determines the type_set of non-dynamic tables
 // provided by a clause, e.g. by FROM.
@@ -100,21 +98,14 @@ struct provided_static_tables_of : public provided_tables_of<T> {};
 
 template <typename T>
 struct provided_static_tables_of<dynamic_t<T>> {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
-
-template <typename T>
-using provided_static_tables_of_t = typename provided_static_tables_of<T>::type;
 
 // `provided_optional_tables_of` determines the type_set of outer join tables
 // provided by a clause, e.g. the right hand side table in a `left_outer_join`.
 template <typename T>
 struct provided_optional_tables_of {
-  using type = detail::type_set<>;
+  static consteval detail::type_info_set func() { return {}; }
 };
-
-template <typename T>
-using provided_optional_tables_of_t =
-    typename provided_optional_tables_of<T>::type;
 
 }  // namespace sqlpp

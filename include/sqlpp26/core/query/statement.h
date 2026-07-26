@@ -186,7 +186,7 @@ struct statement_t : public Clauses.../*, public result_methods_t<Clauses...>*/ 
       static_check_t<_parameters::empty(), assert_no_parameters_t>;
       */
 
-  consteval static void check_basic_consistency() {
+  constexpr static void check_basic_consistency() {
     (basic_consistency_check<statement_t, Clauses>::verify(), ...);
   }
 
@@ -297,13 +297,16 @@ template <typename Context, typename... Clauses>
 struct compatibility_check<Context, statement_t<Clauses...>> {
   using type = compatibility_check_t<Context, detail::type_vector<Clauses...>>;
 };
+*/
 
 template <typename... Clauses>
 struct required_insert_columns_of<statement_t<Clauses...>> {
-  using type =
-      detail::make_joined_set_t<required_insert_columns_of_t<Clauses>...>;
+  static consteval detail::type_info_set func() {
+      return detail::make_joined_type_info_set(required_insert_columns_of<Clauses>::func()...);
+  }
 };
 
+/*
 template <typename... Clauses>
 struct parameters_of<statement_t<Clauses...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
