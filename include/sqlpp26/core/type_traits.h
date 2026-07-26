@@ -444,7 +444,6 @@ using required_insert_columns_of_t =
 template <typename T>
 struct is_clause : public std::false_type {};
 
-#if 0
 // Check if a clause makes sense in the context of the whole statement.
 // Note: This should /not/ be checking for missing tables as the statement might
 // be used as a sub-select that /might/ be using columns from the enclosing
@@ -453,11 +452,9 @@ struct is_clause : public std::false_type {};
 // Note: This has no default implementation to ensure implementation for every
 // clause.
 template <typename Statement, typename Clause>
-struct consistency_check;
+struct basic_consistency_check;
 
-template <typename Statement, typename Clause>
-using consistency_check_t = typename consistency_check<Statement, Clause>::type;
-
+#if 0
 // Check if a clause within a statement is ready to be used in a prepared
 // statement. This used in addition to the `consistency_check`.
 //

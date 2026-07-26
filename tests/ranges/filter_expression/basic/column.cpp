@@ -49,12 +49,18 @@ struct _TabFoo {
 using TabFoo = sqlpp::table<_TabFoo>;
 }
 
+template <typename Statement>
+constexpr void run(const Statement&) {
+  consteval { Statement::check_basic_consistency(); }
+}
+
 
 int main() {
   auto tab_foo = test::TabFoo{};
   auto filter = to_filter_expression(tab_foo.id);
   constexpr auto foo = [tab_foo]() {
     constexpr auto insert_set_expression = insert_set(tab_foo.id = 123, tab_foo.something = "cheese");
+    run(insert_set_expression);
     constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
     auto a_foo = insert_set_filter(test::Foo{});
     if (a_foo.id != 123 or a_foo.something != "cheese") { throw a_foo; }
