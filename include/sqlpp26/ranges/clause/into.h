@@ -27,18 +27,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/clause/into.h>
+#include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
+
+struct into {
+  template <typename Struct>
+  constexpr auto operator()(Struct s) const {
+    return s;
+  }
+};
+
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
-template <typename... Clauses>
+template <typename Table>
 constexpr auto to_filter_expression(
-    const statement_t<Clauses...>& s) {
-  // TODO: This kinda works for insert and update right now, but is a hack
-  using LastClause = Clauses...[sizeof...(Clauses) - 1];
-  return to_filter_expression(static_cast<const LastClause&>(s));
-  // create filter expression
+    const into_t<Table>& t) {
+  return ranges::into{};
 }
 }  // namespace sqlpp::ranges

@@ -57,39 +57,29 @@ auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
                                        tuple_operand_no_dynamic{", "});
 }
 
-class assert_no_unknown_tables_in_update_assignments_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one update assignment requires a table "
-                        "which is otherwise not known in the statement");
-  }
-};
-
 template <typename... Assignments>
 struct is_clause<update_set_list_t<Assignments...>> : public std::true_type {};
 
-/*
 template <typename Statement, typename... Assignments>
-struct consistency_check<Statement, update_set_list_t<Assignments...>> {
-  using type = std::conditional_t<
-      Statement::template _no_unknown_tables<update_set_list_t<Assignments...>>,
-      consistent_t,
-      assert_no_unknown_tables_in_update_assignments_t>;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, update_set_list_t<Assignments...>> {
+  static constexpr void verify() {
+    if constexpr (not std::ranges::includes(
+                      provided_tables_of<Statement>::func(),
+                      required_tables_of<
+                          update_set_list_t<Assignments...>>::func(),
+                      sqlpp::detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one update assignment requires a table "
+          "which is otherwise not known in the statement");
+    }
   }
 };
-*/
 
 template <typename... Assignments>
 struct nodes_of<update_set_list_t<Assignments...>> {
   using type = detail::type_vector<Assignments...>;
 };
 
-/*
 template <DynamicAssignment... Assignments>
 inline constexpr bool are_valid_update_assignments =
     (sizeof...(Assignments) > 0 and
@@ -98,12 +88,11 @@ inline constexpr bool are_valid_update_assignments =
          lhs_t<remove_dynamic_t<Assignments>>...> and
      // assignment columns from exactly one table
      detail::make_joined_type_info_set(
-         required_tables_of_v<lhs_t<Assignments>>...).size() == 1);
-         */
+         required_tables_of<lhs_t<Assignments>>::func()...).size() == 1);
 
 struct no_update_set_list_t {
   template <typename Statement, DynamicAssignment... Assignments>
-    // TODO requires(are_valid_update_assignments<Assignments...>)
+    requires(are_valid_update_assignments<Assignments...>)
   constexpr auto set(this Statement&& self, Assignments... assignments)
 
   {
@@ -119,27 +108,15 @@ auto to_sql_string(Context&, const no_update_set_list_t&) -> std::string {
   return "";
 }
 
-class assert_update_assignments_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "update assignments required, i.e. set(...)");
-  }
-};
-
-/*
 template <typename Statement>
-struct consistency_check<Statement, no_update_set_list_t> {
-  using type = assert_update_assignments_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_update_set_list_t> {
+  static constexpr void verify() {
+    throw std::domain_error("update assignments required, i.e. set(...)");
   }
 };
-*/
 
 template <DynamicAssignment... Assignments>
-    // TODO requires(are_valid_update_assignments<Assignments...>)
+    requires(are_valid_update_assignments<Assignments...>)
 constexpr auto update_set(Assignments... assignments) {
   return statement_t<no_update_set_list_t>().set(std::move(assignments)...);
 }

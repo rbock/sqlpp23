@@ -97,6 +97,9 @@ struct make_table {
   using column_spec = ColumnSpecs...[Idx];
 };
 
+template <typename TableSpec>
+struct is_raw_table<table<TableSpec>> : public std::true_type {};
+
 }  // namespace sqlpp
 
 #if 0
@@ -129,9 +132,6 @@ struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
   }
 #endif
 };
-
-template <typename TableSpec>
-struct is_raw_table<table_t<TableSpec>> : public std::true_type {};
 
 template <typename TableSpec>
 struct is_table<table_t<TableSpec>> : public std::true_type {};

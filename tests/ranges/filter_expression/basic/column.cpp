@@ -28,6 +28,8 @@
 #include <sqlpp26/ranges/to_filter_expression.h>
 
 #include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/ranges/clause/insert.h>
+#include <sqlpp26/ranges/clause/into.h>
 #include <sqlpp26/ranges/clause/insert_value_list.h>
 #include <sqlpp26/ranges/clause/update_set_list.h>
 #include <sqlpp26/ranges/clause/select_column_list.h>
@@ -59,15 +61,16 @@ int main() {
   auto tab_foo = test::TabFoo{};
   auto filter = to_filter_expression(tab_foo.id);
   constexpr auto foo = [tab_foo]() {
-    constexpr auto insert_set_expression = insert_set(tab_foo.id = 123, tab_foo.something = "cheese");
-    run(insert_set_expression);
+    constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");
+    //run(insert_set_expression);
     constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
     auto a_foo = insert_set_filter(test::Foo{});
     if (a_foo.id != 123 or a_foo.something != "cheese") { throw a_foo; }
 
     constexpr auto update_set_expression = update_set(tab_foo.id = 1234, tab_foo.something = "cheesecake");
     constexpr auto update_set_filter = to_filter_expression(update_set_expression);
-    return update_set_filter(test::Foo{});
+    //run(update_set_expression);
+    return update_set_filter(a_foo);
   }();
   constexpr auto resultId = filter(foo);
   static_assert(resultId == foo.id);

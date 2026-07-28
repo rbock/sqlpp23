@@ -187,14 +187,16 @@ struct is_clause<insert_set_t<Assignments...>> : public std::true_type {};
 template <typename Statement, typename... Assignments>
 struct basic_consistency_check<Statement, insert_set_t<Assignments...>> {
   static constexpr void verify() {
-    if constexpr (false/*not std::ranges::includes(
-                      provided_tables_of_v<Statement>,
-                      required_tables_of_v<insert_set_t<Assignments...>>)*/) {
+    if constexpr (not std::ranges::includes(
+                      provided_tables_of<Statement>::func(),
+                      required_tables_of<insert_set_t<Assignments...>>::func(),
+                      sqlpp::detail::type_info_less{})) {
       throw std::domain_error("at least one insert assignment requires a table "
                           "which is otherwise not known in the statement");
-    } else if constexpr (not detail::have_all_required_assignments<Statement, Assignments...>()){
+    } else if constexpr (not detail::have_all_required_assignments<
+                             Statement, Assignments...>()) {
       throw std::domain_error(
-          "at least one required column is missing in set()");
+          "at least one required column is missing in insert assignments");
     }
   }
 };

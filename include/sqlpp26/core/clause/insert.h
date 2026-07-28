@@ -30,7 +30,7 @@
 #include <sqlpp26/core/clause/insert_value_list.h>
 #include <sqlpp26/core/clause/into.h>
 #include <sqlpp26/core/database/connection.h>
-#include <sqlpp26/core/database/prepared_insert.h>
+//#include <sqlpp26/core/database/prepared_insert.h>
 #include <sqlpp26/core/default_value.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/query/statement_handler.h>
@@ -47,6 +47,7 @@ auto to_sql_string(Context&, const insert_t&) -> std::string {
 template <>
 struct is_clause<insert_t> : public std::true_type {};
 
+/*
 struct insert_result_methods_t {
  private:
   friend class statement_handler_t;
@@ -71,12 +72,11 @@ template <>
 struct result_methods_of<insert_t> {
   using type = insert_result_methods_t;
 };
+*/
 
 template <typename Statement>
-struct consistency_check<Statement, insert_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, insert_t> {
+  static constexpr void verify() {
   }
 };
 
@@ -85,7 +85,7 @@ struct is_result_clause<insert_t> : public std::true_type {};
 
 using blank_insert_t = statement_t<insert_t, no_into_t, no_insert_value_list_t>;
 
-inline auto insert() -> blank_insert_t {
+inline constexpr auto insert() -> blank_insert_t {
   return {};
 }
 

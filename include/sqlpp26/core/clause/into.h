@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp26/core/concepts.h>
-#include <sqlpp26/core/database/prepared_insert.h>
+//#include <sqlpp26/core/database/prepared_insert.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/no_data.h>
 #include <sqlpp26/core/query/statement.h>
@@ -38,7 +38,7 @@
 namespace sqlpp {
 template <typename _Table>
 struct into_t {
-  into_t(_Table table) : _table(std::move(table)) {}
+  constexpr into_t(_Table table) : _table(std::move(table)) {}
 
   into_t(const into_t&) = default;
   into_t(into_t&&) = default;
@@ -60,11 +60,8 @@ template <typename _Table>
 struct is_clause<into_t<_Table>> : public std::true_type {};
 
 template <typename Statement, typename _Table>
-struct consistency_check<Statement, into_t<_Table>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, into_t<_Table>> {
+  static constexpr void verify() {}
 };
 
 template <typename _Table>
@@ -80,18 +77,10 @@ template <typename _Table>
 struct provided_tables_of<into_t<_Table>> : public provided_tables_of<_Table> {
 };
 
-class assert_into_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "into() required");
-  }
-};
-
 // NO INTO YET
 struct no_into_t {
   template <typename Statement, StaticRawTable _Table>
-  auto into(this Statement&& self, _Table table) {
+  constexpr auto into(this Statement&& self, _Table table) {
     return new_statement<no_into_t>(std::forward<Statement>(self),
                                     into_t<_Table>{std::move(table)});
   }
@@ -103,15 +92,14 @@ auto to_sql_string(Context&, const no_into_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_into_t> {
-  using type = assert_into_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_into_t> {
+  static constexpr void verify() {
+    throw std::domain_error("into required for insert");
   }
 };
 
 template <StaticRawTable T>
-auto into(T t) {
+constexpr auto into(T t) {
   return statement_t<no_into_t>().into(std::move(t));
 }
 }  // namespace sqlpp
