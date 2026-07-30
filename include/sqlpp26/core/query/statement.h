@@ -306,6 +306,13 @@ struct required_insert_columns_of<statement_t<Clauses...>> {
   }
 };
 
+template <typename... Clauses>
+struct provided_tables_of<statement_t<Clauses...>> {
+  static consteval detail::type_info_set func() {
+      return detail::make_joined_type_info_set(provided_tables_of<Clauses>::func()...);
+  }
+};
+
 /*
 template <typename... Clauses>
 struct parameters_of<statement_t<Clauses...>> {

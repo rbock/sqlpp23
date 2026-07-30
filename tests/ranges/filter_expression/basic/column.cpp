@@ -62,7 +62,7 @@ int main() {
   auto filter = to_filter_expression(tab_foo.id);
   constexpr auto foo = [tab_foo]() {
     constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");
-    //run(insert_set_expression);
+    run(insert_set_expression);
     constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
     auto a_foo = insert_set_filter(test::Foo{});
     if (a_foo.id != 123 or a_foo.something != "cheese") { throw a_foo; }
@@ -95,6 +95,5 @@ int main() {
 
   static_assert(result.id == 1234);
   static_assert(result.something == "cheesecake");
-
 
 }

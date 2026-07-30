@@ -33,13 +33,13 @@ namespace sqlpp::detail {
 
 // TODO: Would prefer to use flat_set::insert_range(), but that currently fails to compile
 // See http://wg21.link/P3372
-constexpr void insert_type_info_set(auto& sink, const auto& data) {
+consteval void insert_type_info_set(auto& sink, const auto& data) {
   for (const auto& entry : data) {
     sink.insert(entry);
   }
 }
 
-constexpr type_info_set make_joined_type_info_set(const auto&... Sets) {
+consteval type_info_set make_joined_type_info_set(const auto&... Sets) {
   type_info_set all;
 
   (insert_type_info_set(all, Sets), ...);

@@ -40,6 +40,7 @@
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/core/wrong.h>
 #include <type_traits>
+#include "sqlpp11/core/detail/type_set.h"
 */
 
 namespace sqlpp {
@@ -82,10 +83,7 @@ struct name_of<column<Table, index>> {
 template <typename Table, size_t index>
 struct required_tables_of<column<Table, index>> {
   static consteval detail::type_info_set func() {
-    // TODO Can this be a 1-liner?
-    detail::type_info_set v;
-    v.insert(^^Table);
-    return v;
+    return detail::make_type_info_set<Table>();
   }
 };
 

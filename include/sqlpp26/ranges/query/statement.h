@@ -28,8 +28,25 @@
  */
 
 #include <sqlpp26/core/query/statement.h>
+#include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
+template <typename... FilterClauses>
+struct statement {
+  template <typename Struct>
+  constexpr auto operator()(Struct s) {
+    static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
+    Struct x = std::move(s);
+    // TODO: Filter clauses should probably take the table and do something with
+    // it And the result clause should take a value or whatever (or maybe we
+    // should just call the correct function with the correct signature when we
+    // know the statement).
+    (std::get<Idx>(_filter_clauses)(),...);
+    return x;
+  }
+
+  std::tuple<FilterClauses...> _filter_clauses;
+};
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {

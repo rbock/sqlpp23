@@ -36,9 +36,9 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-template <typename _Table>
+template <typename Table>
 struct into_t {
-  constexpr into_t(_Table table) : _table(std::move(table)) {}
+  constexpr into_t(Table table) : _table(std::move(table)) {}
 
   into_t(const into_t&) = default;
   into_t(into_t&&) = default;
@@ -48,41 +48,41 @@ struct into_t {
 
  private:
   friend reader_t;
-  _Table _table;
+  Table _table;
 };
 
-template <typename Context, typename _Table>
-auto to_sql_string(Context& context, const into_t<_Table>& t) -> std::string {
+template <typename Context, typename Table>
+auto to_sql_string(Context& context, const into_t<Table>& t) -> std::string {
   return " INTO " + to_sql_string(context, read.table(t));
 }
 
-template <typename _Table>
-struct is_clause<into_t<_Table>> : public std::true_type {};
+template <typename Table>
+struct is_clause<into_t<Table>> : public std::true_type {};
 
-template <typename Statement, typename _Table>
-struct basic_consistency_check<Statement, into_t<_Table>> {
+template <typename Statement, typename Table>
+struct basic_consistency_check<Statement, into_t<Table>> {
   static constexpr void verify() {}
 };
 
-template <typename _Table>
-struct nodes_of<into_t<_Table>> {
-  using type = detail::type_vector<_Table>;
+template <typename Table>
+struct nodes_of<into_t<Table>> {
+  using type = detail::type_vector<Table>;
 };
 
-template <typename _Table>
-struct required_insert_columns_of<into_t<_Table>>
-    : public required_insert_columns_of<_Table> {};
+template <typename Table>
+struct required_insert_columns_of<into_t<Table>>
+    : public required_insert_columns_of<Table> {};
 
-template <typename _Table>
-struct provided_tables_of<into_t<_Table>> : public provided_tables_of<_Table> {
+template <typename Table>
+struct provided_tables_of<into_t<Table>> : public provided_tables_of<Table> {
 };
 
 // NO INTO YET
 struct no_into_t {
-  template <typename Statement, StaticRawTable _Table>
-  constexpr auto into(this Statement&& self, _Table table) {
+  template <typename Statement, StaticRawTable Table>
+  constexpr auto into(this Statement&& self, Table table) {
     return new_statement<no_into_t>(std::forward<Statement>(self),
-                                    into_t<_Table>{std::move(table)});
+                                    into_t<Table>{std::move(table)});
   }
 };
 

@@ -100,6 +100,13 @@ struct make_table {
 template <typename TableSpec>
 struct is_raw_table<table<TableSpec>> : public std::true_type {};
 
+template <typename TableSpec>
+struct provided_tables_of<table<TableSpec>> {
+  static consteval detail::type_info_set func() { 
+    return detail::make_type_info_set<table<TableSpec>>();
+  }
+};
+
 }  // namespace sqlpp
 
 #if 0
@@ -138,11 +145,6 @@ struct is_table<table_t<TableSpec>> : public std::true_type {};
 
 template <typename TableSpec>
 struct name_tag_of<table_t<TableSpec>> : public name_tag_of<TableSpec> {};
-
-template <typename TableSpec>
-struct provided_tables_of<table_t<TableSpec>> {
-  using type = sqlpp::detail::type_set<table_t<TableSpec>>;
-};
 
 template <typename TableSpec>
 struct required_insert_columns_of<table_t<TableSpec>> {
