@@ -29,9 +29,9 @@
 
 #include <sqlpp26/core/clause/single_table.h>
 #include <sqlpp26/core/clause/update_set_list.h>
-#include <sqlpp26/core/clause/where.h>
+//#include <sqlpp26/core/clause/where.h>
 #include <sqlpp26/core/database/connection.h>
-#include <sqlpp26/core/database/prepared_update.h>
+//#include <sqlpp26/core/database/prepared_update.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/query/statement_handler.h>
 #include <sqlpp26/core/type_traits.h>
@@ -47,6 +47,7 @@ auto to_sql_string(Context&, const update_t&) -> std::string {
 template <>
 struct is_clause<update_t> : public std::true_type {};
 
+/*
 struct update_result_methods_t {
  private:
   friend class statement_handler_t;
@@ -66,17 +67,18 @@ struct update_result_methods_t {
                                              db)};
   }
 };
+*/
 
+/*
 template <>
 struct result_methods_of<update_t> {
   using type = update_result_methods_t;
 };
+*/
 
 template <typename Statement>
-struct consistency_check<Statement, update_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, update_t> {
+  static constexpr void verify() {
   }
 };
 
@@ -85,8 +87,8 @@ struct is_result_clause<update_t> : public std::true_type {};
 
 using blank_update_t = statement_t<update_t,
                                    no_single_table_t,
-                                   no_update_set_list_t,
-                                   no_where_t>;
+                                   no_update_set_list_t/* TODO,
+                                   no_where_t*/>;
 
 template <typename _Table>
 constexpr auto update(_Table table)

@@ -35,7 +35,7 @@ namespace sqlpp::ranges {
 template <typename... Assignments>
 struct update_assignments {
   template <typename Struct>
-  constexpr auto operator()(Struct& s) const {
+  constexpr auto& operator()(Struct& s) const {
     static constexpr auto& [... Idx] = indices<sizeof...(Assignments)>;
     (std::get<Idx>(_assignments)(s), ...);
     return s;

@@ -34,15 +34,28 @@ namespace sqlpp::ranges {
 template <typename... FilterClauses>
 struct statement {
   template <typename Struct>
-  constexpr auto operator()(Struct s) {
+  constexpr auto insert(std::vector<Struct>& v) const {
     static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
-    Struct x = std::move(s);
+    Struct x;
     // TODO: Filter clauses should probably take the table and do something with
     // it And the result clause should take a value or whatever (or maybe we
     // should just call the correct function with the correct signature when we
     // know the statement).
-    (std::get<Idx>(_filter_clauses)(),...);
-    return x;
+    (std::get<Idx>(_filter_clauses)(x),...);
+
+    return v.emplace_back(std::move(x));
+  }
+
+  template <typename Struct>
+  constexpr auto update(std::vector<Struct>& v) const {
+    static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
+    // TODO: Filter clauses should probably take the table and do something with
+    // it And the result clause should take a value or whatever (or maybe we
+    // should just call the correct function with the correct signature when we
+    // know the statement).
+    for (auto& row : v) {
+    (std::get<Idx>(_filter_clauses)(row),...);
+    }
   }
 
   std::tuple<FilterClauses...> _filter_clauses;
@@ -53,9 +66,6 @@ namespace sqlpp {
 template <typename... Clauses>
 constexpr auto to_filter_expression(
     const statement_t<Clauses...>& s) {
-  // TODO: This kinda works for insert and update right now, but is a hack
-  using LastClause = Clauses...[sizeof...(Clauses) - 1];
-  return to_filter_expression(static_cast<const LastClause&>(s));
-  // create filter expression
+  return ranges::statement{std::make_tuple(to_filter_expression(static_cast<const Clauses&>(s))...)};
 }
 }  // namespace sqlpp::ranges

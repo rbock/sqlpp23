@@ -29,7 +29,7 @@
 
 #include <sqlpp26/core/basic/table.h>
 #include <sqlpp26/core/concepts.h>
-#include <sqlpp26/core/database/prepared_insert.h>
+//#include <sqlpp26/core/database/prepared_insert.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/no_data.h>
 #include <sqlpp26/core/query/statement.h>
@@ -39,7 +39,7 @@
 namespace sqlpp {
 template <typename _Table>
 struct single_table_t {
-  single_table_t(_Table table) : _table(std::move(table)) {}
+  constexpr single_table_t(_Table table) : _table(std::move(table)) {}
 
   single_table_t(const single_table_t&) = default;
   single_table_t(single_table_t&&) = default;
@@ -62,10 +62,8 @@ template <typename _Table>
 struct is_clause<single_table_t<_Table>> : public std::true_type {};
 
 template <typename Statement, typename _Table>
-struct consistency_check<Statement, single_table_t<_Table>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, single_table_t<_Table>> {
+  static constexpr void verify() {
   }
 };
 
@@ -81,7 +79,7 @@ struct provided_tables_of<single_table_t<_Table>>
 // NO TABLE YET
 struct no_single_table_t {
   template <typename Statement, StaticRawTable _Table>
-  auto single_table(this Statement&& self, _Table table) {
+  constexpr auto single_table(this Statement&& self, _Table table) {
     return new_statement<no_single_table_t>(
         std::forward<Statement>(self),
         single_table_t<_Table>{std::move(table)});
@@ -93,19 +91,10 @@ auto to_sql_string(Context&, const no_single_table_t&) -> std::string {
   return "";
 }
 
-class assert_single_table_provided_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "this statement requires a table");
-  }
-};
-
 template <typename Statement>
-struct consistency_check<Statement, no_single_table_t> {
-  using type = assert_single_table_provided_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_single_table_t> {
+  static constexpr void verify() {
+    throw std::domain_error("this statement requires a table");
   }
 };
 

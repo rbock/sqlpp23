@@ -34,7 +34,7 @@ namespace sqlpp::ranges {
 
 struct into {
   template <typename Struct>
-  constexpr auto operator()(Struct s) const {
+  constexpr auto& operator()(Struct& s) const {
     return s;
   }
 };
@@ -44,7 +44,7 @@ struct into {
 namespace sqlpp {
 template <typename Table>
 constexpr auto to_filter_expression(
-    const into_t<Table>& t) {
+    const into_t<Table>& ) {
   return ranges::into{};
 }
 }  // namespace sqlpp::ranges

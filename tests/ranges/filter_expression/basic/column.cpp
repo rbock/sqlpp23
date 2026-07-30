@@ -29,10 +29,12 @@
 
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/ranges/clause/insert.h>
-#include <sqlpp26/ranges/clause/into.h>
 #include <sqlpp26/ranges/clause/insert_value_list.h>
-#include <sqlpp26/ranges/clause/update_set_list.h>
+#include <sqlpp26/ranges/clause/into.h>
 #include <sqlpp26/ranges/clause/select_column_list.h>
+#include <sqlpp26/ranges/clause/single_table.h>
+#include <sqlpp26/ranges/clause/update.h>
+#include <sqlpp26/ranges/clause/update_set_list.h>
 #include <sqlpp26/ranges/operator/assign_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
 #include <sqlpp26/ranges/operator/logical_expression.h>
@@ -60,17 +62,23 @@ constexpr void run(const Statement&) {
 int main() {
   auto tab_foo = test::TabFoo{};
   auto filter = to_filter_expression(tab_foo.id);
-  constexpr auto foo = [tab_foo]() {
+  constexpr auto foo = [tab_foo]() -> test::Foo{
     constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");
     run(insert_set_expression);
     constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
-    auto a_foo = insert_set_filter(test::Foo{});
-    if (a_foo.id != 123 or a_foo.something != "cheese") { throw a_foo; }
 
-    constexpr auto update_set_expression = update_set(tab_foo.id = 1234, tab_foo.something = "cheesecake");
+    std::vector<test::Foo> v;
+    insert_set_filter.insert(v);
+    auto& back = v.back();
+    if (back.id != 123 or back.something != "cheese") { throw std::logic_error("unexpected values in back of vector after insert"); }
+
+    constexpr auto update_set_expression = update(tab_foo).set(tab_foo.id = 1234, tab_foo.something = "cheesecake");
     constexpr auto update_set_filter = to_filter_expression(update_set_expression);
-    //run(update_set_expression);
-    return update_set_filter(a_foo);
+    run(update_set_expression);
+    update_set_filter.update(v);
+    if (back.id != 1234 or back.something != "cheesecake") { throw std::logic_error("unexpected values in back of vector after update"); }
+
+    return back;
   }();
   constexpr auto resultId = filter(foo);
   static_assert(resultId == foo.id);
@@ -95,5 +103,12 @@ int main() {
 
   static_assert(result.id == 1234);
   static_assert(result.something == "cheesecake");
+
+  /*
+  std::vector<test::Foo> v; // This is a table object
+        constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");
+      constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
+      */
+
 
 }

@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/insert.h>
+#include <sqlpp26/core/clause/single_table.h>
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
 
-struct insert {
+struct single_table {
   template <typename Struct>
   constexpr auto& operator()(Struct& s) const {
     return s;
@@ -42,8 +42,9 @@ struct insert {
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
+template <typename Table>
 constexpr auto to_filter_expression(
-    const insert_t&) {
-  return ranges::insert{};
+    const single_table_t<Table>& ) {
+  return ranges::single_table{};
 }
 }  // namespace sqlpp::ranges

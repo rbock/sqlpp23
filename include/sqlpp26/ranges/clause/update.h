@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/insert.h>
+#include <sqlpp26/core/clause/update.h>
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
 
-struct insert {
+struct update {
   template <typename Struct>
   constexpr auto& operator()(Struct& s) const {
     return s;
@@ -43,7 +43,7 @@ struct insert {
 
 namespace sqlpp {
 constexpr auto to_filter_expression(
-    const insert_t&) {
-  return ranges::insert{};
+    const update_t&) {
+  return ranges::update{};
 }
 }  // namespace sqlpp::ranges
