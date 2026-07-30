@@ -27,15 +27,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ranges>
+
 #include <sqlpp26/core/clause/insert.h>
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
 
 struct insert {
-  template <typename Struct>
-  constexpr auto& operator()(Struct& s) const {
-    return s;
+  constexpr auto& operator()(auto& t) const{
+    return t;
   }
 };
 

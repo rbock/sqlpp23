@@ -36,26 +36,17 @@ struct statement {
   template <typename Struct>
   constexpr auto insert(std::vector<Struct>& v) const {
     static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
-    Struct x;
-    // TODO: Filter clauses should probably take the table and do something with
-    // it And the result clause should take a value or whatever (or maybe we
-    // should just call the correct function with the correct signature when we
-    // know the statement).
-    (std::get<Idx>(_filter_clauses)(x),...);
+    (std::get<Idx>(_filter_clauses)(v), ...);
 
-    return v.emplace_back(std::move(x));
+    return v.back();
   }
 
   template <typename Struct>
-  constexpr auto update(std::vector<Struct>& v) const {
+  constexpr auto update(std::vector<Struct>& t) const {
     static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
-    // TODO: Filter clauses should probably take the table and do something with
-    // it And the result clause should take a value or whatever (or maybe we
-    // should just call the correct function with the correct signature when we
-    // know the statement).
-    for (auto& row : v) {
-    (std::get<Idx>(_filter_clauses)(row),...);
-    }
+
+    auto view = (t | ...| std::get<Idx>(_filter_clauses)() );
+    for (auto&& _ : view) {}
   }
 
   std::tuple<FilterClauses...> _filter_clauses;
