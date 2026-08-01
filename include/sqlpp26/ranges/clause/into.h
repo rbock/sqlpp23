@@ -36,9 +36,6 @@
 namespace sqlpp::ranges {
 
 struct into {
-  constexpr auto& operator()(auto& t) const {
-    return t;
-  }
 };
 
 }  // namespace sqlpp::ranges

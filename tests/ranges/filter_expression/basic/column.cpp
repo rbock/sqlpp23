@@ -34,6 +34,7 @@
 #include <sqlpp26/ranges/clause/select_column_list.h>
 #include <sqlpp26/ranges/clause/single_table.h>
 #include <sqlpp26/ranges/clause/update.h>
+#include <sqlpp26/ranges/clause/where.h>
 #include <sqlpp26/ranges/clause/update_set_list.h>
 #include <sqlpp26/ranges/operator/assign_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
@@ -72,7 +73,7 @@ int main() {
     auto& back = v.back();
     if (back.id != 123 or back.something != "cheese") { throw std::logic_error("unexpected values in back of vector after insert"); }
 
-    constexpr auto update_set_expression = update(tab_foo).set(tab_foo.id = 1234, tab_foo.something = "cheesecake");
+    constexpr auto update_set_expression = update(tab_foo).set(tab_foo.id = 1234, tab_foo.something = "cheesecake").where(tab_foo.id > 17);
     constexpr auto update_set_filter = to_filter_expression(update_set_expression);
     run(update_set_expression);
     update_set_filter.update(v);

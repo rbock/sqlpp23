@@ -36,16 +36,16 @@ namespace sqlpp::ranges {
 
 template <typename... Assignments>
 struct update_assignments {
-  constexpr auto operator()() const {
-    return std::views::transform([this](auto& row) -> auto& {
+  constexpr auto operator()(auto& row) const {
       static constexpr auto& [... Idx] = indices<sizeof...(Assignments)>;
       (std::get<Idx>(_assignments)(row), ...);
-      return row;
-    });
   }
 
   std::tuple<Assignments...> _assignments;
 };
+
+template <typename... Assignments>
+struct is_updater<update_assignments<Assignments...>> : public std::true_type{};
 
 }  // namespace sqlpp::ranges
 

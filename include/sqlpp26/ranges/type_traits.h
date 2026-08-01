@@ -27,21 +27,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ranges>
-
-#include <sqlpp26/core/clause/insert.h>
-#include <sqlpp26/core/indices.h>
+#include <type_traits>
 
 namespace sqlpp::ranges {
+  template <typename T>
+    struct is_filter : public std::false_type {};
+  template<typename T>
+    static inline constexpr bool is_filter_v = is_filter<T>::value;
 
-struct insert {
-};
+  template <typename T>
+    struct is_inserter : public std::false_type {};
+  template<typename T>
+    static inline constexpr bool is_inserter_v = is_inserter<T>::value;
 
-}  // namespace sqlpp::ranges
-
-namespace sqlpp {
-constexpr auto to_filter_expression(
-    const insert_t&) {
-  return ranges::insert{};
-}
-}  // namespace sqlpp::ranges
+  template <typename T>
+    struct is_updater : public std::false_type {};
+  template<typename T>
+    static inline constexpr bool is_updater_v = is_updater<T>::value;
+}  // namespace sqlpp

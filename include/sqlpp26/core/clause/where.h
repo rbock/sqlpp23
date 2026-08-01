@@ -39,7 +39,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct where_t {
-  where_t(Expression expression) : _expression(std::move(expression)) {}
+  constexpr where_t(Expression expression) : _expression(std::move(expression)) {}
   where_t(const where_t&) = default;
   where_t(where_t&&) = default;
   where_t& operator=(const where_t&) = default;
@@ -84,16 +84,18 @@ template <typename Expression>
 struct is_clause<where_t<Expression>> : public std::true_type {};
 
 template <typename Statement, typename Expression>
-struct consistency_check<Statement, where_t<Expression>> {
+struct basic_consistency_check<Statement, where_t<Expression>> {
+  /*
   using type = detail::expression_static_check_t<
       Statement,
       Expression,
       assert_no_unknown_static_tables_in_where_t>;
-  constexpr auto operator()() {
-    return type{};
+      */
+  static constexpr void verify() {
   }
 };
 
+/*
 template <typename Statement, typename Expression>
 struct prepare_check<Statement, where_t<Expression>> {
   using type = static_combined_check_t<
@@ -107,6 +109,7 @@ struct prepare_check<Statement, where_t<Expression>> {
     return type{};
   }
 };
+*/
 
 template <typename Expression>
 struct nodes_of<where_t<Expression>> {
@@ -117,7 +120,7 @@ struct nodes_of<where_t<Expression>> {
 struct no_where_t {
   template <typename Statement, DynamicBoolean Expression>
     requires(not contains_aggregate_function<Expression>::value)
-  auto where(this Statement&& self, Expression expression) {
+  constexpr auto where(this Statement&& self, Expression expression) {
 
     return new_statement<no_where_t>(std::forward<Statement>(self),
                                      where_t<Expression>{std::move(expression)});
@@ -130,16 +133,14 @@ auto to_sql_string(Context&, const no_where_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_where_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_where_t> {
+  static constexpr void verify() {
   }
 };
 
 template <DynamicBoolean Expression>
   requires(not contains_aggregate_function<Expression>::value)
-auto where(Expression expression) {
+constexpr auto where(Expression expression) {
   return statement_t<no_where_t>().where(std::move(expression));
 }
 }  // namespace sqlpp

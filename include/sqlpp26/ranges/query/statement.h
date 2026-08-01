@@ -29,27 +29,55 @@
 
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/indices.h>
+#include <sqlpp26/ranges/type_traits.h>
 
 namespace sqlpp::ranges {
-template <typename... FilterClauses>
+template <typename Clause, typename Row>
+constexpr auto filter_row(const Clause&, const Row&) -> bool { return true; }
+
+template <typename Clause, typename Row>
+  requires(is_filter_v<Clause>)
+constexpr auto filter_row(const Clause& clause, const Row& r) -> bool { return clause(r); }
+
+template <typename Clause, typename Range>
+constexpr auto insert_row(const Clause&, Range&) -> void {}
+
+template <typename Clause, typename Range>
+  requires(is_inserter_v<Clause>)
+constexpr auto insert_row(const Clause& clause, Range& r) -> void { clause(r); }
+
+template <typename Clause, typename Row>
+constexpr auto update_row(const Clause&, Row&) -> void {}
+
+template <typename Clause, typename Row>
+  requires(is_updater_v<Clause>)
+constexpr auto update_row(const Clause& clause, Row& r) -> void { clause(r); }
+
+template <typename... Clauses>
 struct statement {
   template <typename Struct>
   constexpr auto insert(std::vector<Struct>& v) const {
-    static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
-    (std::get<Idx>(_filter_clauses)(v), ...);
+    static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
+    (..., insert_row(std::get<Idx>(_filter_clauses), v));
 
     return v.back();
   }
 
   template <typename Struct>
   constexpr auto update(std::vector<Struct>& t) const {
-    static constexpr auto [... Idx] = indices<sizeof...(FilterClauses)>;
+    static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
 
-    auto view = (t | ...| std::get<Idx>(_filter_clauses)() );
-    for (auto&& _ : view) {}
+    auto filter = std::views::filter([this](const auto& row) { return (...&& filter_row(std::get<Idx>(_filter_clauses), row)); });
+    //[[maybe_unused]] auto x = (...&& filter_row(std::get<Idx>(_filter_clauses), Struct{}));
+    auto transform = std::views::transform([this](auto& row) -> auto& {
+        (..., update_row(std::get<Idx>(_filter_clauses), row));
+        return row;
+        });
+    for (auto&& _ : t | filter | transform) {
+    }
   }
 
-  std::tuple<FilterClauses...> _filter_clauses;
+  std::tuple<Clauses...> _filter_clauses;
 };
 }  // namespace sqlpp::ranges
 

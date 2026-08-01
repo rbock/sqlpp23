@@ -46,7 +46,7 @@ struct reader_t {
     return t._ctes;
   }
   template <typename T>
-  const auto& expression(const T& t) const {
+  constexpr const auto& expression(const T& t) const {
     return t._expression;
   }
   template <typename T>

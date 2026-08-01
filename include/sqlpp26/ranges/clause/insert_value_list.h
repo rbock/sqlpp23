@@ -31,6 +31,7 @@
 
 #include <sqlpp26/core/clause/insert_value_list.h>
 #include <sqlpp26/core/indices.h>
+#include <sqlpp26/ranges/type_traits.h>
 
 namespace sqlpp::ranges {
 
@@ -47,6 +48,9 @@ struct insert_assignments {
 
   std::tuple<Assignments...> _assignments;
 };
+
+template <typename... Assignments>
+struct is_inserter<insert_assignments<Assignments...>> : std::true_type{};
 
 }  // namespace sqlpp::ranges
 

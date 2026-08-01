@@ -29,19 +29,30 @@
 
 #include <ranges>
 
-#include <sqlpp26/core/clause/insert.h>
+#include <sqlpp26/core/clause/where.h>
 #include <sqlpp26/core/indices.h>
+#include <sqlpp26/ranges/type_traits.h>
 
 namespace sqlpp::ranges {
 
-struct insert {
+template <typename Filter>
+struct where {
+  constexpr auto operator()(auto& row) const -> bool {
+      return _filter(row);
+  }
+
+  Filter _filter;
 };
+
+template <typename Condition>
+struct is_filter<where<Condition>> : public std::true_type{};
 
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
+template <typename Filter>
 constexpr auto to_filter_expression(
-    const insert_t&) {
-  return ranges::insert{};
+    const where_t<Filter>& t) {
+  return ranges::where{to_filter_expression(read.expression(t))};
 }
-}  // namespace sqlpp::ranges
+}  // namespace sqlpp

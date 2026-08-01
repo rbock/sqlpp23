@@ -35,9 +35,6 @@
 namespace sqlpp::ranges {
 
 struct update {
-  constexpr auto operator()() const {
-    return std::views::filter([](const auto&) { return true; });
-  }
 };
 
 }  // namespace sqlpp::ranges
