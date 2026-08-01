@@ -47,9 +47,6 @@ struct where {
   Filter _filter;
 };
 
-template <typename Condition>
-struct is_filter<where<Condition>> : public std::true_type{};
-
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {

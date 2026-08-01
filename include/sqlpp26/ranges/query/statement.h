@@ -30,62 +30,121 @@
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/indices.h>
 #include <sqlpp26/ranges/type_traits.h>
+#include <cstddef>
+
 
 namespace sqlpp::ranges {
-template <typename Clause, typename Row>
-constexpr auto filter_row(const Clause&, const Row&) -> bool { return true; }
+template <typename...>
+struct group_by;
 
-template <typename Clause, typename Row>
-  requires(is_filter_v<Clause>)
-constexpr auto filter_row(const Clause& clause, const Row& r) -> bool { return clause(r); }
+template <typename...>
+struct insert_assignments;
 
-template <typename Clause, typename Range>
-constexpr auto insert_row(const Clause&, Range&) -> void {}
+template <typename...>
+struct select_column_list;
 
-template <typename Clause, typename Range>
-  requires(is_inserter_v<Clause>)
-constexpr auto insert_row(const Clause& clause, Range& r) -> void { clause(r); }
+template <typename...>
+struct update_assignments;
 
-template <typename Clause, typename Row>
-constexpr auto update_row(const Clause&, Row&) -> void {}
+template <typename>
+struct where;
 
-template <typename Clause, typename Row>
-  requires(is_updater_v<Clause>)
-constexpr auto update_row(const Clause& clause, Row& r) -> void { clause(r); }
+template<std::meta::info Template, typename... Clauses>
+consteval auto clause_index_of() -> std::optional<std::size_t> {
+  const auto clauses = std::vector{^^Clauses...};
+  if (const auto it = std::ranges::find_if(clauses, [](const auto& clause) {
+        return has_template_arguments(clause) and
+               template_of(clause) == Template;
+      }); it != clauses.end()) {
+    return std::distance(clauses.begin(), it);
+  }
+  return {};
+}
+
+template<std::meta::info Template, typename... Clauses>
+consteval auto required_clause_index_of() -> std::size_t {
+  if (const auto index = clause_index_of<Template, Clauses...>()) {
+    return *index;
+  }
+  throw std::domain_error(std::string("Could not find required clause: ") + identifier_of(Template));
+}
 
 template <typename... Clauses>
 struct statement {
+  template <std::meta::info Template>
+  static constexpr auto get_clause_index() -> std::optional<std::size_t> {
+    return clause_index_of<Template, Clauses...>();
+  }
+
+  template <std::meta::info Template>
+  constexpr const auto& get_clause() const {
+    return std::get<required_clause_index_of<Template, Clauses...>()>(_filter_clauses);
+  }
+
   template <typename Struct>
   constexpr auto insert(std::vector<Struct>& v) const {
-    static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
-    (..., insert_row(std::get<Idx>(_filter_clauses), v));
+    get_clause<^^insert_assignments>()(v);
 
     return v.back();
   }
 
   template <typename Struct>
   constexpr auto update(std::vector<Struct>& t) const {
-    static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
-
-    auto filter = std::views::filter([this](const auto& row) { return (...&& filter_row(std::get<Idx>(_filter_clauses), row)); });
+    auto filter = std::views::filter([this](const auto& row) {
+      if constexpr (get_clause_index<^^where>()) {
+        return get_clause<^^where>()(row);
+      }
+      return true;
+    });
     auto transform = std::views::transform([this](auto& row) -> auto& {
-        (..., update_row(std::get<Idx>(_filter_clauses), row));
-        return row;
-        });
+      get_clause<^^update_assignments>()(row);
+      return row;
+    });
     for (auto&& _ : t | filter | transform) {
     }
   }
 
   template <typename Struct>
+    requires(not get_clause_index<^^group_by>().has_value())
   constexpr auto select(const std::vector<Struct>& t) const {
-    static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
+    auto filter = std::views::filter([this](const auto& row) {
+      if constexpr (get_clause_index<^^where>()) {
+        return get_clause<^^where>()(row);
+      }
+      return true;
+    });
 
-    auto filter = std::views::filter([this](const auto& row) { return (...&& filter_row(std::get<Idx>(_filter_clauses), row)); });
     auto transform = std::views::transform([this](const auto& row) -> auto {
-        // TODO: Need to obtain the actual selec_column_list clause and apply it's logic
-        return row;
-        });
+      return get_clause<^^select_column_list>()(row);
+    });
+
     return t | filter | transform;
+  }
+
+  template <typename Struct>
+    requires(not get_clause_index<^^group_by>().has_value())
+  constexpr auto select(const std::vector<Struct>& t) const {
+    // Concept:
+    //
+    // filter where
+    // sort by group_by tuple
+    // std::ranges::chunk by group_by tuple
+    // select aggregates from each chunk
+    // concat aggregates
+    /*
+    auto filter = std::views::filter([this](const auto& row) {
+      if constexpr (get_clause_index<^^where>()) {
+        return get_clause<^^where>()(row);
+      }
+      return true;
+    });
+
+    auto transform = std::views::transform([this](const auto& row) -> auto {
+      return get_clause<^^select_column_list>()(row);
+    });
+
+    return t | filter | transform;
+    */
   }
 
   std::tuple<Clauses...> _filter_clauses;

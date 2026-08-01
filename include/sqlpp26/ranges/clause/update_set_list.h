@@ -44,9 +44,6 @@ struct update_assignments {
   std::tuple<Assignments...> _assignments;
 };
 
-template <typename... Assignments>
-struct is_updater<update_assignments<Assignments...>> : public std::true_type{};
-
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
