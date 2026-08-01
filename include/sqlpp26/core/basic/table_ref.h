@@ -29,7 +29,7 @@
 
 namespace sqlpp {
 template <typename T>
-auto make_table_ref(T t) -> T {
+constexpr auto make_table_ref(T t) -> T {
   return t;
 }
 }  // namespace sqlpp

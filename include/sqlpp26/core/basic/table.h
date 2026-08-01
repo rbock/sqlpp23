@@ -98,6 +98,9 @@ struct make_table {
 };
 
 template <typename TableSpec>
+struct is_table<table<TableSpec>> : public std::true_type {};
+
+template <typename TableSpec>
 struct is_raw_table<table<TableSpec>> : public std::true_type {};
 
 template <typename TableSpec>
@@ -139,9 +142,6 @@ struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
   }
 #endif
 };
-
-template <typename TableSpec>
-struct is_table<table_t<TableSpec>> : public std::true_type {};
 
 template <typename TableSpec>
 struct name_tag_of<table_t<TableSpec>> : public name_tag_of<TableSpec> {};

@@ -25,8 +25,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/ranges/to_filter_expression.h>
+#include <print>
 
+#include <sqlpp26/ranges/to_filter_expression.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/ranges/clause/insert.h>
 #include <sqlpp26/ranges/clause/insert_value_list.h>
@@ -35,6 +36,8 @@
 #include <sqlpp26/ranges/clause/single_table.h>
 #include <sqlpp26/ranges/clause/update.h>
 #include <sqlpp26/ranges/clause/where.h>
+#include <sqlpp26/ranges/clause/select.h>
+#include <sqlpp26/ranges/clause/from.h>
 #include <sqlpp26/ranges/clause/update_set_list.h>
 #include <sqlpp26/ranges/operator/assign_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
@@ -79,8 +82,9 @@ int main() {
     update_set_filter.update(v);
     if (back.id != 1234 or back.something != "cheesecake") { throw std::logic_error("unexpected values in back of vector after update"); }
 
-    return back;
+    return v.back();
   }();
+  static_assert(foo.id ==1234);
   constexpr auto resultId = filter(foo);
   static_assert(resultId == foo.id);
 
@@ -97,13 +101,18 @@ int main() {
 
   static_assert(and_filter(foo));
 
-  constexpr auto select_expression = select_columns(tab_foo.id, tab_foo.something);
+  constexpr auto select_expression = select(tab_foo.id, tab_foo.something).from(tab_foo).where(tab_foo.id > 17);
   constexpr auto select_filter = to_filter_expression(select_expression);
 
-  constexpr auto result = select_filter(foo);
-
-  static_assert(result.id == 1234);
-  static_assert(result.something == "cheesecake");
+  auto v = std::vector{foo};
+  auto result = select_filter.select(v);
+  if (result.empty()) { std::println("result unexpectedly empty"); throw 7;}
+  for (const auto& row : result)
+  {
+    println("{},{}", row.id, row.something);
+    if (row.id != 1234) { std::println("unexpected value for row.id: {}", row.id); throw 7;}
+    if (row.something != "cheesecake") { std::println("unexpected value for row.something: {}", row.id); throw 7;}
+  }
 
   /*
   std::vector<test::Foo> v; // This is a table object

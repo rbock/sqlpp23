@@ -39,7 +39,7 @@
 namespace sqlpp {
 template <typename _Table>
 struct from_t {
-  from_t(_Table table) : _table(std::move(table)) {}
+  constexpr from_t(_Table table) : _table(std::move(table)) {}
 
   from_t(const from_t&) = default;
   from_t(from_t&&) = default;
@@ -61,10 +61,8 @@ template <typename _Table>
 struct is_clause<from_t<_Table>> : public std::true_type {};
 
 template <typename Statement, typename _Table>
-struct consistency_check<Statement, from_t<_Table>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, from_t<_Table>> {
+  static consteval auto verify() {
   }
 };
 
@@ -87,7 +85,7 @@ struct provided_optional_tables_of<from_t<_Table>>
 
 struct no_from_t {
   template <typename Statement, DynamicTable _Table>
-  auto from(this Statement&& self, _Table table) {
+  constexpr auto from(this Statement&& self, _Table table) {
     return new_statement<no_from_t>(
         std::forward<Statement>(self),
         from_t<table_ref_t<_Table>>{make_table_ref(std::move(table))});
@@ -100,15 +98,13 @@ auto to_sql_string(Context&, const no_from_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_from_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_from_t> {
+  static consteval auto verify() {
   }
 };
 
 template <DynamicTable T>
-auto from(T t) {
+constexpr auto from(T t) {
   return statement_t<no_from_t>{}.from(std::move(t));
 }
 

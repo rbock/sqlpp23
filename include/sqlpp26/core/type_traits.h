@@ -394,7 +394,6 @@ using get_result_row_t = typename get_result_row<T>::type;
 #endif
 template <typename T>
 struct requires_parentheses : public std::false_type {};
-#if 0
 
 template <typename T>
 struct table_ref {
@@ -403,7 +402,6 @@ struct table_ref {
 
 template <typename T>
 using table_ref_t = typename table_ref<T>::type;
-#endif
 
 template <typename T>
 struct is_raw_select_flag : public std::false_type {};

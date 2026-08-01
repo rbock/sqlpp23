@@ -68,13 +68,24 @@ struct statement {
     static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
 
     auto filter = std::views::filter([this](const auto& row) { return (...&& filter_row(std::get<Idx>(_filter_clauses), row)); });
-    //[[maybe_unused]] auto x = (...&& filter_row(std::get<Idx>(_filter_clauses), Struct{}));
     auto transform = std::views::transform([this](auto& row) -> auto& {
         (..., update_row(std::get<Idx>(_filter_clauses), row));
         return row;
         });
     for (auto&& _ : t | filter | transform) {
     }
+  }
+
+  template <typename Struct>
+  constexpr auto select(const std::vector<Struct>& t) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Clauses)>;
+
+    auto filter = std::views::filter([this](const auto& row) { return (...&& filter_row(std::get<Idx>(_filter_clauses), row)); });
+    auto transform = std::views::transform([this](const auto& row) -> auto {
+        // TODO: Need to obtain the actual selec_column_list clause and apply it's logic
+        return row;
+        });
+    return t | filter | transform;
   }
 
   std::tuple<Clauses...> _filter_clauses;

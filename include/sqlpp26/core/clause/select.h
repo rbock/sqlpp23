@@ -29,18 +29,16 @@
 
 #include <sqlpp26/core/query/statement.h>
 
-#include <sqlpp26/core/clause/for_update.h>
+//#include <sqlpp26/core/clause/for_update.h>
 #include <sqlpp26/core/clause/from.h>
-#include <sqlpp26/core/clause/group_by.h>
-#include <sqlpp26/core/clause/having.h>
-#include <sqlpp26/core/clause/limit.h>
-#include <sqlpp26/core/clause/offset.h>
-#include <sqlpp26/core/clause/order_by.h>
+//#include <sqlpp26/core/clause/group_by.h>
+//#include <sqlpp26/core/clause/having.h>
+//#include <sqlpp26/core/clause/limit.h>
+//#include <sqlpp26/core/clause/offset.h>
+//#include <sqlpp26/core/clause/order_by.h>
 #include <sqlpp26/core/clause/select_column_list.h>
-#include <sqlpp26/core/clause/union.h>
+//#include <sqlpp26/core/clause/union.h>
 #include <sqlpp26/core/clause/where.h>
-#include <sqlpp26/core/database/connection.h>
-#include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
 struct select_t {};
@@ -54,24 +52,22 @@ template <>
 struct is_clause<select_t> : public std::true_type {};
 
 template <typename Statement>
-struct consistency_check<Statement, select_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, select_t> {
+  static consteval void verify() {
   }
 };
 
 using blank_select_t = statement_t<select_t,
                                    no_select_column_list_t,
                                    no_from_t,
-                                   no_where_t,
+                                   no_where_t/*,
                                    no_group_by_t,
                                    no_having_t,
                                    no_order_by_t,
                                    no_limit_t,
                                    no_offset_t,
                                    no_union_t,
-                                   no_for_update_t>;
+                                   no_for_update_t*/>;
 
 inline constexpr blank_select_t select() {
   return {};
@@ -79,7 +75,7 @@ inline constexpr blank_select_t select() {
 
 template <DynamicSelectArg... Args>
   requires(detail::count_columns<Args...>() > 0 and detail::all_flags_are_before_all_columns<Args...>())
-auto select(Args... args) {
+constexpr auto select(Args... args) {
   return blank_select_t().columns(std::move(args)...);
 }
 
