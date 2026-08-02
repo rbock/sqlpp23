@@ -39,7 +39,7 @@
 namespace sqlpp {
 template <typename... Expressions>
 struct group_by_t {
-  group_by_t(std::tuple<Expressions...> expressions)
+  constexpr group_by_t(std::tuple<Expressions...> expressions)
       : _expressions(std::move(expressions)) {}
 
   group_by_t(const group_by_t&) = default;
@@ -86,16 +86,18 @@ template <typename... Expressions>
 struct is_clause<group_by_t<Expressions...>> : public std::true_type {};
 
 template <typename Statement, typename... Expressions>
-struct consistency_check<Statement, group_by_t<Expressions...>> {
+struct basic_consistency_check<Statement, group_by_t<Expressions...>> {
+  /*
   using type = detail::expression_static_check_t<
       Statement,
       group_by_t<Expressions...>,
       assert_no_unknown_static_tables_in_group_by_t>;
-  constexpr auto operator()() {
-    return type{};
+      */
+  static consteval void verify() {
   }
 };
 
+/*
 template <typename Statement, typename... Expressions>
 struct prepare_check<Statement, group_by_t<Expressions...>> {
   using type = static_combined_check_t<
@@ -109,7 +111,9 @@ struct prepare_check<Statement, group_by_t<Expressions...>> {
     return type{};
   }
 };
+*/
 
+/*
 template <typename... Expressions>
 struct known_aggregate_columns_of<group_by_t<Expressions...>> {
   using type =
@@ -135,6 +139,7 @@ struct known_static_aggregate_columns_of<group_by_t<Expressions...>> {
   using type = detail::make_joined_set_t<
       detail::make_static_aggregate_column_set_t<Expressions>...>;
 };
+*/
 
 template <typename... Expressions>
 struct nodes_of<group_by_t<Expressions...>> {
@@ -147,7 +152,7 @@ struct no_group_by_t {
     requires(sizeof...(Expressions) > 0 and
              logic::none<contains_aggregate_function<
                  remove_dynamic_t<Expressions>>::value...>::value)
-  auto group_by(this Statement&& self, Expressions... expressions) {
+  constexpr auto group_by(this Statement&& self, Expressions... expressions) {
     return new_statement<no_group_by_t>(
         std::forward<Statement>(self),
         group_by_t<Expressions...>{std::make_tuple(std::move(expressions)...)});
@@ -160,10 +165,8 @@ auto to_sql_string(Context&, const no_group_by_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_group_by_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_group_by_t> {
+  static consteval void verify() {
   }
 };
 
@@ -171,7 +174,7 @@ template <DynamicValue... Expressions>
     requires(sizeof...(Expressions) > 0 and
              logic::none<contains_aggregate_function<
                  remove_dynamic_t<Expressions>>::value...>::value)
-auto group_by(Expressions... expressions) {
+constexpr auto group_by(Expressions... expressions) {
   return statement_t<no_group_by_t>{}.group_by(std::move(expressions)...);
 }
 

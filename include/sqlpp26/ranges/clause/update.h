@@ -27,8 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ranges>
-
 #include <sqlpp26/core/clause/update.h>
 #include <sqlpp26/core/indices.h>
 

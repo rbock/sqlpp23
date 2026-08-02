@@ -27,8 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ranges>
-
+#include <sqlpp26/ranges/to_filter_expression.h>
 #include <sqlpp26/core/clause/where.h>
 #include <sqlpp26/core/indices.h>
 #include <sqlpp26/ranges/type_traits.h>
@@ -40,7 +39,7 @@ struct no_where {
 
 template <typename Filter>
 struct where {
-  constexpr auto operator()(auto& row) const -> bool {
+  constexpr auto operator()(const auto& row) const -> bool {
       return _filter(row);
   }
 

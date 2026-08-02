@@ -27,23 +27,27 @@
 
 #include <print>
 
-#include <sqlpp26/ranges/to_filter_expression.h>
 #include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/ranges/aggregate_function/count.h>
+#include <sqlpp26/ranges/aggregate_function/sum.h>
+#include <sqlpp26/ranges/clause/from.h>
+#include <sqlpp26/ranges/clause/group_by.h>
 #include <sqlpp26/ranges/clause/insert.h>
 #include <sqlpp26/ranges/clause/insert_value_list.h>
 #include <sqlpp26/ranges/clause/into.h>
+#include <sqlpp26/ranges/clause/select.h>
 #include <sqlpp26/ranges/clause/select_column_list.h>
 #include <sqlpp26/ranges/clause/single_table.h>
 #include <sqlpp26/ranges/clause/update.h>
-#include <sqlpp26/ranges/clause/where.h>
-#include <sqlpp26/ranges/clause/select.h>
-#include <sqlpp26/ranges/clause/from.h>
 #include <sqlpp26/ranges/clause/update_set_list.h>
+#include <sqlpp26/ranges/clause/where.h>
+#include <sqlpp26/ranges/operator/as_expression.h>
 #include <sqlpp26/ranges/operator/assign_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
 #include <sqlpp26/ranges/operator/logical_expression.h>
 #include <sqlpp26/ranges/query/statement.h>
 #include <sqlpp26/ranges/ranges.h>
+#include <sqlpp26/ranges/to_filter_expression.h>
 
 namespace test {
 struct Foo {
@@ -109,11 +113,42 @@ int main() {
   if (result.empty()) { std::println("result unexpectedly empty"); throw 7;}
   for (const auto& row : result)
   {
-    println("{},{}", row.id, row.something);
+    std::println("{},{}", row.id, row.something);
     if (row.id != 1234) { std::println("unexpected value for row.id: {}", row.id); throw 7;}
     if (row.something != "cheesecake") { std::println("unexpected value for row.something: {}", row.id); throw 7;}
   }
 
+  v.push_back({1, "a"});
+  v.push_back({1, "c"});
+  v.push_back({1, "d"});
+  v.push_back({1, "e"});
+
+  v.push_back({3, "a"});
+  v.push_back({3, "c"});
+  v.push_back({3, "d"});
+
+  const auto sum_ex = sum(tab_foo.id);
+  const auto sum_as = sum_ex.as<"total">();
+  const auto sum_filter = to_filter_expression(sum_ex);
+  std::println("sum: {}", sum_filter.aggregate(v));
+
+  const auto count_ex = count(tab_foo.id);
+  const auto count_as = count_ex.as<"row_count">();
+  const auto count_filter = to_filter_expression(count_ex);
+  std::println("count: {}", count_filter.aggregate(v));
+
+  constexpr auto group_by_expression =
+      select(tab_foo.id, count(tab_foo.id).as<"row_count">(),
+             sum(tab_foo.id).as<"total">())
+          .from(tab_foo)
+          .where(tab_foo.id != 17)
+          .group_by(tab_foo.id);
+  constexpr auto group_by_filter = to_filter_expression(group_by_expression);
+  auto group_by_result = group_by_filter.select(v);
+  for (const auto& row : group_by_result)
+  {
+    std::println("id: {}, row_count: {}, sum: {}", row.id, row.row_count, row.total);
+  }
   /*
   std::vector<test::Foo> v; // This is a table object
         constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");

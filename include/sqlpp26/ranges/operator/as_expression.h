@@ -27,21 +27,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/into.h>
+#include <sqlpp26/ranges/to_filter_expression.h>
+#include <sqlpp26/core/operator/as_expression.h>
 #include <sqlpp26/core/indices.h>
-
+#include <sqlpp26/ranges/type_traits.h>
 
 namespace sqlpp::ranges {
 
-struct into {
+template <typename Expression, fixed_string Name>
+struct as_expression {
+  constexpr auto operator()(const auto& row) const {
+      return _filter(row);
+  }
+
+  constexpr auto aggregate(const auto& range) const {
+      return _filter.aggregate(range);
+  }
+
+  Expression _filter;
 };
+
+template <typename Expression, fixed_string Name>
+struct is_aggregate_function<as_expression<Expression, Name>> : public is_aggregate_function<Expression>{};
 
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
-template <typename Table>
-constexpr auto to_filter_expression(
-    const into_t<Table>& ) {
-  return ranges::into{};
+template <typename Expression, fixed_string Name>
+struct name_of<ranges::as_expression<Expression, Name>> {
+  static constexpr std::string_view value = name_of_v<as_expression<Expression, Name>>;
+};
+
+template <typename Expression, fixed_string Name>
+constexpr auto to_filter_expression(const as_expression<Expression, Name>& t) {
+  return ranges::as_expression<decltype(to_filter_expression(read.expression(t))), Name>{to_filter_expression(read.expression(t))};
 }
-}  // namespace sqlpp::ranges
+}  // namespace sqlpp

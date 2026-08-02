@@ -49,8 +49,8 @@ struct select_column_data_type_of<dynamic_t<T>> {
   using type = sqlpp::force_optional_t<select_column_data_type_of_t<T>>;
 };
 
-template <typename T, typename NameTag>
-struct select_column_data_type_of<as_expression<T, NameTag>>
+template <typename T, fixed_string Name>
+struct select_column_data_type_of<as_expression<T, Name>>
     : public select_column_data_type_of<T> {};
 
 // Get name tag
@@ -64,9 +64,9 @@ template <typename T>
 struct select_column_name_tag_of<dynamic_t<T>>
     : public select_column_name_tag_of<T> {};
 
-template <typename T, typename NameTag>
-struct select_column_name_tag_of<as_expression<T, NameTag>> {
-  using type = NameTag;
+template <typename T, fixed_string Name>
+struct select_column_name_tag_of<as_expression<T, Name>> {
+  //using type = NameTag;
 };
 
 // Test for value

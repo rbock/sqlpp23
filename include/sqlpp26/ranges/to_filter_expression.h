@@ -38,6 +38,7 @@
 #include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
+
 template <typename T>
 inline constexpr auto to_filter_expression(const T&) {
   static_assert(wrong<T>, "Missing specialization");

@@ -88,6 +88,7 @@ struct tuple_operand_select_column {
     return prefix + operand_to_sql_string(context, t);
   }
 
+  /* TODO
   template <typename Context, typename T, typename NameTag>
   auto operator()(Context& context,
                   const sqlpp::dynamic_t<as_expression<T, NameTag>>& t,
@@ -111,6 +112,7 @@ struct tuple_operand_select_column {
         context, as_expression<std::nullopt_t, name_tag_of_t<T>>{std::nullopt},
         index);
   }
+  */
 
   std::string_view separator;
 };

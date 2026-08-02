@@ -27,21 +27,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/into.h>
+#include <sqlpp26/ranges/to_filter_expression.h>
+#include <sqlpp26/core/clause/group_by.h>
 #include <sqlpp26/core/indices.h>
-
 
 namespace sqlpp::ranges {
 
-struct into {
+struct no_group_by {
+};
+
+template <typename... Accessors>
+struct group_by {
+  template <typename Struct>
+  constexpr auto operator()(const Struct& s) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    return std::tie(std::get<Idx>(_accessors)(s)...);
+  }
+
+  std::tuple<Accessors...> _accessors;
 };
 
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
-template <typename Table>
+constexpr auto to_filter_expression(const no_group_by_t&) {
+  return ranges::no_group_by{};
+}
+template <typename... Flags, typename... Expressions>
 constexpr auto to_filter_expression(
-    const into_t<Table>& ) {
-  return ranges::into{};
+    const group_by_t<Expressions...>& t) {
+  static constexpr auto [...Idx] = indices<sizeof...(Expressions)>;
+  return ranges::group_by{std::make_tuple(to_filter_expression(std::get<Idx>(read.expressions(t)))...)};
 }
 }  // namespace sqlpp::ranges

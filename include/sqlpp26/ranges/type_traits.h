@@ -28,4 +28,9 @@
  */
 
 namespace sqlpp::ranges {
+  template<typename T>
+    struct is_aggregate_function : std::false_type {};
+  template<typename T>
+    static inline constexpr bool is_aggregate_function_v = is_aggregate_function<T>::value;
+
 }  // namespace sqlpp

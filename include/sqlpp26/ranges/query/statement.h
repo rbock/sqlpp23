@@ -31,6 +31,8 @@
 #include <sqlpp26/core/indices.h>
 #include <sqlpp26/ranges/type_traits.h>
 #include <cstddef>
+#include <cstdlib>
+#include <ranges>
 
 
 namespace sqlpp::ranges {
@@ -96,55 +98,67 @@ struct statement {
       }
       return true;
     });
-    auto transform = std::views::transform([this](auto& row) -> auto& {
+    auto update = std::views::transform([this](auto& row) -> auto& {
       get_clause<^^update_assignments>()(row);
       return row;
     });
-    for (auto&& _ : t | filter | transform) {
+    for (auto&& _ : t | filter | update) {
     }
   }
 
   template <typename Struct>
     requires(not get_clause_index<^^group_by>().has_value())
   constexpr auto select(const std::vector<Struct>& t) const {
-    auto filter = std::views::filter([this](const auto& row) {
+    const auto filter = std::views::filter([this](const auto& row) {
       if constexpr (get_clause_index<^^where>()) {
         return get_clause<^^where>()(row);
       }
       return true;
     });
 
-    auto transform = std::views::transform([this](const auto& row) -> auto {
-      return get_clause<^^select_column_list>()(row);
+    const auto select = std::views::transform([this](const auto& row) -> auto {
+      return get_clause<^^select_column_list>().select_from_row(row);
     });
 
-    return t | filter | transform;
+    return t | filter | select;
   }
 
   template <typename Struct>
-    requires(not get_clause_index<^^group_by>().has_value())
+    requires(get_clause_index<^^group_by>().has_value())
   constexpr auto select(const std::vector<Struct>& t) const {
-    // Concept:
-    //
-    // filter where
-    // sort by group_by tuple
-    // std::ranges::chunk by group_by tuple
-    // select aggregates from each chunk
-    // concat aggregates
-    /*
-    auto filter = std::views::filter([this](const auto& row) {
+    // Apply WHERE
+    const auto filter = std::views::filter([this](const auto& row) {
       if constexpr (get_clause_index<^^where>()) {
         return get_clause<^^where>()(row);
       }
       return true;
     });
+    std::vector filtered = t | filter | std::ranges::to<std::vector>();
 
-    auto transform = std::views::transform([this](const auto& row) -> auto {
-      return get_clause<^^select_column_list>()(row);
+    // Apply GROUP BY
+    // This requires sorting, which requires taking a copy since we don't want
+    // to mess with the original.
+    // After that, we can chunk into ranges of equal rows based on GROUP BY
+    // expressions.
+    std::ranges::sort(filtered, [this](const auto& a, const auto& b) {
+        const auto clause = get_clause<^^group_by>();
+      return clause(a) < clause(b);
     });
 
-    return t | filter | transform;
-    */
+    auto chunks =
+        filtered | std::views::chunk_by([this](const auto& a, const auto& b) {
+          const auto clause = get_clause<^^group_by>();
+          return clause(a) == clause(b);
+        });
+
+    // Transform each chunk
+    const auto selector = [this](const auto& chunk) {
+      return get_clause<^^select_column_list>().select_from_chunk(chunk);
+    };
+    auto result = chunks | std::views::transform(selector) |
+                  std::ranges::to<std::vector>();
+
+    return result;
   }
 
   std::tuple<Clauses...> _filter_clauses;

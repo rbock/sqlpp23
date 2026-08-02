@@ -37,21 +37,16 @@
 #include <sqlpp26/core/to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
 
-namespace sqlpp::alias {
-SQLPP_CREATE_NAME_TAG(count_);
-SQLPP_CREATE_NAME_TAG(distinct_count_);
-}
-
 namespace sqlpp {
 template <typename Flag, typename Expr>
 struct count_t : public enable_as,
                  public enable_comparison,
                  public enable_over {
   constexpr count_t(Expr expr) : _expression(std::move(expr)) {}
-  constexpr count_t(const count_t&) = default;
-  constexpr count_t(count_t&&) = default;
-  constexpr count_t& operator=(const count_t&) = default;
-  constexpr count_t& operator=(count_t&&) = default;
+  count_t(const count_t&) = default;
+  count_t(count_t&&) = default;
+  count_t& operator=(const count_t&) = default;
+  count_t& operator=(count_t&&) = default;
   ~count_t() = default;
 
  private:
@@ -81,17 +76,17 @@ auto to_sql_string(Context& context, const count_t<Flag, Expr>& t)
 
 template <typename T>
   requires(has_data_type_v<T> and not contains_aggregate_function<T>::value)
-auto count(T t) -> count_t<no_flag_t, T> {
+constexpr auto count(T t) -> count_t<no_flag_t, T> {
   return {std::move(t)};
 }
 
-inline auto count(star_t s) -> count_t<no_flag_t, star_t> {
+inline constexpr auto count(star_t s) -> count_t<no_flag_t, star_t> {
   return {std::move(s)};
 }
 
 template <typename T>
   requires(has_data_type_v<T> and not contains_aggregate_function<T>::value)
-auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, T> {
+constexpr auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, T> {
   return {std::move(t)};
 }
 

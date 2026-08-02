@@ -26,8 +26,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <sqlpp26/core/basic/fixed_string.h>
 namespace sqlpp {
-template <typename Expression, typename NameTag>
+template <typename Expression, fixed_string Name>
 struct as_expression;
 
 template <typename T>
@@ -35,8 +36,8 @@ struct remove_as {
   using type = T;
 };
 
-template <typename Expression, typename NameTag>
-struct remove_as<as_expression<Expression, NameTag>> {
+template <typename Expression, fixed_string Name>
+struct remove_as<as_expression<Expression, Name>> {
   using type = Expression;
 };
 

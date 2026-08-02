@@ -27,21 +27,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/into.h>
+#include <sqlpp26/ranges/to_filter_expression.h>
+#include <sqlpp26/core/aggregate_function/sum.h>
 #include <sqlpp26/core/indices.h>
-
+#include <sqlpp26/ranges/type_traits.h>
 
 namespace sqlpp::ranges {
 
-struct into {
+template <typename Expression>
+struct sum {
+  constexpr auto aggregate(const auto& range) const {
+      return std::ranges::fold_left(range, int64_t{}, [this](const auto& result, const auto& row) { return result + _expression(row);});
+  }
+
+  Expression _expression;
 };
+
+template<typename Expression>
+struct is_aggregate_function<sum<Expression>> : public std::true_type {};
 
 }  // namespace sqlpp::ranges
 
 namespace sqlpp {
-template <typename Table>
-constexpr auto to_filter_expression(
-    const into_t<Table>& ) {
-  return ranges::into{};
+  //TODO: Handle Flag
+template <typename Flag, typename Expression>
+constexpr auto to_filter_expression(const sum_t<Flag, Expression>& t) {
+  return ranges::sum{to_filter_expression(read.expression(t))};
 }
-}  // namespace sqlpp::ranges
+}  // namespace sqlpp

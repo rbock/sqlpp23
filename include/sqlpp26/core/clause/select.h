@@ -31,7 +31,7 @@
 
 //#include <sqlpp26/core/clause/for_update.h>
 #include <sqlpp26/core/clause/from.h>
-//#include <sqlpp26/core/clause/group_by.h>
+#include <sqlpp26/core/clause/group_by.h>
 //#include <sqlpp26/core/clause/having.h>
 //#include <sqlpp26/core/clause/limit.h>
 //#include <sqlpp26/core/clause/offset.h>
@@ -60,8 +60,8 @@ struct basic_consistency_check<Statement, select_t> {
 using blank_select_t = statement_t<select_t,
                                    no_select_column_list_t,
                                    no_from_t,
-                                   no_where_t/*,
-                                   no_group_by_t,
+                                   no_where_t,
+                                   no_group_by_t/*,
                                    no_having_t,
                                    no_order_by_t,
                                    no_limit_t,

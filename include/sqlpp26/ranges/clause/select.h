@@ -27,10 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ranges>
-
 #include <sqlpp26/core/clause/select.h>
-#include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
 

@@ -27,8 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ranges>
-
+#include <sqlpp26/ranges/to_filter_expression.h>
 #include <sqlpp26/core/clause/insert_value_list.h>
 #include <sqlpp26/core/indices.h>
 #include <sqlpp26/ranges/type_traits.h>

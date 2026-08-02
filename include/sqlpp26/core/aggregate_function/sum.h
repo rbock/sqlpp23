@@ -45,10 +45,10 @@ namespace sqlpp {
 template <typename Flag, typename Expr>
 struct sum_t : public enable_as, public enable_comparison, public enable_over {
   constexpr sum_t(Expr expr) : _expression(std::move(expr)) {}
-  constexpr sum_t(const sum_t&) = default;
-  constexpr sum_t(sum_t&&) = default;
-  constexpr sum_t& operator=(const sum_t&) = default;
-  constexpr sum_t& operator=(sum_t&&) = default;
+  sum_t(const sum_t&) = default;
+  sum_t(sum_t&&) = default;
+  sum_t& operator=(const sum_t&) = default;
+  sum_t& operator=(sum_t&&) = default;
   ~sum_t() = default;
 
  private:
@@ -82,14 +82,14 @@ auto to_sql_string(Context& context, const sum_t<Flag, Expr>& t)
 template <typename T>
   requires((is_numeric<T>::value or is_boolean<T>::value) and
            not contains_aggregate_function<T>::value)
-auto sum(T t) -> sum_t<no_flag_t, T> {
+constexpr auto sum(T t) -> sum_t<no_flag_t, T> {
   return {std::move(t)};
 }
 
 template <typename T>
   requires((is_numeric<T>::value or is_boolean<T>::value) and
            not contains_aggregate_function<T>::value)
-auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, T> {
+constexpr auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, T> {
   return {std::move(t)};
 }
 }  // namespace sqlpp

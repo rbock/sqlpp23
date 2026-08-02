@@ -27,10 +27,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ranges>
+
+#include <sqlpp26/ranges/type_traits.h>
+#include <sqlpp26/ranges/to_filter_expression.h>
 #include <sqlpp26/core/clause/select_column_list.h>
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp::ranges {
+
+template <typename Struct, typename Accessor>
+struct result_member_type {
+          using type = std::decay_t<decltype(std::declval<Accessor>()(
+              std::declval<Struct>()))>;
+};
+template <typename Struct, typename Accessor>
+requires(is_aggregate_function_v<Accessor>)
+struct result_member_type<Struct, Accessor> {
+  using type = std::decay_t<decltype(std::declval<Accessor>().aggregate(
+      std::declval<std::vector<Struct>>()))>;
+};
 
 template <typename Struct, typename... Accessors>
 struct result_row {
@@ -38,7 +54,7 @@ struct result_row {
   consteval {
     std::vector<std::meta::info> row_data_members;
     template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(Accessors))) {
-      using T = std::decay_t<decltype(std::declval<Accessors...[index]>()(std::declval<Struct>()))>;
+      using T = typename result_member_type<Struct, Accessors...[index]>::type;
       row_data_members.push_back(std::meta::data_member_spec(
           ^^T,
           {.name = ::sqlpp::name_of_v<Accessors...[index]>}));
@@ -52,9 +68,26 @@ using result_row_t = typename result_row<Struct, Accessors...>::type;
 template <typename... Accessors>
 struct select_column_list {
   template <typename Struct>
-  constexpr auto operator()(const Struct& s) const {
+  constexpr auto select_from_row(const Struct& s) const {
     static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
     return result_row_t<Struct, Accessors...>{std::get<Idx>(_accessors)(s)...};
+  }
+
+  template <std::size_t Idx, typename Range>
+  constexpr auto fold(const Range& r) const {
+    if constexpr (is_aggregate_function_v<Accessors...[Idx]>) {
+      return std::get<Idx>(_accessors).aggregate(r);
+    }
+    else {
+      return std::get<Idx>(_accessors)(r.front());
+    }
+  }
+
+  template <typename Range>
+  constexpr auto select_from_chunk(const Range& r) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    using Struct = std::decay_t<decltype(r.front())>;
+    return result_row_t<Struct, Accessors...>{fold<Idx>(r)...};
   }
 
   std::tuple<Accessors...> _accessors;

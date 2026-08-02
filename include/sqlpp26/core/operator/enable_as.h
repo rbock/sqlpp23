@@ -36,21 +36,11 @@ namespace sqlpp {
 // function.
 class enable_as {
  public:
-  template <typename Expr, typename NameTagProvider>
-  constexpr auto as(this Expr&& self, const NameTagProvider& alias)
-      -> decltype(::sqlpp::as(std::forward<Expr>(self), alias)) {
-    return ::sqlpp::as(std::forward<Expr>(self), alias);
-  }
-
-#if SQLPP_INCLUDE_REFLECTION == 1
   template <::sqlpp::fixed_string Alias, typename Expr>
   constexpr auto as(this Expr&& self)
-      -> decltype(::sqlpp::as(::std::forward<Expr>(self),
-                              ::sqlpp::meta::make_alias<Alias>())) {
-    return ::sqlpp::as(::std::forward<Expr>(self),
-                       ::sqlpp::meta::make_alias<Alias>());
+      -> decltype(::sqlpp::as<Alias>(::std::forward<Expr>(self))) {
+    return ::sqlpp::as<Alias>(::std::forward<Expr>(self));
   }
-#endif
 };
 
 template <typename T>
