@@ -34,7 +34,7 @@
 namespace sqlpp {
 template <typename T>
 struct value_t : public enable_as, public enable_comparison {
-  value_t(T t) : _value(std::move(t)) {}
+  constexpr value_t(T t) : _value(std::move(t)) {}
   value_t(const value_t&) = default;
   value_t(value_t&&) = default;
   value_t& operator=(const value_t&) = default;
@@ -68,14 +68,14 @@ template <typename T>
            not has_enabled_as<remove_optional_t<T>>::value and
            not has_name_tag_v<remove_optional_t<T>> and
            not is_statement_v<remove_optional_t<T>>)
-auto value(T t) -> value_t<T> {
+constexpr auto value(T t) -> value_t<T> {
   return {std::move(t)};
 }
 
 template <typename T>
   requires(has_data_type_v<T> and is_statement_v<T> and
            not is_optional<T>::value)
-auto value(T t) -> value_t<T> {
+constexpr auto value(T t) -> value_t<T> {
   return {std::move(t)};
 }
 

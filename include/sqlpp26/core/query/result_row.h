@@ -32,11 +32,11 @@
 #include <sqlpp26/core/field_spec.h>
 #include <sqlpp26/core/query/read_field.h>
 #include <sqlpp26/core/query/bind_field.h>
-// TODO
-#if 0
 #include <sqlpp26/core/query/result_row_fwd.h>
 
 namespace sqlpp {
+// TODO
+#if 0
 namespace detail {
 template <typename IndexSequence, typename... FieldSpecs>
 struct result_row_impl;
@@ -141,6 +141,7 @@ struct result_row_t : public detail::result_row_impl<
   bool _is_valid{false};
 
 };
+#endif
 
 namespace detail {
 class result_row_bridge {
@@ -163,6 +164,7 @@ class result_row_bridge {
 };
 }  // namespace detail
 
+#if 0
 template <typename Lhs, typename Rhs>
 struct is_result_compatible {
   static constexpr auto value = false;
@@ -175,6 +177,6 @@ struct is_result_compatible<result_row_t<LFields...>,
   static constexpr auto value =
       logic::all<is_field_compatible<LFields, RFields>::value...>::value;
 };
+#endif
 
 }  // namespace sqlpp
-#endif

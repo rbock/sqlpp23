@@ -33,10 +33,11 @@
 #include <algorithm>
 
 #include <sqlpp26/core/basic/column.h>
+#include <sqlpp26/core/basic/column_spec.h>
+#include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/fixed_string.h>
 #include <sqlpp26/core/basic/table_as.h>
 #include <sqlpp26/core/type_traits.h>
-#include <sqlpp26/core/basic/fixed_string.h>
-#include <sqlpp26/core/basic/column_spec.h>
 
 namespace sqlpp {
 
@@ -55,7 +56,7 @@ class enable_table_as {
 };
 
 template <typename TableSpec>
-struct table : public TableSpec::generator::columns, public enable_table_as {};
+struct table : public TableSpec::generator::columns, public enable_table_as, public enable_join {};
 
 template <typename TableSpec>
 struct table_spec_of<table<TableSpec>>
@@ -93,6 +94,8 @@ struct make_table {
 
   template<size_t Idx>
   using column_spec = ColumnSpecs...[Idx];
+
+  static constexpr fixed_string name = Name;
 };
 
 template <typename TableSpec>
@@ -108,12 +111,16 @@ struct provided_tables_of<table<TableSpec>> {
   }
 };
 
+template <typename TableSpec>
+struct name_of<table<TableSpec>> {
+  static constexpr std::string_view value = TableSpec::generator::name.data;
+};
+
 }  // namespace sqlpp
 
 #if 0
 #include <sqlpp26/core/basic/all_of.h>
 #include <sqlpp26/core/basic/column.h>
-#include <sqlpp26/core/basic/enable_join.h>
 #include <sqlpp26/core/basic/join.h>
 #include <sqlpp26/core/basic/table_as.h>
 #include <sqlpp26/core/detail/type_set.h>

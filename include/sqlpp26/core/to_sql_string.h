@@ -240,13 +240,13 @@ auto quoted_name_to_sql_string(Context&, const std::string_view& name)
   return '"' + std::string(name) + '"';
 }
 
-template <typename NameTag, typename Context>
-auto name_to_sql_string(Context& context, const NameTag&) -> std::string {
-  if (NameTag::require_quotes) {
-    return quoted_name_to_sql_string(context, NameTag::name);
-  } else {
-    return std::string(NameTag::name);
-  }
+template <typename Context, std::size_t N>
+auto name_to_sql_string(Context& /*context*/, const fixed_string<N>& name) -> std::string {
+  // TODO: if (NameTag::require_quotes) {
+    //return quoted_name_to_sql_string(context, NameTag::name);
+  //} else {
+    return std::string(name.data);
+  //}
 }
 
 template<typename Context>

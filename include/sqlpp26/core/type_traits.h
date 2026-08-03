@@ -376,13 +376,13 @@ struct is_prepared_statement : public std::false_type {};
 template <typename T>
 inline constexpr bool is_prepared_statement_v =  is_prepared_statement<T>::value;
 
-#if 0
 // Checks whether a statement has a result row (i.e. select or union).
 // Note: It does not check if the statement is actually consistent, preparable,
 // or runnable.
 template <typename T>
 struct has_result_row : public std::false_type {};
 
+#if 0
 template <typename T>
 struct get_result_row {
   using type = void;
@@ -474,6 +474,7 @@ struct run_check {
 
 template <typename Statement, typename Clause>
 using run_check_t = typename run_check<Statement, Clause>::type;
+#endif
 
 // Not implemented to ensure implementation for statement_t
 template <typename Statement>
@@ -483,6 +484,7 @@ template <typename Statement>
 using statement_consistency_check_t =
     typename statement_consistency_check<Statement>::type;
 
+#if 0
 template <typename Statement>
 struct statement_prepare_check {
   using type = assert_prepare_statement_t;
@@ -544,7 +546,6 @@ template <typename... T>
 struct is_select_column<std::tuple<T...>> {
   static constexpr bool value = (true and ... and is_select_column_v<T>);
 };
-#if 0
 
 template <typename Statement>
 struct can_be_used_as_table : public std::false_type {};
@@ -554,7 +555,6 @@ struct no_of_result_columns {
   static constexpr size_t value = 0;
 };
 
-#endif
 template <typename Column>
 struct is_const : public std::false_type {};
 

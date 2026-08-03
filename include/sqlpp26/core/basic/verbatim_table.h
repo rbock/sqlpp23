@@ -33,9 +33,9 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-template <typename NameTag>
+template <fixed_string Name>
 struct verbatim_table_as_t : public enable_join {
-  verbatim_table_as_t(std::string representation)
+  constexpr verbatim_table_as_t(std::string representation)
       : _representation(std::move(representation)) {}
 
   verbatim_table_as_t(const verbatim_table_as_t& rhs) = default;
@@ -47,23 +47,25 @@ struct verbatim_table_as_t : public enable_join {
   std::string _representation;
 };
 
-template <typename NameTag>
-struct is_table<verbatim_table_as_t<NameTag>> : std::true_type {};
+template <fixed_string Name>
+struct is_table<verbatim_table_as_t<Name>> : std::true_type {};
 
-template <typename NameTag>
-struct name_tag_of<verbatim_table_as_t<NameTag>> {
-  using type = NameTag;
+template <fixed_string Name>
+struct name_of<verbatim_table_as_t<Name>> {
+  static constexpr std::string_view value = Name.data;
 };
 
-template <typename NameTag>
-struct provided_tables_of<verbatim_table_as_t<NameTag>> {
-  using type = detail::type_set<verbatim_table_as_t<NameTag>>;
+template <fixed_string Name>
+struct provided_tables_of<verbatim_table_as_t<Name>> {
+  static consteval detail::type_info_set func() { 
+    return detail::make_type_info_set<verbatim_table_as_t<Name>>();
+  }
 };
 
-template <typename Context, typename NameTag>
-auto to_sql_string(Context& context, const verbatim_table_as_t<NameTag>& t)
+template <typename Context, fixed_string Name>
+auto to_sql_string(Context& context, const verbatim_table_as_t<Name>& t)
     -> std::string {
-  return t._representation + " AS " + name_to_sql_string(context, NameTag{});
+  return t._representation + " AS " + name_to_sql_string(context, name_of_v<verbatim_table_as_t<Name>>);
 }
 
 struct verbatim_table_t : public enable_join {
@@ -76,9 +78,9 @@ struct verbatim_table_t : public enable_join {
   verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
   ~verbatim_table_t() = default;
 
-  template <typename NameTagProvider>
-  auto as(const NameTagProvider& /*unused*/) const
-      -> verbatim_table_as_t<name_tag_of_t<NameTagProvider>> {
+  template <fixed_string Name>
+  auto as() const
+      -> verbatim_table_as_t<Name> {
     return {_representation};
   }
 

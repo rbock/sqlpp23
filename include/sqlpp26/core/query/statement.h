@@ -370,23 +370,27 @@ template <typename... Clauses>
   return typename S::_parameter_check{};
 }
 
-/*
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_prepare_consistency(const statement_t<Clauses...>& t) {
+  /* TODO
   return (check_basic_consistency(t) && ... &&
           prepare_check_t<statement_t<Clauses...>, Clauses>{})
     && (typename statement_t<Clauses...>::_table_check{})
     && (typename statement_t<Clauses...>::_cte_check{});
+    */
 };
 
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_run_consistency(const statement_t<Clauses...>& t) {
+  /* TODO
   return (check_prepare_consistency(t) && ... &&
           run_check_t<statement_t<Clauses...>, Clauses>{})
     && (typename statement_t<Clauses...>::_table_check{})
     && (typename statement_t<Clauses...>::_parameter_check{});
+    */
 };
 
+/*
 template <typename... Clauses>
 struct statement_prepare_check<statement_t<Clauses...>> {
   using type = static_combined_check_t<

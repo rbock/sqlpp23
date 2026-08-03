@@ -32,8 +32,8 @@ int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::value(7), "7");
   SQLPP_COMPARE(sqlpp::value("cheese"), "'cheese'");
 
-  SQLPP_COMPARE(sqlpp::value(7).as(v), "7 AS v");
-  SQLPP_COMPARE(sqlpp::value("cheese").as(v), "'cheese' AS v");
+  SQLPP_COMPARE(sqlpp::value(7).as<"v">(), "7 AS v");
+  SQLPP_COMPARE(sqlpp::value("cheese").as<"v">(), "'cheese' AS v");
 
   return 0;
 }
