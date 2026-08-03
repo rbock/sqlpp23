@@ -61,18 +61,18 @@ class DdlParser:
 
     base_sql_type_to_cpp = {
     # boolean types
-    "BOOL": "::sqlpp::boolean",
-    "BOOLEAN": "::sqlpp::boolean",
+    "BOOL": "bool",
+    "BOOLEAN": "bool",
     # integral types
-    "BIGINT": "::sqlpp::integral",
-    "INT": "::sqlpp::integral",
-    "INT2": "::sqlpp::integral",  # PostgreSQL
-    "INT4": "::sqlpp::integral",  # PostgreSQL
-    "INT8": "::sqlpp::integral",  # PostgreSQL
-    "INTEGER": "::sqlpp::integral",
-    "MEDIUMINT": "::sqlpp::integral",
-    "SMALLINT": "::sqlpp::integral",
-    "TINYINT": "::sqlpp::integral",
+    "BIGINT": "::std::int64_t",
+    "INT": "::std::int64_t",
+    "INT2": "::std::int64_t",  # PostgreSQL
+    "INT4": "::std::int64_t",  # PostgreSQL
+    "INT8": "::std::int64_t",  # PostgreSQL
+    "INTEGER": "::std::int64_t",
+    "MEDIUMINT": "::std::int64_t",
+    "SMALLINT": "::std::int64_t",
+    "TINYINT": "::std::int64_t",
     # serial types
     "BIGSERIAL": "::sqlpp::serial",  # PostgreSQL
     "SERIAL": "::sqlpp::serial",  # PostgreSQL
@@ -81,43 +81,43 @@ class DdlParser:
     "SERIAL8": "::sqlpp::serial",  # PostgreSQL
     "SMALLSERIAL": "::sqlpp::serial",  # PostgreSQL
     # floating_point types
-    "DECIMAL": "::sqlpp::floating_point",  # MYSQL
-    "DOUBLE": "::sqlpp::floating_point",
-    "FLOAT8": "::sqlpp::floating_point",  # PostgreSQL
-    "FLOAT": "::sqlpp::floating_point",
-    "FLOAT4": "::sqlpp::floating_point",  # PostgreSQL
-    "NUMERIC": "::sqlpp::floating_point",  # PostgreSQL
-    "REAL": "::sqlpp::floating_point",
+    "DECIMAL": "double",  # MYSQL
+    "DOUBLE": "double",
+    "FLOAT8": "double",  # PostgreSQL
+    "FLOAT": "double",
+    "FLOAT4": "double",  # PostgreSQL
+    "NUMERIC": "double",  # PostgreSQL
+    "REAL": "double",
     # text types
-    "CHAR": "::sqlpp::text",
-    "VARCHAR": "::sqlpp::text",
-    "CHARACTER VARYING": "::sqlpp::text",  # PostgreSQL
-    "TEXT": "::sqlpp::text",
-    "CLOB": "::sqlpp::text",
-    "ENUM": "::sqlpp::text",  # MYSQL
-    "SET": "::sqlpp::text",
-    "LONGTEXT": "::sqlpp::text",  # MYSQL
-    "JSONB": "::sqlpp::text",  # PostgreSQL
-    "JSON": "::sqlpp::text",  # PostgreSQL
-    "TINYTEXT": "::sqlpp::text",  # MYSQL
-    "MEDIUMTEXT": "::sqlpp::text",  # MYSQL
-    "RATIONAL": "::sqlpp::text", # PostgreSQL pg_rationale extension
+    "CHAR": "::std::string_view",
+    "VARCHAR": "::std::string_view",
+    "CHARACTER VARYING": "::std::string_view",  # PostgreSQL
+    "TEXT": "::std::string_view",
+    "CLOB": "::std::string_view",
+    "ENUM": "::std::string_view",  # MYSQL
+    "SET": "::std::string_view",
+    "LONGTEXT": "::std::string_view",  # MYSQL
+    "JSONB": "::std::string_view",  # PostgreSQL
+    "JSON": "::std::string_view",  # PostgreSQL
+    "TINYTEXT": "::std::string_view",  # MYSQL
+    "MEDIUMTEXT": "::std::string_view",  # MYSQL
+    "RATIONAL": "::std::string_view", # PostgreSQL pg_rationale extension
     # blob types
-    "BYTEA": "::sqlpp::blob",
-    "TINYBLOB": "::sqlpp::blob",
-    "BLOB": "::sqlpp::blob",
-    "MEDIUMBLOB": "::sqlpp::blob",
-    "LONGBLOB": "::sqlpp::blob",
-    "BINARY": "::sqlpp::blob",  # MYSQL
-    "VARBINARY": "::sqlpp::blob",  # MYSQL
+    "BYTEA": "::std::span<const uint8_t>",
+    "TINYBLOB": "::std::span<const uint8_t>",
+    "BLOB": "::std::span<const uint8_t>",
+    "MEDIUMBLOB": "::std::span<const uint8_t>",
+    "LONGBLOB": "::std::span<const uint8_t>",
+    "BINARY": "::std::span<const uint8_t>",  # MYSQL
+    "VARBINARY": "::std::span<const uint8_t>",  # MYSQL
     # date types
-    "DATE": "::sqlpp::date",
+    "DATE": "::std::chrono::sys_days",
     # timestamp types
-    "DATETIME": "::sqlpp::timestamp",
-    "TIMESTAMP": "::sqlpp::timestamp",
-    "TIMESTAMPTZ": "::sqlpp::timestamp",  # PostgreSQL
+    "DATETIME": "std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>",
+    "TIMESTAMP": "std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>",
+    "TIMESTAMPTZ": "std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>",  # PostgreSQL
     # time types
-    "TIME": "::sqlpp::time",
+    "TIME": "::std::chrono::microseconds",
     }
 
     # Parsers that are initialized later
@@ -419,7 +419,7 @@ class DdlExecutor:
                 if col_def.cpp_type and col_def.cpp_type.endswith("sqlpp::serial"):
                     col_def.has_default = True
                     col_def.is_nullable = False
-                    col_def.cpp_type = "::sqlpp::integral"
+                    col_def.cpp_type = "::std::int64_t"
         if cls._has_error:
             sys.exit(ExitCode.BAD_COLUMN_ANNOTATION)
 
@@ -434,7 +434,7 @@ class DdlExecutor:
                     cls._has_error = True
         if cls._has_error:
             logging.error("Unsupported SQL data type(s).")
-            logging.info("See https://github.com/rbock/sqlpp23/tree/main/docs/custom_type_mapping.md")
+            logging.info("See https://github.com/rbock/sqlpp26/tree/main/docs/custom_type_mapping.md")
             sys.exit(ExitCode.BAD_DDL_COMMAND)
         return cls._tables
 
@@ -492,8 +492,8 @@ class DdlExecutor:
                 logging.info(f"You can disable this warning using --suppress-timestamp-warning")
                 cls._warn_on_timestamp = False
         cpp_type = col_expr.cpp_type
-        if cpp_type.endswith("sqlpp::integral") and col_expr.is_unsigned:
-            cpp_type = cpp_type.replace("sqlpp::integral", "sqlpp::unsigned_integral")
+        if cpp_type.endswith("::std::int64_t") and col_expr.is_unsigned:
+            cpp_type = cpp_type.replace("::std::int64_t", "::std::uint64_t")
         # UNKNOWN type is allowed if a cpp_type annotation resolves it later.
         # The check for unresolved UNKNOWN types happens in execute() after all
         # cpp_type sources (inline comment, COMMENT ON COLUMN, --path-to-custom-type-mapping)
@@ -568,8 +568,6 @@ class ModelWriter:
 // clang-format off
 // generated by {commandline}
 
-#include <sqlpp23/core/name/create_name_tag.h>
-
 {import_std}
 {include_std}
 
@@ -587,11 +585,10 @@ namespace {namespace} {{
 // generated by {commandline}
 
 {include_std}
-#include <sqlpp23/core/name/create_name_tag.h>
 
 export module {module_name};
 {import_std}
-import sqlpp23.core;
+import sqlpp26.core;
 
 namespace {namespace} {{
 {tables}
@@ -639,14 +636,34 @@ namespace {namespace} {{
         commandline = ' '.join(sys.argv),
         import_std = "import std;" if self._args.use_import_std else "",
         include_std = "" if self._args.use_import_std else "#include <optional>",
-        import_core = "import sqlpp23.core;" if self._args.use_import_sqlpp23 else "",
-        include_core = "" if self._args.use_import_sqlpp23 else """#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/basic/table_columns.h>
-#include <sqlpp23/core/type_traits.h>""",
+        import_core = "import sqlpp26.core;" if self._args.use_import_sqlpp26 else "",
+        include_core = "" if self._args.use_import_sqlpp26 else "#include <sqlpp26/core/basic/table.h>",
         namespace = self._args.namespace,
         module_name = self._args.module_name,
         tables = serialized_tables
     ), file=ostream, end='')
+
+    def create_commands(self, table):
+        lines = ["""  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");"""]
+        for command in table.commands:
+            lines.append(f"""  db(R"+++({command})+++");""")
+        return "\n".join(lines);
+
+    def create_column_specs(self, table):
+        lines = []
+        for column in table.columns.values():
+            column_class = self._to_class_name(column.name)
+            column_member = self._to_member_name(column.name)
+            column_sql_name = self._escape_if_reserved(column.name)
+            with_sql_name = f"""::with_sql_name<"{column_sql_name}">""" if column_sql_name != column_member else "";
+            cpp_type = column.cpp_type
+            if column.is_nullable:
+                cpp_type = f"std::optional<{cpp_type}>"
+            if column.is_const:
+                cpp_type = f"const {cpp_type}"
+            with_default = "::with_default" if column.has_default else ""
+            lines.append(f"""    ::sqlpp::column_spec<"{column_member}", {cpp_type}>{with_default}{with_sql_name}""")
+        return ",\n".join(lines)
 
     def create_table(self, table, ostream):
         export = "export " if self._args.path_to_module else ""
@@ -654,45 +671,20 @@ namespace {namespace} {{
         table_member = self._to_member_name(table.name)
         table_sql_name = self._escape_if_reserved(table.name)
         table_spec = table_class + "_"
-        table_template_parameters = ""
-        table_required_insert_columns = ""
+        column_specs = self.create_column_specs(table)
         if self._args.generate_table_creation_helper:
             creation_helper_func = "create" + ("" if self._args.naming_style == "camel-case" else "_") + table_class
-            print(f"""  {export}template<typename Db>
-  void {creation_helper_func}(Db& db) {{
-    db(R"+++(DROP TABLE IF EXISTS {table.name})+++");""", file=ostream)
-            for command in table.commands:
-                print(f"    db(R\"+++({command})+++\");", file=ostream)
-            print("  }\n", file=ostream)
-        print(f"  {export}struct {table_spec} {{", file=ostream)
-        for column in table.columns.values():
-            column_class = self._to_class_name(column.name)
-            column_member = self._to_member_name(column.name)
-            column_sql_name = self._escape_if_reserved(column.name)
-            cpp_type = column.cpp_type
-            if column.is_nullable:
-                cpp_type = f"std::optional<{cpp_type}>"
-            if column.is_const:
-                cpp_type = f"const {cpp_type}"
-            has_default = "std::true_type" if column.has_default else "std::false_type"
-            print(f"""    struct {column_class} {{
-      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP({column_sql_name}, {column_member});
-      using data_type = {cpp_type};
-      using has_default = {has_default};
-    }};""", file=ostream)
-            if table_template_parameters:
-                table_template_parameters += ","
-            table_template_parameters += "\n               " + column_class
-            if not column.has_default:
-                if table_required_insert_columns:
-                    table_required_insert_columns += ","
-                table_required_insert_columns += f"\n               sqlpp::column_t<sqlpp::table_t<{table_spec}>, {column_class}>";
-        print(f"""    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP({table_sql_name}, {table_member});
-    template<typename T>
-    using _table_columns = sqlpp::table_columns<T,{table_template_parameters}>;
-    using _required_insert_columns = sqlpp::detail::type_set<{table_required_insert_columns}>;
-  }};
-  {export}using {table_class} = ::sqlpp::table_t<{table_spec}>;
+            commands = self.create_commands(table)
+            print(f"""{export}template<typename Db>
+void {creation_helper_func}(Db& db) {{
+{commands}
+}}
+""", file=ostream)
+        print(f"""struct {table_spec} {{
+  using generator = ::sqlpp::make_table<{table_spec}, "{table_sql_name}",
+{column_specs}>;
+}};
+{export}using {table_class} = ::sqlpp::table<{table_spec}>;
 """, file=ostream)
 
     def create_tables(self, tables):
@@ -750,7 +742,7 @@ namespace {namespace} {{
 
 
 def parse_commandline_args():
-    arg_parser = argparse.ArgumentParser(prog="sqlpp23-ddl2cpp")
+    arg_parser = argparse.ArgumentParser(prog="sqlpp26-ddl2cpp")
     required = arg_parser.add_argument_group("Required parameters for code generation")
     required.add_argument("--path-to-ddl", nargs="*", help="one or more path(s) to DDL input file(s)")
     required.add_argument("--namespace", help="namespace for generated table classes")
@@ -772,7 +764,7 @@ def parse_commandline_args():
     options.add_argument("--assume-auto-id", action="store_true", help="assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)")
     options.add_argument("--naming-style", choices=["camel-case", "identity"], default="camel-case", help="naming style for generated tables and columns.\n\n\n\n 'camel-case' (default): interprets '_' as word separator and translates table names to UpperCamelCase and column names to lowerCamelCase, e.g. 'my_cool_table.important_column' will be represented as 'MyCoolTable{}.importantColumn' in generated code.\n 'identity' uses table and column names as is in generated code (default: 'camel-case')")
     options.add_argument("--generate-table-creation-helper", action="store_true", help="create a helper function for each table that drops and creates the table")
-    options.add_argument("--use-import-sqlpp23", action="store_true", help="import sqlpp23 as module instead of including the header file (default: False)")
+    options.add_argument("--use-import-sqlpp26", action="store_true", help="import sqlpp26 as module instead of including the header file (default: False)")
     options.add_argument("--use-import-std", action="store_true", help="import std as module instead of including the respective standard header files (default: False)")
     options.add_argument("--path-to-custom-template", help="path to a file containing template for header generation, e.g. to include custom headers")
 
