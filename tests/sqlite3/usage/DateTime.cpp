@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/sqlite3/all.h>
+#include <sqlpp26/tests/sqlite3/all.h>
 
 namespace {
 const auto now = std::chrono::floor<::std::chrono::milliseconds>(

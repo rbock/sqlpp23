@@ -40,7 +40,7 @@
 #define SQLITE_VERSION_NUMBER 3038999
 #endif
 
-#include <sqlpp23/tests/sqlite3/all.h>
+#include <sqlpp26/tests/sqlite3/all.h>
 
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();

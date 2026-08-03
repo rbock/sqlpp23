@@ -27,8 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <mysql.h>
 
-#include <sqlpp23/tests/mysql/all.h>
-#include <sqlpp23/tests/core/connection_pool_tests.h>
+#include <sqlpp26/tests/mysql/all.h>
+#include <sqlpp26/tests/core/connection_pool_tests.h>
 
 namespace sql = ::sqlpp::mysql;
 

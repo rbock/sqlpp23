@@ -25,12 +25,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/all.h>
+#include <sqlpp26/tests/core/all.h>
 
 // This test introduces two data types that represent X/Y coordinates, e.g. of
 // a point. By telling the library which fields represent XCoord and which
 // represent YCoord, we can ensure that these values are not accidentally mixed.
-// In order to do so, we also need to introduce a few helpers to make sqlpp23
+// In order to do so, we also need to introduce a few helpers to make sqlpp26
 // understand how to handle these custom types.
 namespace {
 
@@ -74,14 +74,14 @@ struct data_type_of<XCoord> {
   using type = XCoord;
 };
 
-// Specializing result_data_type_of is required for sqlpp23 to know the field
+// Specializing result_data_type_of is required for sqlpp26 to know the field
 // type in the result row.
 template <>
 struct result_data_type_of<XCoord> {
   using type = XCoord;
 };
 
-// Specializing parameter_value is required for sqlpp23 to know the type held
+// Specializing parameter_value is required for sqlpp26 to know the type held
 // in a prepared statement parameter struct.
 template <>
 struct parameter_value<XCoord> {

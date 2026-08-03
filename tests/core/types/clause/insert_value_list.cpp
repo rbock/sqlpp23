@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/all.h>
+#include <sqlpp26/tests/core/all.h>
 
 void test_no_insert_value_list() {
   const auto foo = test::TabFoo{};

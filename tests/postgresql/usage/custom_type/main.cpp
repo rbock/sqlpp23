@@ -28,7 +28,7 @@
 #include <iostream>
 
 #include "tab_point.h"
-#include <sqlpp23/tests/postgresql/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
 
 namespace sql = sqlpp::postgresql;

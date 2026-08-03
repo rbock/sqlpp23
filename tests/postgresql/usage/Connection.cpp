@@ -25,8 +25,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/postgresql/all.h>
-#include <sqlpp23/tests/core/connection_tests.h>
+#include <sqlpp26/tests/postgresql/all.h>
+#include <sqlpp26/tests/core/connection_tests.h>
 
 int Connection(int, char*[]) {
   namespace sql = sqlpp::postgresql;

@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/mysql/all.h>
+#include <sqlpp26/tests/mysql/all.h>
 
 // JSON support only in MYSQL 5.7.8 and later
 #if !USE_MARIADB && (LIBMYSQL_VERSION_ID < 50708)

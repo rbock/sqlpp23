@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/basic/table_columns.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/basic/table_columns.h>
+#include <sqlpp26/core/name/create_name_tag.h>
+#include <sqlpp26/core/type_traits.h>
 
 namespace sample {
 struct uuid {

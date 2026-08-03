@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/all.h>
+#include <sqlpp26/tests/core/all.h>
 
 int main() {
   using CTX = sqlpp::mock_db::context_t;

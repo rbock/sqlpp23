@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/postgresql/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
 int main() {
   auto db = sqlpp::postgresql::make_test_connection();

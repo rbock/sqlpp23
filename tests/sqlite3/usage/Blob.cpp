@@ -28,7 +28,7 @@
 #include <functional>
 #include <random>
 
-#include <sqlpp23/tests/sqlite3/all.h>
+#include <sqlpp26/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabFoo{};

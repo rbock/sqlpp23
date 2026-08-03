@@ -26,7 +26,7 @@
 
 #include <utility>
 
-#include <sqlpp23/tests/mysql/all.h>
+#include <sqlpp26/tests/mysql/all.h>
 
 namespace {
 const auto library_raii =

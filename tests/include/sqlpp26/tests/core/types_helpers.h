@@ -27,9 +27,9 @@
  */
 
 #ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
+import sqlpp26.core;
 #else
-#include <sqlpp23/sqlpp23.h>
+#include <sqlpp26/sqlpp26.h>
 #endif
 
 template <typename T>

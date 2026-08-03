@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/mysql/all.h>
+#include <sqlpp26/tests/mysql/all.h>
 
 namespace {
 struct on_duplicate_key_update {

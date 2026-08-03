@@ -29,8 +29,8 @@
 #include <string>
 #include <string_view>
 
-#include <sqlpp23/core/database/exception.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/database/exception.h>
+#include <sqlpp26/core/type_traits.h>
 
 // ---------------------------------------------------------------------------
 // Color — C++ enum class mapped to a PostgreSQL native ENUM type.

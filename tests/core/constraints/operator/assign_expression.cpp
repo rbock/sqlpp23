@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/all.h>
+#include <sqlpp26/tests/core/all.h>
 
 namespace {
 // Returns true if `assign(declcal<Lhs>, declval<Rhs>())` is a valid function
@@ -76,7 +76,7 @@ int main() {
 
 
   // Must not mix date and date_time in assignments, see e.g.
-  // https://github.com/rbock/sqlpp23/issues/26
+  // https://github.com/rbock/sqlpp26/issues/26
   static_assert(not can_call_assign_with<
                 decltype(date_time.dateN),
                 decltype(::sqlpp::chrono::sys_microseconds{})>::value);

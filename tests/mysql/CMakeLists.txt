@@ -28,7 +28,7 @@ set(DEFINES)
 if (MSVC)
     list(APPEND DEFINES -DNOMINMAX)
 endif ()
-add_testing_target(NAME mysql DEFINES ${DEFINES} MOD_DEPS sqlpp23::mysql_module)
+add_testing_target(NAME mysql DEFINES ${DEFINES} MOD_DEPS sqlpp26::mysql_module)
 
 add_subdirectory(asserts)
 add_subdirectory(constraints)

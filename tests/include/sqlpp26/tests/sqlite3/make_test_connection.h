@@ -37,11 +37,11 @@
 #endif
 
 #ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.sqlite3;
+import sqlpp26.core;
+import sqlpp26.sqlite3;
 #else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp26/sqlpp26.h>
+#include <sqlpp26/sqlite3/sqlite3.h>
 #endif
 
 namespace sqlpp::sqlite3 {

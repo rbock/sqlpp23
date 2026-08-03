@@ -28,7 +28,7 @@
 
 #include <cstdint>
 
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/type_traits.h>
 
 // ---------------------------------------------------------------------------
 // PointId — strong typedef over int64_t for the tab_point primary key.

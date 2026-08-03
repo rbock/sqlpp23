@@ -22,14 +22,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_testing_target(NAME sqlite3 MOD_DEPS sqlpp23::sqlite3_module)
+add_testing_target(NAME sqlite3 MOD_DEPS sqlpp26::sqlite3_module)
 
 function(sqlpp_slite3_test_add_target_link_libraries name)
-    target_link_libraries(${name} PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
+    target_link_libraries(${name} PRIVATE sqlpp26_testing sqlpp26_sqlite3_testing)
     if (BUILD_SQLCIPHER_CONNECTOR)
-        target_link_libraries(${name} PRIVATE sqlpp23::sqlcipher)
+        target_link_libraries(${name} PRIVATE sqlpp26::sqlcipher)
     else()
-        target_link_libraries(${name} PRIVATE sqlpp23::sqlite3)
+        target_link_libraries(${name} PRIVATE sqlpp26::sqlite3)
     endif()
 endfunction()
 

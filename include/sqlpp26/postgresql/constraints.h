@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp26/postgresql/database/serializer_context.h>
-#include <sqlpp26/sqlpp23.h>
+#include <sqlpp26/sqlpp26.h>
 
 namespace sqlpp {
 namespace postgresql {

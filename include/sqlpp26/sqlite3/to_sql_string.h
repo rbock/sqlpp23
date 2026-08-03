@@ -43,7 +43,7 @@
 #include <sqlpp26/core/reader.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/sqlite3/database/connection.h>
-#include <sqlpp26/sqlpp23.h>
+#include <sqlpp26/sqlpp26.h>
 
 #include <cmath>
 

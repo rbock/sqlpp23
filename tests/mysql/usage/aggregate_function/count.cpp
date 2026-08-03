@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/mysql/all.h>
+#include <sqlpp26/tests/mysql/all.h>
 
 SQLPP_CREATE_NAME_TAG(count_1);
 SQLPP_CREATE_NAME_TAG(count_star);

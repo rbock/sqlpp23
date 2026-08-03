@@ -40,7 +40,7 @@
 #define SQLITE_VERSION_NUMBER 3008002
 #endif
 
-#include <sqlpp23/tests/sqlite3/all.h>
+#include <sqlpp26/tests/sqlite3/all.h>
 
 namespace {
 SQLPP_CREATE_NAME_TAG(something);

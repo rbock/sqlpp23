@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/core/all.h>
-#include <sqlpp23/tests/core/is_regular.h>
+#include <sqlpp26/tests/core/all.h>
+#include <sqlpp26/tests/core/is_regular.h>
 
 int Update(int, char*[]) {
   const auto maybe = true;

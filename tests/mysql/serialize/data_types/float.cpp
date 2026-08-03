@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/mysql/all.h>
+#include <sqlpp26/tests/mysql/all.h>
 
 int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::value(10.0000114), "10.0000114");

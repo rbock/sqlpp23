@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/postgresql/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
 auto require_close(int line, double l, double r) -> void
 {

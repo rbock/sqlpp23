@@ -1,6 +1,6 @@
-#include <sqlpp23/core/chrono.h>
-#include <sqlpp23/core/type_traits.h>
-#include <sqlpp23/core/to_sql_string.h>
+#include <sqlpp26/core/chrono.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/to_sql_string.h>
 #include <vector>
 #include <cstdint>
 

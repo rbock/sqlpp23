@@ -34,13 +34,13 @@
 #include <thread>
 #include <vector>
 
-#include <sqlpp23/tests/postgresql/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
 namespace sql = ::sqlpp::postgresql;
 
 // This is our main database connection class. It mimics a regular database
 // connection, while delegating the execution of SQL queries to an underlying
-// sqlpp23 database connection. This underlying database connections is not
+// sqlpp26 database connection. This underlying database connections is not
 // created immediately upon construction of our lazy connection. Instead the
 // underlying database connection is created the first time when the user
 // tries to execute a database query through operator().

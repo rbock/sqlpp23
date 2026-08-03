@@ -26,10 +26,10 @@
 
 #include <cassert>
 #include <chrono>
-#include "sqlpp23/core/basic/parameter.h"
-#include "sqlpp23/core/type_traits/data_type.h"
+#include "sqlpp26/core/basic/parameter.h"
+#include "sqlpp26/core/type_traits/data_type.h"
 
-#include <sqlpp23/tests/postgresql/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
 namespace sql = sqlpp::postgresql;
 test::TabFoo tab = {};

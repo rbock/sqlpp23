@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/mysql/make_test_connection.h>
+#include <sqlpp26/tests/mysql/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                         \
   {                                                                  \

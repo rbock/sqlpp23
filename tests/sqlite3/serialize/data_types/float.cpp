@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/sqlite3/all.h>
+#include <sqlpp26/tests/sqlite3/all.h>
 
 int main() {
   SQLPP_COMPARE(10.0000114, "10.0000114");

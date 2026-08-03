@@ -31,7 +31,7 @@
 #include <sqlpp26/core/reader.h>
 #include <sqlpp26/core/type_traits/data_type.h>
 #include <sqlpp26/mysql/database/connection.h>
-#include <sqlpp26/sqlpp23.h>
+#include <sqlpp26/sqlpp26.h>
 
 namespace sqlpp::mysql {
 template <typename L, typename R>

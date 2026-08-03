@@ -38,19 +38,19 @@
 
 #include <libpq-fe.h>
 
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/tests/core/assert_throw.h>
-#include <sqlpp23/tests/core/result_helpers.h>
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
-#include <sqlpp23/tests/postgresql/serialize_helpers.h>
+#include <sqlpp26/core/name/create_name_tag.h>
+#include <sqlpp26/tests/core/assert_throw.h>
+#include <sqlpp26/tests/core/result_helpers.h>
+#include <sqlpp26/tests/postgresql/make_test_connection.h>
+#include <sqlpp26/tests/postgresql/serialize_helpers.h>
 
 #ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.postgresql;
-import sqlpp23.test.postgresql.tables;
+import sqlpp26.core;
+import sqlpp26.postgresql;
+import sqlpp26.test.postgresql.tables;
 #else
-#include <sqlpp23/core/database/connection_pool.h>
-#include <sqlpp23/postgresql/postgresql.h>
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/tests/postgresql/tables.h>
+#include <sqlpp26/core/database/connection_pool.h>
+#include <sqlpp26/postgresql/postgresql.h>
+#include <sqlpp26/sqlpp26.h>
+#include <sqlpp26/tests/postgresql/tables.h>
 #endif

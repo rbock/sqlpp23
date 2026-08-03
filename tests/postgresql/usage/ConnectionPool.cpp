@@ -25,8 +25,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp23/tests/postgresql/all.h>
-#include <sqlpp23/tests/core/connection_pool_tests.h>
+#include <sqlpp26/tests/postgresql/all.h>
+#include <sqlpp26/tests/core/connection_pool_tests.h>
 
 int ConnectionPool(int, char*[]) {
   namespace sql = sqlpp::postgresql;

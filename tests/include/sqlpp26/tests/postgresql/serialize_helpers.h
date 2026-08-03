@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/tests/postgresql/make_test_connection.h>
+#include <sqlpp26/tests/postgresql/make_test_connection.h>
 
 #define SQLPP_COMPARE(expr, expected_string)                               \
   {                                                                        \

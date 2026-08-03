@@ -31,7 +31,7 @@
 #include <ranges>
 #include <utility>
 
-#include <sqlpp23/tests/postgresql/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
 // The enum definitions must be included before the database model
 #include <enum_animal.h>

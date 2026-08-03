@@ -42,7 +42,7 @@
 #include <sqlpp26/core/database/exception.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/sqlite3/database/serializer_context.h>
-#include <sqlpp26/sqlpp23.h>
+#include <sqlpp26/sqlpp26.h>
 
 #include <cmath>
 

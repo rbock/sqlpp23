@@ -31,11 +31,11 @@
 #include <vector>
 
 #ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.mock_db;
+import sqlpp26.core;
+import sqlpp26.mock_db;
 #else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/mock_db/mock_db.h>
+#include <sqlpp26/sqlpp26.h>
+#include <sqlpp26/mock_db/mock_db.h>
 #endif
 
 namespace sqlpp::mock_db {

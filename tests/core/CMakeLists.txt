@@ -22,7 +22,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_testing_target(NAME core MOD_DEPS sqlpp23::mock_db_module)
+add_testing_target(NAME core MOD_DEPS sqlpp26::mock_db_module)
 
 add_subdirectory(asserts)
 add_subdirectory(constraints)

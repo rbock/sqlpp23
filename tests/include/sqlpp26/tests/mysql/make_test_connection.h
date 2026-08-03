@@ -31,11 +31,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.mysql;
+import sqlpp26.core;
+import sqlpp26.mysql;
 #else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp26/sqlpp26.h>
+#include <sqlpp26/mysql/mysql.h>
 #endif
 
 namespace sqlpp::mysql {

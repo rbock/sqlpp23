@@ -26,7 +26,7 @@
 
 #include <chrono>
 
-#include <sqlpp23/tests/core/all.h>
+#include <sqlpp26/tests/core/all.h>
 
 namespace {
 std::chrono::microseconds build_tod(int hour = 0,

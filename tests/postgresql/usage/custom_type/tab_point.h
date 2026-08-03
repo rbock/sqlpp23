@@ -26,10 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp23/core/basic/table.h>
-#include <sqlpp23/core/basic/table_columns.h>
-#include <sqlpp23/core/name/create_name_tag.h>
-#include <sqlpp23/core/type_traits.h>
+#include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/basic/table_columns.h>
+#include <sqlpp26/core/name/create_name_tag.h>
+#include <sqlpp26/core/type_traits.h>
 
 #include "color.h"
 #include "point_id.h"
@@ -37,7 +37,7 @@
 // ---------------------------------------------------------------------------
 // TabPoint — table definition
 //
-// ddl2cpp only emits built-in sqlpp23 tags (integral, text, …) and cannot
+// ddl2cpp only emits built-in sqlpp26 tags (integral, text, …) and cannot
 // generate custom C++ types as a column's data_type. The column specs are
 // therefore written by hand; only the data_type lines differ from what
 // ddl2cpp would produce for a plain bigserial / enum column.

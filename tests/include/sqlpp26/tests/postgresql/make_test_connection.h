@@ -31,11 +31,11 @@
 #include <vector>
 
 #ifdef BUILD_WITH_MODULES
-import sqlpp23.core;
-import sqlpp23.postgresql;
+import sqlpp26.core;
+import sqlpp26.postgresql;
 #else
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp26/sqlpp26.h>
+#include <sqlpp26/postgresql/postgresql.h>
 #endif
 
 namespace sqlpp::postgresql {
