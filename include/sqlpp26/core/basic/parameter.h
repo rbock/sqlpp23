@@ -34,10 +34,13 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-template <typename DataType, typename NameTag>
+template <typename DataType, fixed_string Name>
 struct parameter_t : public enable_as, public enable_comparison {
+  //TODO 
+#if 0
   using _instance_t =
       typename NameTag::template _member_t<parameter_value_t<DataType>>;
+#endif
   parameter_t() = default;
 
   parameter_t(const parameter_t&) = default;
@@ -47,35 +50,34 @@ struct parameter_t : public enable_as, public enable_comparison {
   ~parameter_t() = default;
 };
 
-template <typename DataType, typename NameTag>
-struct parameters_of<parameter_t<DataType, NameTag>> {
-  using type = detail::type_vector<parameter_t<DataType, NameTag>>;
+template <typename DataType, fixed_string Name>
+struct parameters_of<parameter_t<DataType, Name>> {
+  using type = detail::type_vector<parameter_t<DataType, Name>>;
 };
 
-template <typename DataType, typename NameTag>
-struct data_type_of<parameter_t<DataType, NameTag>> {
+template <typename DataType, fixed_string Name>
+struct data_type_of<parameter_t<DataType, Name>> {
   using type = DataType;
 };
 
-template <typename Context, typename DataType, typename NameTag>
-auto to_sql_string(Context&, const parameter_t<DataType, NameTag>&)
+template <typename Context, typename DataType, fixed_string Name>
+auto to_sql_string(Context&, const parameter_t<DataType, Name>&)
     -> std::string {
   return "?";
 }
 
 template <typename NamedExpr>
-  requires(has_data_type<NamedExpr>::value and
-           has_name_tag<NamedExpr>::value)
+  requires(has_data_type_v<NamedExpr> and has_name_v<NamedExpr>)
 auto parameter(const NamedExpr& /*unused*/)
-    -> parameter_t<data_type_of_t<NamedExpr>, name_tag_of_t<NamedExpr>> {
+    -> parameter_t<data_type_of_t<NamedExpr>, name_of_v<NamedExpr>> {
   return {};
 }
 
-template <typename DataType, typename NameTagProvider>
-  requires((is_data_type<DataType>::value or has_data_type<DataType>::value) and
-           has_name_tag<NameTagProvider>::value)
-auto parameter(const DataType& /*unused*/, const NameTagProvider& /*unused*/)
-    -> parameter_t<DataType, name_tag_of_t<NameTagProvider>> {
+template <typename DataType, typename NameProvider>
+  requires((is_data_type_v<DataType> or has_data_type_v<DataType>) and
+           has_name_v<NameProvider>)
+auto parameter(const DataType& /*unused*/, const NameProvider& /*unused*/)
+    -> parameter_t<DataType, name_of_v<NameProvider>> {
   return {};
 }
 }  // namespace sqlpp

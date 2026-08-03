@@ -61,10 +61,13 @@ struct has_data_type
           not std::is_same<data_type_of_t<T>, no_value_t>::value> {};
 
 template <typename T>
+inline constexpr bool has_data_type_v = has_data_type<T>::value;
+
+template <typename T>
 struct is_data_type : public std::false_type {};
 
 template <typename T>
-inline constexpr bool has_data_type_v = has_data_type<T>::value;
+inline constexpr bool is_data_type_v = is_data_type<T>::value;
 
 struct boolean {};
 

@@ -33,14 +33,12 @@
 #include <algorithm>
 
 #include <sqlpp26/core/basic/column.h>
+#include <sqlpp26/core/basic/table_as.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/core/basic/fixed_string.h>
 #include <sqlpp26/core/basic/column_spec.h>
 
 namespace sqlpp {
-
-template <typename TableSpec, fixed_string Alias>
-struct table_as : public TableSpec::generator::template table_as_columns<Alias>::type {};
 
 template <typename TableSpec, fixed_string Alias>
 struct table_spec_of<table_as<TableSpec, Alias>>

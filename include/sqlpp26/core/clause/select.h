@@ -53,8 +53,7 @@ struct is_clause<select_t> : public std::true_type {};
 
 template <typename Statement>
 struct basic_consistency_check<Statement, select_t> {
-  static consteval void verify() {
-  }
+  static consteval void verify() {}
 };
 
 using blank_select_t = statement_t<select_t,

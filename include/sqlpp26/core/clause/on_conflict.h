@@ -35,16 +35,6 @@
 
 namespace sqlpp {
 
-class assert_on_conflict_action_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "either do_nothing() or do_update(...) is required with on_conflict");
-  }
-};
-
 template <typename... Columns>
 struct on_conflict_t {
   on_conflict_t(std::tuple<Columns...> columns)
@@ -65,13 +55,11 @@ struct on_conflict_t {
 
   // DO UPDATE
   template <typename Statement, DynamicAssignment... Assignments>
-    requires(
-        sizeof...(Columns) > 0 and sizeof...(Assignments) > 0 and
-        not sqlpp::detail::has_duplicates<
-            typename lhs<Assignments>::type...>::value and
-        sqlpp::detail::make_joined_set_t<
-            required_tables_of_t<typename lhs<Assignments>::type>...>::size() ==
-            1)
+    requires(sizeof...(Columns) > 0 and sizeof...(Assignments) > 0 and
+             sqlpp::detail::are_unique_v<typename lhs<Assignments>::type...> and
+             sqlpp::detail::make_joined_type_info_set(
+                 required_tables_of<typename lhs<Assignments>::type>::func()...)
+                     .size() == 1)
   auto do_update(this Statement&& self, Assignments... assignments) {
     auto new_clause = on_conflict_do_update_t<on_conflict_t, Assignments...>{
         self, std::make_tuple(std::move(assignments)...)};
@@ -101,10 +89,9 @@ struct nodes_of<on_conflict_t<Columns...>> {
 };
 
 template <typename Statement, typename... Columns>
-struct consistency_check<Statement, on_conflict_t<Columns...>> {
-  using type = assert_on_conflict_action_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, on_conflict_t<Columns...>> {
+  static consteval void verify() {
+    throw std::domain_error("either do_nothing() or do_update(...) is required with on_conflict");
   }
 };
 
@@ -123,11 +110,8 @@ auto to_sql_string(Context&, const no_on_conflict_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_on_conflict_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_on_conflict_t> {
+  static consteval void verify() {}
 };
 
 template <typename Expression>

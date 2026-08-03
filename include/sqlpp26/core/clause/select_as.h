@@ -33,6 +33,8 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
+// TODO
+#if 0
 template <typename NameTag>
 struct select_ref_t {};
 
@@ -103,4 +105,5 @@ struct provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
                               sqlpp::detail::type_set<select_ref_t<NameTag>>,
                               sqlpp::detail::type_set<>> {};
 
+#endif
 }  // namespace sqlpp

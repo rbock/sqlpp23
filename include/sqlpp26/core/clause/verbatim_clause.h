@@ -51,11 +51,8 @@ template <>
 struct is_clause<verbatim_clause_t> : public std::true_type {};
 
 template <typename Statement>
-struct consistency_check<Statement, verbatim_clause_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, verbatim_clause_t> {
+  static consteval void verify() {}
 };
 
 template <typename Context>

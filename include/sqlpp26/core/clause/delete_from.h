@@ -46,11 +46,8 @@ template <>
 struct is_clause<delete_t> : public std::true_type {};
 
 template <typename Statement>
-struct consistency_check<Statement, delete_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, delete_t> {
+  static consteval void verify() {}
 };
 
 template <>
@@ -85,12 +82,12 @@ using blank_delete_t = statement_t<delete_t,
                                    no_single_table_t,
                                    no_where_t>;
 
-inline auto delete_from() -> blank_delete_t {
+constexpr inline auto delete_from() -> blank_delete_t {
   return {};
 }
 
 template <typename _Table>
-auto delete_from(_Table table)
+constexpr auto delete_from(_Table table)
     -> decltype(blank_delete_t().single_table(table)) {
   return {blank_delete_t().single_table(std::move(table))};
 }

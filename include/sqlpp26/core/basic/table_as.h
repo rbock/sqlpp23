@@ -28,38 +28,32 @@
  */
 
 #include <sqlpp26/core/basic/enable_join.h>
-#include <sqlpp26/core/basic/join.h>
-#include <sqlpp26/core/basic/table_columns.h>
-#include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-template <typename TableSpec, typename NameTag>
-struct table_as_t
-    : public TableSpec::template _table_columns<table_as_t<TableSpec, NameTag>>,
-      public enable_join {
-  static_assert(required_tables_of_t<TableSpec>::empty(),
-                "table aliases must not depend on external tables");
+template <typename TableSpec, fixed_string Alias>
+struct table_as : public TableSpec::generator::template table_as_columns<Alias>::type {};
+
+template <typename TableSpec, fixed_string Alias>
+struct is_table<table_as<TableSpec, Alias>> : public std::true_type {};
+
+template <typename TableSpec, fixed_string Alias>
+struct name_of<table_as<TableSpec, Alias>> {
+  static constexpr std::string_view value = Alias.data;
 };
 
-template <typename TableSpec, typename NameTag>
-struct is_table<table_as_t<TableSpec, NameTag>> : public std::true_type {};
-
-template <typename TableSpec, typename NameTag>
-struct name_tag_of<table_as_t<TableSpec, NameTag>> {
-  using type = NameTag;
+template <typename TableSpec, fixed_string Alias>
+struct provided_tables_of<table_as<TableSpec, Alias>> {
+  static consteval detail::type_info_set func() { 
+    return detail::make_type_info_set<table_as<TableSpec, Alias>>();
+  }
 };
 
-template <typename TableSpec, typename NameTag>
-struct provided_tables_of<table_as_t<TableSpec, NameTag>> {
-  using type = sqlpp::detail::type_set<table_as_t<TableSpec, NameTag>>;
-};
-
-template <typename Context, typename TableSpec, typename NameTag>
-auto to_sql_string(Context& context, const table_as_t<TableSpec, NameTag>&)
+template <typename Context, typename TableSpec, fixed_string Alias>
+auto to_sql_string(Context& context, const table_as<TableSpec, Alias>&)
     -> std::string {
-  return name_to_sql_string(context, name_tag_of_t<TableSpec>{}) + " AS " +
-         name_to_sql_string(context, NameTag{});
+  return name_to_sql_string(context, name_of_v<TableSpec>) + " AS " +
+         name_to_sql_string(context, name_of_v<table_as<TableSpec, Alias>>);
 }
 }  // namespace sqlpp

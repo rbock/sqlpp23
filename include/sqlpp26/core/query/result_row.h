@@ -32,6 +32,8 @@
 #include <sqlpp26/core/field_spec.h>
 #include <sqlpp26/core/query/read_field.h>
 #include <sqlpp26/core/query/bind_field.h>
+// TODO
+#if 0
 #include <sqlpp26/core/query/result_row_fwd.h>
 
 namespace sqlpp {
@@ -175,3 +177,4 @@ struct is_result_compatible<result_row_t<LFields...>,
 };
 
 }  // namespace sqlpp
+#endif

@@ -38,14 +38,14 @@ namespace sqlpp {
 // table shall specialize this template to indicate their table requirement.
 template <typename T>
 struct required_tables_of {
-  static consteval detail::type_info_set func() {
+  static consteval auto func() -> detail::type_info_set {
     return required_tables_of<nodes_of_t<T>>::func();
   }
 };
 
 template <typename... T>
 struct required_tables_of<detail::type_vector<T...>> {
-  static consteval detail::type_info_set func() {
+  static consteval auto func() -> detail::type_info_set {
     return detail::make_joined_type_info_set(required_tables_of<T>::func()...);
   }
 };
@@ -58,19 +58,19 @@ struct required_tables_of<detail::type_vector<T...>> {
 // Dynamic query parts are ignored.
 template <typename T>
 struct required_static_tables_of {
-  static consteval detail::type_info_set func() {
+  static consteval auto func() -> detail::type_info_set {
     return required_static_tables_of<nodes_of_t<T>>::func();
   }
 };
 
 template <typename T>
 struct required_static_tables_of<dynamic_t<T>> {
-  static consteval detail::type_info_set func() { return {}; }
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 template <typename... T>
 struct required_static_tables_of<detail::type_vector<T...>> {
-  static consteval detail::type_info_set func() {
+  static consteval auto func() -> detail::type_info_set {
     return detail::make_joined_type_info_set(
         required_static_tables_of<T>::func()...);
   }
@@ -85,7 +85,7 @@ struct required_static_tables_of<detail::type_vector<T...>> {
 // leak from `select_column_list`.
 template <typename T>
 struct provided_tables_of {
-  static consteval detail::type_info_set func() { return {}; }
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 template <typename T>
@@ -98,14 +98,14 @@ struct provided_static_tables_of : public provided_tables_of<T> {};
 
 template <typename T>
 struct provided_static_tables_of<dynamic_t<T>> {
-  static consteval detail::type_info_set func() { return {}; }
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 // `provided_optional_tables_of` determines the type_set of outer join tables
 // provided by a clause, e.g. the right hand side table in a `left_outer_join`.
 template <typename T>
 struct provided_optional_tables_of {
-  static consteval detail::type_info_set func() { return {}; }
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 }  // namespace sqlpp

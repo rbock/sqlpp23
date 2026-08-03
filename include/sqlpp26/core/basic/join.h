@@ -35,7 +35,7 @@ namespace sqlpp {
 // Join representation including condition
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct join_t : enable_join {
-  join_t(Lhs lhs, Rhs rhs, Condition condition)
+  constexpr join_t(Lhs lhs, Rhs rhs, Condition condition)
       : _lhs(std::move(lhs)),
         _rhs(std::move(rhs)),
         _condition(std::move(condition)) {}
@@ -58,39 +58,46 @@ struct nodes_of<join_t<Lhs, JoinType, Rhs, Condition>> {
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct provided_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  using type = detail::make_joined_set_t<provided_tables_of_t<Lhs>,
-                                         provided_tables_of_t<Rhs>>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_joined_type_info_set(provided_tables_of<Lhs>::func(),
+                                             provided_tables_of<Rhs>::func());
+  }
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct provided_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  using type = detail::make_joined_set_t<provided_static_tables_of_t<Lhs>,
-                                         provided_static_tables_of_t<Rhs>>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        provided_static_tables_of<Lhs>::func(),
+        provided_static_tables_of<Rhs>::func());
+  }
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  using type = detail::make_joined_set_t<
-      std::conditional_t<
-          detail::type_vector<right_outer_join_t,
-                              full_outer_join_t>::contains<JoinType>::value,
-          provided_tables_of_t<Lhs>,
-          provided_optional_tables_of_t<Lhs>>,
-      std::conditional_t<
-          detail::type_vector<left_outer_join_t,
-                              full_outer_join_t>::contains<JoinType>::value,
-          provided_tables_of_t<Rhs>,
-          provided_optional_tables_of_t<Rhs>>>;
+  static consteval auto func() -> detail::type_info_set {
+    constexpr auto lhs =
+        detail::type_vector<right_outer_join_t,
+                            full_outer_join_t>::contains<JoinType>::value
+            ? provided_tables_of<Lhs>::func()
+            : provided_optional_tables_of<Lhs>::func();
+    constexpr auto rhs =
+        detail::type_vector<left_outer_join_t,
+                            full_outer_join_t>::contains<JoinType>::value
+            ? provided_tables_of<Rhs>::func()
+            : provided_optional_tables_of<Rhs>::func();
+    return make_joined_type_info_set(lhs, rhs);
+  }
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct required_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  using type = detail::type_set<>;
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct required_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  using type = detail::type_set<>;
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -189,11 +196,14 @@ class pre_join_t {
   //   `bar` is dynamically joined only. It must not be used statically when
   //   joining cheese `statically`.
   template <StaticBoolean Expr>
-    requires(provided_tables_of_t<pre_join_t>::contains_all(
-                 required_tables_of_t<Expr>{}) and
-             (is_dynamic<Rhs>::value or
-              provided_static_tables_of_t<pre_join_t>::contains_all(
-                  required_static_tables_of_t<Expr>{})))
+    requires(
+        std::ranges::includes(provided_tables_of<pre_join_t>::func(),
+                              required_tables_of<Expr>::func(),
+                              sqlpp::detail::type_info_less{}) and
+        (is_dynamic<Rhs>::value or
+         std::ranges::includes(provided_static_tables_of<pre_join_t>::func(),
+                               required_static_tables_of<Expr>::func(),
+                               sqlpp::detail::type_info_less{})))
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
     return {_lhs, _rhs, std::move(expr)};
   }

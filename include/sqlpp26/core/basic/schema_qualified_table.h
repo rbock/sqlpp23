@@ -38,6 +38,8 @@
 #include <utility>
 
 namespace sqlpp {
+  // TODO
+#if 0
 template <typename TableSpec, typename NameTag>
 struct schema_qualified_table_as_t
     : public TableSpec::template _table_columns<
@@ -91,4 +93,5 @@ auto schema_qualified_table(schema_t schema, table_t<TableSpec>)
     -> schema_qualified_table_t<TableSpec> {
   return {schema};
 }
+#endif
 }  // namespace sqlpp

@@ -46,17 +46,14 @@ template <>
 struct is_clause<truncate_t> : public std::true_type {};
 
 template <typename Statement>
-struct consistency_check<Statement, truncate_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, truncate_t> {
+  static consteval void verify() {}
 };
 
 using blank_truncate_t = statement_t<truncate_t, no_single_table_t>;
 
 template <StaticRawTable _Table>
-auto truncate(_Table table) {
+constexpr auto truncate(_Table table) {
   return blank_truncate_t{}.single_table(table);
 }
 

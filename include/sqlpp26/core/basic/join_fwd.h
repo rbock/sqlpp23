@@ -62,26 +62,24 @@ struct join_t;
 template <typename Lhs, typename JoinType, typename Rhs>
 class pre_join_t;
 
-template <typename LhsTypeSet, typename RhsTypeSet>
-class are_names_disjoint : public std::false_type {};
+template<typename Lhs, typename Rhs>
+consteval bool are_names_disjoint() {
+  std::flat_set<std::string_view> all;
+  constexpr auto lhs = provided_tables_of<Lhs>::func();
+  template for (constexpr auto& info : lhs) {
+    all.insert(name_of_v<typename [:info:]>);
+  }
+  constexpr auto rhs = provided_tables_of<Rhs>::func();
+  template for (constexpr auto& info : rhs) {
+    all.insert(name_of_v<typename [:info:]>);
+  }
+  return all.size() == lhs.size() + rhs.size();
+}
 
-template <typename... LhsElements, typename... RhsElements>
-class are_names_disjoint<detail::type_set<LhsElements...>,
-                         detail::type_set<RhsElements...>> {
-  using LhsNames =
-      sqlpp::detail::make_type_set_t<make_char_sequence_t<LhsElements>...>;
-  using RhsNames =
-      sqlpp::detail::make_type_set_t<make_char_sequence_t<RhsElements>...>;
-
- public:
-  static constexpr bool value = LhsNames::contains_none(RhsNames{});
-};
-
-template<StaticTable Lhs, DynamicTable Rhs>
-inline constexpr bool can_be_joined_v = required_tables_of_t<Lhs>::empty() and
-             required_tables_of_t<Rhs>::empty() and
-             are_names_disjoint<provided_tables_of_t<Lhs>,
-                                provided_tables_of_t<Rhs>>::value;
+template <StaticTable Lhs, DynamicTable Rhs>
+inline constexpr bool can_be_joined_v =
+    required_tables_of<Lhs>::func().empty() and required_tables_of<Rhs>::func().empty() and
+    are_names_disjoint<Lhs, Rhs>();
 
 template <StaticTable Lhs, DynamicTable Rhs>
   requires(can_be_joined_v<Lhs, Rhs>)

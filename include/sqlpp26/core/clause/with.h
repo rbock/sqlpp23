@@ -38,6 +38,8 @@
 #include <sqlpp26/core/detail/type_vector.h>
 
 namespace sqlpp {
+  // TODO
+#if 0
 struct no_with_t;
 
 template <typename... Ctes>
@@ -190,4 +192,5 @@ template <DynamicCte... Ctes>
 auto with(Ctes... ctes) {
   return statement_t<no_with_t>{}.with(std::move(ctes)...);
 }
+#endif
 }  // namespace sqlpp

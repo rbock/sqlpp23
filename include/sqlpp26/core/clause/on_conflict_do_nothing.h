@@ -34,7 +34,7 @@
 namespace sqlpp {
 template <typename OnConflict>
 struct on_conflict_do_nothing_t {
-  on_conflict_do_nothing_t(OnConflict on_conflict, bool /* disambiguate*/)
+  constexpr on_conflict_do_nothing_t(OnConflict on_conflict, bool /* disambiguate*/)
       : _on_conflict(on_conflict) {}
   on_conflict_do_nothing_t(const on_conflict_do_nothing_t&) = default;
   on_conflict_do_nothing_t(on_conflict_do_nothing_t&&) = default;
@@ -65,12 +65,9 @@ struct nodes_of<on_conflict_do_nothing_t<ConflictTarget>> {
 };
 
 template <typename Statement, typename ConflictTarget>
-struct consistency_check<Statement,
+struct basic_consistency_check<Statement,
                          on_conflict_do_nothing_t<ConflictTarget>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+  static consteval void verify() {}
 };
 
 }  // namespace sqlpp

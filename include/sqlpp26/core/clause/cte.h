@@ -38,6 +38,8 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
+  // TODO
+#if 0
 template <typename Flag, typename Lhs, typename Rhs>
 struct cte_union_t {
   cte_union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
@@ -325,4 +327,5 @@ template <typename NameTagProvider>
 auto cte(const NameTagProvider& /*unused*/) -> cte_ref_t<NameTagProvider> {
   return {};
 }
+#endif
 }  // namespace sqlpp

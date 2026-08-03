@@ -40,6 +40,7 @@ import sqlpp26.core;
 // value fails the check.
 
 namespace sqlpp::test {
+  /*
 class assert_no_incompatible_t : public wrapped_static_assert {
  public:
   template <typename... T>
@@ -47,10 +48,11 @@ class assert_no_incompatible_t : public wrapped_static_assert {
     static_assert(wrong<T...>, "No support for using incompatible expression");
   }
 };
+*/
 
 template <typename T>
 struct incompatible_t : public enable_as, public enable_comparison {
-  incompatible_t(T t) : _incompatible(std::move(t)) {}
+  constexpr incompatible_t(T t) : _incompatible(std::move(t)) {}
   incompatible_t(const incompatible_t&) = default;
   incompatible_t(incompatible_t&&) = default;
   incompatible_t& operator=(const incompatible_t&) = default;
@@ -63,10 +65,12 @@ struct incompatible_t : public enable_as, public enable_comparison {
 }  // namespace sqlpp::test
 
 namespace sqlpp {
+/*
 template <typename Context, typename T>
 struct compatibility_check<Context, test::incompatible_t<T>> {
   using type = test::assert_no_incompatible_t;
 };
+*/
 
 template <typename T>
 struct data_type_of<test::incompatible_t<T>> {

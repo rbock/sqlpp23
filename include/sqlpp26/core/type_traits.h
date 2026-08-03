@@ -369,7 +369,6 @@ struct is_statement : public std::false_type {};
 
 template <typename T>
 inline constexpr bool is_statement_v =  is_statement<T>::value;
-#if 0
 
 template <typename T>
 struct is_prepared_statement : public std::false_type {};
@@ -377,6 +376,7 @@ struct is_prepared_statement : public std::false_type {};
 template <typename T>
 inline constexpr bool is_prepared_statement_v =  is_prepared_statement<T>::value;
 
+#if 0
 // Checks whether a statement has a result row (i.e. select or union).
 // Note: It does not check if the statement is actually consistent, preparable,
 // or runnable.
@@ -423,14 +423,12 @@ inline constexpr bool is_cte_v = is_cte<T>::value;
 
 template <typename T>
 struct is_as_expression : public std::false_type {};
-#if 0
 
 template <typename T>
 struct is_recursive_cte : public std::false_type {};
 
 template <typename T>
 struct is_pre_join : public std::false_type {};
-#endif
 
 template <typename T>
 struct required_insert_columns_of {
@@ -450,7 +448,6 @@ struct is_clause : public std::false_type {};
 template <typename Statement, typename Clause>
 struct basic_consistency_check;
 
-#if 0
 // Check if a clause within a statement is ready to be used in a prepared
 // statement. This used in addition to the `consistency_check`.
 //
@@ -458,15 +455,10 @@ struct basic_consistency_check;
 // missing tables.
 template <typename Statement, typename Clause>
 struct prepare_check {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+  static consteval void verify() {}
 };
 
-template <typename Statement, typename Clause>
-using prepare_check_t = typename prepare_check<Statement, Clause>::type;
-
+#if 0
 // Check if a clause within a statement is ready to be run by the connection.
 // This used in addition to the `consistency_check`.
 //
@@ -508,12 +500,15 @@ struct statement_run_check {
 template <typename Statement>
 using statement_run_check_t = typename statement_run_check<Statement>::type;
 
+#endif
+
 template <typename Clause>
 struct result_methods_of {};
 
 template <typename Clause>
 using result_methods_of_t = typename result_methods_of<Clause>::type;
 
+#if 0
 template <typename Statement, typename Clause>
 struct result_row_of {
   using type = void;
@@ -530,7 +525,7 @@ template <typename T>
 inline constexpr bool is_select_flag_v = is_select_flag<T>::value;
 
 template <typename T>
-struct has_name : public std::true_type {};
+struct has_name : public std::false_type {};
 
 template <typename T>
 inline constexpr bool has_name_v = has_name<T>::value;

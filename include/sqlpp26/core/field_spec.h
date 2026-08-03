@@ -33,6 +33,8 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
+  // TODO
+#if 0
 template <typename NameTag, typename DataType>
 struct field_spec_t {
   using result_data_type = result_data_type_of_t<DataType>;  // Used in result_row_t.
@@ -90,4 +92,5 @@ struct make_field_spec {
 
 template <typename Statement, typename NamedExpr>
 using make_field_spec_t = typename make_field_spec<Statement, NamedExpr>::type;
+#endif
 }  // namespace sqlpp

@@ -63,7 +63,7 @@ class assert_no_unknown_static_tables_in_on_conflict_do_update_t
 // ON CONFLICT ... DO UPDATE ... WHERE ...
 template <typename OnConflictUpdate, typename Expression>
 struct on_conflict_do_update_where_t {
-  on_conflict_do_update_where_t(OnConflictUpdate on_conflict_update,
+  constexpr on_conflict_do_update_where_t(OnConflictUpdate on_conflict_update,
                                 Expression expression)
       : _on_conflict_update(std::move(on_conflict_update)),
         _expression(std::move(expression)) {}
@@ -103,13 +103,10 @@ struct is_clause<
     : public std::true_type {};
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
-struct consistency_check<
+struct basic_consistency_check<
     Statement,
     on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+  static consteval void verify() {}
 };
 
 template <typename Statement, typename OnConflictUpdate, typename Expression>
@@ -180,13 +177,10 @@ struct nodes_of<
 };
 
 template <typename Statement, typename OnConflict, typename... Assignments>
-struct consistency_check<
+struct basic_consistency_check<
     Statement,
     on_conflict_do_update_t<OnConflict, Assignments...>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+  static consteval void verify() {}
 };
 
 template <typename Statement, typename OnConflict, typename... Assignments>

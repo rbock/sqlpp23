@@ -41,6 +41,8 @@
 #include <tuple>
 
 namespace sqlpp {
+// TODO
+#if 0
 // RETURNING is used in DELETE, INSERT, and UPDATE statements in
 // * PostgreSQL
 // * sqlite3
@@ -225,5 +227,5 @@ auto returning(Columns... columns)
         std::move(columns)...)) {
   return statement_t<no_returning_t>{}.returning(std::move(columns)...);
 }
-
+#endif
 }  // namespace sqlpp
