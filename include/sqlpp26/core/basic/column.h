@@ -91,6 +91,17 @@ template <typename Table, size_t index>
 struct required_static_tables_of<column<Table, index>>
     : public required_tables_of<column<Table, index>> {};
 
+template <typename _Table, size_t index>
+struct is_column<column<_Table, index>> : public std::true_type {};
+
+template <typename Context, typename Table, size_t index>
+auto to_sql_string(Context& context, const column<Table, index>&)
+    -> std::string {
+  using T = column<Table, index>;
+
+  return name_to_sql_string(context, name_of_v<Table>) + "." +
+         name_to_sql_string(context, name_of_v<T>);
+}
 /*
 // _Table can be a table_t or a cte_ref_t or a select_ref_t
 template <typename Table, typename ColumnSpec>
@@ -121,9 +132,6 @@ struct has_default<column_t<_Table, ColumnSpec>>
     : public ColumnSpec::has_default {};
 
 template <typename _Table, typename ColumnSpec>
-struct is_column<column_t<_Table, ColumnSpec>> : public std::true_type {};
-
-template <typename _Table, typename ColumnSpec>
 struct name_tag_of<column_t<_Table, ColumnSpec>>
     : public name_tag_of<ColumnSpec> {};
 
@@ -141,13 +149,5 @@ template <typename _Table, typename ColumnSpec>
 struct is_const<column_t<_Table, ColumnSpec>>
     : public std::is_const<typename ColumnSpec::data_type> {};
 
-template <typename Context, typename _Table, typename ColumnSpec>
-auto to_sql_string(Context& context, const column_t<_Table, ColumnSpec>&)
-    -> std::string {
-  using T = column_t<_Table, ColumnSpec>;
-
-  return name_to_sql_string(context, name_tag_of_t<_Table>{}) + "." +
-         name_to_sql_string(context, name_tag_of_t<T>{});
-}
 */
 }  // namespace sqlpp

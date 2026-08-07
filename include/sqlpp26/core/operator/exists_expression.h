@@ -32,10 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp26/core/reader.h>
 #include <sqlpp26/core/type_traits.h>
 
-namespace sqlpp::alias {
-SQLPP_CREATE_NAME_TAG(exists_);
-}
-
 namespace sqlpp {
 template <typename Select>
 struct exists_expression : public enable_as {

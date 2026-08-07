@@ -62,18 +62,33 @@ struct join_t;
 template <typename Lhs, typename JoinType, typename Rhs>
 class pre_join_t;
 
+// This turns a type info set into an array which can be used in template-for
+template<typename T>
+consteval auto provided_tables_of_as_array() {
+    auto set = sqlpp::provided_tables_of<T>::func();
+    std::array<std::meta::info, sqlpp::provided_tables_of<T>::func().size()> arr{};
+    std::copy(set.begin(), set.end(), arr.begin());
+    return arr;
+}
+
 template<typename Lhs, typename Rhs>
 consteval bool are_names_disjoint() {
-  std::flat_set<std::string_view> all;
-  constexpr auto lhs = provided_tables_of<Lhs>::func();
-  template for (constexpr auto& info : lhs) {
-    all.insert(name_of_v<typename [:info:]>);
-  }
-  constexpr auto rhs = provided_tables_of<Rhs>::func();
-  template for (constexpr auto& info : rhs) {
-    all.insert(name_of_v<typename [:info:]>);
-  }
-  return all.size() == lhs.size() + rhs.size();
+    std::flat_set<std::string_view> all;
+
+    // Needs to be static to ensure constant memory location across invocations.
+    static constexpr auto lhs = provided_tables_of_as_array<Lhs>();
+    static constexpr auto rhs = provided_tables_of_as_array<Rhs>();
+
+    template for (constexpr auto info : lhs) {
+        all.insert(name_of_v<typename [: info :]>);
+    }
+
+    template for (constexpr auto info : rhs) {
+        auto [_, inserted] = all.insert(name_of_v<typename [: info :]>);
+        if (!inserted) return false;
+    }
+
+    return true;
 }
 
 template <StaticTable Lhs, DynamicTable Rhs>

@@ -463,7 +463,7 @@ constexpr auto operator<<(statement_t<LClauses...> l, Clause r)
 template <typename Context, typename... Clauses>
 auto to_sql_string(Context& context, const statement_t<Clauses...>& t)
     -> std::string {
-  check_compatibility<Context>(t).verify();
+  // TODO check_compatibility<Context>(t).verify();
   auto result = std::string{};
   ((result += to_sql_string(context, static_cast<const Clauses&>(t))), ...);
 

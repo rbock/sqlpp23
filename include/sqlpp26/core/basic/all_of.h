@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2021, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp26/core/concepts.h>
+
 namespace sqlpp {
-template <typename _Table>
-auto all_of(_Table /*unused*/) -> typename _Table::_column_tuple_t {
-  return {};
+template <StaticTable T>
+constexpr auto all_of(const T& t) {
+  const auto& [...columns] = t;
+
+  return std::make_tuple(columns...);
 }
 }  // namespace sqlpp

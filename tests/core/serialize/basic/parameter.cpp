@@ -26,10 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int main(int, char*[]) {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
@@ -37,7 +33,7 @@ int main(int, char*[]) {
   SQLPP_COMPARE(parameter(foo.doubleN), "?");
   SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > ?");
 
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something), "?");
+  SQLPP_COMPARE(parameter<"something">(sqlpp::integral{}), "?");
 
   SQLPP_COMPARE(
       sqlpp::on_conflict(foo.id).do_update(

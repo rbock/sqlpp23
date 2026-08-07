@@ -47,7 +47,7 @@ struct simple_column_t {
 template <typename Context, typename Column>
 auto to_sql_string(Context& context, const simple_column_t<Column>&)
     -> std::string {
-  return name_to_sql_string(context, name_tag_of_t<Column>{});
+  return name_to_sql_string(context, name_of_v<Column>);
 }
 
 template <typename Column>

@@ -35,6 +35,7 @@
 #include <sqlpp26/core/basic/column.h>
 #include <sqlpp26/core/basic/column_spec.h>
 #include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/join.h>
 #include <sqlpp26/core/basic/fixed_string.h>
 #include <sqlpp26/core/basic/table_as.h>
 #include <sqlpp26/core/type_traits.h>
@@ -50,7 +51,7 @@ struct table_spec_of<table_as<TableSpec, Alias>>
 class enable_table_as {
  public:
   template <fixed_string Alias, typename Table>
-  constexpr auto as(this Table self) {
+  constexpr auto as(this Table) {
     return table_as<table_spec_of_t<Table>, Alias>{};
   }
 };
@@ -116,50 +117,11 @@ struct name_of<table<TableSpec>> {
   static constexpr std::string_view value = TableSpec::generator::name.data;
 };
 
-}  // namespace sqlpp
-
-#if 0
-#include <sqlpp26/core/basic/all_of.h>
-#include <sqlpp26/core/basic/column.h>
-#include <sqlpp26/core/basic/join.h>
-#include <sqlpp26/core/basic/table_as.h>
-#include <sqlpp26/core/detail/type_set.h>
-#include <sqlpp26/core/type_traits.h>
-
-#include <sqlpp26/core/name/create_reflection_name_tag.h>
-
-namespace sqlpp {
-template <typename TableSpec>
-struct table_t : public TableSpec::template _table_columns<table_t<TableSpec>>,
-                 public enable_join {
-  template <typename NameTagProvider>
-  constexpr auto as(const NameTagProvider& /*unused*/) const
-      -> table_as_t<TableSpec, name_tag_of_t<NameTagProvider>> {
-    return {};
-  }
-
-#if SQLPP_INCLUDE_REFLECTION == 1
-  template <::sqlpp::detail::fixed_string Alias>
-  constexpr auto as() const -> table_as_t<
-      TableSpec,
-      name_tag_of_t<decltype(::sqlpp::meta::make_alias<Alias>())>> {
-    return {};
-  }
-#endif
-};
-
-template <typename TableSpec>
-struct name_tag_of<table_t<TableSpec>> : public name_tag_of<TableSpec> {};
-
-template <typename TableSpec>
-struct required_insert_columns_of<table_t<TableSpec>> {
-  using type = typename TableSpec::_required_insert_columns;
-};
-
 template <typename Context, typename TableSpec>
-auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/)
+auto to_sql_string(Context& context, const table<TableSpec>& /*unused*/)
     -> std::string {
-  return name_to_sql_string(context, name_tag_of_t<TableSpec>{});
+  return name_to_sql_string(context, name_of_v<TableSpec>);
 }
+
 }  // namespace sqlpp
-#endif
+

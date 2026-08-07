@@ -36,11 +36,6 @@
 #include <sqlpp26/core/to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
 
-namespace sqlpp::alias {
-SQLPP_CREATE_NAME_TAG(min_);
-SQLPP_CREATE_NAME_TAG(distinct_min_);
-}
-
 namespace sqlpp {
 template <typename Flag, typename Expr>
 struct min_t : public enable_as, public enable_comparison, public enable_over {

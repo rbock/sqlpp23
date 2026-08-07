@@ -81,7 +81,7 @@ struct dynamic_t {
   std::optional<Expr> _expr;
 };
 
-// No data_type_of or name_tag_of defined for dynamic_t, to prevent its usage
+// No data_type_of or name_of defined for dynamic_t, to prevent its usage
 // outside of select columns or similar explicitly allowed areas.
 
 template <typename Expr>

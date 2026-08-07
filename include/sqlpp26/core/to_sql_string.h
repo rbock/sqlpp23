@@ -249,6 +249,15 @@ auto name_to_sql_string(Context& /*context*/, const fixed_string<N>& name) -> st
   //}
 }
 
+template <typename Context>
+auto name_to_sql_string(Context& /*context*/, const std::string_view& name) -> std::string {
+  // TODO: if (NameTag::require_quotes) {
+    //return quoted_name_to_sql_string(context, NameTag::name);
+  //} else {
+    return std::string(name);
+  //}
+}
+
 template<typename Context>
 std::string data_type_to_sql_string(Context&, const boolean&) {
   return "BOOLEAN";

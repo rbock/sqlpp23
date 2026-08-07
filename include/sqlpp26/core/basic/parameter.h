@@ -68,16 +68,16 @@ auto to_sql_string(Context&, const parameter_t<DataType, Name>&)
 
 template <typename NamedExpr>
   requires(has_data_type_v<NamedExpr> and has_name_v<NamedExpr>)
-auto parameter(const NamedExpr& /*unused*/)
-    -> parameter_t<data_type_of_t<NamedExpr>, name_of_v<NamedExpr>> {
+auto parameter(const NamedExpr& /*unused*/) -> parameter_t<
+    data_type_of_t<NamedExpr>,
+    fixed_string<name_of_v<NamedExpr>.size()>(name_of_v<NamedExpr>)> {
   return {};
 }
 
-template <typename DataType, typename NameProvider>
-  requires((is_data_type_v<DataType> or has_data_type_v<DataType>) and
-           has_name_v<NameProvider>)
-auto parameter(const DataType& /*unused*/, const NameProvider& /*unused*/)
-    -> parameter_t<DataType, name_of_v<NameProvider>> {
+template <fixed_string Name, typename DataType>
+  requires((is_data_type_v<DataType> or has_data_type_v<DataType>))
+auto parameter(const DataType& /*unused*/)
+    -> parameter_t<DataType, Name> {
   return {};
 }
 }  // namespace sqlpp

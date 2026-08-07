@@ -54,6 +54,12 @@ struct data_type_of<std::optional<T>> {
   using type = force_optional_t<data_type_of_t<T>>;
 };
 
+// TODO: Probably need to change this for insert and update?
+template <typename T>
+struct data_type_of<const T> {
+  using type = data_type_of_t<T>;
+};
+
 template <typename T>
 struct has_data_type
     : public std::integral_constant<

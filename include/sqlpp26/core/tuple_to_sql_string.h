@@ -88,16 +88,15 @@ struct tuple_operand_select_column {
     return prefix + operand_to_sql_string(context, t);
   }
 
-  /* TODO
-  template <typename Context, typename T, typename NameTag>
+  template <typename Context, typename T, fixed_string Name>
   auto operator()(Context& context,
-                  const sqlpp::dynamic_t<as_expression<T, NameTag>>& t,
+                  const sqlpp::dynamic_t<as_expression<T, Name>>& t,
                   size_t index) const -> std::string {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
     }
     return operator()(
-        context, as_expression<std::nullopt_t, NameTag>{std::nullopt}, index);
+        context, as_expression<std::nullopt_t, Name>{std::nullopt}, index);
   }
 
   template <typename Context, typename T>
@@ -107,12 +106,11 @@ struct tuple_operand_select_column {
     if (t.has_value()) {
       return operator()(context, t.value(), index);
     }
-    static_assert(has_name_tag<T>::value, "select columns have to have a name");
+    static_assert(has_name_v<T>, "select columns have to have a name");
     return operator()(
-        context, as_expression<std::nullopt_t, name_tag_of_t<T>>{std::nullopt},
+        context, as_expression<std::nullopt_t, name_of_v<T>>{std::nullopt},
         index);
   }
-  */
 
   std::string_view separator;
 };
@@ -123,7 +121,7 @@ struct tuple_operand_name_no_dynamic {
   auto operator()(Context& context, const T&, size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
-    return prefix + name_to_sql_string(context, name_tag_of_t<T>{});
+    return prefix + name_to_sql_string(context, name_of_v<T>);
   }
 
   template <typename Context, typename T>

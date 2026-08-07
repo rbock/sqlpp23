@@ -28,12 +28,15 @@
  */
 
 #include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/join.h>
 #include <sqlpp26/core/to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
 template <typename TableSpec, fixed_string Alias>
-struct table_as : public TableSpec::generator::template table_as_columns<Alias>::type {};
+struct table_as
+    : public TableSpec::generator::template table_as_columns<Alias>::type,
+      public enable_join {};
 
 template <typename TableSpec, fixed_string Alias>
 struct is_table<table_as<TableSpec, Alias>> : public std::true_type {};
