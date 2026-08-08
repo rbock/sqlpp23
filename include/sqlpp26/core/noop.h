@@ -36,11 +36,11 @@
 namespace sqlpp {
 struct noop {};
 
-/* TODO
 struct no_result_methods_t {
  private:
   friend class statement_handler_t;
 
+  /*
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& self, Db& db) {
@@ -55,13 +55,13 @@ struct no_result_methods_t {
         statement_handler_t{}.prepare_execute(std::forward<Statement>(self),
                                               db)};
   }
+  */
 };
 
 template <>
 struct result_methods_of<noop> {
   using type = no_result_methods_t;
 };
-*/
 
 template <typename Context>
 auto to_sql_string(Context&, const noop&) -> std::string {

@@ -39,7 +39,7 @@
 //#include <sqlpp26/core/database/prepared_select.h>
 #include <sqlpp26/core/detail/flat_tuple.h>
 #include <sqlpp26/core/detail/type_set.h>
-//#include <sqlpp26/core/field_spec.h>
+#include <sqlpp26/core/basic/column_spec.h>
 #include <sqlpp26/core/operator/as_expression.h>
 #include <sqlpp26/core/query/dynamic.h>
 //#include <sqlpp26/core/query/result_row.h>
@@ -133,40 +133,37 @@ struct is_clause<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
     : public std::true_type {};
 
-/*
 template <typename... Flags, typename... Columns>
 struct has_result_row<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>>
     : public std::true_type {};
-    */
 
-/* TODO
 template <typename Statement, typename... Flags, typename... Columns>
 struct result_row_of<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
-  using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
+      //TODO: Maybe re-introduce field_spec = column_spec without default and SQL name
+  using type = result_row_t<column_spec<fixed_string<name_of_v<Columns>.size()>(name_of_v<Columns>), data_type_of_t<Columns>>...>;
 };
-*/
 
-/* TODO
 template <typename... Columns>
 struct select_result_methods_t {
-  template <typename Statement, typename NameTagProvider>
-  auto as(this Statement&& self, const NameTagProvider&)
-      -> select_as_t<std::decay_t<Statement>,
-                     name_tag_of_t<NameTagProvider>,
-                     make_field_spec_t<std::decay_t<Statement>, Columns>...> {
+  template <fixed_string Name, typename Statement>
+  auto as(this Statement&& self)
+      -> select_as<std::decay_t<Statement>,
+                     Name,
+                     column_spec<fixed_string<name_of_v<Columns>.size()>(name_of_v<Columns>), data_type_of_t<Columns>>...> {
     // This ensures that the sub select is free of table/CTE dependencies and
     // consistent.
-    check_prepare_consistency(self).verify();
+    check_prepare_consistency(self);
 
     using table =
-        select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
-                    make_field_spec_t<std::decay_t<Statement>, Columns>...>;
+        select_as<std::decay_t<Statement>, Name,
+                    column_spec<fixed_string<name_of_v<Columns>.size()>(name_of_v<Columns>), data_type_of_t<Columns>>...>;
     return table(std::forward<Statement>(self));
   }
 
+/* TODO
  private:
   friend class statement_handler_t;
 
@@ -186,8 +183,8 @@ struct select_result_methods_t {
         statement_handler_t{}.prepare_select(std::forward<Statement>(self),
                                              db)};
   }
-};
 */
+};
 
 /*
 template <typename... Flags, typename... Columns>
@@ -195,19 +192,19 @@ struct no_of_result_columns<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   static constexpr size_t value = sizeof...(Columns);
 };
+*/
 
 template <typename... Flags, typename... Columns>
 struct result_methods_of<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   using type = select_result_methods_t<Columns...>;
 };
-*/
 
-/* TODO
 template <typename Statement, typename... Flags, typename... Columns>
-struct consistency_check<
+struct basic_consistency_check<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
+      /* TODO
   using AC = typename Statement::_all_provided_aggregates;
   static constexpr bool has_group_by = not AC::empty();
 
@@ -220,9 +217,13 @@ struct consistency_check<
           Statement,
           detail::remove_as_from_select_column_t<Columns>,
           assert_no_unknown_static_tables_in_selected_columns_t>...>;
-  constexpr auto operator()() { return type{}; }
+          */
+  static constexpr void verify() {
+    // TODO
+  }
 };
 
+/* TODO
 template <typename Statement, typename... Flags, typename... Columns>
 struct prepare_check<
     Statement,

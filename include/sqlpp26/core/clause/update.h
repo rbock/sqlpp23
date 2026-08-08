@@ -47,11 +47,11 @@ auto to_sql_string(Context&, const update_t&) -> std::string {
 template <>
 struct is_clause<update_t> : public std::true_type {};
 
-/*
 struct update_result_methods_t {
  private:
   friend class statement_handler_t;
 
+/*
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& self, Db& db) {
@@ -66,21 +66,21 @@ struct update_result_methods_t {
         statement_handler_t{}.prepare_update(std::forward<Statement>(self),
                                              db)};
   }
-};
 */
+};
 
-/*
 template <>
 struct result_methods_of<update_t> {
   using type = update_result_methods_t;
 };
-*/
 
+/*
 template <typename Statement>
 struct basic_consistency_check<Statement, update_t> {
   static constexpr void verify() {
   }
 };
+*/
 
 template <>
 struct is_result_clause<update_t> : public std::true_type {};

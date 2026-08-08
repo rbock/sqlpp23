@@ -134,12 +134,12 @@ int main(int, char*[]) {
                 "tab_foo INNER JOIN tab_foo AS a ON tab_foo.id = a.id");
 
   // Joining sub selects
-  const auto s = select(all_of(foo)).from(foo).as(something);
-  /* TODO
+  const auto s = select(all_of(foo)).from(foo).as<"something">();
   auto ctx = sqlpp::mock_db::context_t{};
   const auto s_string = to_sql_string(ctx, s);
 
   SQLPP_COMPARE(foo.cross_join(s), "tab_foo CROSS JOIN " + s_string);
+  /*
   SQLPP_COMPARE(foo.cross_join(dynamic(true, s)),
                 "tab_foo CROSS JOIN " + s_string);
   SQLPP_COMPARE(s.cross_join(foo), s_string + " CROSS JOIN tab_foo");

@@ -510,7 +510,6 @@ struct result_methods_of {};
 template <typename Clause>
 using result_methods_of_t = typename result_methods_of<Clause>::type;
 
-#if 0
 template <typename Statement, typename Clause>
 struct result_row_of {
   using type = void;
@@ -518,7 +517,6 @@ struct result_row_of {
 
 template <typename Statement, typename Clause>
 using result_row_of_t = typename result_row_of<Statement, Clause>::type;
-#endif
 
 template <typename T>
 struct is_select_flag : public is_raw_select_flag<remove_dynamic_t<T>> {};

@@ -26,10 +26,8 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(verb);
-
 int main(int, char*[]) {
-  SQLPP_COMPARE(sqlpp::verbatim_table("cheese").as(verb), "cheese AS verb");
+  SQLPP_COMPARE(sqlpp::verbatim_table("cheese").as<"verb">(), "cheese AS verb");
 
   return 0;
 }

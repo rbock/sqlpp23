@@ -39,7 +39,8 @@
 #include <sqlpp26/core/type_traits/optional.h>
 
 namespace sqlpp {
-struct no_value_t;
+  // TODO: This used to be undefined.
+struct no_value_t{};
 
 template <typename T>
 struct data_type_of {

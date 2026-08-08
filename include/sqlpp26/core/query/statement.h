@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdexcept>
+
 #include <sqlpp26/core/basic/value.h>
 #include <sqlpp26/core/database/parameter_list.h>
 #include <sqlpp26/core/detail/get_first.h>
@@ -39,7 +41,6 @@
 #include <sqlpp26/core/result_type_provider.h>
 #include <sqlpp26/core/to_sql_string.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
-#include <stdexcept>
 #include <type_traits>
 #include <sqlpp26/core/detail/type_vector.h>
 
@@ -105,14 +106,12 @@ class assert_no_parameters_t : public wrapped_static_assert {
   }
 };
 
-/*
 template <typename... Clauses>
 using result_methods_t =
     result_methods_of_t<result_type_provider_t<Clauses...>>;
-    */
 
 template <typename... Clauses>
-struct statement_t : public Clauses.../*, public result_methods_t<Clauses...>*/ {
+struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   // Calculate provided/required CTEs and tables across all clauses
   /*
   using _all_provided_tables =
@@ -372,12 +371,11 @@ template <typename... Clauses>
 
 template <typename... Clauses>
 [[nodiscard]] constexpr auto check_prepare_consistency(const statement_t<Clauses...>& t) {
-  /* TODO
-  return (check_basic_consistency(t) && ... &&
-          prepare_check_t<statement_t<Clauses...>, Clauses>{})
-    && (typename statement_t<Clauses...>::_table_check{})
-    && (typename statement_t<Clauses...>::_cte_check{});
-    */
+  (t.check_basic_consistency() /* TODO && ... &&
+          prepare_check_t<statement_t<Clauses...>, Clauses>{}*/)
+    //&& (typename statement_t<Clauses...>::_table_check{})
+    //&& (typename statement_t<Clauses...>::_cte_check{});
+    ;
 };
 
 template <typename... Clauses>
