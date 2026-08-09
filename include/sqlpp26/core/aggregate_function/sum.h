@@ -63,7 +63,8 @@ template <typename Flag, typename Expr>
 struct data_type_of<sum_t<Flag, Expr>> {
   using type =
       sqlpp::force_optional_t<std::conditional_t<is_boolean<Expr>::value,
-                                                 integral,
+                                                 int64_t,
+                                                 // TODO: Should we maximize the type here?
                                                  data_type_of_t<Expr>>>;
 };
 

@@ -61,7 +61,7 @@ struct nodes_of<avg_t<Flag, Expr>> {
 
 template <typename Flag, typename Expr>
 struct data_type_of<avg_t<Flag, Expr>> {
-  using type = sqlpp::force_optional_t<floating_point>;
+  using type = sqlpp::force_optional_t<double>;
 };
 
 template <typename Context, typename Flag, typename Expr>

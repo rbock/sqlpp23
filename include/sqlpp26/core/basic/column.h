@@ -61,8 +61,7 @@ struct column_spec_of<column<Table, index>> {
 
 template <typename Table, size_t index>
 struct data_type_of<column<Table, index>> {
-  // TODO This should work without the nesting!
-  using type = data_type_of_t<typename column_spec_of_t<column<Table, index>>::data_type>;
+  using type = typename column_spec_of_t<column<Table, index>>::data_type;
 };
 
 template <typename Table, size_t index>

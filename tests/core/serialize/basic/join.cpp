@@ -60,19 +60,19 @@ int main(int, char*[]) {
   SQLPP_COMPARE(
       aFoo.join(sqlpp::verbatim_table("unknown_table"))
           .on(aFoo.id ==
-              sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x")),
+              sqlpp::verbatim<double>("unknown_table.column_x")),
       "tab_foo AS a INNER JOIN unknown_table ON a.id = unknown_table.column_x");
   SQLPP_COMPARE(
       sqlpp::verbatim_table("unknown_table")
           .join(aFoo)
           .on(aFoo.id ==
-              sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x")),
+              sqlpp::verbatim<double>("unknown_table.column_x")),
       "unknown_table INNER JOIN tab_foo AS a ON a.id = unknown_table.column_x");
   SQLPP_COMPARE(
       sqlpp::verbatim_table("unknown_table")
           .as<"a">()
           .join(sqlpp::verbatim_table("another_table"))
-          .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x = another_table.x")),
+          .on(sqlpp::verbatim<bool>("a.column_x = another_table.x")),
       "unknown_table AS a INNER JOIN another_table ON a.column_x = "
       "another_table.x");
 

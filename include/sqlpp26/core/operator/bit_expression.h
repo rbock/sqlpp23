@@ -54,8 +54,8 @@ struct data_type_of<bit_expression<Lhs, Operator, Rhs>> {
   using type =
       std::conditional_t<sqlpp::is_optional<data_type_of_t<Lhs>>::value or
                              sqlpp::is_optional<data_type_of_t<Rhs>>::value,
-                         std::optional<integral>,
-                         integral>;
+                         std::optional<int64_t>,
+                         int64_t>;
 };
 
 template <typename Lhs, typename Operator, typename Rhs>

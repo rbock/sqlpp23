@@ -76,74 +76,128 @@ struct is_data_type : public std::false_type {};
 template <typename T>
 inline constexpr bool is_data_type_v = is_data_type<T>::value;
 
-struct boolean {};
+// boolean
+template<typename T>
+struct is_raw_boolean: public std::false_type {};
 
 template<>
-struct is_data_type<boolean> : std::true_type {};
+struct is_raw_boolean<bool>: public std::true_type {};
+
+template <typename T>
+struct is_boolean
+    : public is_raw_boolean<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_boolean_v = is_boolean<T>::value;
 
 template <>
-struct data_type_of<bool> {
-  using type = boolean;
-};
+struct is_boolean<std::nullopt_t> : public std::true_type {};
 
-struct integral {};
-template <>
-struct is_data_type<integral> : std::true_type {};
+// integral
+template<typename T>
+struct is_raw_integral: public std::false_type {};
 
-template <>
-struct data_type_of<int8_t> {
-  using type = integral;
-};
-template <>
-struct data_type_of<int16_t> {
-  using type = integral;
-};
-template <>
-struct data_type_of<int32_t> {
-  using type = integral;
-};
-template <>
-struct data_type_of<int64_t> {
-  using type = integral;
-};
+template<>
+struct is_raw_integral<int8_t>: public std::true_type {};
 
-struct unsigned_integral {};
-template <>
-struct is_data_type<unsigned_integral> : std::true_type {};
+template<>
+struct is_raw_integral<int16_t>: public std::true_type {};
+
+template<>
+struct is_raw_integral<int32_t>: public std::true_type {};
+
+template<>
+struct is_raw_integral<int64_t>: public std::true_type {};
+
+template <typename T>
+struct is_integral
+    : public is_raw_integral<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_integral_v = is_boolean<T>::value;
 
 template <>
-struct data_type_of<uint8_t> {
-  using type = unsigned_integral;
-};
-template <>
-struct data_type_of<uint16_t> {
-  using type = unsigned_integral;
-};
-template <>
-struct data_type_of<uint32_t> {
-  using type = unsigned_integral;
-};
-template <>
-struct data_type_of<uint64_t> {
-  using type = unsigned_integral;
-};
+struct is_integral<std::nullopt_t> : public std::true_type {};
 
-struct floating_point {};
-template <>
-struct is_data_type<floating_point> : std::true_type {};
+// unsigned integral
+template<typename T>
+struct is_raw_unsigned_integral: public std::false_type {};
+
+template<>
+struct is_raw_unsigned_integral<uint8_t>: public std::true_type {};
+
+template<>
+struct is_raw_unsigned_integral<uint16_t>: public std::true_type {};
+
+template<>
+struct is_raw_unsigned_integral<uint32_t>: public std::true_type {};
+
+template<>
+struct is_raw_unsigned_integral<uint64_t>: public std::true_type {};
+
+template <typename T>
+struct is_unsigned_integral
+    : public is_raw_unsigned_integral<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_unsigned_integral_v = is_boolean<T>::value;
 
 template <>
-struct data_type_of<float> {
-  using type = floating_point;
-};
+struct is_unsigned_integral<std::nullopt_t> : public std::true_type {};
+
+// floating point
+template<typename T>
+struct is_raw_floating_point: public std::false_type {};
+
+template<>
+struct is_raw_floating_point<float>: public std::true_type {};
+
+template<>
+struct is_raw_floating_point<double>: public std::true_type {};
+
+template<>
+struct is_raw_floating_point<long double>: public std::true_type {};
+
+template <typename T>
+struct is_floating_point
+    : public is_raw_floating_point<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_floating_point_v = is_boolean<T>::value;
+
 template <>
-struct data_type_of<double> {
-  using type = floating_point;
-};
+struct is_floating_point<std::nullopt_t> : public std::true_type {};
+
+// text
+template<typename T>
+struct is_raw_text: public std::false_type {};
+
+template<>
+struct is_raw_text<char>: public std::true_type {};
+
+template<>
+struct is_raw_text<const char*>: public std::true_type {};
+
+template<>
+struct is_raw_text<std::string>: public std::true_type {};
+
+template<>
+struct is_raw_text<std::string_view>: public std::true_type {};
+
+template <typename T>
+struct is_text
+    : public is_raw_text<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_text_v = is_boolean<T>::value;
+
 template <>
-struct data_type_of<long double> {
-  using type = floating_point;
-};
+struct is_text<std::nullopt_t> : public std::true_type {};
 
 struct text {};
 template <>
@@ -215,38 +269,6 @@ struct data_type_of<
   using type = timestamp;
 };
 
-template <typename T>
-struct is_boolean
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, boolean> {};
-
-template <typename T>
-inline constexpr bool is_boolean_v = is_boolean<T>::value;
-
-template <>
-struct is_boolean<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
-struct is_integral
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, integral> {};
-
-template <>
-struct is_integral<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
-struct is_unsigned_integral
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>,
-                          unsigned_integral> {};
-
-template <>
-struct is_unsigned_integral<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
-struct is_floating_point
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>,
-                          floating_point> {};
-
-template <>
-struct is_floating_point<std::nullopt_t> : public std::true_type {};
 
 // A generic numeric type which could be (unsigned) integral or floating point.
 struct numeric {};
@@ -261,13 +283,6 @@ struct is_numeric
 
 template <>
 struct is_numeric<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
-struct is_text
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, text> {};
-
-template <>
-struct is_text<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
 struct is_blob

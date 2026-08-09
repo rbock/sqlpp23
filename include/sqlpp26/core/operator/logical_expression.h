@@ -67,8 +67,8 @@ template <typename Operator, typename... Expressions>
 struct data_type_of<logical_expression<Operator, Expressions...>>
     : std::conditional<logic::any<sqlpp::is_optional<data_type_of_t<
                            remove_dynamic_t<Expressions>>>::value...>::value,
-                       std::optional<boolean>,
-                       boolean> {};
+                       std::optional<bool>,
+                       bool> {};
 
 template <typename Operator, typename... Expressions>
 struct nodes_of<logical_expression<Operator, Expressions...>> {

@@ -65,7 +65,7 @@ template <typename T>
 struct is_raw_table : public std::false_type {};
 
 template <typename T>
-static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
+inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 
 #if 0
 #include <span>

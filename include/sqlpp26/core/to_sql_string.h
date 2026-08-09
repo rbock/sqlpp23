@@ -258,6 +258,7 @@ auto name_to_sql_string(Context& /*context*/, const std::string_view& name) -> s
   //}
 }
 
+/* TODO
 template<typename Context>
 std::string data_type_to_sql_string(Context&, const boolean&) {
   return "BOOLEAN";
@@ -302,6 +303,7 @@ template<typename Context>
 std::string data_type_to_sql_string(Context&, const date&) {
   return "DATE";
 }
+*/
 
 template <typename Context, typename Data>
 auto dynamic_clause_to_sql_string(Context& context,

@@ -62,6 +62,6 @@ struct are_unique {
 };
 
 template <typename... T>
-static inline constexpr bool are_unique_v = are_unique<T...>::value;
+inline constexpr bool are_unique_v = are_unique<T...>::value;
 
 }  // namespace sqlpp::detail

@@ -88,6 +88,7 @@ template <typename Operator, typename Lhs, typename Rhs>
 using arithmetic_data_type_t =
     typename arithmetic_data_type<Operator, Lhs, Rhs>::type;
 
+#if 0
 // Operator plus
 template <>
 struct arithmetic_data_type<plus, floating_point, floating_point> {
@@ -400,6 +401,7 @@ template <>
 struct arithmetic_data_type<modulus, unsigned_integral, unsigned_integral> {
   using type = unsigned_integral;
 };
+#endif
 
 // Handle optional types
 template <typename Operator, typename Lhs, typename Rhs>

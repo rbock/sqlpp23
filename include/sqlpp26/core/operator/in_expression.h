@@ -74,16 +74,16 @@ template <typename L, typename Operator, typename R>
 struct data_type_of<in_expression<L, Operator, std::vector<R>>>
     : std::conditional<sqlpp::is_optional<data_type_of_t<L>>::value or
                            sqlpp::is_optional<data_type_of_t<R>>::value,
-                       std::optional<boolean>,
-                       boolean> {};
+                       std::optional<bool>,
+                       bool> {};
 
 template <typename L, typename Operator, typename... Args>
 struct data_type_of<in_expression<L, Operator, std::tuple<Args...>>>
     : std::conditional<sqlpp::is_optional<data_type_of_t<L>>::value or
                            logic::any<sqlpp::is_optional<
                                data_type_of_t<Args>>::value...>::value,
-                       std::optional<boolean>,
-                       boolean> {};
+                       std::optional<bool>,
+                       bool> {};
 
 template <typename L, typename Operator, typename R>
 struct nodes_of<in_expression<L, Operator, std::vector<R>>> {

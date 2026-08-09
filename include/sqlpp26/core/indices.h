@@ -36,7 +36,7 @@ namespace sqlpp {
 // use as
 // constexpr auto [...Is] = indices<N>;
 template <size_t N>
-static inline constexpr std::array<size_t, N> indices = [] {
+inline constexpr std::array<size_t, N> indices = [] {
     std::array<size_t, N> indices;
     std::ranges::iota(indices, size_t{});
     return indices;

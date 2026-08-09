@@ -59,28 +59,28 @@ struct data_type_of<comparison_expression<Lhs, Operator, Rhs>>
     : std::conditional<
           sqlpp::is_optional<data_type_of_t<Lhs>>::value or
               sqlpp::is_optional<data_type_of_t<remove_any_t<Rhs>>>::value,
-          std::optional<boolean>,
-          boolean> {};
+          std::optional<bool>,
+          bool> {};
 
 template <typename Lhs>
 struct data_type_of<comparison_expression<Lhs, op_is_null, std::nullopt_t>> {
-  using type = boolean;
+  using type = bool;
 };
 
 template <typename Lhs>
 struct data_type_of<
     comparison_expression<Lhs, op_is_not_null, std::nullopt_t>> {
-  using type = boolean;
+  using type = bool;
 };
 
 template <typename Lhs, typename Rhs>
 struct data_type_of<comparison_expression<Lhs, op_is_distinct_from, Rhs>> {
-  using type = boolean;
+  using type = bool;
 };
 
 template <typename Lhs, typename Rhs>
 struct data_type_of<comparison_expression<Lhs, op_is_not_distinct_from, Rhs>> {
-  using type = boolean;
+  using type = bool;
 };
 
 template <typename Lhs, typename Operator, typename Rhs>

@@ -50,7 +50,7 @@ struct exists_expression : public enable_as {
 
 template <typename Select>
 struct data_type_of<exists_expression<Select>> {
-  using type = boolean;
+  using type = bool;
 };
 
 template <typename Select>

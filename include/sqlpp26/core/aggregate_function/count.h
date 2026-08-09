@@ -64,7 +64,7 @@ struct nodes_of<count_t<Flag, Expr>> {
 
 template <typename Flag, typename Expr>
 struct data_type_of<count_t<Flag, Expr>> {
-  using type = integral;
+  using type = int64_t;
 };
 
 template <typename Context, typename Flag, typename Expr>

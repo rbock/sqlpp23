@@ -51,8 +51,7 @@ struct field_column // : public enable_as, public enable_comparison
 
 template <typename Table, typename ColumnSpec>
 struct data_type_of<field_column<Table, ColumnSpec>> {
-  // TODO This should work without the nesting!
-  using type = data_type_of_t<typename ColumnSpec::data_type>;
+  using type = typename ColumnSpec::data_type;
 };
 
 template <typename Table, typename ColumnSpec>

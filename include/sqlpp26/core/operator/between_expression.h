@@ -55,8 +55,8 @@ struct data_type_of<between_expression<Expression, Lhs, Rhs>>
           sqlpp::is_optional<data_type_of_t<Expression>>::value or
               sqlpp::is_optional<data_type_of_t<Lhs>>::value or
               sqlpp::is_optional<data_type_of_t<Rhs>>::value,
-          std::optional<boolean>,
-          boolean> {};
+          std::optional<bool>,
+          bool> {};
 
 template <typename Expression, typename Lhs, typename Rhs>
 struct nodes_of<between_expression<Expression, Lhs, Rhs>> {
