@@ -351,13 +351,6 @@ struct required_static_ctes_of<statement_t<Clauses...>> {
 template <typename... Clauses>
 struct requires_parentheses<statement_t<Clauses...>> : public std::true_type {};
 */
-/*
-template <typename... Clauses>
-struct statement_consistency_check<statement_t<Clauses...>> {
-  using type = static_combined_check_t<
-      consistency_check_t<statement_t<Clauses...>, Clauses>...>;
-};
-*/
 
 template <typename... Clauses>
 [[nodiscard]] auto check_table_consistency(const statement_t<Clauses...>&) {

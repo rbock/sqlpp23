@@ -146,8 +146,6 @@ int main(int, char*[]) {
 
   // Joining sub ctes
   auto c_ref = sqlpp::cte<"something">();
-
-  /*
   const auto c = c_ref.as(select(all_of(foo)).from(foo));
   const auto c_string = to_sql_string(ctx, c_ref);
 
@@ -157,7 +155,6 @@ int main(int, char*[]) {
   SQLPP_COMPARE(c.cross_join(foo), c_string + " CROSS JOIN tab_foo");
   SQLPP_COMPARE(c.cross_join(dynamic(true, foo)),
                 c_string + " CROSS JOIN tab_foo");
-                */
 
   return 0;
 }

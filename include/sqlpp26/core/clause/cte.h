@@ -289,7 +289,6 @@ struct name_of<cte_t<Name, Statement, ColumnSpecs...>> {
   static constexpr fixed_string value = Name;
 };
 
-#if 0
 template <fixed_string Name, typename Statement, typename... ColumnSpecs>
 struct nodes_of<cte_t<Name, Statement, ColumnSpecs...>> {
   using type = detail::type_vector<Statement>;
@@ -297,9 +296,10 @@ struct nodes_of<cte_t<Name, Statement, ColumnSpecs...>> {
 
 template <fixed_string Name, typename Statement, typename... ColumnSpecs>
 struct provided_ctes_of<cte_t<Name, Statement, ColumnSpecs...>> {
-  using type = detail::type_set<cte_ref_t<Name>>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_type_info_set<cte_ref_t<Name>>();
+  }
 };
-#endif
 
 // The cte_ref_t represents the cte as table in FROM.
 // The cte_t needs to be provided by WITH.
@@ -310,9 +310,11 @@ struct cte_ref_t {
              has_result_row<Statement>::value and
              required_tables_of<Statement>::func().empty() and
              not required_ctes_of<Statement>::func().contains(
-                 ^^cte_ref_t<Name>) and
-             statement_consistency_check_t<Statement>::value)
+                 ^^cte_ref_t<Name>))
   auto as(Statement statement) const -> cte_t<Name, Statement> {
+    consteval {
+      Statement::check_basic_consistency();
+    }
     return {std::move(statement)};
   }
 };
