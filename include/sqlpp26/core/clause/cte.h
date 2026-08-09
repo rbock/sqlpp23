@@ -129,70 +129,65 @@ struct cte_generator<Name, Select, result_row_t<FieldSpecs...>>{
     }
     define_aggregate(^^columns, column_data_members);
   }
+  template<fixed_string Alias>
+  struct cte_as_columns {
+    struct type;
+    consteval {
+      std::vector<std::meta::info> column_data_members;
+      std::array field_specs = {^^FieldSpecs...};
+      template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(FieldSpecs))) {
+        using FieldSpec = FieldSpecs...[index];
+        column_data_members.push_back(std::meta::data_member_spec(
+              // TODO: Maybe introduce cte_as_ref to avoid simple accidents?
+            substitute(^^sqlpp::field_column, {^^cte_ref_t<Alias>, field_specs[index]}),
+            {.name = FieldSpec::name}));
+      }
+      define_aggregate(^^type, column_data_members);
+    }
+  };
 };
 
-#if 0
 
-// cte_member is a helper to add column data members to `cte_t`.
-template <fixed_string Name, typename FieldSpec>
-struct cte_member {
-  using type =
-      member_t<FieldSpec, column_t<cte_ref_t<Name>, FieldSpec>>;
-};
-
-template <fixed_string Name,
-          fixed_string NewName,
-          typename... FieldSpecs>
-struct cte_as_t : public cte_member<NewName, FieldSpecs>::type...,
+template <fixed_string Name, typename Statement,
+          fixed_string Alias>
+struct cte_as_t : public cte_generator<Name, Statement, get_result_row_t<Statement>>::cte_as_columns<Alias>::type,
                   public enable_join {
-  using _column_tuple_t =
-      std::tuple<column_t<cte_ref_t<NewName>, FieldSpecs>...>;
   template <typename Context>
   friend auto to_sql_string(Context& context, const cte_as_t&) -> std::string {
-    return name_to_sql_string(context, name_of_v<Name>) +
+    return name_to_sql_string(context, Name) +
            " AS " +
-           name_to_sql_string(context, name_of_v<NewName>);
+           name_to_sql_string(context, Alias);
   }
 };
 
-template <fixed_string Name,
-          fixed_string NewName,
-          typename... ColumnSpecs>
-struct is_table<cte_as_t<Name, NewName, ColumnSpecs...>>
-    : public std::true_type {};
+template <fixed_string Name, typename Statement, fixed_string Alias>
+struct is_table<cte_as_t<Name, Statement, Alias>> : public std::true_type {};
 
-template <fixed_string Name,
-          fixed_string NewName,
-          typename... ColumnSpecs>
-struct name_tag_of<
-    cte_as_t<Name, NewName, ColumnSpecs...>>
-    : public name_tag_of<NewName> {};
-
-template <fixed_string Name,
-          fixed_string NewName,
-          typename... ColumnSpecs>
-struct provided_tables_of<
-    cte_as_t<Name, NewName, ColumnSpecs...>> {
-  using type = sqlpp::detail::type_set<cte_ref_t<NewName>>;
+template <fixed_string Name, typename Statement, fixed_string Alias>
+struct name_of<cte_as_t<Name, Statement, Alias>> {
+  static constexpr fixed_string value = Alias;
 };
 
-template <fixed_string Name,
-          fixed_string NewName,
-          typename... ColumnSpecs>
-struct required_ctes_of<
-    cte_as_t<Name, NewName, ColumnSpecs...>> {
+template <fixed_string Name, typename Statement, fixed_string Alias>
+struct provided_tables_of<cte_as_t<Name, Statement, Alias>> {
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_type_info_set<cte_ref_t<Alias>>();
+  }
+};
+
+template <fixed_string Name, typename Statement, fixed_string Alias>
+struct required_ctes_of<cte_as_t<Name, Statement, Alias>> {
   // An aliased CTE requires the original CTE from the WITH clause.
-  using type = sqlpp::detail::type_set<cte_ref_t<Name>>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_type_info_set<cte_ref_t<Name>>();
+  }
 };
 
-template <fixed_string Name,
-          fixed_string NewName,
-          typename... ColumnSpecs>
-struct required_static_ctes_of<
-    cte_as_t<Name, NewName, ColumnSpecs...>>
-    : public required_ctes_of<
-          cte_as_t<Name, NewName, ColumnSpecs...>> {};
+template <fixed_string Name, typename Statement, fixed_string Alias>
+struct required_static_ctes_of<cte_as_t<Name, Statement, Alias>>
+    : public required_ctes_of<cte_as_t<Name, Statement, Alias>> {};
 
+#if 0
 template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_cte_union_args =
     (is_statement<Lhs>::value and is_statement<Rhs>::value and
@@ -208,7 +203,7 @@ inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
 
 template <fixed_string Name, typename Statement>
 struct cte_t
-    : public cte_generator<Name, Statement, get_result_row_t<Statement>>,
+    : public cte_generator<Name, Statement, get_result_row_t<Statement>>::columns,
       public enable_join {
         /*
   using _column_tuple_t =
@@ -226,13 +221,13 @@ struct cte_t
   cte_t& operator=(cte_t&&) = default;
   ~cte_t() = default;
 
-#if 0
-  template <fixed_string NewName>
-  constexpr auto as(const NewName& /*unused*/) const
-      -> cte_as_t<Name, NewName, FieldSpecs...> {
+  template <fixed_string Alias>
+  constexpr auto as() const
+      -> cte_as_t<Name, Statement, Alias> {
     return {};
   }
 
+#if 0
   template <typename Rhs>
     requires(are_valid_cte_union_args<Statement, Rhs>)
   auto union_distinct(Rhs rhs) const
