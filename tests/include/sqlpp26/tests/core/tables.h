@@ -27,7 +27,7 @@ void createTabFoo(Db& db) {
 }
 
 struct TabFoo_ {
-  using generator = ::sqlpp::make_table<TabFoo_, "tab_foo",
+  using generator = ::sqlpp::table_generator<TabFoo_, "tab_foo",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"textNnD", ::std::string_view>::with_default::with_sql_name<"text_nn_d">,
     ::sqlpp::column_spec<"intN", std::optional<::std::int64_t>>::with_default::with_sql_name<"int_n">,
@@ -52,7 +52,7 @@ void createTabBar(Db& db) {
 }
 
 struct TabBar_ {
-  using generator = ::sqlpp::make_table<TabBar_, "tab_bar",
+  using generator = ::sqlpp::table_generator<TabBar_, "tab_bar",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"textN", std::optional<::std::string_view>>::with_default::with_sql_name<"text_n">,
     ::sqlpp::column_spec<"boolNn", bool>::with_sql_name<"bool_nn">,
@@ -73,7 +73,7 @@ void createTabDateTime(Db& db) {
 }
 
 struct TabDateTime_ {
-  using generator = ::sqlpp::make_table<TabDateTime_, "tab_date_time",
+  using generator = ::sqlpp::table_generator<TabDateTime_, "tab_date_time",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"dateN", std::optional<::std::chrono::sys_days>>::with_default::with_sql_name<"date_n">,
     ::sqlpp::column_spec<"timestampN", std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>>::with_default::with_sql_name<"timestamp_n">,

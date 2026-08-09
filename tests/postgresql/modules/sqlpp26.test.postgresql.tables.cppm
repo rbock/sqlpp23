@@ -27,7 +27,7 @@ void createTabFoo(Db& db) {
 }
 
 struct TabFoo_ {
-  using generator = ::sqlpp::make_table<TabFoo_, "tab_foo",
+  using generator = ::sqlpp::table_generator<TabFoo_, "tab_foo",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"textNnD", ::std::string_view>::with_default::with_sql_name<"text_nn_d">,
     ::sqlpp::column_spec<"intN", std::optional<::std::int64_t>>::with_default::with_sql_name<"int_n">,
@@ -51,7 +51,7 @@ void createTabBar(Db& db) {
 }
 
 struct TabBar_ {
-  using generator = ::sqlpp::make_table<TabBar_, "tab_bar",
+  using generator = ::sqlpp::table_generator<TabBar_, "tab_bar",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"textN", std::optional<::std::string_view>>::with_default::with_sql_name<"text_n">,
     ::sqlpp::column_spec<"boolNn", bool>::with_default::with_sql_name<"bool_nn">,
@@ -73,7 +73,7 @@ void createTabDateTime(Db& db) {
 }
 
 struct TabDateTime_ {
-  using generator = ::sqlpp::make_table<TabDateTime_, "tab_date_time",
+  using generator = ::sqlpp::table_generator<TabDateTime_, "tab_date_time",
     ::sqlpp::column_spec<"dateN", std::optional<::std::chrono::sys_days>>::with_default::with_sql_name<"date_n">,
     ::sqlpp::column_spec<"timestampN", std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>>::with_default::with_sql_name<"timestamp_n">,
     ::sqlpp::column_spec<"timeN", std::optional<::std::chrono::microseconds>>::with_default::with_sql_name<"time_n">,
@@ -92,7 +92,7 @@ void createBlobSample(Db& db) {
 }
 
 struct BlobSample_ {
-  using generator = ::sqlpp::make_table<BlobSample_, "blob_sample",
+  using generator = ::sqlpp::table_generator<BlobSample_, "blob_sample",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"data", std::optional<::std::span<const uint8_t>>>::with_default>;
 };
@@ -108,7 +108,7 @@ void createTabExcept(Db& db) {
 }
 
 struct TabExcept_ {
-  using generator = ::sqlpp::make_table<TabExcept_, "tab_except",
+  using generator = ::sqlpp::table_generator<TabExcept_, "tab_except",
     ::sqlpp::column_spec<"intSmallNU", std::optional<::std::int64_t>>::with_default::with_sql_name<"int_small_n_u">,
     ::sqlpp::column_spec<"textShortN", std::optional<::std::string_view>>::with_default::with_sql_name<"text_short_n">>;
 };
@@ -125,7 +125,7 @@ void createTabDepartment(Db& db) {
 }
 
 struct TabDepartment_ {
-  using generator = ::sqlpp::make_table<TabDepartment_, "tab_department",
+  using generator = ::sqlpp::table_generator<TabDepartment_, "tab_department",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"name", std::optional<::std::string_view>>::with_default,
     ::sqlpp::column_spec<"division", ::std::string_view>::with_default>;

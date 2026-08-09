@@ -67,7 +67,7 @@ struct table_spec_of<table<TableSpec>>
 
 // Table generator
 template <typename TableSpec, fixed_string Name, typename... ColumnSpecs>
-struct make_table {
+struct table_generator {
   struct columns;
   consteval {
     std::vector<std::meta::info> column_data_members;

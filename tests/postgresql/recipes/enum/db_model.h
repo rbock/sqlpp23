@@ -22,7 +22,7 @@ void createTabEnums(Db& db) {
 }
 
 struct TabEnums_ {
-  using generator = ::sqlpp::make_table<TabEnums_, "tab_enums",
+  using generator = ::sqlpp::table_generator<TabEnums_, "tab_enums",
     ::sqlpp::column_spec<"animal", std::optional<animal>>::with_default,
     ::sqlpp::column_spec<"cage", std::optional<shape>>::with_default>;
 };

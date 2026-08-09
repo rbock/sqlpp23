@@ -261,13 +261,13 @@ template <typename... Clauses>
 struct has_result_row<statement_t<Clauses...>>
     : public has_result_row<result_type_provider_t<Clauses...>> {};
 
-/*
 template <typename... Clauses>
 struct get_result_row<statement_t<Clauses...>> {
   using type = result_row_of_t<statement_t<Clauses...>,
                                result_type_provider_t<Clauses...>>;
 };
 
+/*
 template <typename... Clauses>
 struct is_result_clause<statement_t<Clauses...>> {
   static constexpr bool value = not std::is_same<

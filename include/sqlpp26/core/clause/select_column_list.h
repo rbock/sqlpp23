@@ -149,17 +149,13 @@ struct result_row_of<
 template <typename... Columns>
 struct select_result_methods_t {
   template <fixed_string Name, typename Statement>
-  auto as(this Statement&& self)
-      -> select_as<std::decay_t<Statement>,
-                     Name,
-                     column_spec<fixed_string<name_of_v<Columns>.size()>(name_of_v<Columns>), data_type_of_t<Columns>>...> {
+  auto as(this Statement&& self) -> select_as<std::decay_t<Statement>, Name> {
     // This ensures that the sub select is free of table/CTE dependencies and
     // consistent.
     check_prepare_consistency(self);
 
     using table =
-        select_as<std::decay_t<Statement>, Name,
-                    column_spec<fixed_string<name_of_v<Columns>.size()>(name_of_v<Columns>), data_type_of_t<Columns>>...>;
+        select_as<std::decay_t<Statement>, Name>;
     return table(std::forward<Statement>(self));
   }
 

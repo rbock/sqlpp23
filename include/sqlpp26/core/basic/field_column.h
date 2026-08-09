@@ -1,0 +1,138 @@
+#pragma once
+
+/*
+ * Copyright (c) 2026, Roland Bock
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include <sqlpp26/core/basic/column_fwd.h>
+#include <sqlpp26/core/basic/column_spec.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/operator/assign_expression.h>
+/* TODO
+#include <sqlpp26/core/default_value.h>
+#include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/operator/as_expression.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/operator/enable_comparison.h>
+#include <sqlpp26/core/type_traits.h>
+#include <sqlpp26/core/wrong.h>
+#include <type_traits>
+#include "sqlpp11/core/detail/type_set.h"
+*/
+
+namespace sqlpp {
+template <typename Table, typename ColumnSpec>
+struct field_column // : public enable_as, public enable_comparison
+{
+};
+
+template <typename Table, typename ColumnSpec>
+struct data_type_of<field_column<Table, ColumnSpec>> {
+  // TODO This should work without the nesting!
+  using type = data_type_of_t<typename ColumnSpec::data_type>;
+};
+
+template <typename Table, typename ColumnSpec>
+struct has_name<field_column<Table, ColumnSpec>> {
+  static constexpr bool value = true;
+};
+
+template <typename Table, typename ColumnSpec>
+struct name_of<field_column<Table, ColumnSpec>> {
+  static constexpr fixed_string value = ColumnSpec::name;
+};
+
+template <typename Table, typename ColumnSpec>
+struct required_tables_of<field_column<Table, ColumnSpec>> {
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set<Table>();
+  }
+};
+
+template <typename Table, typename ColumnSpec>
+struct required_static_tables_of<field_column<Table, ColumnSpec>>
+    : public required_tables_of<field_column<Table, ColumnSpec>> {};
+
+template <typename _Table, typename ColumnSpec>
+struct is_column<field_column<_Table, ColumnSpec>> : public std::true_type {};
+
+template <typename Context, typename Table, typename ColumnSpec>
+auto to_sql_string(Context& context, const field_column<Table, ColumnSpec>&)
+    -> std::string {
+  using T = field_column<Table, ColumnSpec>;
+
+  return name_to_sql_string(context, name_of_v<Table>) + "." +
+         name_to_sql_string(context, name_of_v<T>);
+}
+/*
+// _Table can be a table_t or a cte_ref_t or a select_ref_t
+template <typename Table, typename ColumnSpec>
+struct column_t : public enable_as, public enable_comparison {
+
+  column_t() = default;
+  column_t(const column_t&) = default;
+  column_t(column_t&&) = default;
+  column_t& operator=(const column_t&) = default;
+  column_t& operator=(column_t&&) = default;
+  ~column_t() = default;
+
+  static auto table() -> _table { return _table{}; }
+
+  template <typename T>
+    requires(are_correct_assignment_args<column_t, T>)
+  auto operator=(T value) const -> assign_expression<column_t, op_assign, T> {
+    return assign(*this, std::move(value));
+  }
+};
+
+template <typename _Table, typename ColumnSpec>
+struct is_aggregate_neutral<column_t<_Table, ColumnSpec>>
+    : public std::false_type {};
+
+template <typename _Table, typename ColumnSpec>
+struct has_default<column_t<_Table, ColumnSpec>>
+    : public ColumnSpec::has_default {};
+
+template <typename _Table, typename ColumnSpec>
+struct name_tag_of<column_t<_Table, ColumnSpec>>
+    : public name_tag_of<ColumnSpec> {};
+
+template <typename _Table, typename ColumnSpec>
+struct table_of<column_t<_Table, ColumnSpec>> {
+  using type = _Table;
+};
+
+template <typename _Table, typename ColumnSpec>
+struct data_type_of<column_t<_Table, ColumnSpec>> {
+  using type = std::remove_const_t<typename ColumnSpec::data_type>;
+};
+
+template <typename _Table, typename ColumnSpec>
+struct is_const<column_t<_Table, ColumnSpec>>
+    : public std::is_const<typename ColumnSpec::data_type> {};
+
+*/
+}  // namespace sqlpp

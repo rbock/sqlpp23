@@ -29,6 +29,7 @@
 
 #include <sqlpp26/core/basic/enable_join.h>
 #include <sqlpp26/core/basic/table_ref.h>
+#include <sqlpp26/core/basic/field_column.h>
 #include <sqlpp26/core/clause/select_flags.h>
 #include <sqlpp26/core/logic.h>
 #include <sqlpp26/core/query/result_row.h>
@@ -78,7 +79,7 @@ struct nodes_of<cte_union_t<Flag, Lhs, Rhs>> {
 };
 #endif
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
+template <fixed_string Name, typename Statement>
 struct cte_t;
 
 template <fixed_string Name>
@@ -111,20 +112,25 @@ auto make_table_ref(
   return {std::nullopt};
 }
 
-// make_cte translates the `Statement` into field_specs...
-// The field_specs are required to add column data members to the CTE.
-template <fixed_string Name, typename Statement, typename ResultRow>
-struct make_cte;
+template <fixed_string Name, typename Select, typename ResultRow>
+struct cte_generator;
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
-struct make_cte<Name, Statement, result_row_t<FieldSpecs...>> {
-  using type = cte_t<Name, Statement, FieldSpecs...>;
+template <fixed_string Name, typename Select, typename... FieldSpecs>
+struct cte_generator<Name, Select, result_row_t<FieldSpecs...>>{
+  struct columns;
+  consteval {
+    std::vector<std::meta::info> column_data_members;
+    std::array field_specs = {^^FieldSpecs...};
+    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(FieldSpecs))) {
+      using FieldSpec = FieldSpecs...[index];
+      column_data_members.push_back(std::meta::data_member_spec(
+          substitute(^^sqlpp::field_column, {^^cte_ref_t<Name>, field_specs[index]}),
+          {.name = FieldSpec::name}));
+    }
+    define_aggregate(^^columns, column_data_members);
+  }
 };
 
-template <fixed_string Name, typename Statement>
-using make_cte_t = typename make_cte<Name,
-                                     Statement,
-                                     get_result_row_t<Statement>>::type;
 #if 0
 
 // cte_member is a helper to add column data members to `cte_t`.
@@ -198,23 +204,29 @@ inline constexpr bool are_valid_cte_union_args =
 template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
     are_valid_cte_union_args<Lhs, Rhs>;
+#endif
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
+template <fixed_string Name, typename Statement>
 struct cte_t
-    : public cte_member<Name, FieldSpecs>::type...,
+    : public cte_generator<Name, Statement, get_result_row_t<Statement>>,
       public enable_join {
+        /*
   using _column_tuple_t =
       std::tuple<column_t<cte_ref_t<Name>, FieldSpecs>...>;
+      */
 
+        /*
   using _result_row_t = result_row_t<FieldSpecs...>;
+  */
 
-  cte_t(Statement statement) : _expression(std::move(statement)) {}
+  constexpr cte_t(Statement statement) : _expression(std::move(statement)) {}
   cte_t(const cte_t&) = default;
   cte_t(cte_t&&) = default;
   cte_t& operator=(const cte_t&) = default;
   cte_t& operator=(cte_t&&) = default;
   ~cte_t() = default;
 
+#if 0
   template <fixed_string NewName>
   constexpr auto as(const NewName& /*unused*/) const
       -> cte_as_t<Name, NewName, FieldSpecs...> {
@@ -237,6 +249,7 @@ struct cte_t
                                          FieldSpecs...> {
     return cte_union_t<all_t, Statement, Rhs>{_expression, rhs};
   }
+#endif
 
  private:
   friend reader_t;
@@ -250,7 +263,7 @@ template <typename Context,
 auto to_sql_string(Context& context,
                    const cte_t<Name, Statement, ColumnSpecs...>& t)
     -> std::string {
-  return name_to_sql_string(context, name_of_v<Name>) +
+  return name_to_sql_string(context, Name) +
          " AS (" + to_sql_string(context, read.expression(t)) + ")";
 }
 
@@ -262,9 +275,9 @@ struct is_cte<cte_t<Name, Statement, ColumnSpecs...>>
 
 template <fixed_string Name, typename Statement, typename... ColumnSpecs>
 struct is_recursive_cte<cte_t<Name, Statement, ColumnSpecs...>>
-    : public std::true_type {
-  constexpr static bool value = required_ctes_of_t<
-      Statement>::template contains<cte_ref_t<Name>>();
+    {
+  constexpr static bool value = required_ctes_of<
+      Statement>::func().contains(^^cte_ref_t<Name>);
 };
 
 template <fixed_string Name, typename Statement, typename... ColumnSpecs>
@@ -272,9 +285,11 @@ struct is_table<cte_t<Name, Statement, ColumnSpecs...>>
     : public std::true_type {};
 
 template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct name_tag_of<cte_t<Name, Statement, ColumnSpecs...>>
-    : public name_tag_of<Name> {};
+struct name_of<cte_t<Name, Statement, ColumnSpecs...>> {
+  static constexpr fixed_string value = Name;
+};
 
+#if 0
 template <fixed_string Name, typename Statement, typename... ColumnSpecs>
 struct nodes_of<cte_t<Name, Statement, ColumnSpecs...>> {
   using type = detail::type_vector<Statement>;
@@ -297,7 +312,7 @@ struct cte_ref_t {
              not required_ctes_of<Statement>::func().contains(
                  ^^cte_ref_t<Name>) and
              statement_consistency_check_t<Statement>::value)
-  auto as(Statement statement) const -> make_cte_t<Name, Statement> {
+  auto as(Statement statement) const -> cte_t<Name, Statement> {
     return {std::move(statement)};
   }
 };

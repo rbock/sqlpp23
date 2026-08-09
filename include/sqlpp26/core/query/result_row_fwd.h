@@ -29,5 +29,6 @@
 
 namespace sqlpp {
 template <typename... FieldSpecs>
+  // TODO: Rename to result_row
 struct result_row_t;
 }  // namespace sqlpp

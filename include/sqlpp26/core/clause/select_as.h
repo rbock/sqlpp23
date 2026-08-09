@@ -28,8 +28,10 @@
  */
 
 #include <sqlpp26/core/basic/enable_join.h>
+#include <sqlpp26/core/basic/field_column.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/reader.h>
+#include <sqlpp26/core/query/result_row_fwd.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
@@ -41,28 +43,28 @@ struct name_of<select_ref_t<Name>> {
   static constexpr std::string_view value = Name;
 };
 
-template <fixed_string Name, typename... ColumnSpecs>
-struct make_select_as {
+template <typename Select, fixed_string Name, typename ResultRow>
+struct select_as_generator;
+
+template <typename Select, fixed_string Name, typename... FieldSpecs>
+struct select_as_generator<Select, Name, result_row_t<FieldSpecs...>>{
   struct columns;
   consteval {
     std::vector<std::meta::info> column_data_members;
-    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(ColumnSpecs))) {
+    std::array field_specs = {^^FieldSpecs...};
+    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(FieldSpecs))) {
+      using FieldSpec = FieldSpecs...[index];
       column_data_members.push_back(std::meta::data_member_spec(
-          substitute(^^sqlpp::column, {^^select_ref_t<Name>, ^^index}),
-          {.name = ColumnSpecs...[index]::name}));
+          substitute(^^sqlpp::field_column, {^^select_ref_t<Name>, field_specs[index]}),
+          {.name = FieldSpec::name}));
     }
     define_aggregate(^^columns, column_data_members);
   }
-
-  template<size_t Idx>
-  using column_spec = ColumnSpecs...[Idx];
-
-  static constexpr fixed_string name = Name;
 };
 
-template <typename Select, fixed_string Name, typename... FieldSpecs>
+template <typename Select, fixed_string Name>
 struct select_as
-    : public make_select_as<Name, FieldSpecs...>::columns,
+    : public select_as_generator<Select, Name, get_result_row_t<Select>>::columns,
       public enable_join {
   constexpr select_as(Select select) : _expression(std::move(select)) {}
 
@@ -82,7 +84,7 @@ template <typename Context,
           fixed_string Name,
           typename... FieldSpecs>
 auto to_sql_string(Context& context,
-                   const select_as<Select, Name, FieldSpecs...>& t)
+                   const select_as<Select, Name>& t)
     -> std::string {
   return operand_to_sql_string(context, read.expression(t)) + " AS " +
          name_to_sql_string(context, Name);
@@ -92,25 +94,25 @@ auto to_sql_string(Context& context,
 // Rationale: select.as() requires prepare_check to be used as tbale, whereas
 // using as value just requires consistency.
 
-template <typename Select, fixed_string Name, typename... FieldSpecs>
-struct name_of<select_as<Select, Name, FieldSpecs...>> {
+template <typename Select, fixed_string Name>
+struct name_of<select_as<Select, Name>> {
   static constexpr std::string_view value = Name;
 };
 
 // We need to track nodes to find parameters or required tables in sub selects.
-template <typename Select, fixed_string Name, typename... FieldSpecs>
-struct nodes_of<select_as<Select, Name, FieldSpecs...>> {
+template <typename Select, fixed_string Name>
+struct nodes_of<select_as<Select, Name>> {
   using type = detail::type_vector<Select>;
 };
 
 // TODO Why isn't this simply true? We constructed a select_as. We could not do that unless it could be used as table...
-template <typename Select, fixed_string Name, typename... FieldSpecs>
-struct is_table<select_as<Select, Name, FieldSpecs...>>
+template <typename Select, fixed_string Name>
+struct is_table<select_as<Select, Name>>
     : public can_be_used_as_table<Select> {};
 
 #if 0
-template <typename Select, fixed_string Name, typename... FieldSpecs>
-struct provided_tables_of<select_as<Select, Name, FieldSpecs...>>
+template <typename Select, fixed_string Name>
+struct provided_tables_of<select_as<Select, Name>>
     : public std::conditional<can_be_used_as_table<Select>::value,
                               sqlpp::detail::type_set<select_ref_t<Name>>,
                               sqlpp::detail::type_set<>> {};

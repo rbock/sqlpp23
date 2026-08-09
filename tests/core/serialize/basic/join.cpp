@@ -137,7 +137,6 @@ int main(int, char*[]) {
   auto ctx = sqlpp::mock_db::context_t{};
   const auto s_string = to_sql_string(ctx, s);
 
-
   SQLPP_COMPARE(foo.cross_join(s), "tab_foo CROSS JOIN " + s_string);
   SQLPP_COMPARE(foo.cross_join(dynamic(true, s)),
                 "tab_foo CROSS JOIN " + s_string);
@@ -146,7 +145,8 @@ int main(int, char*[]) {
                 s_string + " CROSS JOIN tab_foo");
 
   // Joining sub ctes
-  const auto c_ref = sqlpp::cte<"something">();
+  auto c_ref = sqlpp::cte<"something">();
+
   /*
   const auto c = c_ref.as(select(all_of(foo)).from(foo));
   const auto c_string = to_sql_string(ctx, c_ref);
