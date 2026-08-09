@@ -205,7 +205,6 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
 
 
 
-/*
 template <typename... Clauses>
 struct can_be_used_as_table<statement_t<Clauses...>> {
   // A select can be used as a pseudo table if
@@ -213,11 +212,12 @@ struct can_be_used_as_table<statement_t<Clauses...>> {
   //   - the select is complete (leaks no table requirements or cte
   //   requirements)
   using _S = statement_t<Clauses...>;
-  static constexpr bool value = has_result_row<_S>::value and
+  static constexpr bool value = has_result_row<_S>::value /* TODO and
                                 _S::_unknown_required_tables_of::empty() and
-                                _S::_unknown_required_ctes_of::empty();
+                                _S::_unknown_required_ctes_of::empty()*/;
 };
 
+/*
 template <typename... Clauses>
 struct no_of_result_columns<statement_t<Clauses...>>
     : public no_of_result_columns<result_type_provider_t<Clauses...>> {};
@@ -255,11 +255,13 @@ struct contains_for_update<statement_t<Clauses...>>
 {
   static constexpr bool value = (false or ... or contains_for_update_v<Clauses>);
 };
+*/
 
 template <typename... Clauses>
 struct has_result_row<statement_t<Clauses...>>
     : public has_result_row<result_type_provider_t<Clauses...>> {};
 
+/*
 template <typename... Clauses>
 struct get_result_row<statement_t<Clauses...>> {
   using type = result_row_of_t<statement_t<Clauses...>,

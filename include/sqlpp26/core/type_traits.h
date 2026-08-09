@@ -33,6 +33,7 @@
 #include <sqlpp26/core/type_traits/data_type.h>
 #include <sqlpp26/core/type_traits/nodes_of.h>
 #include <sqlpp26/core/type_traits/optional.h>
+#include <sqlpp26/core/type_traits/ctes_of.h>
 #include <sqlpp26/core/type_traits/tables_of.h>
 #include <sqlpp26/core/operator/as_expression_fwd.h> // TODO: That is too much, remove_as_t is enough here, I think
 #include <sqlpp26/core/type_traits/aggregates.h>
@@ -79,7 +80,6 @@ static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/name/name_tag.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
-#include <sqlpp26/core/type_traits/ctes_of.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
 
 namespace sqlpp {
@@ -382,7 +382,6 @@ inline constexpr bool is_prepared_statement_v =  is_prepared_statement<T>::value
 template <typename T>
 struct has_result_row : public std::false_type {};
 
-#if 0
 template <typename T>
 struct get_result_row {
   using type = void;
@@ -391,7 +390,6 @@ struct get_result_row {
 template <typename T>
 using get_result_row_t = typename get_result_row<T>::type;
 
-#endif
 template <typename T>
 struct requires_parentheses : public std::false_type {};
 

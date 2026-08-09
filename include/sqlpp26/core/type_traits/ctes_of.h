@@ -38,16 +38,17 @@ namespace sqlpp {
 // specialize this template to indicate their cte requirement.
 template <typename T>
 struct required_ctes_of {
-  using type = typename required_ctes_of<nodes_of_t<T>>::type;
+  static consteval auto func() -> detail::type_info_set {
+    return required_ctes_of<nodes_of_t<T>>::func();
+  }
 };
 
 template <typename... T>
 struct required_ctes_of<detail::type_vector<T...>> {
-  using type = detail::make_joined_set_t<typename required_ctes_of<T>::type...>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_joined_type_info_set(required_ctes_of<T>::func()...);
+  }
 };
-
-template <typename T>
-using required_ctes_of_t = typename required_ctes_of<T>::type;
 
 // `required_static_ctes_of` recursively determines the type_set of ctes
 // statically referenced within `T`. `cte_ref_t` and other structs that might
@@ -57,22 +58,23 @@ using required_ctes_of_t = typename required_ctes_of<T>::type;
 // Dynamic query parts are ignored.
 template <typename T>
 struct required_static_ctes_of {
-  using type = typename required_static_ctes_of<nodes_of_t<T>>::type;
+  static consteval auto func() -> detail::type_info_set {
+    return required_static_ctes_of<nodes_of_t<T>>::func();
+  }
 };
 
 template <typename T>
 struct required_static_ctes_of<dynamic_t<T>> {
-  using type = detail::type_set<>;
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 template <typename... T>
 struct required_static_ctes_of<detail::type_vector<T...>> {
-  using type =
-      detail::make_joined_set_t<typename required_static_ctes_of<T>::type...>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        required_static_ctes_of<T>::func()...);
+  }
 };
-
-template <typename T>
-using required_static_ctes_of_t = typename required_static_ctes_of<T>::type;
 
 // `provided_ctes_of` determines the type_set of ctes provided by a clause, e.g.
 // by WITH. `cte_t` or other structs that might provide a cte in a query need to
@@ -83,14 +85,11 @@ using required_static_ctes_of_t = typename required_static_ctes_of<T>::type;
 template <typename T>
 struct provided_ctes_of {
   // This needs to the specialized by `cte_ref_t`.
-  using type = detail::type_set<>;
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
 
 template <typename T>
 struct provided_ctes_of<dynamic_t<T>> : public provided_ctes_of<T> {};
-
-template <typename T>
-using provided_ctes_of_t = typename provided_ctes_of<T>::type;
 
 // `provided_static_ctes_of` determines the type_vector of non-dynamic ctes
 // provided by a clause, e.g. by WITH.
@@ -99,10 +98,7 @@ struct provided_static_ctes_of : public provided_ctes_of<T> {};
 
 template <typename T>
 struct provided_static_ctes_of<dynamic_t<T>> {
-  using type = detail::type_set<>;
+  static consteval auto func() -> detail::type_info_set { return {}; }
 };
-
-template <typename T>
-using provided_static_ctes_of_t = typename provided_static_ctes_of<T>::type;
 
 }  // namespace sqlpp

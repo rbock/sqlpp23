@@ -97,18 +97,18 @@ struct name_of<select_as<Select, Name, FieldSpecs...>> {
   static constexpr std::string_view value = Name;
 };
 
-// TODO
-#if 0
 // We need to track nodes to find parameters or required tables in sub selects.
 template <typename Select, fixed_string Name, typename... FieldSpecs>
 struct nodes_of<select_as<Select, Name, FieldSpecs...>> {
   using type = detail::type_vector<Select>;
 };
 
+// TODO Why isn't this simply true? We constructed a select_as. We could not do that unless it could be used as table...
 template <typename Select, fixed_string Name, typename... FieldSpecs>
 struct is_table<select_as<Select, Name, FieldSpecs...>>
-    : std::integral_constant<bool, can_be_used_as_table<Select>::value> {};
+    : public can_be_used_as_table<Select> {};
 
+#if 0
 template <typename Select, fixed_string Name, typename... FieldSpecs>
 struct provided_tables_of<select_as<Select, Name, FieldSpecs...>>
     : public std::conditional<can_be_used_as_table<Select>::value,
