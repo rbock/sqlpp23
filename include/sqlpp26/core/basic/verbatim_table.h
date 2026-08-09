@@ -52,7 +52,7 @@ struct is_table<verbatim_table_as_t<Name>> : std::true_type {};
 
 template <fixed_string Name>
 struct name_of<verbatim_table_as_t<Name>> {
-  static constexpr std::string_view value = Name.data;
+  static constexpr fixed_string value = Name.data;
 };
 
 template <fixed_string Name>
@@ -65,7 +65,7 @@ struct provided_tables_of<verbatim_table_as_t<Name>> {
 template <typename Context, fixed_string Name>
 auto to_sql_string(Context& context, const verbatim_table_as_t<Name>& t)
     -> std::string {
-  return t._representation + " AS " + name_to_sql_string(context, name_of_v<verbatim_table_as_t<Name>>);
+  return t._representation + " AS " + name_to_sql_string(context, Name);
 }
 
 struct verbatim_table_t : public enable_join {

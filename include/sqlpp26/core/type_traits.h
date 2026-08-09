@@ -49,7 +49,7 @@ using table_spec_of_t = typename table_spec_of<Table>::type;
 
 template<typename T> struct name_of
 {
-  static constexpr std::string_view value = "";
+  static constexpr fixed_string value = "";
 };
 template<typename T> inline constexpr auto name_of_v = name_of<T>::value;
 

@@ -40,7 +40,7 @@ struct select_ref_t {};
 
 template <fixed_string Name>
 struct name_of<select_ref_t<Name>> {
-  static constexpr std::string_view value = Name;
+  static constexpr fixed_string value = Name;
 };
 
 template <typename Select, fixed_string Name, typename ResultRow>
@@ -96,7 +96,7 @@ auto to_sql_string(Context& context,
 
 template <typename Select, fixed_string Name>
 struct name_of<select_as<Select, Name>> {
-  static constexpr std::string_view value = Name;
+  static constexpr fixed_string value = Name;
 };
 
 // We need to track nodes to find parameters or required tables in sub selects.

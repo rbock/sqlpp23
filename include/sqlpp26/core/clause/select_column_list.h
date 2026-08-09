@@ -143,7 +143,7 @@ struct result_row_of<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
       //TODO: Maybe re-introduce field_spec = column_spec without default and SQL name
-  using type = result_row_t<column_spec<fixed_string<name_of_v<Columns>.size()>(name_of_v<Columns>), data_type_of_t<Columns>>...>;
+  using type = result_row_t<column_spec<name_of_v<Columns>, data_type_of_t<Columns>>...>;
 };
 
 template <typename... Columns>

@@ -77,7 +77,7 @@ struct has_name<column<Table, index>> {
 
 template <typename Table, size_t index>
 struct name_of<column<Table, index>> {
-  static constexpr std::string_view value = column_spec_of_t<column<Table, index>>::name;
+  static constexpr fixed_string value = column_spec_of_t<column<Table, index>>::name;
 };
 
 template <typename Table, size_t index>

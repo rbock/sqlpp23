@@ -43,7 +43,7 @@ struct is_table<table_as<TableSpec, Alias>> : public std::true_type {};
 
 template <typename TableSpec, fixed_string Alias>
 struct name_of<table_as<TableSpec, Alias>> {
-  static constexpr std::string_view value = Alias.data;
+  static constexpr fixed_string value = Alias.data;
 };
 
 template <typename TableSpec, fixed_string Alias>
@@ -57,6 +57,6 @@ template <typename Context, typename TableSpec, fixed_string Alias>
 auto to_sql_string(Context& context, const table_as<TableSpec, Alias>&)
     -> std::string {
   return name_to_sql_string(context, name_of_v<TableSpec>) + " AS " +
-         name_to_sql_string(context, name_of_v<table_as<TableSpec, Alias>>);
+         name_to_sql_string(context, Alias);
 }
 }  // namespace sqlpp

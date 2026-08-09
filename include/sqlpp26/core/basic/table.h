@@ -114,7 +114,7 @@ struct provided_tables_of<table<TableSpec>> {
 
 template <typename TableSpec>
 struct name_of<table<TableSpec>> {
-  static constexpr std::string_view value = TableSpec::generator::name.data;
+  static constexpr fixed_string value = TableSpec::generator::name.data;
 };
 
 template <typename Context, typename TableSpec>

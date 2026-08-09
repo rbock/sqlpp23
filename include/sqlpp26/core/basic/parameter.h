@@ -70,7 +70,7 @@ template <typename NamedExpr>
   requires(has_data_type_v<NamedExpr> and has_name_v<NamedExpr>)
 auto parameter(const NamedExpr& /*unused*/) -> parameter_t<
     data_type_of_t<NamedExpr>,
-    fixed_string<name_of_v<NamedExpr>.size()>(name_of_v<NamedExpr>)> {
+    name_of_v<NamedExpr>> {
   return {};
 }
 

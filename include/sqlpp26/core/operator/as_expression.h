@@ -53,7 +53,7 @@ struct as_expression {
 
 template <typename Expression, fixed_string Name>
 struct name_of<as_expression<Expression, Name>> {
-  static constexpr std::string_view value = Name.data;
+  static constexpr fixed_string value = Name.data;
 };
 
 // No data_type_of defined for as_expression to prevent its usage outside of

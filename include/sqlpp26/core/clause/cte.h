@@ -325,7 +325,7 @@ auto to_sql_string(Context& context, const cte_ref_t<Name>&)
 
 template <fixed_string Name>
 struct name_of<cte_ref_t<Name>> {
-  static constexpr std::string_view value = Name;
+  static constexpr fixed_string value = Name;
 };
 
 template <fixed_string Name>

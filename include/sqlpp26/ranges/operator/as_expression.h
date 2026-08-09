@@ -55,7 +55,7 @@ struct is_aggregate_function<as_expression<Expression, Name>> : public is_aggreg
 namespace sqlpp {
 template <typename Expression, fixed_string Name>
 struct name_of<ranges::as_expression<Expression, Name>> {
-  static constexpr std::string_view value = name_of_v<as_expression<Expression, Name>>;
+  static constexpr fixed_string value = Name;
 };
 
 template <typename Expression, fixed_string Name>

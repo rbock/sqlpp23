@@ -50,7 +50,7 @@ namespace sqlpp {
 
 template <typename TableSpec, std::size_t Idx>
 struct name_of<ranges::accessor<TableSpec, Idx>> {
-  static constexpr std::string_view value = name_of_v<column<table<TableSpec>, Idx>>;
+  static constexpr fixed_string value = name_of_v<column<table<TableSpec>, Idx>>;
 };
 
 template <typename TableSpec, size_t Idx>

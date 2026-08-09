@@ -40,8 +40,8 @@ using column_spec_of_t = typename column_spec_of<Column>::type;
 
 template <fixed_string Name, typename DataType, bool HasDefault = false, fixed_string SqlName = Name>
 struct column_spec {
-  static constexpr std::string_view name = Name.data;
-  static constexpr std::string_view sql_name = SqlName.data;
+  static constexpr fixed_string name = Name.data;
+  static constexpr fixed_string sql_name = SqlName.data;
   using data_type = DataType;
   static constexpr bool has_default = HasDefault;
 
