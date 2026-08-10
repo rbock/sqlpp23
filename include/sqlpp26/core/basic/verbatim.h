@@ -60,6 +60,7 @@ auto to_sql_string(Context&, const verbatim_t<DataType>& t) -> std::string {
 }
 
 template <typename DataType, typename StringType>
+  requires(is_data_type_v<DataType>)
 auto verbatim(StringType s) -> verbatim_t<DataType> {
   return {s};
 }

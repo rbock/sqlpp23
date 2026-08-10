@@ -55,8 +55,8 @@ template <typename... Expressions>
 struct data_type_of<concat_t<Expressions...>> {
   using type = std::conditional_t<
       logic::any<is_optional<data_type_of_t<Expressions>>::value...>::value,
-      std::optional<sqlpp::text>,
-      sqlpp::text>;
+      std::optional<std::string_view>,
+      std::string_view>;
 };
 
 template <typename... Expressions>

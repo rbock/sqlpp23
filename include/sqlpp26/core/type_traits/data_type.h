@@ -84,6 +84,16 @@ template<>
 struct is_raw_boolean<bool>: public std::true_type {};
 
 template <typename T>
+requires(is_raw_boolean<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_boolean<T>::value)
+struct data_type_of<T> {
+  using type = T;
+};
+
+template <typename T>
 struct is_boolean
     : public is_raw_boolean<
           std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
@@ -111,12 +121,22 @@ template<>
 struct is_raw_integral<int64_t>: public std::true_type {};
 
 template <typename T>
+requires(is_raw_integral<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_integral<T>::value)
+struct data_type_of<T> {
+  using type = T;
+};
+
+template <typename T>
 struct is_integral
     : public is_raw_integral<
           std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
 
 template <typename T>
-inline constexpr bool is_integral_v = is_boolean<T>::value;
+inline constexpr bool is_integral_v = is_integral<T>::value;
 
 template <>
 struct is_integral<std::nullopt_t> : public std::true_type {};
@@ -138,12 +158,22 @@ template<>
 struct is_raw_unsigned_integral<uint64_t>: public std::true_type {};
 
 template <typename T>
+requires(is_raw_unsigned_integral<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_unsigned_integral<T>::value)
+struct data_type_of<T> {
+  using type = T;
+};
+
+template <typename T>
 struct is_unsigned_integral
     : public is_raw_unsigned_integral<
           std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
 
 template <typename T>
-inline constexpr bool is_unsigned_integral_v = is_boolean<T>::value;
+inline constexpr bool is_unsigned_integral_v = is_unsigned_integral<T>::value;
 
 template <>
 struct is_unsigned_integral<std::nullopt_t> : public std::true_type {};
@@ -162,12 +192,22 @@ template<>
 struct is_raw_floating_point<long double>: public std::true_type {};
 
 template <typename T>
+requires(is_raw_floating_point<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_floating_point<T>::value)
+struct data_type_of<T> {
+  using type = T;
+};
+
+template <typename T>
 struct is_floating_point
     : public is_raw_floating_point<
           std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
 
 template <typename T>
-inline constexpr bool is_floating_point_v = is_boolean<T>::value;
+inline constexpr bool is_floating_point_v = is_floating_point<T>::value;
 
 template <>
 struct is_floating_point<std::nullopt_t> : public std::true_type {};
@@ -189,36 +229,25 @@ template<>
 struct is_raw_text<std::string_view>: public std::true_type {};
 
 template <typename T>
+requires(is_raw_text<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_text<T>::value)
+struct data_type_of<T> {
+  using type = T;
+};
+
+template <typename T>
 struct is_text
     : public is_raw_text<
           std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
 
 template <typename T>
-inline constexpr bool is_text_v = is_boolean<T>::value;
+inline constexpr bool is_text_v = is_text<T>::value;
 
 template <>
 struct is_text<std::nullopt_t> : public std::true_type {};
-
-struct text {};
-template <>
-struct is_data_type<text> : std::true_type {};
-
-template <>
-struct data_type_of<char> {
-  using type = text;
-};
-template <>
-struct data_type_of<const char*> {
-  using type = text;
-};
-template <>
-struct data_type_of<std::string> {
-  using type = text;
-};
-template <>
-struct data_type_of<std::string_view> {
-  using type = text;
-};
 
 struct blob {};
 template <>

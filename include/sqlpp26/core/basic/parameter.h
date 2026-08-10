@@ -75,8 +75,8 @@ auto parameter(const NamedExpr& /*unused*/) -> parameter_t<
 }
 
 template <fixed_string Name, typename DataType>
-  requires((is_data_type_v<DataType> or has_data_type_v<DataType>))
-auto parameter(const DataType& /*unused*/)
+  requires(is_data_type_v<DataType>)
+auto parameter()
     -> parameter_t<DataType, Name> {
   return {};
 }

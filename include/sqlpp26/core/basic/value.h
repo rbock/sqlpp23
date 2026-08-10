@@ -64,10 +64,7 @@ auto to_sql_string(Context& context, const value_t<T>& t) -> std::string {
 }
 
 template <typename T>
-  requires(has_data_type_v<T> and
-           not has_enabled_as<remove_optional_t<T>>::value and
-           not has_name_tag_v<remove_optional_t<T>> and
-           not is_statement_v<remove_optional_t<T>>)
+  requires(is_data_type_v<T>)
 constexpr auto value(T t) -> value_t<T> {
   return {std::move(t)};
 }

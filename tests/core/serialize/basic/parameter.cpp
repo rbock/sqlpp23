@@ -33,7 +33,7 @@ int main(int, char*[]) {
   SQLPP_COMPARE(parameter(foo.doubleN), "?");
   SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > ?");
 
-  SQLPP_COMPARE(parameter<"something">(sqlpp::integral{}), "?");
+  SQLPP_COMPARE((sqlpp::parameter<"something", int64_t>()), "?");
 
   SQLPP_COMPARE(
       sqlpp::on_conflict(foo.id).do_update(
