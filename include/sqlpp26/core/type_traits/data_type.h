@@ -249,55 +249,126 @@ inline constexpr bool is_text_v = is_text<T>::value;
 template <>
 struct is_text<std::nullopt_t> : public std::true_type {};
 
-struct blob {};
-template <>
-struct is_data_type<blob> : std::true_type {};
+// blob
+template<typename T>
+struct is_raw_blob: public std::false_type {};
 
-template <std::size_t N>
-struct data_type_of<std::array<std::uint8_t, N>> {
-  using type = blob;
+template<size_t N>
+struct is_raw_blob<std::array<std::uint8_t, N>>: public std::true_type {};
+
+template<>
+struct is_raw_blob<std::vector<uint8_t>>: public std::true_type {};
+
+template<>
+struct is_raw_blob<std::span<uint8_t>>: public std::true_type {};
+
+template <typename T>
+requires(is_raw_blob<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_blob<T>::value)
+struct data_type_of<T> {
+  using type = T;
 };
+
+template <typename T>
+struct is_blob
+    : public is_raw_blob<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_blob_v = is_blob<T>::value;
+
 template <>
-struct data_type_of<std::vector<std::uint8_t>> {
-  using type = blob;
-};
-template <>
-struct data_type_of<std::span<std::uint8_t>> {
-  using type = blob;
-};
+struct is_blob<std::nullopt_t> : public std::true_type {};
 
 // date
-struct date {};
-template <>
-struct is_data_type<date> : std::true_type {};
+template<typename T>
+struct is_raw_date: public std::false_type {};
 
-template <>
-struct data_type_of<std::chrono::sys_days> {
-  using type = date;
+template<>
+struct is_raw_date<std::chrono::sys_days>: public std::true_type {};
+
+template <typename T>
+requires(is_raw_date<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_date<T>::value)
+struct data_type_of<T> {
+  using type = T;
 };
 
-// time of day
-struct time {};
-template <>
-struct is_data_type<time> : std::true_type {};
+template <typename T>
+struct is_date
+    : public is_raw_date<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
 
-template <typename Rep, typename Period>
-struct data_type_of<std::chrono::duration<Rep, Period>> {
-  using type = time;
+template <typename T>
+inline constexpr bool is_date_v = is_date<T>::value;
+
+template <>
+struct is_date<std::nullopt_t> : public std::true_type {};
+
+// time_of_day
+template<typename T>
+struct is_raw_time_of_day: public std::false_type {};
+
+template<typename Rep, typename Period>
+struct is_raw_time_of_day<std::chrono::duration<Rep, Period>>: public std::true_type {};
+
+template <typename T>
+requires(is_raw_time_of_day<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_time_of_day<T>::value)
+struct data_type_of<T> {
+  using type = T;
 };
 
-// timestamp aka date_time
-struct timestamp {};
+template <typename T>
+struct is_time_of_day
+    : public is_raw_time_of_day<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_time_of_day_v = is_time_of_day<T>::value;
+
 template <>
-struct is_data_type<timestamp> : std::true_type {};
+struct is_time_of_day<std::nullopt_t> : public std::true_type {};
+
+// timestamp
+template<typename T>
+struct is_raw_timestamp: public std::false_type {};
 
 template <typename Period>
-requires(Period{1} < std::chrono::days{1})
-struct data_type_of<
-    std::chrono::time_point<std::chrono::system_clock, Period>> {
-  using type = timestamp;
+  requires(Period{1} < std::chrono::days{1})
+struct is_raw_timestamp<
+    std::chrono::time_point<std::chrono::system_clock, Period>>
+    : public std::true_type {};
+
+template <typename T>
+requires(is_raw_timestamp<T>::value)
+struct is_data_type<T> : std::true_type {};
+
+template <typename T>
+  requires(is_raw_timestamp<T>::value)
+struct data_type_of<T> {
+  using type = T;
 };
 
+template <typename T>
+struct is_timestamp
+    : public is_raw_timestamp<
+          std::remove_const_t<remove_optional_t<data_type_of_t<T>>>> {};
+
+template <typename T>
+inline constexpr bool is_timestamp_v = is_timestamp<T>::value;
+
+template <>
+struct is_timestamp<std::nullopt_t> : public std::true_type {};
 
 // A generic numeric type which could be (unsigned) integral or floating point.
 struct numeric {};
@@ -314,38 +385,9 @@ template <>
 struct is_numeric<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
-struct is_blob
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, blob> {};
-
-template <>
-struct is_blob<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
-struct is_date
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, date> {};
-
-template <>
-struct is_date<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
-struct is_timestamp
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, timestamp> {};
-
-template <>
-struct is_timestamp<std::nullopt_t> : public std::true_type {};
-
-template <typename T>
 struct is_date_or_timestamp
     : public std::integral_constant<bool,
                                     is_date<T>::value or
                                         is_timestamp<T>::value> {};
-
-template <typename T>
-struct is_time
-    : public std::is_same<remove_optional_t<data_type_of_t<T>>, time> {
-};
-
-template <>
-struct is_time<std::nullopt_t> : public std::true_type {};
 
 }  // namespace sqlpp

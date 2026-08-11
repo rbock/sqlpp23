@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <chrono>
 #include <optional>
 #include <type_traits>
 
@@ -138,7 +139,7 @@ struct values_are_optionally_same
               (is_text<L>::value and is_text<R>::value) or
               (is_date<L>::value and is_date<R>::value) or
               (is_timestamp<L>::value and is_timestamp<R>::value) or
-              (is_time<L>::value and is_time<R>::value)> {};
+              (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
 template <typename L, typename R>
 struct values_are_comparable
@@ -159,9 +160,9 @@ struct values_are_assignable
               (is_text<L>::value and is_text<R>::value) or
               (is_date<L>::value and is_date<R>::value) or
               (is_timestamp<L>::value and is_timestamp<R>::value) or
-              (is_time<L>::value and is_time<R>::value)> {};
-#if 0
+              (is_time_of_day<L>::value and is_time_of_day<R>::value)> {};
 
+// TODO Move into type_traits/data_type
 template <typename T>
 struct result_data_type_of {};
 
@@ -173,52 +174,62 @@ struct result_data_type_of<std::optional<T>> {
 template <typename T>
 using result_data_type_of_t = typename result_data_type_of<T>::type;
 
-template <>
-struct result_data_type_of<blob> {
+template <typename T>
+  requires(is_blob_v<T>)
+struct result_data_type_of<T> {
   using type = std::span<const uint8_t>;
 };
 
-template <>
-struct result_data_type_of<boolean> {
+template <typename T>
+  requires(is_boolean_v<T>)
+struct result_data_type_of<T> {
   using type = bool;
 };
 
-template <>
-struct result_data_type_of<integral> {
+template <typename T>
+  requires(is_integral_v<T>)
+struct result_data_type_of<T> {
   using type = int64_t;
 };
 
-template <>
-struct result_data_type_of<unsigned_integral> {
+template <typename T>
+  requires(is_unsigned_integral_v<T>)
+struct result_data_type_of<T> {
   using type = uint64_t;
 };
 
-template <>
-struct result_data_type_of<floating_point> {
+template <typename T>
+  requires(is_floating_point_v<T>)
+struct result_data_type_of<T> {
   using type = double;
 };
 
-template <>
-struct result_data_type_of<text> {
+template <typename T>
+  requires(is_text_v<T>)
+struct result_data_type_of<T> {
   using type = std::string_view;
 };
 
-template <>
-struct result_data_type_of<date> {
-  using type =
-      std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
+template <typename T>
+  requires(is_date_v<T>)
+struct result_data_type_of<T> {
+  using type = std::chrono::sys_days;
 };
-template <>
-struct result_data_type_of<time> {
+
+template <typename T>
+  requires(is_time_of_day_v<T>)
+struct result_data_type_of<T> {
   using type = std::chrono::microseconds;
 };
 
-template <>
-struct result_data_type_of<timestamp> {
+template <typename T>
+  requires(is_timestamp_v<T>)
+struct result_data_type_of<T> {
   using type = std::chrono::time_point<std::chrono::system_clock,
                                        std::chrono::microseconds>;
 };
 
+#if 0
 template <typename T>
 struct parameter_value {};
 
