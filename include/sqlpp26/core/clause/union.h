@@ -45,7 +45,7 @@ namespace sqlpp {
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct union_t {
-  union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
+  constexpr union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
 
   union_t(const union_t&) = default;
   union_t(union_t&&) = default;
@@ -103,13 +103,13 @@ struct nodes_of<union_t<Flag, Lhs, Rhs>> {
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
-struct consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
+struct basic_consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
+  /* TODO
   using type = static_combined_check_t<
       statement_consistency_check_t<Lhs>,
       statement_consistency_check_t<remove_dynamic_t<Rhs>>>;
-  constexpr auto operator()() {
-    return type{};
-  }
+      */
+  static constexpr void verify() {}
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
@@ -148,7 +148,7 @@ struct no_union_t {
   template <typename Statement, typename Rhs>
     requires(
         are_valid_union_args<std::decay_t<Statement>, remove_dynamic_t<Rhs>>)
-  auto union_distinct(this Statement&& self, Rhs rhs) {
+  constexpr auto union_distinct(this Statement&& self, Rhs rhs) {
     using S = std::decay_t<Statement>;
 
     return statement_t<union_t<union_distinct_t, S, Rhs>, no_union_t,
@@ -161,7 +161,7 @@ struct no_union_t {
   template <typename Statement, typename Rhs>
     requires(
         are_valid_union_args<std::decay_t<Statement>, remove_dynamic_t<Rhs>>)
-  auto union_all(this Statement&& self, Rhs rhs) {
+  constexpr auto union_all(this Statement&& self, Rhs rhs) {
     using S = std::decay_t<Statement>;
 
     return statement_t<union_t<union_all_t, S, Rhs>, no_union_t,
@@ -179,22 +179,19 @@ auto to_sql_string(Context&, const no_union_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_union_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_union_t> {
+  static constexpr void verify() {}
 };
 
 template <typename Lhs, typename Rhs>
   requires(are_valid_union_args<Lhs, remove_dynamic_t<Rhs>>)
-auto union_all(Lhs lhs, Rhs rhs) {
+constexpr auto union_all(Lhs lhs, Rhs rhs) {
   return lhs.union_all(std::move(rhs));
 }
 
 template <typename Lhs, typename Rhs>
   requires(are_valid_union_args<Lhs, remove_dynamic_t<Rhs>>)
-auto union_distinct(Lhs lhs, Rhs rhs) {
+constexpr auto union_distinct(Lhs lhs, Rhs rhs) {
   return lhs.union_distinct(std::move(rhs));
 }
 

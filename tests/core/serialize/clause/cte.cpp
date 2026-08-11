@@ -31,14 +31,14 @@ int main(int, char*[]) {
   const auto bar = test::TabBar{};
 
   // No expression (not super useful).
-  SQLPP_COMPARE(sqlpp::cte(sqlpp::alias::x), "x");
+  SQLPP_COMPARE(sqlpp::cte<"x">(), "x");
 
   // Simple CTE: X AS SELECT
   {
     using S = decltype(select(foo.id).from(foo));
     static_assert(sqlpp::has_result_row<S>::value, "");
-    const auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
-    const auto a = x.as(sqlpp::alias::a);
+    const auto x = sqlpp::cte<"x">().as(select(foo.id).from(foo));
+    const auto a = x.as<"a">();
     SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo)");
     SQLPP_COMPARE(make_table_ref(x), "x");
     SQLPP_COMPARE(x.id, "x.id");
@@ -51,9 +51,9 @@ int main(int, char*[]) {
   // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
   {
     const auto x =
-        sqlpp::cte(sqlpp::alias::x)
+        sqlpp::cte<"x">()
             .as(select(foo.id).from(foo).union_all(select(bar.id).from(bar)));
-    const auto a = x.as(sqlpp::alias::a);
+    const auto a = x.as<"a">();
     SQLPP_COMPARE(x,
                   "x AS (SELECT tab_foo.id FROM tab_foo UNION ALL "
                   "SELECT tab_bar.id FROM tab_bar)");
@@ -68,11 +68,11 @@ int main(int, char*[]) {
   // Recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     const auto x_base =
-        sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
-    const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a))
+        sqlpp::cte<"x">().as(select(sqlpp::value(0).as<"a">()));
+    const auto x = x_base.union_all(select((x_base.a + 1).as<"a">())
                                         .from(x_base)
                                         .where(x_base.a < 10));
-    const auto y = x.as(sqlpp::alias::y);
+    const auto y = x.as<"y">();
     SQLPP_COMPARE(x,
                   "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM "
                   "x WHERE x.a < 10)");
@@ -86,11 +86,11 @@ int main(int, char*[]) {
 
   // A CTE depending on another CTE
   {
-    const auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
+    const auto x = sqlpp::cte<"x">().as(select(foo.id).from(foo));
     const auto y =
-        sqlpp::cte(sqlpp::alias::y)
-            .as(select(x.id, sqlpp::value(7).as(sqlpp::alias::a)).from(x));
-    const auto z = y.as(sqlpp::alias::z);
+        sqlpp::cte<"y">()
+            .as(select(x.id, sqlpp::value(7).as<"a">()).from(x));
+    const auto z = y.as<"z">();
     SQLPP_COMPARE(y, "y AS (SELECT x.id, 7 AS a FROM x)");
     SQLPP_COMPARE(make_table_ref(y), "y");
     SQLPP_COMPARE(y.id, "y.id");
@@ -103,9 +103,9 @@ int main(int, char*[]) {
   // Dynamically recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     const auto x_base =
-        sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+        sqlpp::cte<"x">().as(select(sqlpp::value(0).as<"a">()));
     auto x = x_base.union_all(
-        dynamic(true, select((x_base.a + 1).as(sqlpp::alias::a))
+        dynamic(true, select((x_base.a + 1).as<"a">())
                           .from(x_base)
                           .where(x_base.a < 10)));
 
@@ -114,7 +114,7 @@ int main(int, char*[]) {
                   "x WHERE x.a < 10)");
 
     x = x_base.union_all(
-        dynamic(false, select((x_base.a + 1).as(sqlpp::alias::a))
+        dynamic(false, select((x_base.a + 1).as<"a">())
                            .from(x_base)
                            .where(x_base.a < 10)));
     SQLPP_COMPARE(x, "x AS (SELECT 0 AS a)");
@@ -124,9 +124,9 @@ int main(int, char*[]) {
   // ...
   {
     const auto x_base =
-        sqlpp::cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+        sqlpp::cte<"x">().as(select(sqlpp::value(0).as<"a">()));
     auto x = x_base.union_distinct(
-        dynamic(true, select((x_base.a + 1).as(sqlpp::alias::a))
+        dynamic(true, select((x_base.a + 1).as<"a">())
                           .from(x_base)
                           .where(x_base.a < 10)));
 
@@ -135,7 +135,7 @@ int main(int, char*[]) {
                   "FROM x WHERE x.a < 10)");
 
     x = x_base.union_distinct(
-        dynamic(false, select((x_base.a + 1).as(sqlpp::alias::a))
+        dynamic(false, select((x_base.a + 1).as<"a">())
                            .from(x_base)
                            .where(x_base.a < 10)));
     SQLPP_COMPARE(x, "x AS (SELECT 0 AS a)");

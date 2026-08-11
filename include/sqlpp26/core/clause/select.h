@@ -32,12 +32,12 @@
 //#include <sqlpp26/core/clause/for_update.h>
 #include <sqlpp26/core/clause/from.h>
 #include <sqlpp26/core/clause/group_by.h>
-//#include <sqlpp26/core/clause/having.h>
+#include <sqlpp26/core/clause/having.h>
 //#include <sqlpp26/core/clause/limit.h>
 //#include <sqlpp26/core/clause/offset.h>
 //#include <sqlpp26/core/clause/order_by.h>
 #include <sqlpp26/core/clause/select_column_list.h>
-//#include <sqlpp26/core/clause/union.h>
+#include <sqlpp26/core/clause/union.h>
 #include <sqlpp26/core/clause/where.h>
 
 namespace sqlpp {

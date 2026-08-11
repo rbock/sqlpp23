@@ -201,6 +201,13 @@ inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
     are_valid_cte_union_args<Lhs, Rhs>;
 #endif
 
+template <fixed_string Name, typename Statement, fixed_string Alias>
+constexpr auto all_of(const cte_as_t<Name, Statement, Alias>&) {
+  const auto& [...columns] = typename cte_generator<Name, Statement, get_result_row_t<Statement>>::cte_as_columns<Alias>::type{};
+
+  return std::make_tuple(columns...);
+}
+
 template <fixed_string Name, typename Statement>
 struct cte_t
     : public cte_generator<Name, Statement, get_result_row_t<Statement>>::columns,
@@ -250,6 +257,13 @@ struct cte_t
   friend reader_t;
   Statement _expression;
 };
+
+template <fixed_string Name, typename Statement>
+constexpr auto all_of(const cte_t<Name, Statement>&) {
+  const auto& [...columns] = typename cte_generator<Name, Statement, get_result_row_t<Statement>>::columns{};
+
+  return std::make_tuple(columns...);
+}
 
 template <typename Context,
           fixed_string Name,

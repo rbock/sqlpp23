@@ -45,7 +45,7 @@
 
 namespace sqlpp {
 template <typename Table, std::size_t index>
-struct column // : public enable_as, public enable_comparison
+struct column : public enable_as, public enable_comparison
 {
   template <typename T>
     requires(are_correct_assignment_args<column, T>)

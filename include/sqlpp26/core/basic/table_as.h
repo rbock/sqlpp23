@@ -53,6 +53,13 @@ struct provided_tables_of<table_as<TableSpec, Alias>> {
   }
 };
 
+template <typename TableSpec, fixed_string Alias>
+constexpr auto all_of(const table_as<TableSpec, Alias>& t) {
+  const auto& [...columns] = t;
+
+  return std::make_tuple(columns...);
+}
+
 template <typename Context, typename TableSpec, fixed_string Alias>
 auto to_sql_string(Context& context, const table_as<TableSpec, Alias>&)
     -> std::string {

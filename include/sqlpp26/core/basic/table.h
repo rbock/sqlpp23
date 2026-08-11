@@ -117,6 +117,13 @@ struct name_of<table<TableSpec>> {
   static constexpr fixed_string value = TableSpec::generator::name.data;
 };
 
+template <typename TableSpec>
+constexpr auto all_of(const table<TableSpec>& t) {
+  const auto& [...columns] = t;
+
+  return std::make_tuple(columns...);
+}
+
 template <typename Context, typename TableSpec>
 auto to_sql_string(Context& context, const table<TableSpec>& /*unused*/)
     -> std::string {

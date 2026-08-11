@@ -25,7 +25,6 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
-#include "sqlpp26/core/type_traits.h"
 
 int main() {
   const auto foo = test::TabFoo{};
@@ -38,14 +37,6 @@ int main() {
   const auto xa = x.as<"a">();
   const auto xb = x.as<"b">();
   const auto y = sqlpp::cte<"y">().as(select(foo.id).from(foo));
-
-  // TODO: Remove
-  using S = decltype(select(foo.id).from(foo));
-  using R = sqlpp::get_result_row_t<S>;
-  using G = sqlpp::cte_generator<"A", S, R>;
-  using C = typename G::cte_as_columns<"B">::type;
-  using I = decltype(C{}.id);
-  sqlpp::data_type_of_t<I>::bert;
 
   // Single table
   SQLPP_COMPARE(from(foo), " FROM tab_foo");
@@ -77,7 +68,6 @@ int main() {
   // CTE
   SQLPP_COMPARE(from(x), " FROM x");
   SQLPP_COMPARE(from(xa), " FROM x AS a");
-  /*
   SQLPP_COMPARE(from(foo.join(x).on(x.id == foo.id)),
                 " FROM tab_foo INNER JOIN x ON x.id = tab_foo.id");
   SQLPP_COMPARE(from(x.join(foo).on(x.id == foo.id)),
@@ -86,7 +76,6 @@ int main() {
                 " FROM x INNER JOIN y ON x.id = y.id");
   SQLPP_COMPARE(from(xa.join(xb).on(xa.id == xb.id)),
                 " FROM x AS a INNER JOIN x AS b ON a.id = b.id");
-                */
 
   return 0;
 }

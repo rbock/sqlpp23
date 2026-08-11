@@ -39,7 +39,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct having_t {
-  having_t(Expression expression) : _expression(std::move(expression)) {}
+  constexpr having_t(Expression expression) : _expression(std::move(expression)) {}
 
   having_t(const having_t&) = default;
   having_t(having_t&&) = default;
@@ -80,26 +80,6 @@ class assert_no_unknown_static_tables_in_having_t
   }
 };
 
-class assert_having_all_aggregates_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "having expression not built out of aggregate expressions");
-  }
-};
-
-class assert_having_all_static_aggregates_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one static having expression is provided "
-                        "dynamically only in group_by");
-  }
-};
-
 template <typename Expression>
 struct is_clause<having_t<Expression>> : public std::true_type {};
 
@@ -109,22 +89,18 @@ struct nodes_of<having_t<Expression>> {
 };
 
 template <typename Statement, typename Expression>
-struct consistency_check<Statement, having_t<Expression>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          is_aggregate_expression<typename Statement::_all_provided_aggregates,
-                                  Expression>::value,
-          assert_having_all_aggregates_t>,
-      static_check_t<static_part_is_aggregate_expression<
-                         typename Statement::_all_provided_static_aggregates,
-                         Expression>::value,
-                     assert_having_all_static_aggregates_t>,
-      detail::expression_static_check_t<
-          Statement,
-          Expression,
-          assert_no_unknown_static_tables_in_having_t>>;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, having_t<Expression>> {
+  static constexpr void verify() {
+    if constexpr (not is_aggregate_expression<typename Statement::_all_provided_aggregates,
+                                    Expression>::value) {
+      throw std::domain_error("having expression not built out of aggregate expressions");
+    }
+    if constexpr (not static_part_is_aggregate_expression<
+                           typename Statement::_all_provided_static_aggregates,
+                           Expression>::value) {
+      throw std::domain_error("at least one static having expression is provided "
+                          "dynamically only in group_by");
+    }
   }
 };
 
@@ -145,7 +121,7 @@ struct prepare_check<Statement, having_t<Expression>> {
 // NO HAVING YET
 struct no_having_t {
   template <typename Statement, DynamicBoolean Expression>
-  auto having(this Statement&& self, Expression expression) {
+  constexpr auto having(this Statement&& self, Expression expression) {
     return new_statement<no_having_t>(std::forward<Statement>(self),
                                       having_t<Expression>{std::move(expression)});
   }
@@ -157,15 +133,12 @@ auto to_sql_string(Context&, const no_having_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_having_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_having_t> {
+  static constexpr void verify() {}
 };
 
 template <typename T>
-auto having(T t)
+constexpr auto having(T t)
     -> decltype(statement_t<no_having_t>().having(std::move(t))) {
   return statement_t<no_having_t>().having(std::move(t));
 }

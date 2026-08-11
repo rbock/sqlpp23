@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/basic/all_of.h>
 #include <sqlpp26/core/basic/schema_qualified_table.h>
 #include <sqlpp26/core/clause/delete_from.h>
 #include <sqlpp26/core/clause/insert.h>
