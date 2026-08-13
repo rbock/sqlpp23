@@ -29,13 +29,13 @@
 
 #include <sqlpp26/core/query/statement.h>
 
-//#include <sqlpp26/core/clause/for_update.h>
+#include <sqlpp26/core/clause/for_update.h>
 #include <sqlpp26/core/clause/from.h>
 #include <sqlpp26/core/clause/group_by.h>
 #include <sqlpp26/core/clause/having.h>
-//#include <sqlpp26/core/clause/limit.h>
-//#include <sqlpp26/core/clause/offset.h>
-//#include <sqlpp26/core/clause/order_by.h>
+#include <sqlpp26/core/clause/limit.h>
+#include <sqlpp26/core/clause/offset.h>
+#include <sqlpp26/core/clause/order_by.h>
 #include <sqlpp26/core/clause/select_column_list.h>
 #include <sqlpp26/core/clause/union.h>
 #include <sqlpp26/core/clause/where.h>
@@ -60,13 +60,13 @@ using blank_select_t = statement_t<select_t,
                                    no_select_column_list_t,
                                    no_from_t,
                                    no_where_t,
-                                   no_group_by_t/*,
+                                   no_group_by_t,
                                    no_having_t,
                                    no_order_by_t,
                                    no_limit_t,
                                    no_offset_t,
                                    no_union_t,
-                                   no_for_update_t*/>;
+                                   no_for_update_t>;
 
 inline constexpr blank_select_t select() {
   return {};

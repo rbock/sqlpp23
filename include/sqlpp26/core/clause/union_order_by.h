@@ -125,7 +125,7 @@ using make_simple_sort_order_t = typename make_simple_sort_order<T>::type;
 
 template <typename... Expressions>
 struct union_order_by_t {
-  union_order_by_t(Expressions... expressions) : _expressions(expressions...) {}
+  constexpr union_order_by_t(Expressions... expressions) : _expressions(expressions...) {}
 
   union_order_by_t(const union_order_by_t&) = default;
   union_order_by_t(union_order_by_t&&) = default;
@@ -167,15 +167,18 @@ struct is_column_in_result {
   static constexpr auto value = false;
 };
 
+/* TODO
 template <typename... LFields, typename RField>
 struct is_column_in_result<result_row_t<LFields...>, RField> {
   static constexpr auto value =
       logic::any<is_field_compatible<LFields, RField>::value...>::value;
 };
+*/
 
 
 template <typename Statement, typename... Expressions>
-struct consistency_check<Statement, union_order_by_t<Expressions...>> {
+struct basic_consistency_check<Statement, union_order_by_t<Expressions...>> {
+  /*
   using type = static_check_t<
       logic::all<is_column_in_result<
           get_result_row_t<Statement>,
@@ -184,6 +187,9 @@ struct consistency_check<Statement, union_order_by_t<Expressions...>> {
   constexpr auto operator()() {
     return type{};
   }
+  */
+  // TODO
+  static constexpr void verify() {}
 };
 
 template <typename Statement, typename... Expressions>
@@ -204,7 +210,7 @@ struct no_union_order_by_t {
   template <typename Statement, DynamicSortOrder... Expressions>
     requires(sizeof...(Expressions) > 0 and
              (is_column_v<detail::sort_order_base_t<Expressions>> and ...))
-  auto order_by(this Statement&& self, Expressions... expressions) {
+  constexpr auto order_by(this Statement&& self, Expressions... expressions) {
     return new_statement<no_union_order_by_t>(
         std::forward<Statement>(self),
         union_order_by_t<detail::make_simple_sort_order_t<Expressions>...>{
@@ -218,17 +224,14 @@ auto to_sql_string(Context&, const no_union_order_by_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_union_order_by_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_union_order_by_t> {
+  static constexpr void verify() {}
 };
 
 template <DynamicSortOrder... Expressions>
   requires(sizeof...(Expressions) > 0 and
            (is_column_v<detail::sort_order_base_t<Expressions>> and ...))
-auto union_order_by(Expressions... expressions) {
+constexpr auto union_order_by(Expressions... expressions) {
   return statement_t<no_union_order_by_t>().order_by(std::move(expressions)...);
 }
 

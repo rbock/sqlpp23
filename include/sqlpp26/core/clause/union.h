@@ -112,6 +112,7 @@ struct basic_consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
   static constexpr void verify() {}
 };
 
+/* TODO
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct prepare_check<Statement, union_t<Flag, Lhs, Rhs>> {
   using type = static_combined_check_t<statement_prepare_check_t<Lhs>,
@@ -129,6 +130,7 @@ struct run_check<Statement, union_t<Flag, Lhs, Rhs>> {
     return type{};
   }
 };
+*/
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};

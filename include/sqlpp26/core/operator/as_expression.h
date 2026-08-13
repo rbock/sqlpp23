@@ -52,8 +52,11 @@ struct as_expression {
 };
 
 template <typename Expression, fixed_string Name>
+struct has_name<as_expression<Expression, Name>> : public std::true_type {};
+
+template <typename Expression, fixed_string Name>
 struct name_of<as_expression<Expression, Name>> {
-  static constexpr fixed_string value = Name.data;
+  static constexpr fixed_string value = Name;
 };
 
 // No data_type_of defined for as_expression to prevent its usage outside of

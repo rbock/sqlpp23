@@ -583,6 +583,7 @@ template <typename Context, typename T>
 auto check_compatibility(const T&) {
   return compatibility_check_t<Context, T>{};
 }
+#endif
 
 template <typename T>
 struct contains_order_by {
@@ -614,15 +615,16 @@ struct contains_for_update {
 };
 
 template <typename T>
+inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
+#if 0
+
+template <typename T>
 struct table_of {
   using type = void;
 };
 
 template <typename T>
 using table_of_t = typename table_of<T>::type;
-
-template <typename T>
-inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
 #endif
 
 }  // namespace sqlpp

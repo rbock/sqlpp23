@@ -39,51 +39,26 @@
 namespace sqlpp {
 // Get value type
 template <typename T>
-struct select_column_data_type_of : public data_type_of<T> {};
+struct select_column_data_type_of : public data_type_of<remove_as_t<remove_dynamic_t<T>>> {};
 template <typename T>
 using select_column_data_type_of_t =
     typename select_column_data_type_of<T>::type;
 
-template <typename T>
-struct select_column_data_type_of<dynamic_t<T>> {
-  using type = sqlpp::force_optional_t<select_column_data_type_of_t<T>>;
-};
-
-template <typename T, fixed_string Name>
-struct select_column_data_type_of<as_expression<T, Name>>
-    : public select_column_data_type_of<T> {};
-
 // Get name tag
 template <typename T>
-struct select_column_name_tag_of : public name_tag_of<T> {};
+struct select_column_name_of : public name_of<remove_dynamic_t<T>> {};
 
 template <typename T>
-using select_column_name_tag_of_t = typename select_column_name_tag_of<T>::type;
-
-template <typename T>
-struct select_column_name_tag_of<dynamic_t<T>>
-    : public select_column_name_tag_of<T> {};
-
-template <typename T, fixed_string Name>
-struct select_column_name_tag_of<as_expression<T, Name>> {
-  //using type = NameTag;
-};
+inline constexpr fixed_string select_column_name_of_v = select_column_name_of<T>::value;
 
 // Test for value
 template <typename T>
 struct select_column_has_data_type
-    : public std::integral_constant<
-          bool,
-          not std::is_same<select_column_data_type_of_t<T>,
-                           no_value_t>::value> {};
+    : public has_data_type<remove_as_t<remove_dynamic_t<T>>> {};
 
 // Test for name
 template <typename T>
-struct select_column_has_name
-    : public std::integral_constant<
-          bool,
-          not std::is_same<select_column_name_tag_of_t<T>, no_name_t>::value> {
-};
+struct select_column_has_name : public has_name<remove_dynamic_t<T>> {};
 
 template <typename... Columns>
 struct select_columns_have_values {

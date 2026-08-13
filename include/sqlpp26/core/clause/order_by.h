@@ -63,7 +63,7 @@ class assert_no_unknown_static_tables_in_order_by_t
 
 template <typename... Expressions>
 struct order_by_t {
-  order_by_t(Expressions... expressions)
+  constexpr order_by_t(Expressions... expressions)
       : _expressions(std::move(expressions)...) {}
 
   order_by_t(const order_by_t&) = default;
@@ -154,6 +154,7 @@ struct check_order_by_aggregates {
           assert_correct_static_order_by_aggregates_with_group_by_t>>;
 };
 
+/*
 // In case of no provided aggregates all of the order by expressions have to be
 // non-aggregates.
 template <typename... Expressions>
@@ -165,10 +166,11 @@ struct check_order_by_aggregates<detail::type_set<>,
                                              Expressions>::value...>::value,
       assert_correct_order_by_aggregates_t>;
 };
+*/
 }  // namespace detail
 
 template <typename Statement, typename... Expressions>
-struct consistency_check<Statement, order_by_t<Expressions...>> {
+struct basic_consistency_check<Statement, order_by_t<Expressions...>> {
   using PA = typename Statement::_all_provided_aggregates;
   using PSA = typename Statement::_all_provided_static_aggregates;
 
@@ -181,6 +183,8 @@ struct consistency_check<Statement, order_by_t<Expressions...>> {
   constexpr auto operator()() {
     return type{};
   }
+  // TODO
+  static constexpr void verify() {}
 };
 
 template <typename Statement, typename... Expressions>
@@ -206,7 +210,7 @@ struct nodes_of<order_by_t<Expressions...>> {
 struct no_order_by_t {
   template <typename Statement, DynamicSortOrder... Expressions>
     requires(sizeof...(Expressions) > 0)
-  auto order_by(this Statement&& self, Expressions... expressions) {
+  constexpr auto order_by(this Statement&& self, Expressions... expressions) {
     return new_statement<no_order_by_t>(
         std::forward<Statement>(self),
         order_by_t<Expressions...>{std::move(expressions)...});
@@ -219,16 +223,13 @@ auto to_sql_string(Context&, const no_order_by_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_order_by_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_order_by_t> {
+  static constexpr void verify() {}
 };
 
 template <DynamicSortOrder... Expressions>
   requires(sizeof...(Expressions) > 0)
-auto order_by(Expressions... expressions) {
+constexpr auto order_by(Expressions... expressions) {
   return statement_t<no_order_by_t>().order_by(std::move(expressions)...);
 }
 

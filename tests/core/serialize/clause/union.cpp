@@ -56,7 +56,7 @@ int main(int, char*[]) {
       select(t.id).from(t).union_distinct(dynamic(false, select(f.id).from(f))),
       "SELECT tab_bar.id FROM tab_bar");
 
-  SQLPP_COMPARE(select(t.intN.as(f.id))
+  SQLPP_COMPARE(select(t.intN.as<"id">())
                     .from(t)
                     .union_distinct(select(f.id).from(f))
                     .union_all(select(t.id).from(t)),
@@ -77,7 +77,7 @@ int main(int, char*[]) {
                 "UNION DISTINCT "
                 "SELECT tab_foo.id FROM tab_foo");
 
-  SQLPP_COMPARE(union_all(union_distinct(select(t.intN.as(f.id)).from(t),
+  SQLPP_COMPARE(union_all(union_distinct(select(t.intN.as<"id">()).from(t),
                                          select(f.id).from(f)),
                           select(t.id).from(t)),
                 "SELECT tab_bar.int_n AS id FROM tab_bar "

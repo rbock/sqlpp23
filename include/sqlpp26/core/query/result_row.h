@@ -164,7 +164,6 @@ class result_row_bridge {
 };
 }  // namespace detail
 
-#if 0
 template <typename Lhs, typename Rhs>
 struct is_result_compatible {
   static constexpr auto value = false;
@@ -177,6 +176,5 @@ struct is_result_compatible<result_row_t<LFields...>,
   static constexpr auto value =
       logic::all<is_field_compatible<LFields, RFields>::value...>::value;
 };
-#endif
 
 }  // namespace sqlpp

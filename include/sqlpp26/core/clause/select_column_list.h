@@ -27,9 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdexcept>
 #include <tuple>
 
 #include <sqlpp26/core/basic/table.h>
+#include <sqlpp26/core/field_spec.h>
 //#include <sqlpp26/core/clause/expression_static_check.h>
 //#include <sqlpp26/core/clause/select_as.h>
 #include <sqlpp26/core/clause/select_column_traits.h>
@@ -143,7 +145,7 @@ struct result_row_of<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
       //TODO: Maybe re-introduce field_spec = column_spec without default and SQL name
-  using type = result_row_t<column_spec<name_of_v<Columns>, data_type_of_t<Columns>>...>;
+  using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
 };
 
 template <typename... Columns>
@@ -253,16 +255,6 @@ struct nodes_of<
   using type = detail::type_vector<Columns...>;
 };
 
-/*
-class assert_columns_selected_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "selecting columns required");
-  }
-};
-*/
-
 template <typename... Args>
 struct make_select_column_list {
   using type =
@@ -292,15 +284,12 @@ auto to_sql_string(Context&, const no_select_column_list_t&) -> std::string {
   return "";
 }
 
-/*TODO: Throw exception instead!
 template <typename Statement>
-struct consistency_check<Statement, no_select_column_list_t> {
-  using type = assert_columns_selected_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, no_select_column_list_t> {
+  static constexpr void verify() {
+    throw std::domain_error("selecting columns required");
   }
 };
-*/
 
 template <DynamicSelectArg... Args>
   requires(detail::count_columns<Args...>() > 0 and

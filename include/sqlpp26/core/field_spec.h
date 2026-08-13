@@ -28,44 +28,44 @@
  */
 
 #include <type_traits>
+#include "sqlpp26/core/detail/type_set.h"
 
 #include <sqlpp26/core/clause/select_column_traits.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-  // TODO
-#if 0
-template <typename NameTag, typename DataType>
-struct field_spec_t {
-  using result_data_type = result_data_type_of_t<DataType>;  // Used in result_row_t.
-  using data_type = DataType;  // This is used by column_t.
+template <fixed_string Name, typename DataType>
+struct field_spec {
+  static constexpr fixed_string name = Name;
+  using data_type = DataType;
 };
 
+// TODO
+#if 0
 template <typename NameTag, typename DataType>
-struct name_tag_of<field_spec_t<NameTag, DataType>> {
+struct name_tag_of<field_spec<NameTag, DataType>> {
   using type = NameTag;
 };
 
 template <typename NameTag, typename DataType>
-struct data_type_of<field_spec_t<NameTag, DataType>> {
+struct data_type_of<field_spec<NameTag, DataType>> {
   using type = DataType;
 };
 
+#endif
 template <typename Left, typename Right>
 struct is_field_compatible {
   static constexpr auto value = false;
 };
 
-template <typename LeftNameTag,
+template <fixed_string LeftName,
           typename LeftDataType,
-          typename RightNameTag,
+          fixed_string RightName,
           typename RightDataType>
-struct is_field_compatible<field_spec_t<LeftNameTag, LeftDataType>,
-                           field_spec_t<RightNameTag, RightDataType>> {
-  using L = field_spec_t<LeftNameTag, LeftDataType>;
-  using R = field_spec_t<RightNameTag, RightDataType>;
+struct is_field_compatible<field_spec<LeftName, LeftDataType>,
+                           field_spec<RightName, RightDataType>> {
   static constexpr auto value =
-      std::is_same<make_char_sequence_t<L>, make_char_sequence_t<R>>::value and
+      std::string_view(LeftName.data) == std::string_view(RightName.data) and
       std::is_same<remove_optional_t<LeftDataType>,
                    remove_optional_t<RightDataType>>::value and  // Same value
                                                                  // type
@@ -76,21 +76,23 @@ struct is_field_compatible<field_spec_t<LeftNameTag, LeftDataType>,
                                              // hand side allows it
 };
 
-template <typename Statement, typename NamedExpr>
+template <typename Statement, typename SelectColumn>
 struct make_field_spec {
-  using DataType = select_column_data_type_of_t<NamedExpr>;
+  using DataType = select_column_data_type_of_t<SelectColumn>;
   static constexpr bool _depends_on_optional_table =
-      provided_optional_tables_of_t<Statement>::contains_any(
-          required_tables_of_t<NamedExpr>{});
+      detail::make_joined_type_info_set(
+          provided_optional_tables_of<Statement>::func(),
+          required_tables_of<SelectColumn>::func())
+          .size() < provided_optional_tables_of<Statement>::func().size() +
+                        required_tables_of<SelectColumn>::func().size();
 
   using type =
-      field_spec_t<select_column_name_tag_of_t<NamedExpr>,
+      field_spec<select_column_name_of_v<SelectColumn>,
                    std::conditional_t<_depends_on_optional_table,
                                       sqlpp::force_optional_t<DataType>,
                                       DataType>>;
 };
 
-template <typename Statement, typename NamedExpr>
-using make_field_spec_t = typename make_field_spec<Statement, NamedExpr>::type;
-#endif
+template <typename Statement, typename SelectColumn>
+using make_field_spec_t = typename make_field_spec<Statement, SelectColumn>::type;
 }  // namespace sqlpp

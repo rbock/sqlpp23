@@ -36,7 +36,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct offset_t {
-  offset_t(Expression expression) : _expression(std::move(expression)) {}
+  constexpr offset_t(Expression expression) : _expression(std::move(expression)) {}
   offset_t(const offset_t&) = default;
   offset_t(offset_t&&) = default;
   offset_t& operator=(const offset_t&) = default;
@@ -61,11 +61,8 @@ template <typename Expression>
 struct contains_offset<offset_t<Expression>> : public std::true_type {};
 
 template <typename Statement, typename Expression>
-struct consistency_check<Statement, offset_t<Expression>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, offset_t<Expression>> {
+  static constexpr void verify() {}
 };
 
 template <typename Statement, typename Expression>
@@ -80,8 +77,8 @@ struct no_offset_t {
   template <typename Statement, typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
               is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
-             required_tables_of_t<Arg>{}.empty())
-  auto offset(this Statement&& self, Arg arg) {
+             required_tables_of<Arg>::func().empty())
+  constexpr auto offset(this Statement&& self, Arg arg) {
     return new_statement<no_offset_t>(std::forward<Statement>(self),
                                       offset_t<Arg>{std::move(arg)});
   }
@@ -93,18 +90,15 @@ auto to_sql_string(Context&, const no_offset_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_offset_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_offset_t> {
+  static constexpr void verify() {}
 };
 
 template <typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
               is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
-             required_tables_of_t<Arg>{}.empty())
-auto offset(Arg arg) {
+             required_tables_of<Arg>::func().empty())
+constexpr auto offset(Arg arg) {
   return statement_t<no_offset_t>().offset(std::move(arg));
 }
 

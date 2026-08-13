@@ -36,7 +36,7 @@
 namespace sqlpp {
 template <typename Expression>
 struct limit_t {
-  limit_t(Expression expression) : _expression(std::move(expression)) {}
+  constexpr limit_t(Expression expression) : _expression(std::move(expression)) {}
   limit_t(const limit_t&) = default;
   limit_t(limit_t&&) = default;
   limit_t& operator=(const limit_t&) = default;
@@ -61,11 +61,8 @@ template <typename Expression>
 struct contains_limit<limit_t<Expression>> : public std::true_type {};
 
 template <typename Statement, typename Expression>
-struct consistency_check<Statement, limit_t<Expression>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, limit_t<Expression>> {
+  static constexpr void verify() {}
 };
 
 template <typename Statement, typename Expression>
@@ -80,8 +77,8 @@ struct no_limit_t {
   template <typename Statement, typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
               is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
-             required_tables_of_t<Arg>{}.empty())
-  auto limit(this Statement&& self, Arg arg) {
+             required_tables_of<Arg>::func().empty())
+  constexpr auto limit(this Statement&& self, Arg arg) {
     return new_statement<no_limit_t>(std::forward<Statement>(self),
                                      limit_t<Arg>{std::move(arg)});
   }
@@ -93,18 +90,15 @@ auto to_sql_string(Context&, const no_limit_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_limit_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_limit_t> {
+  static constexpr void verify() {}
 };
 
 template <typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
               is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
-             required_tables_of_t<Arg>{}.empty())
-auto limit(Arg arg) {
+             required_tables_of<Arg>::func().empty())
+constexpr auto limit(Arg arg) {
   return statement_t<no_limit_t>().limit(std::move(arg));
 }
 
