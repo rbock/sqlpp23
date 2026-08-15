@@ -38,13 +38,11 @@
 #include <sqlpp26/core/detail/type_vector.h>
 
 namespace sqlpp {
-  // TODO
-#if 0
 struct no_with_t;
 
 template <typename... Ctes>
 struct with_t {
-  with_t(std::tuple<Ctes...> ctes) : _ctes(std::move(ctes)) {}
+  constexpr with_t(std::tuple<Ctes...> ctes) : _ctes(std::move(ctes)) {}
   with_t(const with_t&) = default;
   with_t(with_t&&) = default;
   with_t& operator=(const with_t&) = default;
@@ -69,11 +67,9 @@ template <typename... Ctes>
 struct is_clause<with_t<Ctes...>> : public std::true_type {};
 
 template <typename Statement, typename... Ctes>
-struct consistency_check<Statement, with_t<Ctes...>> {
+struct basic_consistency_check<Statement, with_t<Ctes...>> {
+  static constexpr void verify() {
   // FIXME: Need real checks here
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
   }
 };
 
@@ -85,12 +81,16 @@ struct nodes_of<with_t<Ctes...>> : public no_nodes {};
 
 template <typename... Ctes>
 struct provided_ctes_of<with_t<Ctes...>> {
-  using type = detail::make_joined_set_t<provided_ctes_of_t<Ctes>...>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_joined_type_info_set(provided_ctes_of<Ctes>::func()...);
+  }
 };
 
 template <typename... Ctes>
 struct provided_static_ctes_of<with_t<Ctes...>> {
-  using type = detail::make_joined_set_t<provided_static_ctes_of_t<Ctes>...>;
+  static consteval auto func() -> detail::type_info_set {
+    return detail::make_joined_type_info_set(provided_static_ctes_of<Ctes>::func()...);
+  }
 };
 
 template <typename... Ctes>
@@ -106,64 +106,40 @@ struct compatibility_check<Context, with_t<Ctes...>>
 // `have_correct_cte_dependencies` checks that by walking the CTEs from left to
 // right and building a type vector that contains the CTE it already has looked
 // at.
-template <typename AllowedCTEs, typename... CTEs>
-struct have_correct_cte_dependencies_impl;
-
-template <typename AllowedCTEs>
-struct have_correct_cte_dependencies_impl<AllowedCTEs> : public std::true_type {
-};
-
-template <typename AllowedCTEs, typename CTE, typename... Rest>
-struct have_correct_cte_dependencies_impl<AllowedCTEs, CTE, Rest...> {
-  using allowed_ctes =
-      detail::make_joined_set_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
-  static constexpr bool value =
-      allowed_ctes::contains_all(required_ctes_of_t<CTE>{}) and
-      have_correct_cte_dependencies_impl<allowed_ctes, Rest...>::value;
-};
+template <typename... CTEs>
+consteval auto have_correct_cte_dependencies() -> bool{
+  detail::type_info_set allowed;
+  template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
+    auto required = provided_ctes_of<CTEs...[index];
+    if (not std::ranges::includes(allowed, required, sqlpp::detail::type_info_less{})) {
+      // Maybe turn this into exception?
+      return false;
+    }
+    detail::insert_type_info_set(all, required);
+  }
+  return true;
+}
 
 template <typename... CTEs>
-struct have_correct_cte_dependencies {
-  static constexpr bool value =
-      have_correct_cte_dependencies_impl<detail::type_set<>,
-                                         detail::type_set<>,
-                                         CTEs...>::value;
-};
-
-template <typename AllowedStaticCTEs, typename... CTEs>
-struct have_correct_static_cte_dependencies_impl;
-
-template <typename AllowedStaticCTEs>
-struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs>
-    : public std::true_type {};
-
-template <typename AllowedStaticCTEs, typename CTE, typename... Rest>
-struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs,
-                                                 CTE,
-                                                 Rest...> {
-  using allowed_static_ctes =
-      detail::make_joined_set_t<AllowedStaticCTEs,
-                                provided_static_ctes_of_t<CTE>>;
-  static constexpr bool value =
-      allowed_static_ctes::contains_all(required_static_ctes_of_t<CTE>{}) and
-      have_correct_static_cte_dependencies_impl<allowed_static_ctes,
-                                                Rest...>::value;
-};
-
-template <typename... CTEs>
-struct have_correct_static_cte_dependencies {
-  static constexpr bool value =
-      have_correct_static_cte_dependencies_impl<detail::type_set<>,
-                                                detail::type_set<>,
-                                                CTEs...>::value;
-};
+consteval auto have_correct_static_cte_dependencies() -> bool{
+  detail::type_info_set allowed;
+  template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
+    auto required = provided_static_ctes_of<CTEs...[index];
+    if (not std::ranges::includes(allowed, required, sqlpp::detail::type_info_less{})) {
+      // Maybe turn this into exception?
+      return false;
+    }
+    detail::insert_type_info_set(all, required);
+  }
+  return true;
+}
 
 struct no_with_t {
   template <typename Statement, DynamicCte... Ctes>
-    requires(have_correct_cte_dependencies<Ctes...>::value and
-             have_correct_static_cte_dependencies<Ctes...>::value and
+    requires(have_correct_cte_dependencies<Ctes...>() and
+             have_correct_static_cte_dependencies<Ctes...>()/* TODO and
              detail::are_unique<
-                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value)
+                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value*/)
   auto with(this Statement&& self, Ctes... ctes) {
     return new_statement<no_with_t>(
         std::forward<Statement>(self),
@@ -177,20 +153,18 @@ auto to_sql_string(Context&, const no_with_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_with_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, with_t<Ctes...>> {
+  static constexpr void verify() {
   }
 };
 
+
 template <DynamicCte... Ctes>
-    requires(have_correct_cte_dependencies<Ctes...>::value and
-             have_correct_static_cte_dependencies<Ctes...>::value and
+    requires(have_correct_cte_dependencies<Ctes...>() and
+             have_correct_static_cte_dependencies<Ctes...>()/* TODO and
              detail::are_unique<
-                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value)
-auto with(Ctes... ctes) {
+                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value*/)
+constexpr auto with(Ctes... ctes) {
   return statement_t<no_with_t>{}.with(std::move(ctes)...);
 }
-#endif
 }  // namespace sqlpp

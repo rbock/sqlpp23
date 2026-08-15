@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 // Returns true if `declval<Expression>().as(declval<NameTagProvider>())` is a
 // valid function call.
 template <typename Expression, typename NameTagProvider, typename = void>
@@ -67,7 +65,7 @@ int main() {
                 "");
 
   // Renamed things cannot be renamed again.
-  static_assert(not can_call_as_with<decltype(bar.id.as(something)),
+  static_assert(not can_call_as_with<decltype(bar.id.as<"something">()),
                                      decltype(bar)>::value,
                 "");
 

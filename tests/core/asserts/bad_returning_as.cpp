@@ -40,6 +40,6 @@ int main() {
                 sqlpp::assert_no_unknown_tables_in_returning_columns_t>::value);
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  std::ignore = bad_returning.as(sqlpp::alias::a);
+  std::ignore = bad_returning.as<"a">();
 #endif
 }

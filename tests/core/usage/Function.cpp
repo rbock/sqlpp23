@@ -26,10 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-
-SQLPP_CREATE_NAME_TAG(kaesekuchen);
-SQLPP_CREATE_NAME_TAG(something);
-
 int Function(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   const auto f = test::TabFoo{};
@@ -171,7 +167,7 @@ int Function(int, char*[]) {
     static_assert(sqlpp::is_numeric<TT>::value, "type requirement");
     static_assert(not sqlpp::is_text<TT>::value, "type requirement");
 
-    if (false and db(select(exists(select(t.id).from(t)).as(something)))
+    if (false and db(select(exists(select(t.id).from(t)).as<"something">()))
                       .front()
                       .something) { /* do something */
     }
@@ -228,7 +224,7 @@ int Function(int, char*[]) {
     static_assert(not sqlpp::is_floating_point<TT>::value, "type requirement");
 
     if (false and
-        db(select(count(t.id).as(something)).from(t)).front().something >
+        db(select(count(t.id).as<"something">()).from(t)).front().something >
             0) { /* do something */
     }
   }
@@ -333,7 +329,7 @@ int Function(int, char*[]) {
   // test verbatim
   {
     using TB = decltype(sqlpp::verbatim<sqlpp::boolean>("1"));
-    using TBS = decltype(sqlpp::verbatim<sqlpp::boolean>("1").as(kaesekuchen));
+    using TBS = decltype(sqlpp::verbatim<sqlpp::boolean>("1").as<"kaesekuchen">());
     using TI = decltype(sqlpp::verbatim<sqlpp::integral>("42"));
     using TF = decltype(sqlpp::verbatim<sqlpp::floating_point>("1.5"));
     using TT = decltype(sqlpp::verbatim<sqlpp::text>("cheesecake"));
@@ -352,7 +348,7 @@ int Function(int, char*[]) {
 
   // test verbatim_table alias
   {
-    using T = decltype(sqlpp::verbatim_table("cheesecake").as(kaesekuchen));
+    using T = decltype(sqlpp::verbatim_table("cheesecake").as<"kaesekuchen">());
     static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 

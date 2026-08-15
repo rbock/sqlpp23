@@ -42,10 +42,10 @@ int main(int, char*[]) {
                 "COUNT(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(count(select(sqlpp::value(7).as(sqlpp::alias::a))),
+  SQLPP_COMPARE(count(select(sqlpp::value(7).as<"a">())),
                 "COUNT(SELECT 7 AS a)");
   SQLPP_COMPARE(
-      count(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))),
+      count(sqlpp::distinct, select(sqlpp::value(7).as<"a">())),
       "COUNT(DISTINCT SELECT 7 AS a)");
 
   return 0;

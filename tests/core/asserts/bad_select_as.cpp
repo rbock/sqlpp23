@@ -39,6 +39,6 @@ int main() {
                 sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  std::ignore = incomplete_select.as(sqlpp::alias::a);
+  std::ignore = incomplete_select.as<"a">();
 #endif
 }

@@ -34,7 +34,7 @@ void test_cte() {
   // Simple CTE: X AS SELECT
   {
     auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
-    auto a = x.as(sqlpp::alias::a);
+    auto a = x.as<"a">();
 
     using X = decltype(x);
     using RX = decltype(make_table_ref(x));
@@ -83,7 +83,7 @@ void test_cte() {
     auto p = sqlpp::parameter(foo.id);
     auto lhs = select(foo.id).from(foo).where(foo.id > p);
     auto x = sqlpp::cte(sqlpp::alias::x).as(lhs);
-    auto a = x.as(sqlpp::alias::a);
+    auto a = x.as<"a">();
 
     using Lhs = decltype(lhs);
     using X = decltype(x);
@@ -137,9 +137,9 @@ void test_cte() {
   // Dynamically recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM
   // X ...
   {
-    auto lhs = select(sqlpp::value(0).as(sqlpp::alias::a));
+    auto lhs = select(sqlpp::value(0).as<"a">());
     auto x_base = sqlpp::cte(sqlpp::alias::x).as(lhs);
-    auto rhs = select((x_base.a + 1).as(sqlpp::alias::a))
+    auto rhs = select((x_base.a + 1).as<"a">())
                    .from(x_base)
                    .where(x_base.a < 7);
     auto x = x_base.union_all(dynamic(maybe, rhs));
@@ -177,9 +177,9 @@ void test_cte() {
   // Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     auto p = sqlpp::parameter(foo.id);
-    auto lhs = select(sqlpp::value(0).as(sqlpp::alias::a));
+    auto lhs = select(sqlpp::value(0).as<"a">());
     auto x_base = sqlpp::cte(sqlpp::alias::x).as(lhs);
-    auto rhs = select((x_base.a + 1).as(sqlpp::alias::a))
+    auto rhs = select((x_base.a + 1).as<"a">())
                    .from(x_base)
                    .where(x_base.a < p);
     auto x = x_base.union_all(rhs);
@@ -220,10 +220,10 @@ void test_cte() {
     auto b =
         sqlpp::cte(sqlpp::alias::b).as(select(foo.id).from(foo).where(foo.id != pb));
     auto x = sqlpp::cte(sqlpp::alias::y)
-                 .as(select(b.id, sqlpp::value(7).as(sqlpp::alias::a))
+                 .as(select(b.id, sqlpp::value(7).as<"a">())
                          .from(b)
                          .where(b.id > p));
-    auto a = x.as(sqlpp::alias::a);
+    auto a = x.as<"a">();
 
     using RB = decltype(make_table_ref(b));
     using X = decltype(x);
@@ -259,14 +259,14 @@ void test_cte() {
     auto pb = sqlpp::parameter(foo.intN);
     auto p = sqlpp::parameter(foo.id);
     auto b = sqlpp::cte(sqlpp::alias::b)
-                 .as(select(foo.id.as(sqlpp::alias::a))
+                 .as(select(foo.id.as<"a">())
                          .from(foo)
                          .where(foo.id != pb));
     auto x_base = sqlpp::cte(sqlpp::alias::x).as(select(b.a).from(b));
-    auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a))
+    auto x = x_base.union_all(select((x_base.a + 1).as<"a">())
                                   .from(x_base)
                                   .where(x_base.a < p));
-    auto a = x.as(sqlpp::alias::a);
+    auto a = x.as<"a">();
 
     using RB = decltype(make_table_ref(b));
     using X = decltype(x);

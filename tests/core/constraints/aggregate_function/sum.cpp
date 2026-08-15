@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_sum_with =
     requires(Expressions... expressions) { sqlpp::sum(expressions...); };
@@ -45,7 +43,7 @@ int main() {
 
   static_assert(cannot_call_sum_with<sqlpp::star_t>);
   static_assert(cannot_call_sum_with<decltype(foo.textNnD)>);
-  static_assert(cannot_call_sum_with<decltype(foo.id.as(something))>);
+  static_assert(cannot_call_sum_with<decltype(foo.id.as<"something">())>);
   static_assert(cannot_call_sum_with<decltype(foo)>);
 
   // sum() must not be used on an aggregate function

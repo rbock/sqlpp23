@@ -26,8 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(pragma);
-
 int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
@@ -68,7 +66,7 @@ int main() {
   // A pragma query for sqlite
   SQLPP_COMPARE(sqlpp::statement_t<>{}
                     << sqlpp::verbatim_clause("PRAGMA user_version")
-                    << with_result_type_of(select(sqlpp::value(1).as(pragma))),
+                    << with_result_type_of(select(sqlpp::value(1).as<"pragma">())),
                 "PRAGMA user_version");
 
   // An insert from select for postgresql

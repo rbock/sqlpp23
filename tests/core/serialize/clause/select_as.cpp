@@ -32,7 +32,7 @@ int main(int, char*[]) {
   // SELECT a single value and use that as a table.
   {
     const auto s = sqlpp::select(foo.id).from(foo);
-    const auto a = s.as(sqlpp::alias::a);
+    const auto a = s.as<"a">();
     SQLPP_COMPARE(s, "SELECT tab_foo.id FROM tab_foo");
     SQLPP_COMPARE(a, "(SELECT tab_foo.id FROM tab_foo) AS a");
     SQLPP_COMPARE(a.id, "a.id");
@@ -42,7 +42,7 @@ int main(int, char*[]) {
   // SELECT a multiple values and use that as a table.
   {
     const auto s = sqlpp::select(foo.id, foo.intN).from(foo);
-    const auto a = s.as(sqlpp::alias::a);
+    const auto a = s.as<"a">();
     SQLPP_COMPARE(s, "SELECT tab_foo.id, tab_foo.int_n FROM tab_foo");
     SQLPP_COMPARE(a, "(SELECT tab_foo.id, tab_foo.int_n FROM tab_foo) AS a");
     SQLPP_COMPARE(a.id, "a.id");

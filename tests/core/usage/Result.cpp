@@ -26,10 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int Result(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
@@ -40,7 +36,7 @@ int Result(int, char*[]) {
 
   // Using a non-enforcing db
   for (const auto& row :
-       db(select(all_of(t), t.textN.like("").as(something)).from(t))) {
+       db(select(all_of(t), t.textN.like("").as<"something">()).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
 
@@ -51,7 +47,7 @@ int Result(int, char*[]) {
     db(insert_into(t).set(t.textN = row.textN.value(), t.boolNn = false));
   }
 
-  sqlpp::select(sqlpp::all, (t.id + 1).as(t.id)).from(t);
+  sqlpp::select(sqlpp::all, (t.id + 1).as<"t.id">()).from(t);
   for (const auto& row : db(select(all_of(t)).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
@@ -62,7 +58,7 @@ int Result(int, char*[]) {
                   "row.id cannot be null");
   }
 
-  sqlpp::select(sqlpp::all, (t.id + 1).as(t.id)).from(t);
+  sqlpp::select(sqlpp::all, (t.id + 1).as<"t.id">()).from(t);
 
   return 0;
 }

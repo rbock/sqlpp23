@@ -29,7 +29,6 @@
 
 #include <sqlpp26/core/aggregate_function/enable_over.h>
 #include <sqlpp26/core/clause/select_flags.h>
-#include <sqlpp26/core/name/create_name_tag.h>
 #include <sqlpp26/core/operator/enable_as.h>
 #include <sqlpp26/core/operator/enable_comparison.h>
 #include <sqlpp26/core/reader.h>

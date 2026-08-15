@@ -41,8 +41,8 @@ int main(int, char*[]) {
 
     // select max
     for (const auto& row : db(select(
-            max(tab.intN).as(sqlpp::alias::max_),
-            max(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_max_)
+            max(tab.intN).as<"max_">(),
+            max(sqlpp::distinct, tab.intN).as<"distinct_max_">()
             ).from(tab))) {
       std::ignore = row.max_;
       std::ignore = row.distinct_max_;

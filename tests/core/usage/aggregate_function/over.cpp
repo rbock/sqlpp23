@@ -41,11 +41,11 @@ int main(int, char*[]) {
 
     // select aggregates with over()
     for (const auto& row : db(select(
-            avg(tab.intN).over().as(sqlpp::alias::avg_),
-            count(tab.intN).over().as(sqlpp::alias::count_),
-            max(tab.intN).over().as(sqlpp::alias::max_),
-            min(tab.intN).over().as(sqlpp::alias::min_),
-            sum(tab.intN).over().as(sqlpp::alias::sum_)
+            avg(tab.intN).over().as<"avg_">(),
+            count(tab.intN).over().as<"count_">(),
+            max(tab.intN).over().as<"max_">(),
+            min(tab.intN).over().as<"min_">(),
+            sum(tab.intN).over().as<"sum_">()
             ).from(tab))) {
       std::ignore = row.avg_;
       std::ignore = row.count_;

@@ -27,9 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake);
-
 template <typename T>
 struct clause_of;
 
@@ -92,7 +89,7 @@ void test_select_columns() {
 
   // Single aggregate function.
   {
-    auto t = select_columns(avg(col_int).as(cheese));
+    auto t = select_columns(avg(col_int).as<"cheese">());
     using T = clause_of_t<decltype(t)>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
@@ -103,7 +100,7 @@ void test_select_columns() {
 
   // Single dynamic aggregate function.
   {
-    auto t = select_columns(dynamic(maybe, avg(col_int).as(cheese)));
+    auto t = select_columns(dynamic(maybe, avg(col_int).as<"cheese">()));
     using T = clause_of_t<decltype(t)>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
@@ -114,7 +111,7 @@ void test_select_columns() {
 
   // Single value.
   {
-    using T = clause_of_t<decltype(select_columns(v.as(cheese)))>;
+    using T = clause_of_t<decltype(select_columns(v.as<"cheese">()))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::data_type_of_t<T>, sqlpp::text>::value,
                   "");
@@ -124,7 +121,7 @@ void test_select_columns() {
   // Single dynamic value.
   {
     using T = clause_of_t<decltype(select_columns(
-        dynamic(maybe, v.as(cheese))))>;
+        dynamic(maybe, v.as<"cheese">())))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
                                std::optional<sqlpp::text>>::value,
@@ -151,8 +148,8 @@ void test_select_columns() {
   // Mixed columns.
   {
     using T = clause_of_t<decltype(select_columns(
-        col_int, max(col_txt).as(cake),
-        v.as(cheese)))>;
+        col_int, max(col_txt).as<"cake">(),
+        v.as<"cheese">()))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(not sqlpp::has_data_type<T>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");

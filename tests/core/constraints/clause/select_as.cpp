@@ -26,11 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-SQLPP_CREATE_NAME_TAG(tab);
-}  // namespace
-
 int main() {
   const auto foo = test::TabFoo{};
 
@@ -45,15 +40,15 @@ int main() {
   // -------------------------
   {
     // minimal example
-    auto t = sqlpp::select(sqlpp::value(7).as(something));
-    using T = decltype(t.as(tab));
+    auto t = sqlpp::select(sqlpp::value(7).as<"something">());
+    using T = decltype(t.as<"tab">());
     static_assert(sqlpp::is_table<T>::value, "");
   }
 
   {
     // parameters are OK
-    auto t = sqlpp::select(parameter(foo.id).as(something));
-    using T = decltype(t.as(tab));
+    auto t = sqlpp::select(parameter(foo.id).as<"something">());
+    using T = decltype(t.as<"tab">());
     static_assert(sqlpp::is_table<T>::value, "");
   }
 

@@ -26,18 +26,15 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(r_not_null);
-SQLPP_CREATE_NAME_TAG(r_maybe_null);
-
 template <typename Value>
 void test_any(Value v) {
   using DataType = sqlpp::data_type_of_t<Value>;
   using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
 
   // Selectable values.
-  const auto v_not_null = sqlpp::value(v).as(r_not_null);
+  const auto v_not_null = sqlpp::value(v).as<"r_not_null">();
   const auto v_maybe_null =
-      sqlpp::value(std::optional{v}).as(r_maybe_null);
+      sqlpp::value(std::optional{v}).as<"r_maybe_null">();
 
   // ANY expression are not to be in most expressions and therefore have no
   // value defined.

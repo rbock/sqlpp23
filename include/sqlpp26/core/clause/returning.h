@@ -41,8 +41,6 @@
 #include <tuple>
 
 namespace sqlpp {
-// TODO
-#if 0
 // RETURNING is used in DELETE, INSERT, and UPDATE statements in
 // * PostgreSQL
 // * sqlite3
@@ -58,19 +56,10 @@ class assert_no_unknown_tables_in_returning_columns_t
   }
 };
 
-class assert_returning_columns_contain_no_aggregates_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>, "returning columns must not contain aggregate functions");
-  }
-};
-
 template <typename... Columns>
 struct returning_t {
-  returning_t(std::tuple<Columns...> columns) : _columns(std::move(columns)) {}
+  constexpr returning_t(std::tuple<Columns...> columns)
+      : _columns(std::move(columns)) {}
   returning_t(const returning_t&) = default;
   returning_t(returning_t&&) = default;
   returning_t& operator=(const returning_t&) = default;
@@ -93,13 +82,11 @@ template <typename... Columns>
 struct returning_column_list_result_methods_t {
   template <fixed_string Name, typename Statement>
   auto as(this Statement&& self)
-      -> select_as_t<std::decay_t<Statement>,
-                     Name>,
-                     make_field_spec_t<std::decay_t<Statement>, Columns>...> {
+      -> select_as<std::decay_t<Statement>,
+                     Name> {
     check_prepare_consistency(self).verify();
     using table =
-        select_as_t<std::decay_t<Statement>, Name,
-                    make_field_spec_t<std::decay_t<Statement>, Columns>...>;
+        select_as<std::decay_t<Statement>, Name>;
     return table(std::forward<Statement>(self));
   }
 
@@ -115,6 +102,7 @@ struct returning_column_list_result_methods_t {
     return {statement_handler_t{}.select(std::forward<Statement>(self), db)};
   }
 
+  /*
   // Prepare
   template <typename Statement, typename Db>
   auto _prepare(this Statement&& self, Db& db)
@@ -123,6 +111,7 @@ struct returning_column_list_result_methods_t {
             statement_handler_t{}.prepare_select(std::forward<Statement>(self),
                                                  db)};
   }
+  */
 };
 
 template <typename... Columns>
@@ -152,12 +141,11 @@ template <typename... Columns>
 struct is_clause<returning_t<Columns...>> : public std::true_type {};
 
 template <typename Statement, typename... Columns>
-struct consistency_check<Statement, returning_t<Columns...>> {
-  using type = static_check_t<
-      not contains_aggregate_function<returning_t<Columns...>>::value,
-      assert_returning_columns_contain_no_aggregates_t>;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, returning_t<Columns...>> {
+  static constexpr void verify() {
+    if constexpr (contains_aggregate_function<returning_t<Columns...>>::value) {
+      throw std::domain_error("returning columns must not contain aggregate functions");
+    }
   }
 };
 
@@ -211,11 +199,8 @@ auto to_sql_string(Context&, const no_returning_t&) -> std::string {
 }
 
 template <typename Statement>
-struct consistency_check<Statement, no_returning_t> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, no_returning_t> {
+  static constexpr void verify() {}
 };
 
 template <typename... Columns>
@@ -227,5 +212,4 @@ auto returning(Columns... columns)
         std::move(columns)...)) {
   return statement_t<no_returning_t>{}.returning(std::move(columns)...);
 }
-#endif
 }  // namespace sqlpp

@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_into_with_standalone =
     requires(Expressions... expressions) { sqlpp::into(expressions...); };
@@ -53,7 +51,7 @@ int main() {
 
   // into() arg must be a table
   static_assert(can_call_into_with<decltype(bar)>, "");
-  static_assert(cannot_call_into_with<decltype(bar.as(something))>, "");
+  static_assert(cannot_call_into_with<decltype(bar.as<"something">())>, "");
   static_assert(cannot_call_into_with<decltype(bar.id)>, "");
   static_assert(cannot_call_into_with<decltype(foo.join(bar))>, "");
   static_assert(cannot_call_into_with<decltype(foo.cross_join(bar))>, "");

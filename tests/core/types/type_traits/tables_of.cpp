@@ -26,8 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 void test_required_tables_of() {
   // Columns require tables.
   {
@@ -51,7 +49,7 @@ void test_required_tables_of() {
   {
     using TF = test::TabFoo;
     using TB = test::TabBar;
-    using TC = decltype(test::TabFoo{}.as(cheese));
+    using TC = decltype(test::TabFoo{}.as<"cheese">());
     using T = decltype(TF{}.id + TB{}.id + TC{}.id);
     static_assert(std::is_same<sqlpp::required_tables_of_t<T>,
                                sqlpp::detail::type_set<TF, TB, TC>>::value,
@@ -66,7 +64,7 @@ void test_required_tables_of() {
   {
     using TF = test::TabFoo;
     using TB = test::TabBar;
-    using TC = decltype(test::TabFoo{}.as(cheese));
+    using TC = decltype(test::TabFoo{}.as<"cheese">());
     using T =
         decltype(TF{}.id < 17 and dynamic(true, TB{}.id < 17) and TC{}.id < 17);
     static_assert(std::is_same<sqlpp::required_tables_of_t<T>,
@@ -104,7 +102,7 @@ void test_provided_tables_of() {
   // Schema-qualified tables provide tables.
   {
     using T =
-        decltype(schema_qualified_table({"meme"}, test::TabFoo{}).as(cheese));
+        decltype(schema_qualified_table({"meme"}, test::TabFoo{}).as<"cheese">());
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<T>>::value,
                   "");
@@ -118,7 +116,7 @@ void test_provided_tables_of() {
 
   // Tables AS provide tables.
   {
-    using T = decltype(test::TabFoo{}.as(cheese));
+    using T = decltype(test::TabFoo{}.as<"cheese">());
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<T>>::value,
                   "");
@@ -133,7 +131,7 @@ void test_provided_tables_of() {
   // SELECT AS provides tables.
   {
     using T =
-        decltype(select(test::TabFoo{}.id).from(test::TabFoo{}).as(cheese));
+        decltype(select(test::TabFoo{}.id).from(test::TabFoo{}).as<"cheese">());
     using Ref = sqlpp::select_ref_t<cheese_t::_sqlpp_name_tag>;
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<Ref>>::value,
@@ -236,7 +234,7 @@ void test_provided_tables_of() {
   {
     using F = test::TabFoo;
     using B = test::TabBar;
-    using C = decltype(test::TabFoo{}.as(cheese));
+    using C = decltype(test::TabFoo{}.as<"cheese">());
     using T = decltype(C{}.cross_join(
         F{}.full_outer_join(dynamic(true, B{})).on(F{}.id == B{}.id)));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
@@ -254,7 +252,7 @@ void test_provided_tables_of() {
   {
     using F = test::TabFoo;
     using B = test::TabBar;
-    using C = decltype(test::TabFoo{}.as(cheese));
+    using C = decltype(test::TabFoo{}.as<"cheese">());
     using T = decltype(F{}.full_outer_join(dynamic(true, B{}))
                            .on(F{}.id == B{}.id)
                            .cross_join(C{}));

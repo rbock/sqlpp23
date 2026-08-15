@@ -26,9 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(count_1);
-SQLPP_CREATE_NAME_TAG(count_star);
-
 int main(int, char*[]) {
   try {
     const auto tab = test::TabFoo{};
@@ -44,9 +41,9 @@ int main(int, char*[]) {
 
     // select count
     for (const auto& row : db(select(
-            count(tab.intN).as(sqlpp::alias::count_),
-            sqlpp::count(1).as(count_1),
-            count(tab.intN).as(count_star)
+            count(tab.intN).as<"count_">(),
+            sqlpp::count(1).as<"count_1">(),
+            count(tab.intN).as<"count_star">()
             ).from(tab))) {
       std::ignore = row.count_;
       std::ignore = row.count_1;
@@ -55,8 +52,8 @@ int main(int, char*[]) {
 
     // select distinct count
     for (const auto& row : db(select(
-            count(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_count_),
-            count(sqlpp::distinct, 1).as(count_1)
+            count(sqlpp::distinct, tab.intN).as<"distinct_count_">(),
+            count(sqlpp::distinct, 1).as<"count_1">()
             ).from(tab))) {
       std::ignore = row.distinct_count_;
       std::ignore = row.count_1;

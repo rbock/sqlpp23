@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename Lhs, typename Rhs>
 concept can_call_union_all_with_standalone =
     requires(Lhs lhs, Rhs rhs) { sqlpp::union_all(lhs, rhs); };
@@ -81,8 +79,8 @@ int main() {
 
   const auto incomplete_lhs = select(all_of(bar));
   const auto lhs = incomplete_lhs.from(bar);
-  const auto incomplete_rhs = select(all_of(bar.as(something)));
-  const auto rhs = incomplete_rhs.from(bar.as(something));
+  const auto incomplete_rhs = select(all_of(bar.as<"something">()));
+  const auto rhs = incomplete_rhs.from(bar.as<"something">());
 
   union_distinct(lhs, rhs);
   static_assert(
@@ -111,9 +109,9 @@ int main() {
   {
     auto s_foo_int = select(foo.id).from(foo);
     auto s_foo_int_n = select(foo.intN).from(foo);
-    auto s_value_id = select(sqlpp::value(7).as(foo.id)).from(foo);
+    auto s_value_id = select(sqlpp::value(7).as<"foo.id">()).from(foo);
     auto s_value_oid =
-        select(sqlpp::value(7).as(something)).from(foo);
+        select(sqlpp::value(7).as<"something">()).from(foo);
     // Different value type
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
@@ -131,9 +129,9 @@ int main() {
   {
     auto s_foo_int = select(foo.textNnD, foo.id).from(foo);
     auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo);
-    auto s_value_id = select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo);
+    auto s_value_id = select(foo.textNnD, sqlpp::value(7).as<"foo.id">()).from(foo);
     auto s_value_oid =
-        select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);
+        select(foo.textNnD, sqlpp::value(7).as<"something">()).from(foo);
     // Different value type
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
@@ -291,7 +289,7 @@ int main() {
 
   // union can be used as sub query referring to tables of the enclosing query
   {
-    auto u = select(value(union_all(select(foo.id), select(bar.id))).as(something));
+    auto u = select(value(union_all(select(foo.id), select(bar.id))).as<"something">());
     using U = decltype(u);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
                                sqlpp::consistent_t>::value);

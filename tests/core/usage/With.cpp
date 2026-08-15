@@ -47,7 +47,7 @@ int With(int, char*[]) {
   using ::sqlpp::alias::a;
   using ::sqlpp::alias::b;
   const auto c = sqlpp::cte(b).as(
-      select(t.id.as(a)).from(t).union_all(select(sqlpp::value(123).as(a))));
+      select(t.id.as<"a">()).from(t).union_all(select(sqlpp::value(123).as<"a">())));
   db(with(c) << select(all_of(c)).from(c));
 
   // recursive CTE with join

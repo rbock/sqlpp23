@@ -41,8 +41,8 @@ int main(int, char*[]) {
 
     // select avg
     for (const auto& row : db(select(
-            avg(tab.intN).as(sqlpp::alias::avg_),
-            avg(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_avg_)
+            avg(tab.intN).as<"avg_">(),
+            avg(sqlpp::distinct, tab.intN).as<"distinct_avg_">()
             ).from(tab))) {
       std::ignore = row.avg_;
       std::ignore = row.distinct_avg_;

@@ -26,15 +26,12 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(r_not_null);
-SQLPP_CREATE_NAME_TAG(r_maybe_null);
-
 template <typename Value>
 void test_exists(Value v) {
   // Selectable values.
-  const auto v_not_null = sqlpp::value(v).as(r_not_null);
+  const auto v_not_null = sqlpp::value(v).as<"r_not_null">();
   const auto v_maybe_null =
-      sqlpp::value(std::optional{v}).as(r_maybe_null);
+      sqlpp::value(std::optional{v}).as<"r_maybe_null">();
 
   // EXISTS expression can be used in basic comparison expressions, which use
   // remove_exists_t to look inside.

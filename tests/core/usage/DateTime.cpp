@@ -36,15 +36,13 @@ std::chrono::microseconds time(T t) {
 }
 }
 
-SQLPP_CREATE_NAME_TAG(now);
-
 int DateTime(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t printer;
   const auto t = test::TabDateTime{};
 
   for (const auto& row :
-       db(select(::sqlpp::value(std::chrono::system_clock::now()).as(now)))) {
+       db(select(::sqlpp::value(std::chrono::system_clock::now()).as<"now">()))) {
     std::cout << row.now;
   }
   for (const auto& row : db(select(all_of(t)).from(t))) {

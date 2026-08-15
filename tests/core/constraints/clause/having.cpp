@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_having_with_standalone =
     requires(Expressions... expressions) { sqlpp::having(expressions...); };
@@ -72,7 +70,7 @@ int main() {
 
   // Try alias bool column (can only be used as select column, but not as a
   // value in `having`).
-  static_assert(cannot_call_having_with<decltype(bar.boolNn.as(something))>,
+  static_assert(cannot_call_having_with<decltype(bar.boolNn.as<"something">())>,
                 "");
 
   // --------------------------------
@@ -194,7 +192,7 @@ int main() {
 
   // `having` using unknown table
   {
-    auto s = select(max(foo.id).as(something))
+    auto s = select(max(foo.id).as<"something">())
                  .from(foo)
                  .having(max(bar.id) > 7)
                  .group_by(foo.id);
@@ -210,7 +208,7 @@ int main() {
 
   // `having` statically using dynamic table
   {
-    auto s = select(max(foo.id).as(something))
+    auto s = select(max(foo.id).as<"something">())
                  .from(foo.cross_join(dynamic(maybe, bar)))
                  .having(bar.id > 7)
                  .group_by(bar.id);

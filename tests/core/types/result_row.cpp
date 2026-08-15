@@ -37,24 +37,19 @@ constexpr auto foo = test::TabFoo{};
 auto db = sqlpp::mock_db::make_test_connection();
 }  // namespace
 
-SQLPP_CREATE_NAME_TAG(r_not_null);
-SQLPP_CREATE_NAME_TAG(r_maybe_null);
-SQLPP_CREATE_NAME_TAG(r_opt_not_null);
-SQLPP_CREATE_NAME_TAG(r_opt_maybe_null);
-
 template <typename ResultType, typename Value>
 void test_result_row(Value v) {
   using OptResultType = std::optional<ResultType>;
 
   // Selectable values.
-  auto v_not_null = sqlpp::value(v).as(r_not_null);
+  auto v_not_null = sqlpp::value(v).as<"r_not_null">();
   const auto v_maybe_null =
-      sqlpp::value(std::optional{v}).as(r_maybe_null);
+      sqlpp::value(std::optional{v}).as<"r_maybe_null">();
 
   // Dynamically selectable values.
-  const auto v_opt_not_null = dynamic(true, sqlpp::value(v).as(r_opt_not_null));
+  const auto v_opt_not_null = dynamic(true, sqlpp::value(v).as<"r_opt_not_null">());
   const auto v_opt_maybe_null =
-      dynamic(true, sqlpp::value(std::optional{v}).as(r_opt_maybe_null));
+      dynamic(true, sqlpp::value(std::optional{v}).as<"r_opt_maybe_null">());
 
   auto s = select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null);
   using S = decltype(s);
@@ -80,18 +75,15 @@ void test_result_row(Value v) {
 }
 
 void test_outer_join() {
-  using sqlpp::alias::left;
-  using sqlpp::alias::right;
-
   // cross join
-  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as<"left">(), bar.id.as<"right">())
                                 .from(foo.cross_join(bar)))) {
     static_assert(not sqlpp::is_optional<decltype(row.left)>::value, "");
     static_assert(not sqlpp::is_optional<decltype(row.right)>::value, "");
   }
 
   // left outer join
-  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as<"left">(), bar.id.as<"right">())
                                 .from(foo.left_outer_join(bar).on(true)))) {
     static_assert(not sqlpp::is_optional<decltype(row.left)>::value, "");
     static_assert(sqlpp::is_optional<decltype(row.right)>::value,
@@ -99,7 +91,7 @@ void test_outer_join() {
   }
 
   // right outer join
-  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as<"left">(), bar.id.as<"right">())
                                 .from(foo.right_outer_join(bar).on(true)))) {
     static_assert(sqlpp::is_optional<decltype(row.left)>::value,
                   "in a right outer join, the left hand side can be null");
@@ -107,7 +99,7 @@ void test_outer_join() {
   }
 
   // full outer join
-  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right))
+  for (const auto& row : db(select(foo.id.as<"left">(), bar.id.as<"right">())
                                 .from(foo.full_outer_join(bar).on(true)))) {
     static_assert(sqlpp::is_optional<decltype(row.left)>::value,
                   "in a full outer join, the both sides can be null");

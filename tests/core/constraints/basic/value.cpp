@@ -28,8 +28,6 @@
 
 namespace {
 
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_value_with =
     requires(Expressions... expressions) { sqlpp::value(expressions...); };
@@ -55,7 +53,7 @@ int main() {
   static_assert(cannot_call_value_with<decltype(foo.id)>);
   static_assert(cannot_call_value_with<decltype(foo.id == 7)>);
   static_assert(cannot_call_value_with<decltype(foo.id + 7)>);
-  static_assert(cannot_call_value_with<decltype((foo.id + 7).as(something))>);
+  static_assert(cannot_call_value_with<decltype((foo.id + 7).as<"something">())>);
   static_assert(cannot_call_value_with<decltype(sqlpp::value(7))>);
   static_assert(cannot_call_value_with<decltype(std::optional{s})>);
 }

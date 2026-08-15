@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_count_with =
     requires(Expressions... expressions) { sqlpp::count(expressions...); };
@@ -46,7 +44,7 @@ int main() {
   static_assert(can_call_count_with<decltype(foo.textNnD)>);
 
   static_assert(cannot_call_count_with<sqlpp::distinct_t, sqlpp::star_t>);
-  static_assert(cannot_call_count_with<decltype(foo.id.as(something))>);
+  static_assert(cannot_call_count_with<decltype(foo.id.as<"something">())>);
   static_assert(cannot_call_count_with<decltype(foo)>);
 
   // count() must not be used on an aggregate function.

@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_select_columns_with_standalone = requires(
     Expressions... expressions) { sqlpp::select_columns(expressions...); };
@@ -173,7 +171,7 @@ int main() {
   // select_columns(<mix of aggregate and non-aggregate columns>) can be
   // constructed but is inconsistent.
   {
-    auto s = select(foo.id, max(foo.id).as(test::max_id)).from(foo);
+    auto s = select(foo.id, max(foo.id).as<"test::max_id">()).from(foo);
     using S = decltype(s);
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,
@@ -182,7 +180,7 @@ int main() {
   }
 
   {
-    auto s = select(foo.id, (max(foo.id) + 7).as(test::max_id)).from(foo);
+    auto s = select(foo.id, (max(foo.id) + 7).as<"test::max_id">()).from(foo);
     using S = decltype(s);
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,
@@ -212,7 +210,7 @@ int main() {
   }
 
   {
-    auto s = select(foo.id, dynamic(true, (foo.intN + 7).as(test::max_id)))
+    auto s = select(foo.id, dynamic(true, (foo.intN + 7).as<"test::max_id">()))
                  .from(foo)
                  .group_by(foo.intN);
     using S = decltype(s);
@@ -225,7 +223,7 @@ int main() {
 
   // Dynamic group by column
   {
-    auto s = select(foo.id, dynamic(true, foo.intN.as(test::max_id)))
+    auto s = select(foo.id, dynamic(true, foo.intN.as<"test::max_id">()))
                  .from(foo)
                  .group_by(foo.id, dynamic(true, foo.intN));
     using S = decltype(s);
@@ -247,7 +245,7 @@ int main() {
         "");
   }
   {
-    auto s = select(foo.id, (foo.intN + 7).as(test::max_id))
+    auto s = select(foo.id, (foo.intN + 7).as<"test::max_id">())
                  .from(foo)
                  .group_by(foo.id, dynamic(true, foo.intN));
     using S = decltype(s);
@@ -263,7 +261,7 @@ int main() {
   // Non-column group by
   {
     const auto c = foo.id + foo.intN;
-    auto s = select(c.as(something))
+    auto s = select(c.as<"something">())
                  .from(foo)
                  .group_by(c);
     using S = decltype(s);
@@ -273,7 +271,7 @@ int main() {
   }
   {
     const auto c = foo.id + foo.intN;
-    auto s = select((foo.doubleN + c).as(something))
+    auto s = select((foo.doubleN + c).as<"something">())
                  .from(foo)
                  .group_by(foo.doubleN, c);
     using S = decltype(s);
@@ -283,7 +281,7 @@ int main() {
   }
   {
     const auto c = foo.id + foo.intN;
-    auto s = select((foo.id + c).as(something))
+    auto s = select((foo.id + c).as<"something">())
                  .from(foo)
                  .group_by(foo.doubleN, c);
     using S = decltype(s);
@@ -359,7 +357,7 @@ int main() {
   {
     // Fail: foo is statically required in a selected expression, but provided
     // dynamically only.
-    auto s = select((foo.id + bar.intN).as(something)).from(dynamic(true, foo));
+    auto s = select((foo.id + bar.intN).as<"something">()).from(dynamic(true, foo));
     using S = decltype(s);
     static_assert(
         std::is_same<

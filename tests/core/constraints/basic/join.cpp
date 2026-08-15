@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 // Returns true if `JOIN(declval<Lhs>(), declval<Rhs>)` is a valid function
 // call.
 #define MAKE_CAN_CALL_JOIN_WITH(JOIN)                          \
@@ -157,12 +155,12 @@ int main() {
   const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
-  const auto aFoo = foo.as(sqlpp::alias::a);
-  const auto bFoo = foo.as(sqlpp::alias::b);
+  const auto aFoo = foo.as<"a">();
+  const auto bFoo = foo.as<"b">();
 
   // OK
   CAN_CALL_ALL_JOINS_WITH(bar, foo);
-  CAN_CALL_ALL_JOINS_WITH(bar, foo.as(something));
+  CAN_CALL_ALL_JOINS_WITH(bar, foo.as<"something">());
 
   // Cannot join with a non-table
   CANNOT_CALL_ANY_JOIN_WITH(bar, foo.id);
@@ -171,7 +169,7 @@ int main() {
   CANNOT_CALL_ANY_JOIN_WITH(foo, foo);
 
   // Cannot join two tables with identical names.
-  CANNOT_CALL_ANY_JOIN_WITH(foo, bar.as(foo));
+  CANNOT_CALL_ANY_JOIN_WITH(foo, bar.as<"foo">());
 
   // JOIN must not be called with tables that depend on other tables.
   // Not sure this can happen in the wild, which is why we are using the

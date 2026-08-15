@@ -41,8 +41,8 @@ int main(int, char*[]) {
 
     // select min
     for (const auto& row : db(select(
-            min(tab.intN).as(sqlpp::alias::min_),
-            min(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_min_)
+            min(tab.intN).as<"min_">(),
+            min(sqlpp::distinct, tab.intN).as<"distinct_min_">()
             ).from(tab))) {
       std::ignore = row.min_;
       std::ignore = row.distinct_min_;

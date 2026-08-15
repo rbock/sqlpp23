@@ -41,8 +41,8 @@ int main(int, char*[]) {
 
     // select sum
     for (const auto& row : db(select(
-            sum(tab.intN).as(sqlpp::alias::sum_),
-            sum(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_sum_)
+            sum(tab.intN).as<"sum_">(),
+            sum(sqlpp::distinct, tab.intN).as<"distinct_sum_">()
             ).from(tab))) {
       std::ignore = row.sum_;
       std::ignore = row.distinct_sum_;

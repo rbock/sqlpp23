@@ -40,10 +40,10 @@ int main(int, char*[]) {
                 "SUM(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(sum(select(sqlpp::value(7).as(sqlpp::alias::a))),
+  SQLPP_COMPARE(sum(select(sqlpp::value(7).as<"a">())),
                 "SUM(SELECT 7 AS a)");
   SQLPP_COMPARE(
-      sum(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))),
+      sum(sqlpp::distinct, select(sqlpp::value(7).as<"a">())),
       "SUM(DISTINCT SELECT 7 AS a)");
 
   return 0;

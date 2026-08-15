@@ -32,7 +32,7 @@ int main() {
   // Multiple clauses with parameters
   SQLPP_COMPARE(
       (sqlpp::select(
-           parameter(sqlpp::integral{}, sqlpp::alias::a).as(sqlpp::alias::a))
+           parameter(sqlpp::integral{}, sqlpp::alias::a).as<"a">())
            .from(foo)
            .where(parameter(sqlpp::boolean{}, sqlpp::alias::b))
            .offset(parameter(sqlpp::integral{}, sqlpp::alias::c))

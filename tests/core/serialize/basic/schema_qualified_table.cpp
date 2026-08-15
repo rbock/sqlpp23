@@ -34,7 +34,7 @@ int main(int, char*[]) {
   static_assert(not sqlpp::is_table<M>::value, "");
 
   // A schema-qualified table can be used as table with AS:
-  auto major_foo = major.as(sqlpp::alias::a);
+  auto major_foo = major.as<"a">();
 
   SQLPP_COMPARE(major_foo, "\"major\".tab_foo AS a");
   SQLPP_COMPARE(major_foo.id, "a.id");

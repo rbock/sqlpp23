@@ -26,8 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(something);
-
 void test_parameter() {
   const auto foo = test::TabFoo{};
 
@@ -42,7 +40,7 @@ void test_parameter() {
 
     // If parameters had a name tag, it would be possible to use them as select
     // columns.
-    static_assert(not sqlpp::has_name_tag<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value, "");
 
     static_assert(sqlpp::has_enabled_as<P>::value, "");
     static_assert(sqlpp::has_enabled_comparison<P>::value, "");
@@ -57,13 +55,13 @@ void test_parameter() {
                                sqlpp::detail::type_vector<P>>::value,
                   "");
 
-    static_assert(not sqlpp::has_name_tag<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value, "");
     static_assert(sqlpp::has_enabled_as<P>::value, "");
     static_assert(sqlpp::has_enabled_comparison<P>::value, "");
   }
 
   {
-    auto p = parameter(sqlpp::integral{}, something);
+    auto p = sqlpp::parameter<"something", int64_t>();
     using P = decltype(p);
     static_assert(
         std::is_same<sqlpp::data_type_of_t<P>, sqlpp::integral>::value, "");
@@ -71,12 +69,12 @@ void test_parameter() {
                                sqlpp::detail::type_vector<P>>::value,
                   "");
 
-    static_assert(not sqlpp::has_name_tag<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value, "");
     static_assert(sqlpp::has_enabled_as<P>::value, "");
     static_assert(sqlpp::has_enabled_comparison<P>::value, "");
   }
   {
-    auto p = parameter(std::optional<sqlpp::blob>{}, something);
+    auto p = sqlpp::parameter<"something", std::vector<uint8_t>>();
     using P = decltype(p);
     static_assert(std::is_same<sqlpp::data_type_of_t<P>,
                                std::optional<sqlpp::blob>>::value,
@@ -85,7 +83,7 @@ void test_parameter() {
                                sqlpp::detail::type_vector<P>>::value,
                   "");
 
-    static_assert(not sqlpp::has_name_tag<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value, "");
     static_assert(sqlpp::has_enabled_as<P>::value, "");
     static_assert(sqlpp::has_enabled_comparison<P>::value, "");
   }

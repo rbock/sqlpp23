@@ -26,19 +26,17 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(sample);
-
 int TableAlias(int, char*[]) {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   // Individual values
-  SQLPP_COMPARE(foo.as(bar), "tab_foo AS tab_bar");
-  SQLPP_COMPARE(select(foo.doubleN).from(foo).as(bar),
+  SQLPP_COMPARE(foo.as<"tab_bar">(), "tab_foo AS tab_bar");
+  SQLPP_COMPARE(select(foo.doubleN).from(foo).as<"tab_bar">(),
                 "(SELECT tab_foo.double_n FROM tab_foo) AS tab_bar");
 
   // Table alias
-  const auto tab = foo.as(sample);
+  const auto tab = foo.as<"sample">();
   SQLPP_COMPARE(select(tab.doubleN).from(tab),
                 "SELECT sample.double_n FROM tab_foo AS sample");
 

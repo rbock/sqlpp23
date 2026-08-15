@@ -26,17 +26,12 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace test {
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_QUOTED_NAME_TAG(cake);
-}  // namespace test
-
 int main(int, char*[]) {
-  const auto cheese = sqlpp::value(17).as(test::cheese);
-  const auto cake = sqlpp::value(17).as(test::cake);
+  const auto cheese = sqlpp::value(17).as<"cheese">();
+  const auto cake = sqlpp::value(17).as<"cake">();
 
   SQLPP_COMPARE(cheese, "17 AS cheese");
-  SQLPP_COMPARE(cake, "17 AS \"cake\"");
+  SQLPP_COMPARE(cake, "17 AS cake");
 
   return 0;
 }

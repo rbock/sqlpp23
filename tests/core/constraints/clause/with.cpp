@@ -27,9 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-SQLPP_CREATE_NAME_TAG(cake);
-
 template <typename... Expressions>
 concept can_call_with_with_standalone =
     requires(Expressions... expressions) { sqlpp::with(expressions...); };
@@ -53,7 +50,7 @@ int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  const auto c_ref = sqlpp::cte(something);
+  const auto c_ref = sqlpp::ccte<"something">();
   const auto c = c_ref.as(select(bar.id).from(bar));
 
   // OK
@@ -77,8 +74,8 @@ int main() {
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
   // the right)
   {
-    const auto a = sqlpp::cte(sqlpp::alias::a).as(select(bar.id).from(bar));
-    const auto b = sqlpp::cte(sqlpp::alias::b).as(select(a.id).from(a));
+    const auto a = sqlpp::ccte<"a">().as(select(bar.id).from(bar));
+    const auto b = sqlpp::ccte<"b">().as(select(a.id).from(a));
 
     std::ignore = with(a);                     // OK
     std::ignore = with(a, b);                  // OK
@@ -91,8 +88,8 @@ int main() {
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
   // the right)
   {
-    const auto a1 = sqlpp::cte(sqlpp::alias::a).as(select(bar.id).from(bar));
-    const auto a2 = sqlpp::cte(sqlpp::alias::a).as(select(foo.id).from(foo));
+    const auto a1 = sqlpp::ccte<"a">().as(select(bar.id).from(bar));
+    const auto a2 = sqlpp::ccte<"a">().as(select(foo.id).from(foo));
 
     std::ignore = with(a1);  // OK
     std::ignore = with(a2);  // OK

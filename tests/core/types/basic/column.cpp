@@ -26,15 +26,13 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 void test_column() {
   {
     // Column integer with default (auto-increment).
     auto foo = test::TabFoo{};
     using Foo = decltype(foo);
     using Id = decltype(foo.id);
-    using Cheese = decltype(foo.id.as(cheese));
+    using Cheese = decltype(foo.id.as<"cheese">);
     using BarId = decltype(foo.as(test::TabBar{}).id);
     using BarCheese = decltype(foo.as(test::TabBar{}).id.as(cheese));
 

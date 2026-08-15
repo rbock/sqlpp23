@@ -26,14 +26,12 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(v);
-
 int main(int, char*[]) {
   {
     const auto val = sqlpp::value(17);
 
-    SQLPP_COMPARE(any(select(val.as(v))), "ANY (SELECT 17 AS v)");
-    SQLPP_COMPARE(val == any(select(val.as(v))), "17 = ANY (SELECT 17 AS v)");
+    SQLPP_COMPARE(any(select(val.as<"v">())), "ANY (SELECT 17 AS v)");
+    SQLPP_COMPARE(val == any(select(val.as<"v">())), "17 = ANY (SELECT 17 AS v)");
   }
 
   {
@@ -81,11 +79,11 @@ int main(int, char*[]) {
                   "CONCAT(CONCAT('b', 'c'), CONCAT('b', 'c'))");
 
     // Arithmetic expressions can be named with AS
-    SQLPP_COMPARE((val + val).as(sqlpp::alias::a), "(1 + 1) AS a");
-    SQLPP_COMPARE((val - val).as(sqlpp::alias::a), "(1 - 1) AS a");
-    SQLPP_COMPARE((val * val).as(sqlpp::alias::a), "(1 * 1) AS a");
-    SQLPP_COMPARE((val / val).as(sqlpp::alias::a), "(1 / 1) AS a");
-    SQLPP_COMPARE((val % val).as(sqlpp::alias::a), "(1 % 1) AS a");
+    SQLPP_COMPARE((val + val).as<"a">(), "(1 + 1) AS a");
+    SQLPP_COMPARE((val - val).as<"a">(), "(1 - 1) AS a");
+    SQLPP_COMPARE((val * val).as<"a">(), "(1 * 1) AS a");
+    SQLPP_COMPARE((val / val).as<"a">(), "(1 / 1) AS a");
+    SQLPP_COMPARE((val % val).as<"a">(), "(1 % 1) AS a");
 
     // Arithmetic expressions can be compared
     SQLPP_COMPARE((val + val) < 17, "(1 + 1) < 17");
@@ -102,15 +100,15 @@ int main(int, char*[]) {
 
     const auto col_id = test::TabFoo{}.id;
 
-    SQLPP_COMPARE(val.as(v), "17 AS v");
-    SQLPP_COMPARE(expr.as(v), "(17 + 4) AS v");
-    SQLPP_COMPARE(count(val).as(v), "COUNT(17) AS v");
+    SQLPP_COMPARE(val.as<"v">(), "17 AS v");
+    SQLPP_COMPARE(expr.as<"v">(), "(17 + 4) AS v");
+    SQLPP_COMPARE(count(val).as<"v">(), "COUNT(17) AS v");
 
-    SQLPP_COMPARE(select_columns(dynamic(false, val.as(v))), "NULL AS v");
-    SQLPP_COMPARE(select_columns(dynamic(false, expr.as(v))), "NULL AS v");
-    SQLPP_COMPARE(select_columns(dynamic(false, count(val).as(v))),
+    SQLPP_COMPARE(select_columns(dynamic(false, val.as<"v">())), "NULL AS v");
+    SQLPP_COMPARE(select_columns(dynamic(false, expr.as<"v">())), "NULL AS v");
+    SQLPP_COMPARE(select_columns(dynamic(false, count(val).as<"v">())),
                   "NULL AS v");
-    SQLPP_COMPARE(select_columns(dynamic(false, col_id.as(v))), "NULL AS v");
+    SQLPP_COMPARE(select_columns(dynamic(false, col_id.as<"v">())), "NULL AS v");
   }
   {
     constexpr auto t = test::TabFoo{};
@@ -269,13 +267,13 @@ int main(int, char*[]) {
   {
     const auto val = sqlpp::value(17);
 
-    SQLPP_COMPARE(exists(select(val.as(v))), "EXISTS (SELECT 17 AS v)");
-    SQLPP_COMPARE(true and exists(select(val.as(v))),
+    SQLPP_COMPARE(exists(select(val.as<"v">())), "EXISTS (SELECT 17 AS v)");
+    SQLPP_COMPARE(true and exists(select(val.as<"v">())),
                   "1 AND EXISTS (SELECT 17 AS v)");
-    SQLPP_COMPARE(exists(select(val.as(v))) and true,
+    SQLPP_COMPARE(exists(select(val.as<"v">())) and true,
                   "EXISTS (SELECT 17 AS v) AND 1");
 
-    SQLPP_COMPARE(exists(select(val.as(v))).as(sqlpp::alias::exists_),
+    SQLPP_COMPARE(exists(select(val.as<"v">())).as<"exists_">(),
                   "EXISTS (SELECT 17 AS v) AS exists_");
   }
   {
@@ -287,20 +285,20 @@ int main(int, char*[]) {
     // parentheses.
     SQLPP_COMPARE(val.in(val), "17 IN (17)");
     SQLPP_COMPARE(val.in(expr), "17 IN (17 + 4)");
-    SQLPP_COMPARE(val.in(select(val.as(v))), "17 IN (SELECT 17 AS v)");
+    SQLPP_COMPARE(val.in(select(val.as<"v">())), "17 IN (SELECT 17 AS v)");
 
     SQLPP_COMPARE(val.not_in(val), "17 NOT IN (17)");
     SQLPP_COMPARE(val.not_in(expr), "17 NOT IN (17 + 4)");
-    SQLPP_COMPARE(val.not_in(select(val.as(v))), "17 NOT IN (SELECT 17 AS v)");
+    SQLPP_COMPARE(val.not_in(select(val.as<"v">())), "17 NOT IN (SELECT 17 AS v)");
 
     // IN expressions with multiple arguments require inner parentheses.
-    SQLPP_COMPARE(val.in(1, select(val.as(v)), 23),
+    SQLPP_COMPARE(val.in(1, select(val.as<"v">()), 23),
                   "17 IN (1, (SELECT 17 AS v), 23)");
     SQLPP_COMPARE(val.in(std::vector<int>{17, 18, 19}), "17 IN (17, 18, 19)");
     SQLPP_COMPARE(val.in(std::vector<expr_t>{expr, expr, expr}),
                   "17 IN ((17 + 4), (17 + 4), (17 + 4))");
 
-    SQLPP_COMPARE(val.not_in(1, select(val.as(v))),
+    SQLPP_COMPARE(val.not_in(1, select(val.as<"v">())),
                   "17 NOT IN (1, (SELECT 17 AS v))");
     SQLPP_COMPARE(val.not_in(std::vector<int>{17, 18, 19}),
                   "17 NOT IN (17, 18, 19)");

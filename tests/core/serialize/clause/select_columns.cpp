@@ -26,10 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake);
-SQLPP_CREATE_NAME_TAG(id_count);
-
 int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
@@ -71,24 +67,24 @@ int main(int, char*[]) {
                 "tab_foo.int_n, tab_foo.int_c_n, tab_foo.double_n, "
                 "tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
 
-  using T = decltype(count(bar.id).as(id_count));
+  using T = decltype(count(bar.id).as<"id_count">());
   static_assert(sqlpp::has_data_type_v<
                     sqlpp::remove_as_t<sqlpp::remove_dynamic_t<T>>> and
-                sqlpp::has_name_tag_v<sqlpp::remove_dynamic_t<T>>);
+                sqlpp::has_name_v<sqlpp::remove_dynamic_t<T>>);
   // Column and aggregate function
-  SQLPP_COMPARE(select(foo.doubleN, count(bar.id).as(id_count)),
+  SQLPP_COMPARE(select(foo.doubleN, count(bar.id).as<"id_count">()),
                 "SELECT tab_foo.double_n, COUNT(tab_bar.id) AS id_count");
 
   // Column aliases
-  SQLPP_COMPARE(select(foo.doubleN.as(sqlpp::alias::o),
-                       count(bar.id).as(sqlpp::alias::a)),
+  SQLPP_COMPARE(select(foo.doubleN.as<"o">(),
+                       count(bar.id).as<"a">()),
                 "SELECT tab_foo.double_n AS o, COUNT(tab_bar.id) AS a");
 
   // Optional column manually
   SQLPP_COMPARE(select(dynamic(true, bar.id)), "SELECT tab_bar.id");
   SQLPP_COMPARE(select(dynamic(false, bar.id)), "SELECT NULL AS id");
 
-  SQLPP_COMPARE(select(sqlpp::verbatim<sqlpp::integral>("17").as(cheese)),
+  SQLPP_COMPARE(select(sqlpp::verbatim<int64_t>("17").as<"cheese">()),
                 "SELECT 17 AS cheese");
 
   // -----------------------------------------
@@ -112,13 +108,13 @@ int main(int, char*[]) {
                 "tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
   // Single expression
-  SQLPP_COMPARE(select_columns((foo.id + 17).as(cake)),
+  SQLPP_COMPARE(select_columns((foo.id + 17).as<"cake">()),
                 "(tab_foo.id + 17) AS cake");
 
   // Single dynamic column.
   SQLPP_COMPARE(select_columns(dynamic(true, foo.id)), "tab_foo.id");
   SQLPP_COMPARE(select_columns(dynamic(false, foo.id)), "NULL AS id");
-  SQLPP_COMPARE(select_columns(dynamic(false, foo.id.as(cake))),
+  SQLPP_COMPARE(select_columns(dynamic(false, foo.id.as<"cake">())),
                 "NULL AS cake");
 
   // Multiple dynamic columns (this is odd if all are dynamic)
@@ -147,33 +143,33 @@ int main(int, char*[]) {
                 "NULL AS id, NULL AS text_nn_d, tab_foo.bool_n");
 
   // Single value
-  SQLPP_COMPARE(select_columns(val.as(cheese)),
+  SQLPP_COMPARE(select_columns(val.as<"cheese">()),
                 "17 AS cheese");
-  SQLPP_COMPARE(select_columns((foo.id + 17).as(cake)),
+  SQLPP_COMPARE(select_columns((foo.id + 17).as<"cake">()),
                 "(tab_foo.id + 17) AS cake");
 
   // Mixed column and value
-  SQLPP_COMPARE(select_columns(foo.id, val.as(cheese)),
+  SQLPP_COMPARE(select_columns(foo.id, val.as<"cheese">()),
                 "tab_foo.id, 17 AS cheese");
-  SQLPP_COMPARE(select_columns(val.as(cake), foo.id),
+  SQLPP_COMPARE(select_columns(val.as<"cake">(), foo.id),
                 "17 AS cake, tab_foo.id");
 
   // Mixed column and dynamic value
   SQLPP_COMPARE(
       select_columns(foo.id,
-                     dynamic(true, val.as(cheese))),
+                     dynamic(true, val.as<"cheese">())),
       "tab_foo.id, 17 AS cheese");
   SQLPP_COMPARE(
-      select_columns(dynamic(true, val.as(cake)),
+      select_columns(dynamic(true, val.as<"cake">()),
                      foo.id),
       "17 AS cake, tab_foo.id");
 
   SQLPP_COMPARE(
       select_columns(foo.id,
-                     dynamic(false, val.as(cheese))),
+                     dynamic(false, val.as<"cheese">())),
       "tab_foo.id, NULL AS cheese");
   SQLPP_COMPARE(
-      select_columns(dynamic(false, val.as(cake)),
+      select_columns(dynamic(false, val.as<"cake">()),
                      foo.id),
       "NULL AS cake, tab_foo.id");
 

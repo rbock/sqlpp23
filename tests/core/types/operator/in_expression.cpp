@@ -51,7 +51,7 @@ void test_in_expression(Value v) {
                 "");
   static_assert(
       is_bool<decltype(in(v_not_null,
-                          select(v_not_null.as(sqlpp::alias::a))))>::value,
+                          select(v_not_null.as<"a">())))>::value,
       "");
 
   // Compare non-nullable with nullable.
@@ -64,7 +64,7 @@ void test_in_expression(Value v) {
       "");
   static_assert(
       is_maybe_bool<decltype(in(
-          v_not_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value,
+          v_not_null, select(v_maybe_null.as<"a">())))>::value,
       "");
 
   // Compare nullable with non-nullable.
@@ -77,7 +77,7 @@ void test_in_expression(Value v) {
       "");
   static_assert(
       is_maybe_bool<decltype(in(
-          v_maybe_null, select(v_not_null.as(sqlpp::alias::a))))>::value,
+          v_maybe_null, select(v_not_null.as<"a">())))>::value,
       "");
 
   // Compare nullable with nullable.
@@ -90,7 +90,7 @@ void test_in_expression(Value v) {
       "");
   static_assert(
       is_maybe_bool<decltype(in(
-          v_maybe_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value,
+          v_maybe_null, select(v_maybe_null.as<"a">())))>::value,
       "");
 
   // IN expressions have the `as` member function.

@@ -79,6 +79,13 @@ struct select_as
   Select _expression;
 };
 
+template <typename Select, fixed_string Name>
+constexpr auto all_of(const select_as<Select, Name>&) {
+  const auto& [...columns] = typename select_as_generator<Select, Name, get_result_row_t<Select>>::columns{};
+
+  return std::make_tuple(columns...);
+}
+
 template <typename Context,
           typename Select,
           fixed_string Name,

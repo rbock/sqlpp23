@@ -26,27 +26,18 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace test {
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake);
-SQLPP_CREATE_NAME_TAG(meme);
-SQLPP_CREATE_NAME_TAG(verb);
-SQLPP_CREATE_NAME_TAG(CTE);
-SQLPP_CREATE_NAME_TAG(sel_as);
-}  // namespace test
-
 void test_join() {
   auto foo = test::TabFoo{};
   auto bar = test::TabBar{};
-  auto cheese = foo.as(test::cheese);
-  auto cake = foo.as(test::cake);
-  auto meme = schema_qualified_table({"meme"}, foo).as(test::meme);
-  auto verb = sqlpp::verbatim_table("verb").as(test::verb);
-  auto cte = sqlpp::cte(test::CTE).as(select(foo.id).from(foo));
+  auto cheese = foo.as<"cheese">();
+  auto cake = foo.as<"cake">();
+  auto meme = schema_qualified_table({"meme"}, foo).as<"meme">();
+  auto verb = sqlpp::verbatim_table("verb").as<"verb">();
+  auto cte = sqlpp::cte<"CTE">().as(select(foo.id).from(foo));
   auto sel_as = select(all_of(foo))
                     .from(foo)
                     .where(foo.id == sqlpp::parameter(foo.id))
-                    .as(test::sel_as);
+                    .as<"sel_as">();
 
   using Foo = decltype(foo);
   using Bar = decltype(bar);
@@ -54,8 +45,8 @@ void test_join() {
   using Cake = decltype(cake);
   using Meme = decltype(meme);
   using Verb = decltype(verb);
-  using CteRef = sqlpp::cte_ref_t<test::CTE_t>;
-  using SelAsRef = sqlpp::select_ref_t<test::sel_as_t::_sqlpp_name_tag>;
+  using CteRef = sqlpp::cte_ref_t<"CTE">;
+  using SelAsRef = sqlpp::select_ref_t<"sel_as">;
 
   // Pre-join
   static_assert(not sqlpp::is_table<decltype(foo.join(bar))>::value, "");

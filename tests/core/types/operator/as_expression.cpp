@@ -26,19 +26,17 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 template <typename T, typename DataType>
 using is_select_column_data_type =
     std::is_same<sqlpp::select_column_data_type_of_t<T>, DataType>;
 
 template <typename Value>
 void test_as_expression(Value v) {
-  auto v_not_null = sqlpp::value(v).as(cheese);
-  auto v_maybe_null = sqlpp::value(std::optional{v}).as(cheese);
-  auto v_dynamic_not_null = dynamic(true, sqlpp::value(v).as(cheese));
+  auto v_not_null = sqlpp::value(v).as<"cheese">();
+  auto v_maybe_null = sqlpp::value(std::optional{v}).as<"cheese">();
+  auto v_dynamic_not_null = dynamic(true, sqlpp::value(v).as<"cheese">());
   auto v_dynamic_maybe_null =
-      dynamic(true, sqlpp::value(std::optional{v}).as(cheese));
+      dynamic(true, sqlpp::value(std::optional{v}).as<"cheese">());
 
   static_assert(not sqlpp::has_data_type<decltype(v_not_null)>::value, "");
   static_assert(not sqlpp::has_data_type<decltype(v_maybe_null)>::value, "");

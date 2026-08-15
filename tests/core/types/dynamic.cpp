@@ -26,9 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(r_not_null);
-SQLPP_CREATE_NAME_TAG(r_maybe_null);
-
 template <typename T, typename DataType>
 using is_select_column_data_type =
     std::is_same<sqlpp::select_column_data_type_of_t<T>, DataType>;
@@ -40,8 +37,8 @@ void test_dynamic(Value v) {
 
   auto v_not_null = dynamic(true, sqlpp::value(v));
   auto v_maybe_null = dynamic(true, sqlpp::value(std::optional{v}));
-  auto v_alias = sqlpp::value(v).as(r_not_null);
-  auto v_maybe_alias = sqlpp::value(std::optional{v}).as(r_maybe_null);
+  auto v_alias = sqlpp::value(v).as<"r_not_null">();
+  auto v_maybe_alias = sqlpp::value(std::optional{v}).as<"r_maybe_null">();
   auto v_not_null_alias = dynamic(true, v_alias);
   auto v_maybe_null_alias = true ? dynamic(v_maybe_alias) : std::nullopt;
 
@@ -52,10 +49,10 @@ void test_dynamic(Value v) {
   static_assert(not sqlpp::has_data_type<decltype(v_maybe_null_alias)>::value,
                 "");
 
-  static_assert(not sqlpp::has_name_tag<decltype(v_not_null)>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(v_maybe_null)>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(v_not_null_alias)>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(v_maybe_null_alias)>::value,
+  static_assert(not sqlpp::has_name<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_not_null_alias)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_maybe_null_alias)>::value,
                 "");
 
   static_assert(

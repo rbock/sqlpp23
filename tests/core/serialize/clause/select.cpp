@@ -26,10 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int main(int, char*[]) {
   const auto expr = sqlpp::value(17) + 4;
 
@@ -39,7 +35,7 @@ int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::select(), "SELECT ");
 
   // SELECT a value.
-  SQLPP_COMPARE(sqlpp::select(expr.as(foo.id)), "SELECT (17 + 4) AS id");
+  SQLPP_COMPARE(sqlpp::select(expr.as<"id">()), "SELECT (17 + 4) AS id");
 
   // SELECT FROM.
   SQLPP_COMPARE(select(foo.id).from(foo), "SELECT tab_foo.id FROM tab_foo");
@@ -61,7 +57,7 @@ int main(int, char*[]) {
                 "SELECT tab_foo.id FROM tab_foo");
 
   // SELECT FROM WHERE GROUP BY HAVING.
-  SQLPP_COMPARE(select(count(foo.id).as(something))
+  SQLPP_COMPARE(select(count(foo.id).as<"something">())
                     .from(foo)
                     .group_by(foo.intN)
                     .having(max(foo.id) < 100),
@@ -69,7 +65,7 @@ int main(int, char*[]) {
                 "GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100");
 
   // SELECT FROM WHERE GROUP BY HAVING ORDER BY LIMIT OFFSET
-  SQLPP_COMPARE(select(count(foo.id).as(something))
+  SQLPP_COMPARE(select(count(foo.id).as<"something">())
                     .from(foo)
                     .group_by(foo.intN)
                     .having(max(foo.id) < 100)

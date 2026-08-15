@@ -27,14 +27,12 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(quester_player_level);
-
 int ParameterizedVerbatim(int, char*[]) {
   // An example thing that needs parameterized verbatim (as it's database
   // specific)
   auto checking_value_in_range = sqlpp::parameterized_verbatim<sqlpp::boolean>(
       "(quests.spawn_level_range @> CAST(",
-      parameter(sqlpp::integral(), quester_player_level), " AS integer))");
+      sqlpp::parameter<"quester_player_level", int64_t>(), " AS integer))");
 
   SQLPP_COMPARE(checking_value_in_range,
                 "(quests.spawn_level_range @> CAST(? AS integer))");

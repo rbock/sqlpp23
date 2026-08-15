@@ -26,8 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(something);
-
 void test_is_as_expression() {
   auto v = sqlpp::value(17);
   auto t = sqlpp::value("");
@@ -48,21 +46,21 @@ void test_is_as_expression() {
                 "");
 
   // But their alias is an expression alias (no surprise here, I guess)
-  static_assert(sqlpp::is_as_expression<decltype((v).as(something))>::value,
+  static_assert(sqlpp::is_as_expression<decltype((v).as<"something">())>::value,
                 "");
-  static_assert(sqlpp::is_as_expression<decltype((v + v).as(something))>::value,
+  static_assert(sqlpp::is_as_expression<decltype((v + v).as<"something">())>::value,
                 "");
 
   static_assert(
-      sqlpp::is_as_expression<decltype((col_int).as(something))>::value, "");
+      sqlpp::is_as_expression<decltype((col_int).as<"something">())>::value, "");
   static_assert(
-      sqlpp::is_as_expression<decltype((col_int + v).as(something))>::value,
+      sqlpp::is_as_expression<decltype((col_int + v).as<"something">())>::value,
       "");
 
   static_assert(
-      sqlpp::is_as_expression<decltype((trim(t)).as(something))>::value, "");
+      sqlpp::is_as_expression<decltype((trim(t)).as<"something">())>::value, "");
   static_assert(
-      sqlpp::is_as_expression<decltype((trim(col_txt)).as(something))>::value,
+      sqlpp::is_as_expression<decltype((trim(col_txt)).as<"something">())>::value,
       "");
 
   // Data types themselves do not have data types

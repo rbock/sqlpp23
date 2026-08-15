@@ -26,20 +26,18 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 int main(int, char*[]) {
   auto const foo = test::TabFoo{};
 
-  SQLPP_COMPARE(avg(foo.doubleN).over().as(cheese),
+  SQLPP_COMPARE(avg(foo.doubleN).over().as<"cheese">(),
                 "AVG(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(count(foo.doubleN).over().as(cheese),
+  SQLPP_COMPARE(count(foo.doubleN).over().as<"cheese">(),
                 "COUNT(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(max(foo.doubleN).over().as(cheese),
+  SQLPP_COMPARE(max(foo.doubleN).over().as<"cheese">(),
                 "MAX(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(min(foo.doubleN).over().as(cheese),
+  SQLPP_COMPARE(min(foo.doubleN).over().as<"cheese">(),
                 "MIN(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(sum(foo.doubleN).over().as(cheese),
+  SQLPP_COMPARE(sum(foo.doubleN).over().as<"cheese">(),
                 "SUM(tab_foo.double_n) OVER() AS cheese");
 
   return 0;

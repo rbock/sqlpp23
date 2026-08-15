@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_returning_with_standalone =
     requires(Expressions... expressions) { sqlpp::returning(expressions...); };
@@ -61,7 +59,7 @@ int main() {
   returning(foo.id, foo.textNnD);
   returning(all_of(foo));
   returning(foo.id, bar.id);
-  returning(all_of(foo), bar.id.as(something));
+  returning(all_of(foo), bar.id.as<"something">());
 
   // -------------------------
   // returning() can be constructed, but is inconsistent since no
@@ -102,7 +100,7 @@ int main() {
   // -------------------------
   {
     auto i = sqlpp::insert_into(foo).default_values() << returning(
-        max(foo.id).as(something));
+        max(foo.id).as<"something">());
     using I = decltype(i);
 
     static_assert(

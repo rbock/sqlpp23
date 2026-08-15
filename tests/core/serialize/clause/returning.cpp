@@ -26,9 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake);
-
 int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
@@ -60,13 +57,13 @@ int main(int, char*[]) {
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
   // Single expression
-  SQLPP_COMPARE(returning((foo.id + 17).as(cake)),
+  SQLPP_COMPARE(returning((foo.id + 17).as<"cake">()),
                 " RETURNING (tab_foo.id + 17) AS cake");
 
   // Single dynamic column.
   SQLPP_COMPARE(returning(dynamic(true, foo.id)), " RETURNING tab_foo.id");
   SQLPP_COMPARE(returning(dynamic(false, foo.id)), " RETURNING NULL AS id");
-  SQLPP_COMPARE(returning(dynamic(false, foo.id.as(cake))),
+  SQLPP_COMPARE(returning(dynamic(false, foo.id.as<"cake">())),
                 " RETURNING NULL AS cake");
 
   // Multiple dynamic columns (this is odd if all are dynamic)
@@ -95,33 +92,33 @@ int main(int, char*[]) {
                 " RETURNING NULL AS id, NULL AS text_nn_d, tab_foo.bool_n");
 
   // Single value
-  SQLPP_COMPARE(returning(val.as(cheese)),
+  SQLPP_COMPARE(returning(val.as<"cheese">()),
                 " RETURNING 17 AS cheese");
-  SQLPP_COMPARE(returning((foo.id + 17).as(cake)),
+  SQLPP_COMPARE(returning((foo.id + 17).as<"cake">()),
                 " RETURNING (tab_foo.id + 17) AS cake");
 
   // Mixed column and value
-  SQLPP_COMPARE(returning(foo.id, val.as(cheese)),
+  SQLPP_COMPARE(returning(foo.id, val.as<"cheese">()),
                 " RETURNING tab_foo.id, 17 AS cheese");
-  SQLPP_COMPARE(returning(val.as(cake), foo.id),
+  SQLPP_COMPARE(returning(val.as<"cake">(), foo.id),
                 " RETURNING 17 AS cake, tab_foo.id");
 
   // Mixed column and dynamic value
   SQLPP_COMPARE(
       returning(foo.id,
-                     dynamic(true, val.as(cheese))),
+                     dynamic(true, val.as<"cheese">())),
       " RETURNING tab_foo.id, 17 AS cheese");
   SQLPP_COMPARE(
-      returning(dynamic(true, val.as(cake)),
+      returning(dynamic(true, val.as<"cake">()),
                      foo.id),
       " RETURNING 17 AS cake, tab_foo.id");
 
   SQLPP_COMPARE(
       returning(foo.id,
-                     dynamic(false, val.as(cheese))),
+                     dynamic(false, val.as<"cheese">())),
       " RETURNING tab_foo.id, NULL AS cheese");
   SQLPP_COMPARE(
-      returning(dynamic(false, val.as(cake)),
+      returning(dynamic(false, val.as<"cake">()),
                      foo.id),
       " RETURNING NULL AS cake, tab_foo.id");
 

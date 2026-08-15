@@ -32,7 +32,7 @@ int main() {
   const auto bar = test::TabBar{};
 
   // Missing run-consistency
-  auto parameter_select = sqlpp::select(parameter(bar.id).as(sqlpp::alias::a));
+  auto parameter_select = sqlpp::select(parameter(bar.id).as<"a">());
   static_assert(
       std::is_same<decltype(check_basic_consistency(parameter_select)),
                    sqlpp::consistent_t>::value);

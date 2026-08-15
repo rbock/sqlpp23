@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_group_by_with_standalone =
     requires(Expressions... expressions) { sqlpp::group_by(expressions...); };
@@ -109,7 +107,7 @@ int main() {
 
   // `group_by` using unknown table
   {
-    auto s = select(max(foo.id).as(something)).from(foo).group_by(bar.id);
+    auto s = select(max(foo.id).as<"something">()).from(foo).group_by(bar.id);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -122,7 +120,7 @@ int main() {
 
   // `group_by` statically using dynamic table
   {
-    auto s = select(max(foo.id).as(something))
+    auto s = select(max(foo.id).as<"something">())
                  .from(foo.cross_join(dynamic(maybe, bar)))
                  .group_by(bar.id);
     using S = decltype(s);

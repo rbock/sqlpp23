@@ -26,12 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace test {
-SQLPP_CREATE_NAME_TAG(basic);
-SQLPP_CREATE_NAME_TAG(referencing);
-SQLPP_CREATE_NAME_TAG(recursive);
-}  // namespace test
-
 template <typename SelectWith>
 struct extract_with;
 
@@ -49,11 +43,11 @@ void test_with() {
   // ctes referencing other CTEs require such ctes. `have_correct_dependencies`
   // checks that.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using Basic = decltype(basic);
 
     auto referencing =
-        sqlpp::cte(test::referencing).as(select(basic.id).from(basic));
+        sqlpp::cte<"referencing">().as(select(basic.id).from(basic));
     using Referencing = decltype(referencing);
 
     // Simple good cases.
@@ -110,11 +104,11 @@ void test_with() {
   // ctes dynamically referencing other CTEs require such ctes dynamically.
   // `have_correct_dependencies` checks that.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using Basic = decltype(basic);
 
     auto referencing =
-        sqlpp::cte(test::referencing)
+        sqlpp::cte<"referencing">()
             .as(select(dynamic(true, basic.id))
                     .from(
                         foo.join(dynamic(true, basic)).on(foo.id == basic.id)));
@@ -174,13 +168,13 @@ void test_with() {
   // Self-referencing CTEs do not necessarily require other ctes.
   // `have_correct_dependencies` checks that.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using Basic = decltype(basic);
 
-    auto recursive_base = sqlpp::cte(test::recursive)
-                              .as(select(sqlpp::value(1).as(sqlpp::alias::a)));
+    auto recursive_base = sqlpp::cte<"recursive">()
+                              .as(select(sqlpp::value(1).as<"a">()));
     auto recursive = recursive_base.union_all(
-        select((recursive_base.a + 1).as(sqlpp::alias::a))
+        select((recursive_base.a + 1).as<"a">())
             .from(recursive_base)
             .where(recursive_base.a <= 10));
     using Recursive = decltype(recursive);
@@ -215,14 +209,14 @@ void test_with() {
   // Self-referencing CTEs can require other ctes. `have_correct_dependencies`
   // checks that, too.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using Basic = decltype(basic);
 
     auto recursive_base =
-        sqlpp::cte(test::recursive)
-            .as(select(basic.id.as(sqlpp::alias::a)).from(basic));
+        sqlpp::cte<"recursive">()
+            .as(select(basic.id.as<"a">()).from(basic));
     auto recursive = recursive_base.union_all(
-        select((recursive_base.a + 1).as(sqlpp::alias::a))
+        select((recursive_base.a + 1).as<"a">())
             .from(recursive_base)
             .where(recursive_base.a <= 10));
     using Recursive = decltype(recursive);
@@ -258,9 +252,9 @@ void test_with() {
     auto b = sqlpp::parameter(sqlpp::boolean{}, sqlpp::alias::b);
     using B = decltype(b);
 
-    auto basic_wp = sqlpp::cte(test::basic).as(select(foo.id).from(foo).where(a));
+    auto basic_wp = sqlpp::cte<"basic">().as(select(foo.id).from(foo).where(a));
     auto referencing_wp =
-        sqlpp::cte(test::referencing).as(select(basic_wp.id).from(basic_wp).where(b));
+        sqlpp::cte<"referencing">().as(select(basic_wp.id).from(basic_wp).where(b));
 
     {
       using W = extract_with_t<decltype(with(basic_wp))>;

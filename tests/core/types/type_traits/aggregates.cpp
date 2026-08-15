@@ -26,10 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(something);
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(cake);
-
 void test_is_aggregate_function() {
   const auto maybe = true;
   auto v = sqlpp::value(17);
@@ -123,15 +119,15 @@ void test_is_aggregate_function() {
                 "");
   static_assert(
       not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(
-          v.as(cheese), col_int))>>::value,
+          v.as<"cheese">(), col_int))>>::value,
       "");
   static_assert(
       not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(
-          max(col_int).as(cake), v.as(cheese), col_int))>>::value,
+          max(col_int).as<"cake">(), v.as<"cheese">(), col_int))>>::value,
       "");
   static_assert(
       not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(
-          dynamic(maybe, max(col_int).as(cake)), v.as(cheese), col_int))>>::
+          dynamic(maybe, max(col_int).as<"cake">()), v.as<"cheese">(), col_int))>>::
           value,
       "");
 }
@@ -242,16 +238,16 @@ void test_contains_aggregate_function() {
                     extract_clause_t<decltype(where(col_int > v))>>::value,
                 "");
   static_assert(not sqlpp::contains_aggregate_function<extract_clause_t<
-                    decltype(select_columns(v.as(cheese), col_int))>>::value,
+                    decltype(select_columns(v.as<"cheese">(), col_int))>>::value,
                 "");
   static_assert(sqlpp::contains_aggregate_function<
                     extract_clause_t<decltype(select_columns(
-                        max(col_int).as(cake), v.as(cheese), col_int))>>::value,
+                        max(col_int).as<"cake">(), v.as<"cheese">(), col_int))>>::value,
                 "");
   static_assert(
       sqlpp::contains_aggregate_function<extract_clause_t<
-          decltype(select_columns(dynamic(maybe, max(col_int).as(cake)),
-                                  v.as(cheese), col_int))>>::value,
+          decltype(select_columns(dynamic(maybe, max(col_int).as<"cake">()),
+                                  v.as<"cheese">(), col_int))>>::value,
       "");
 }
 
@@ -277,7 +273,7 @@ void test_is_aggregate_expression() {
                 "");
   static_assert(
       sqlpp::is_aggregate_expression<unknown,
-                                     decltype((v + v).as(something))>::value,
+                                     decltype((v + v).as<"something">())>::value,
       "");
   static_assert(
       not sqlpp::is_aggregate_expression<unknown, decltype(col_int)>::value,
@@ -294,7 +290,7 @@ void test_is_aggregate_expression() {
       "");
   static_assert(
       sqlpp::is_aggregate_expression<
-          unknown, decltype(dynamic(maybe, (v + v).as(something)))>::value,
+          unknown, decltype(dynamic(maybe, (v + v).as<"something">()))>::value,
       "");
   static_assert(
       not sqlpp::is_aggregate_expression<unknown, decltype(dynamic(
@@ -444,7 +440,7 @@ void test_is_non_aggregate_expression() {
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(v)>::value,
                 "");
   static_assert(sqlpp::is_non_aggregate_expression<
-                    unknown, decltype((v + v).as(something))>::value,
+                    unknown, decltype((v + v).as<"something">())>::value,
                 "");
   static_assert(
       sqlpp::is_non_aggregate_expression<unknown, decltype(col_int)>::value,
@@ -461,7 +457,7 @@ void test_is_non_aggregate_expression() {
       "");
   static_assert(
       sqlpp::is_non_aggregate_expression<
-          unknown, decltype(dynamic(maybe, (v + v).as(something)))>::value,
+          unknown, decltype(dynamic(maybe, (v + v).as<"something">()))>::value,
       "");
   static_assert(
       sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(
@@ -501,7 +497,7 @@ void test_is_non_aggregate_expression() {
                 "");
   static_assert(
       not sqlpp::is_non_aggregate_expression<
-          unknown, decltype(dynamic(maybe, max(col_txt).as(something)))>::value,
+          unknown, decltype(dynamic(maybe, max(col_txt).as<"something">()))>::value,
       "");
 
   // Known aggregate expressions are detected as such.

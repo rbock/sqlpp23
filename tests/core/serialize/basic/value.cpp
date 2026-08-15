@@ -26,8 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(v);
-
 int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::value(7), "7");
   SQLPP_COMPARE(sqlpp::value("cheese"), "'cheese'");

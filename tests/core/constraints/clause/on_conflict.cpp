@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 // Test on_conflict
 template <typename... Expressions>
 concept can_call_on_conflict_with_standalone = requires(
@@ -91,7 +89,7 @@ int main() {
   // -------------------------
   {
     static_assert(cannot_call_on_conflict_with<decltype(all_of(foo))>);
-    static_assert(cannot_call_on_conflict_with<decltype(bar.id.as(something))>,
+    static_assert(cannot_call_on_conflict_with<decltype(bar.id.as<"something">())>,
                   "");
   }
 

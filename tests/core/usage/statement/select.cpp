@@ -29,8 +29,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 namespace {
 struct my_data {
   int64_t id;
@@ -48,7 +46,7 @@ int main(int, char*[]) {
     const auto foo = test::TabFoo{};
 
     // select value
-    for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
+    for (const auto& row : db(select(sqlpp::value(23).as<"cheese">()))) {
       std::ignore = row.cheese;
     }
 

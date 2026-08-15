@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename Lhs, typename Rhs>
 concept can_call_cte_as_with = requires(Lhs lhs, Rhs rhs) { lhs.as(rhs); };
 
@@ -61,12 +59,12 @@ int main() {
   const auto bar = test::TabBar{};
   const auto foo = test::TabFoo{};
 
-  const auto ref = sqlpp::cte(something);
+  const auto ref = sqlpp::cte<"something">();
   using Ref = decltype(ref);
   const auto incomplete_s1 = select(all_of(bar));
   const auto s1 = incomplete_s1.from(bar);
-  const auto incomplete_s2 = select(all_of(bar.as(something)));
-  const auto s2 = incomplete_s2.from(bar.as(something));
+  const auto incomplete_s2 = select(all_of(bar.as<"something">()));
+  const auto s2 = incomplete_s2.from(bar.as<"something">());
 
   const auto cte = ref.as(s1);
 
@@ -132,9 +130,9 @@ int main() {
   // CTE UNION requires statements with same result row
   {
     auto c_foo_int =
-        sqlpp::cte(something).as(select(foo.textNnD, foo.id).from(foo));
+        sqlpp::cte<"something">().as(select(foo.textNnD, foo.id).from(foo));
     auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo);
-    auto c_value_id = sqlpp::cte(something).as(
+    auto c_value_id = sqlpp::cte<"something">().as(
         select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo));
     auto s_value_oid =
         select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);

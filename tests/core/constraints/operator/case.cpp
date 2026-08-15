@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 // Returns true if `case_when(declcal<Lhs>)` is a valid function call.
 template <typename... Expressions>
 concept can_call_case_when_with =
@@ -72,7 +70,7 @@ int main() {
 
   // Fail: Cannot call case_when with renamed boolean
   static_assert(
-      not can_call_case_when_with<decltype(bar.boolNn.as(something))>);
+      not can_call_case_when_with<decltype(bar.boolNn.as<"something">())>);
   // Fail: Cannot call case_when with non-boolean expressions.
   static_assert(not can_call_case_when_with<decltype(bar.id)>);
   static_assert(not can_call_case_when_with<decltype(bar.boolNn = true)>);
@@ -98,7 +96,7 @@ int main() {
     static_assert(
         not can_call_then_with<CW, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_then_with<CW, decltype(bar.boolNn.as(something))>);
+        not can_call_then_with<CW, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_then_with<CW, decltype(bar)>);
   }
 
@@ -128,7 +126,7 @@ int main() {
     static_assert(
         not can_call_else_with<CW, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as(something))>);
+        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
     auto cw2 = sqlpp::case_when(maybe).then(bar.textN).when(maybe);
@@ -153,7 +151,7 @@ int main() {
     static_assert(
         not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as(something))>);
+        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
 
@@ -183,7 +181,7 @@ int main() {
     static_assert(
         not can_call_else_with<CW, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as(something))>);
+        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
     auto cw2 = cw.when(maybe);
@@ -208,7 +206,7 @@ int main() {
     static_assert(
         not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as(something))>);
+        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
 
@@ -232,7 +230,7 @@ int main() {
     static_assert(
         not can_call_else_with<CW, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as(something))>);
+        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
     auto cw2 = cw.when(maybe).then(bar.textN).when(maybe);
@@ -257,7 +255,7 @@ int main() {
     static_assert(
         not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as(something))>);
+        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
 
@@ -282,7 +280,7 @@ int main() {
     static_assert(
         not can_call_else_with<CW, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as(something))>);
+        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
     auto cw2 = cw.when(maybe).then(bar.textN).when(maybe);
@@ -308,7 +306,7 @@ int main() {
     static_assert(
         not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as(something))>);
+        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
   // -----------------------

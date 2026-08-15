@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp26/core/detail/type_set.h>
-#include <sqlpp26/core/name/create_name_tag.h>
 #include <sqlpp26/core/operator/enable_as.h>
 #include <sqlpp26/core/operator/enable_comparison.h>
 #include <sqlpp26/core/type_traits.h>

@@ -26,14 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-namespace test {
-SQLPP_CREATE_NAME_TAG(incomplete);
-SQLPP_CREATE_NAME_TAG(basic);
-SQLPP_CREATE_NAME_TAG(referencing);
-SQLPP_CREATE_NAME_TAG(recursive);
-SQLPP_CREATE_NAME_TAG(alias);
-}  // namespace test
-
 template <typename SelectWith>
 struct extract_with;
 
@@ -50,7 +42,7 @@ void test_required_ctes_of() {
 
   // Incomplete ctes are represented as cte_ref_t which require themselves.
   {
-    using T = decltype(sqlpp::cte(test::incomplete));
+    using T = decltype(sqlpp::cte<"incomplete">()));
     static_assert(std::is_same<sqlpp::required_ctes_of_t<T>,
                                sqlpp::detail::type_set<T>>::value,
                   "");
@@ -62,7 +54,7 @@ void test_required_ctes_of() {
   // Basic (complete) ctes do not require ctes, but the reference to it does
   // require itself.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using T = decltype(basic);
     using TRef = decltype(make_table_ref(basic));
 
@@ -84,11 +76,11 @@ void test_required_ctes_of() {
   // ctes referencing other CTEs require such ctes. A reference to them requires
   // itself only, though.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using BRef = decltype(make_table_ref(basic));
 
     auto referencing =
-        sqlpp::cte(test::referencing).as(select(basic.id).from(basic));
+        sqlpp::cte<"referencing">().as(select(basic.id).from(basic));
 
     using T = decltype(referencing);
     using TRef = decltype(make_table_ref(referencing));
@@ -118,7 +110,7 @@ void test_required_ctes_of() {
   // requires itself only, though.
   {
     auto base =
-        sqlpp::cte(test::recursive).as(select(sqlpp::value(1).as(foo.id)));
+        sqlpp::cte<"recursive">().as(select(sqlpp::value(1).as(foo.id)));
     using BRef = decltype(make_table_ref(base));
 
     auto recursive = base.union_all(
@@ -152,10 +144,10 @@ void test_required_ctes_of() {
 
   // Aliased ctes require the references to the underlying CTE.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using BRef = decltype(make_table_ref(basic));
 
-    using T = decltype(basic.as(test::alias));
+    using T = decltype(basic.as<"alias">());
 
     static_assert(std::is_same<sqlpp::required_ctes_of_t<T>,
                                sqlpp::detail::type_set<BRef>>::value,
@@ -201,7 +193,7 @@ void test_required_ctes_of() {
 
   // `from x` exposes CTE requirements
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using BRef = decltype(make_table_ref(basic));
 
     using T = decltype(from(basic));
@@ -220,14 +212,14 @@ void test_provided_ctes_of() {
 
   // Incomplete ctes are represented as cte_ref_t which provide no ctes.
   {
-    using T = decltype(sqlpp::cte(test::incomplete));
+    using T = decltype(sqlpp::cte<"incomplete">());
     static_assert(sqlpp::provided_ctes_of_t<T>::empty(), "");
     static_assert(sqlpp::provided_static_ctes_of_t<T>::empty(), "");
   }
 
   // Basic (complete) ctes provide ctes, but their references don't.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using T = decltype(basic);
     using TRef = decltype(make_table_ref(basic));
 
@@ -245,11 +237,11 @@ void test_provided_ctes_of() {
   // ctes referencing other CTEs provide themselves, not the CTEs they are
   // referencing.
   {
-    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo));
+    auto basic = sqlpp::cte<"basic">().as(select(foo.id).from(foo));
     using BRef = decltype(make_table_ref(basic));
 
     auto referencing =
-        sqlpp::cte(test::referencing).as(select(basic.id).from(basic));
+        sqlpp::cte<"referencing">().as(select(basic.id).from(basic));
 
     using T = decltype(referencing);
     using TRef = decltype(make_table_ref(referencing));

@@ -27,8 +27,6 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-SQLPP_CREATE_NAME_TAG(something);
-
 template <typename... Expressions>
 concept can_call_single_table_with_standalone = requires(
     Expressions... expressions) { sqlpp::single_table(expressions...); };
@@ -53,7 +51,7 @@ int main() {
   const auto maybe = true;
   const auto bar = test::TabBar{};
   const auto foo = test::TabFoo{};
-  const auto c = sqlpp::cte(something).as(select(bar.id).from(bar));
+  const auto c = sqlpp::ccte<"something">().as(select(bar.id).from(bar));
 
   // OK
   static_assert(can_call_single_table_with<decltype(bar)>);

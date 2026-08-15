@@ -42,11 +42,6 @@ void print_row(Row const& row) {
   std::cout << a << ", " << b << std::endl;
 }
 
-SQLPP_CREATE_NAME_TAG(param2);
-SQLPP_CREATE_NAME_TAG(cheese);
-SQLPP_CREATE_NAME_TAG(average);
-SQLPP_CREATE_NAME_TAG(N);
-
 int Select(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t printer;
@@ -54,16 +49,16 @@ int Select(int, char*[]) {
   const auto maybe = true;
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
-  const auto tab_a = f.as(sqlpp::alias::a);
+  const auto tab_a = f.as<"a">();
 
-  select(count(t.id).as(N));
-  select(sqlpp::count(1).as(N));
-  select(count(sqlpp::value(1)).as(N));
+  select(count(t.id).as<"N">());
+  select(sqlpp::count(1).as<"N">());
+  select(count(sqlpp::value(1)).as<"N">());
 
   std::cerr << to_sql_string(printer,
-                             select(sqlpp::value(false).as(sqlpp::alias::a)))
+                             select(sqlpp::value(false).as<"a">()))
             << std::endl;
-  for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a)))) {
+  for (const auto& row : db(select(sqlpp::value(false).as<"a">()))) {
     std::cout << row.a << std::endl;
   }
 
@@ -81,7 +76,7 @@ int Select(int, char*[]) {
     std::cout << a << ", " << b << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t), t.boolNn.as(t))
+  for (const auto& row : db(select(all_of(t), t.boolNn.as<"t">())
                                 .from(t)
                                 .where(t.id > 7 and trim(t.textN) == "test")
                                 .for_update())) {
@@ -107,11 +102,11 @@ int Select(int, char*[]) {
   }
 
   for (const auto& row :
-       db(select(sqlpp::count(1).as(N), avg(t.id).as(average)).from(t))) {
+       db(select(sqlpp::count(1).as<"N">(), avg(t.id).as<"average">()).from(t))) {
     std::cout << row.N << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.id).as(N), avg(t.id).as(average))
+  for (const auto& row : db(select(count(t.id).as<"N">(), avg(t.id).as<"average">())
                                 .from(t)
                                 .where(t.id == 0))) {
     std::cout << row.N << std::endl;
@@ -158,12 +153,12 @@ int Select(int, char*[]) {
 
   std::cerr << to_sql_string(printer, s) << std::endl;
 
-  select(sqlpp::value(7).as(t.id));
+  select(sqlpp::value(7).as<"t.id">());
 
   for (const auto& row : db(select(sqlpp::case_when(true)
                                        .then(t.textN)
                                        .else_(std::nullopt)
-                                       .as(t.textN))
+                                       .as<"t.textN">())
                                 .from(t))) {
     std::cerr << row.textN << std::endl;
   }
@@ -195,7 +190,7 @@ int Select(int, char*[]) {
 
   // Move to type tests?
   for (const auto& row :
-       db(select(f.doubleN, value(select(count(t.id).as(N)).from(t)).as(cheese))
+       db(select(f.doubleN, value(select(count(t.id).as<"N">()).from(t)).as<"cheese">())
               .from(f))) {
     std::cout << row.doubleN << " " << row.cheese << std::endl;
   }

@@ -41,5 +41,4 @@
 #include <sqlpp26/core/database/transaction.h>
 #include <sqlpp26/core/debug_logger.h>
 #include <sqlpp26/core/function.h>
-#include <sqlpp26/core/name/create_name_tag.h>
 #include <sqlpp26/core/operator.h>

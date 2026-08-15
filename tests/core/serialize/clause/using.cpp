@@ -29,10 +29,10 @@
 int main() {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
-  const auto aFoo = foo.as(sqlpp::alias::a);
+  const auto aFoo = foo.as<"a">();
 
-  const auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
-  const auto xa = x.as(sqlpp::alias::a);
+  const auto x = sqlpp::cte<"x">().as(select(foo.id).from(foo));
+  const auto xa = x.as<"a">();
 
   // Single table
   SQLPP_COMPARE(using_(foo), " USING tab_foo");

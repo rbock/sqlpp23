@@ -114,7 +114,7 @@ int CustomQuery(int, char*[]) {
     (void)row.id;
   }
 
-  (select(all_of(t)).from(t) << sqlpp::verbatim_clause("something")).as(sqlpp::alias::a);
+  (select(all_of(t)).from(t) << sqlpp::verbatim_clause("something")).as<"a">();
 
   // If you really want the statement to contain "SELECT *" instead of every
   // column explicitly (maybe you are running into size limits?)
