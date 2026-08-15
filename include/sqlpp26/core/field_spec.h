@@ -66,9 +66,8 @@ struct is_field_compatible<field_spec<LeftName, LeftDataType>,
                            field_spec<RightName, RightDataType>> {
   static constexpr auto value =
       std::string_view(LeftName.data) == std::string_view(RightName.data) and
-      std::is_same<remove_optional_t<LeftDataType>,
-                   remove_optional_t<RightDataType>>::value and  // Same value
-                                                                 // type
+      std::is_same<remove_optional_t<result_data_type_of_t<LeftDataType>>,
+                   remove_optional_t<result_data_type_of_t<RightDataType>>>::value and  // Same result data type
       (is_optional<LeftDataType>::value or
        !is_optional<RightDataType>::value);  // The left hand side determines
                                              // the result row and therefore

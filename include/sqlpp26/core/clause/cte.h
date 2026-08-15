@@ -40,10 +40,9 @@
 
 namespace sqlpp {
   // TODO
-#if 0
 template <typename Flag, typename Lhs, typename Rhs>
 struct cte_union_t {
-  cte_union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
+  constexpr cte_union_t(Lhs lhs, Rhs rhs) : _lhs(std::move(lhs)), _rhs(std::move(rhs)) {}
 
   cte_union_t(const cte_union_t&) = default;
   cte_union_t(cte_union_t&&) = default;
@@ -56,6 +55,9 @@ struct cte_union_t {
   Lhs _lhs;
   Rhs _rhs;
 };
+
+template <typename Flag, typename Lhs, typename Rhs>
+struct get_result_row<cte_union_t<Flag, Lhs, Rhs>> : public get_result_row<Lhs> {};
 
 template <typename Context, typename Flag, typename Lhs, typename Rhs>
 auto to_sql_string(Context& context, const cte_union_t<Flag, Lhs, Rhs>& t)
@@ -77,7 +79,6 @@ template <typename Flag, typename Lhs, typename Rhs>
 struct nodes_of<cte_union_t<Flag, Lhs, Rhs>> {
   using type = detail::type_vector<Lhs, Rhs>;
 };
-#endif
 
 template <fixed_string Name, typename Statement>
 struct cte_t;
@@ -85,26 +86,26 @@ struct cte_t;
 template <fixed_string Name>
 struct cte_ref_t;
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
-struct table_ref<cte_t<Name, Statement, FieldSpecs...>> {
+template <fixed_string Name, typename Statement>
+struct table_ref<cte_t<Name, Statement>> {
   using type = cte_ref_t<Name>;
 };
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
-struct table_ref<dynamic_t<cte_t<Name, Statement, FieldSpecs...>>> {
+template <fixed_string Name, typename Statement>
+struct table_ref<dynamic_t<cte_t<Name, Statement>>> {
   using type = dynamic_t<cte_ref_t<Name>>;
 };
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
+template <fixed_string Name, typename Statement>
 auto make_table_ref(
-    cte_t<Name, Statement, FieldSpecs...> /* unused */)
+    cte_t<Name, Statement> /* unused */)
     -> cte_ref_t<Name> {
   return {};
 }
 
-template <fixed_string Name, typename Statement, typename... FieldSpecs>
+template <fixed_string Name, typename Statement>
 auto make_table_ref(
-    dynamic_t<cte_t<Name, Statement, FieldSpecs...>> dyn_cte)
+    dynamic_t<cte_t<Name, Statement>> dyn_cte)
     -> dynamic_t<cte_ref_t<Name>> {
   if (dyn_cte.has_value()) {
     return {cte_ref_t<Name>{}};
@@ -187,19 +188,17 @@ template <fixed_string Name, typename Statement, fixed_string Alias>
 struct required_static_ctes_of<cte_as_t<Name, Statement, Alias>>
     : public required_ctes_of<cte_as_t<Name, Statement, Alias>> {};
 
-#if 0
 template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_cte_union_args =
     (is_statement<Lhs>::value and is_statement<Rhs>::value and
-     required_tables_of_t<Lhs>::empty() and
-     required_tables_of_t<Rhs>::empty() and
+     required_tables_of<Lhs>::func().empty() and
+     required_tables_of<Rhs>::func().empty() and
      has_result_row<Lhs>::value and has_result_row<Rhs>::value and
      is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);
 
 template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_cte_union_args<Lhs, dynamic_t<Rhs>> =
     are_valid_cte_union_args<Lhs, Rhs>;
-#endif
 
 template <fixed_string Name, typename Statement, fixed_string Alias>
 constexpr auto all_of(const cte_as_t<Name, Statement, Alias>&) {
@@ -212,15 +211,6 @@ template <fixed_string Name, typename Statement>
 struct cte_t
     : public cte_generator<Name, Statement, get_result_row_t<Statement>>::columns,
       public enable_join {
-        /*
-  using _column_tuple_t =
-      std::tuple<column_t<cte_ref_t<Name>, FieldSpecs>...>;
-      */
-
-        /*
-  using _result_row_t = result_row_t<FieldSpecs...>;
-  */
-
   constexpr cte_t(Statement statement) : _expression(std::move(statement)) {}
   cte_t(const cte_t&) = default;
   cte_t(cte_t&&) = default;
@@ -234,24 +224,20 @@ struct cte_t
     return {};
   }
 
-#if 0
   template <typename Rhs>
     requires(are_valid_cte_union_args<Statement, Rhs>)
   auto union_distinct(Rhs rhs) const
       -> cte_t<Name,
-               cte_union_t<distinct_t, Statement, Rhs>,
-               FieldSpecs...> {
+               cte_union_t<distinct_t, Statement, Rhs>> {
     return cte_union_t<distinct_t, Statement, Rhs>{_expression, rhs};
   }
 
   template <typename Rhs>
     requires(are_valid_cte_union_args<Statement, Rhs>)
   auto union_all(Rhs rhs) const -> cte_t<Name,
-                                         cte_union_t<all_t, Statement, Rhs>,
-                                         FieldSpecs...> {
+                                         cte_union_t<all_t, Statement, Rhs>> {
     return cte_union_t<all_t, Statement, Rhs>{_expression, rhs};
   }
-#endif
 
  private:
   friend reader_t;
