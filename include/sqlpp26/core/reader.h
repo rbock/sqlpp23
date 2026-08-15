@@ -42,7 +42,7 @@ struct reader_t {
     return t._columns;
   }
   template <typename T>
-  const auto& ctes(const T& t) const {
+  constexpr const auto& ctes(const T& t) const {
     return t._ctes;
   }
   template <typename T>
@@ -54,11 +54,11 @@ struct reader_t {
     return t._expressions;
   }
   template <typename T>
-  auto& non_const_expressions(const T& t) const {
+  constexpr auto& non_const_expressions(const T& t) const {
     return t._expressions;
   }
   template <typename T>
-  const auto& flags(const T& t) const {
+  constexpr const auto& flags(const T& t) const {
     return t._flags;
   }
   template <typename T>
@@ -70,31 +70,31 @@ struct reader_t {
     return t._rhs;
   }
   template <typename T>
-  const auto& table(const T& t) const {
+  constexpr const auto& table(const T& t) const {
     return t._table;
   }
   template <typename T>
-  const auto& on_conflict(const T& t) const {
+  constexpr const auto& on_conflict(const T& t) const {
     return t._on_conflict;
   }
   template <typename T>
-  const auto& on_conflict_update(const T& t) const {
+  constexpr const auto& on_conflict_update(const T& t) const {
     return t._on_conflict_update;
   }
   template <typename T>
-  const auto& when(const T& t) const {
+  constexpr const auto& when(const T& t) const {
     return t._when;
   }
   template <typename T>
-  const auto& then(const T& t) const {
+  constexpr const auto& then(const T& t) const {
     return t._then;
   }
   template <typename T>
-  const auto& when_then_list(const T& t) const {
+  constexpr const auto& when_then_list(const T& t) const {
     return t._when_then_list;
   }
   template <typename T>
-  const auto& else_(const T& t) const {
+  constexpr const auto& else_(const T& t) const {
     return t._else;
   }
 };

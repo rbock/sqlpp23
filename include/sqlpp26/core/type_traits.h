@@ -39,7 +39,6 @@
 #include <sqlpp26/core/operator/as_expression_fwd.h> // TODO: That is too much, remove_as_t is enough here, I think
 #include <sqlpp26/core/type_traits/aggregates.h>
 
-#include <sqlpp26/core/name/name_tag.h> // TODO Need to remove
 namespace sqlpp {
 
 template <typename TableSpec>
@@ -79,7 +78,6 @@ inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <sqlpp26/core/detail/get_first.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/detail/type_vector.h>
-#include <sqlpp26/core/name/name_tag.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
 
@@ -229,7 +227,7 @@ struct result_data_type_of<T> {
                                        std::chrono::microseconds>;
 };
 
-#if 0
+// TODO: Rename to parameter_data_type?
 template <typename T>
 struct parameter_value {};
 
@@ -238,55 +236,44 @@ struct parameter_value<std::optional<T>> {
   using type = std::optional<typename parameter_value<T>::type>;
 };
 
-template <typename T>
-using parameter_value_t = typename parameter_value<T>::type;
+template <typename T>using parameter_value_t = typename parameter_value<T>::type;
 
-template <>
-struct parameter_value<blob> {
+template <typename T>requires(is_blob_v<T>)struct parameter_value<T> {
   using type = std::vector<uint8_t>;
 };
 
-template <>
-struct parameter_value<boolean> {
+template <typename T>requires(is_boolean_v<T>)struct parameter_value<T> {
   using type = bool;
 };
 
-template <>
-struct parameter_value<integral> {
+template <typename T>requires(is_integral_v<T>)struct parameter_value<T> {
   using type = int64_t;
 };
 
-template <>
-struct parameter_value<unsigned_integral> {
+template <typename T>requires(is_unsigned_integral_v<T>)struct parameter_value<T> {
   using type = uint64_t;
 };
 
-template <>
-struct parameter_value<floating_point> {
+template <typename T>requires(is_floating_point_v<T>)struct parameter_value<T> {
   using type = double;
 };
 
-template <>
-struct parameter_value<text> {
+template <typename T>requires(is_text_v<T>)struct parameter_value<T> {
   using type = std::string;
 };
 
-template <>
-struct parameter_value<date> {
+template <typename T>requires(is_date_v<T>)struct parameter_value<T> {
   using type =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
 };
-template <>
-struct parameter_value<time> {
+template <typename T>requires(is_time_of_day_v<T>)struct parameter_value<T> {
   using type = std::chrono::microseconds;
 };
 
-template <>
-struct parameter_value<timestamp> {
+template <typename T>requires(is_timestamp_v<T>)struct parameter_value<T> {
   using type = std::chrono::time_point<std::chrono::system_clock,
                                        std::chrono::microseconds>;
 };
-#endif
 
 template <typename T>
 struct is_assignment : public std::false_type {};
@@ -346,11 +333,8 @@ struct is_column : public std::false_type {};
 template <typename T>
 inline constexpr bool is_column_v = is_column<T>::value;
 
+// TODO
 #if 0
-template <typename NameTagProvider, typename Member>
-using member_t =
-    typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
-
 template <typename Clauses>
 using derived_statement_t = typename Clauses::_statement_t;
 
@@ -616,7 +600,6 @@ struct contains_for_update {
 
 template <typename T>
 inline constexpr bool contains_for_update_v = contains_for_update<T>::value;
-#if 0
 
 template <typename T>
 struct table_of {
@@ -625,6 +608,5 @@ struct table_of {
 
 template <typename T>
 using table_of_t = typename table_of<T>::type;
-#endif
 
 }  // namespace sqlpp

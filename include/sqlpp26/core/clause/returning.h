@@ -91,14 +91,14 @@ auto to_sql_string(Context& context, const returning_t<Columns...>& t)
 
 template <typename... Columns>
 struct returning_column_list_result_methods_t {
-  template <typename Statement, typename NameTagProvider>
-  auto as(this Statement&& self, const NameTagProvider&)
+  template <fixed_string Name, typename Statement>
+  auto as(this Statement&& self)
       -> select_as_t<std::decay_t<Statement>,
-                     name_tag_of_t<NameTagProvider>,
+                     Name>,
                      make_field_spec_t<std::decay_t<Statement>, Columns>...> {
     check_prepare_consistency(self).verify();
     using table =
-        select_as_t<std::decay_t<Statement>, name_tag_of_t<NameTagProvider>,
+        select_as_t<std::decay_t<Statement>, Name,
                     make_field_spec_t<std::decay_t<Statement>, Columns>...>;
     return table(std::forward<Statement>(self));
   }
@@ -175,7 +175,7 @@ template <typename Column>
 struct data_type_of<returning_t<Column>> : public data_type_of<Column> {};
 
 template <typename Column>
-struct name_tag_of<returning_t<Column>> : public name_tag_of<Column> {};
+struct name_of<returning_t<Column>> : public name_of<Column> {};
 
 template <typename... Column>
 struct is_result_clause<returning_t<Column...>> : public std::true_type {};

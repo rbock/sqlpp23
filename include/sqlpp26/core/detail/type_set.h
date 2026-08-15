@@ -64,4 +64,17 @@ struct are_unique {
 template <typename... T>
 inline constexpr bool are_unique_v = are_unique<T...>::value;
 
+template <typename... T>
+struct are_same {
+  static constexpr bool value = (make_type_info_set<T...>().size() == 1);
+};
+
+template <>
+struct are_same<> {
+  static constexpr bool value = true;
+};
+
+template <typename... T>
+inline constexpr bool are_same_v = are_same<T...>::value;
+
 }  // namespace sqlpp::detail

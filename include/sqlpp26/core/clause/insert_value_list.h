@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <sqlpp26/core/basic/column_fwd.h>
 #include <sqlpp26/core/basic/table.h>
-//#include <sqlpp26/core/clause/insert_value.h>
+#include <sqlpp26/core/clause/insert_value.h>
 #include <sqlpp26/core/clause/simple_column.h>
 #include <sqlpp26/core/logic.h>
 #include <sqlpp26/core/no_data.h>
@@ -70,7 +70,7 @@ struct tuple_lhs_assignment_operand_no_dynamic {
                   size_t) const -> std::string {
     const auto prefix = need_prefix ? std::string{separator} : std::string{};
     need_prefix = true;
-    return prefix + name_to_sql_string(context, name_tag_of_t<Lhs>{});
+    return prefix + name_to_sql_string(context, name_of_v<Lhs>);
   }
 
   template <typename Context, typename T>
@@ -206,7 +206,6 @@ struct nodes_of<insert_set_t<Assignments...>> {
   using type = detail::type_vector<Assignments...>;
 };
 
-/*
 template <typename Tuple, typename... Assignments>
 concept CorrectAddValuesAssignments = requires(Assignments... assignments) {
   Tuple{make_insert_value_t<lhs_t<remove_dynamic_t<Assignments>>>(
@@ -215,7 +214,7 @@ concept CorrectAddValuesAssignments = requires(Assignments... assignments) {
 
 template <typename... Columns>
 struct column_list_t {
-  column_list_t(std::tuple<make_simple_column_t<Columns>...> columns)
+  constexpr column_list_t(std::tuple<make_simple_column_t<Columns>...> columns)
       : _columns(std::move(columns)) {}
   column_list_t(const column_list_t&) = default;
   column_list_t(column_list_t&&) = default;
@@ -264,6 +263,7 @@ auto to_sql_string(Context& context, const column_list_t<Columns...>& t)
   return result;
 }
 
+/*
 class assert_no_unknown_tables_in_column_list_t : public wrapped_static_assert {
  public:
   template <typename... T>
@@ -305,7 +305,6 @@ struct no_insert_value_list_t {
                                                  insert_default_values_t{});
   }
 
-  /*
   template <typename Statement, DynamicColumn... Columns>
     requires(sizeof...(Columns) > 0 and
              logic::none<is_const<Columns>::value...>::value and
@@ -317,7 +316,6 @@ struct no_insert_value_list_t {
         std::forward<Statement>(self),
         column_list_t<Columns...>{std::make_tuple(std::move(cols)...)});
   }
-  */
 
   template <typename Statement, DynamicAssignment... Assignments>
     requires(
@@ -364,7 +362,6 @@ constexpr auto insert_set(Assignments... assignments) {
   return statement_t<no_insert_value_list_t>().set(std::move(assignments)...);
 }
 
-/*
 template <DynamicColumn... Columns>
   requires(sizeof...(Columns) > 0 and
            logic::none<is_const<Columns>::value...>::value and
@@ -374,5 +371,4 @@ template <DynamicColumn... Columns>
 auto insert_columns(Columns... cols) {
   return statement_t<no_insert_value_list_t>().columns(std::move(cols)...);
 }
-*/
 }  // namespace sqlpp

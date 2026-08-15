@@ -39,7 +39,7 @@ struct insert_value_t {
   using _is_insert_value = std::true_type;
   using _value_t = parameter_value_t<data_type_of_t<Column>>;
 
-  insert_value_t(_value_t value)
+  constexpr insert_value_t(_value_t value)
       : _is_default(false), _value(std::move(value)) {}
 
   template <typename T>

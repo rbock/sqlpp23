@@ -40,48 +40,47 @@
 namespace sqlpp {
   // TODO
 #if 0
-template <typename TableSpec, typename NameTag>
+template <typename TableSpec, fixed_string Name>
 struct schema_qualified_table_as_t
     : public TableSpec::template _table_columns<
-          schema_qualified_table_as_t<TableSpec, NameTag>>,
+          schema_qualified_table_as_t<TableSpec, Name>>,
       public enable_join {
   schema_qualified_table_as_t(schema_t schema) : _schema(std::move(schema)) {}
 
   schema_t _schema;
 };
 
-template <typename TableSpec, typename NameTag>
-struct is_table<schema_qualified_table_as_t<TableSpec, NameTag>>
+template <typename TableSpec, fixed_string Name>
+struct is_table<schema_qualified_table_as_t<TableSpec, Name>>
     : public std::true_type {};
 
-template <typename TableSpec, typename NameTag>
-struct name_tag_of<schema_qualified_table_as_t<TableSpec, NameTag>> {
-  using type = NameTag;
+template <typename TableSpec, fixed_string Name>
+struct name_of<schema_qualified_table_as_t<TableSpec, Name>> {
+  static constexpr fixed_string value = Name;
 };
 
-template <typename TableSpec, typename NameTag>
-struct provided_tables_of<schema_qualified_table_as_t<TableSpec, NameTag>> {
+template <typename TableSpec, fixed_string Name>
+struct provided_tables_of<schema_qualified_table_as_t<TableSpec, Name>> {
   using type =
-      detail::type_set<schema_qualified_table_as_t<TableSpec, NameTag>>;
+      detail::type_set<schema_qualified_table_as_t<TableSpec, Name>>;
 };
 
-template <typename Context, typename TableSpec, typename NameTag>
+template <typename Context, typename TableSpec, fixed_string Name>
 auto to_sql_string(Context& context,
-                   const schema_qualified_table_as_t<TableSpec, NameTag>& t)
+                   const schema_qualified_table_as_t<TableSpec, Name>& t)
     -> std::string {
   return to_sql_string(context, t._schema) + "." +
          name_to_sql_string(context, name_tag_of_t<TableSpec>{}) + " AS " +
-         name_to_sql_string(context, NameTag{});
+         name_to_sql_string(context, Name);
 }
 
 template <typename TableSpec>
 struct schema_qualified_table_t {
   schema_qualified_table_t(schema_t schema) : _schema(std::move(schema)) {}
 
-  template <typename NameTagProvider>
-  auto as(const NameTagProvider& /*unused*/) const
-      -> schema_qualified_table_as_t<TableSpec,
-                                     name_tag_of_t<NameTagProvider>> {
+  template <fixed_string Name>
+  auto as() const
+      -> schema_qualified_table_as_t<TableSpec, Name> {
     return {_schema};
   }
 

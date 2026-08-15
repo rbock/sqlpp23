@@ -82,7 +82,7 @@ struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
 
   static constexpr auto _get_sql_name_tuple() {
     return std::make_tuple(
-        std::string_view{name_tag_of_t<FieldSpecs>::name}...);
+        std::string_view{name_of_v<FieldSpecs>::name}...);
   }
 };
 

@@ -37,7 +37,6 @@
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/logic.h>
-#include <sqlpp26/core/name/char_sequence.h>
 #include <sqlpp26/core/operator/enable_as.h>
 #include <sqlpp26/core/operator/enable_comparison.h>
 #include <sqlpp26/core/reader.h>

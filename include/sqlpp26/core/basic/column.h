@@ -90,8 +90,13 @@ template <typename Table, size_t index>
 struct required_static_tables_of<column<Table, index>>
     : public required_tables_of<column<Table, index>> {};
 
-template <typename _Table, size_t index>
-struct is_column<column<_Table, index>> : public std::true_type {};
+template <typename Table, size_t index>
+struct is_column<column<Table, index>> : public std::true_type {};
+
+template <typename Table, size_t index>
+struct table_of<column<Table, index>> {
+  using type = Table;
+};
 
 template <typename Context, typename Table, size_t index>
 auto to_sql_string(Context& context, const column<Table, index>&)
@@ -102,7 +107,7 @@ auto to_sql_string(Context& context, const column<Table, index>&)
          name_to_sql_string(context, name_of_v<T>);
 }
 /*
-// _Table can be a table_t or a cte_ref_t or a select_ref_t
+// Table can be a table_t or a cte_ref_t or a select_ref_t
 template <typename Table, typename ColumnSpec>
 struct column_t : public enable_as, public enable_comparison {
 
@@ -122,30 +127,25 @@ struct column_t : public enable_as, public enable_comparison {
   }
 };
 
-template <typename _Table, typename ColumnSpec>
-struct is_aggregate_neutral<column_t<_Table, ColumnSpec>>
+template <typename Table, typename ColumnSpec>
+struct is_aggregate_neutral<column<Table, ColumnSpec>>
     : public std::false_type {};
 
-template <typename _Table, typename ColumnSpec>
-struct has_default<column_t<_Table, ColumnSpec>>
+template <typename Table, typename ColumnSpec>
+struct has_default<column<Table, ColumnSpec>>
     : public ColumnSpec::has_default {};
 
-template <typename _Table, typename ColumnSpec>
-struct name_tag_of<column_t<_Table, ColumnSpec>>
+template <typename Table, typename ColumnSpec>
+struct name_tag_of<column<Table, ColumnSpec>>
     : public name_tag_of<ColumnSpec> {};
 
-template <typename _Table, typename ColumnSpec>
-struct table_of<column_t<_Table, ColumnSpec>> {
-  using type = _Table;
-};
-
-template <typename _Table, typename ColumnSpec>
-struct data_type_of<column_t<_Table, ColumnSpec>> {
+template <typename Table, typename ColumnSpec>
+struct data_type_of<column<Table, ColumnSpec>> {
   using type = std::remove_const_t<typename ColumnSpec::data_type>;
 };
 
-template <typename _Table, typename ColumnSpec>
-struct is_const<column_t<_Table, ColumnSpec>>
+template <typename Table, typename ColumnSpec>
+struct is_const<column<Table, ColumnSpec>>
     : public std::is_const<typename ColumnSpec::data_type> {};
 
 */
