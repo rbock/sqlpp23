@@ -314,7 +314,6 @@ struct provided_tables_of<statement_t<Clauses...>> {
   }
 };
 
-/*
 template <typename... Clauses>
 struct parameters_of<statement_t<Clauses...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
@@ -350,7 +349,6 @@ struct required_static_ctes_of<statement_t<Clauses...>> {
 
 template <typename... Clauses>
 struct requires_parentheses<statement_t<Clauses...>> : public std::true_type {};
-*/
 
 template <typename... Clauses>
 [[nodiscard]] auto check_table_consistency(const statement_t<Clauses...>&) {

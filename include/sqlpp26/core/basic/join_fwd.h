@@ -72,19 +72,19 @@ consteval auto provided_tables_of_as_array() {
 }
 
 template<typename Lhs, typename Rhs>
-consteval bool are_names_disjoint() {
-    std::flat_set<std::string_view> all;
+consteval bool are_table_names_disjoint() {
+    std::flat_set<std::string_view> all_names;
 
     // Needs to be static to ensure constant memory location across invocations.
     static constexpr auto lhs = provided_tables_of_as_array<Lhs>();
     static constexpr auto rhs = provided_tables_of_as_array<Rhs>();
 
     template for (constexpr auto info : lhs) {
-        all.insert(name_of_v<typename [: info :]>);
+        all_names.insert(name_of_v<typename [: info :]>);
     }
 
     template for (constexpr auto info : rhs) {
-        auto [_, inserted] = all.insert(name_of_v<typename [: info :]>);
+        auto [_, inserted] = all_names.insert(name_of_v<typename [: info :]>);
         if (!inserted) return false;
     }
 
@@ -94,7 +94,7 @@ consteval bool are_names_disjoint() {
 template <StaticTable Lhs, DynamicTable Rhs>
 inline constexpr bool can_be_joined_v =
     required_tables_of<Lhs>::func().empty() and required_tables_of<Rhs>::func().empty() and
-    are_names_disjoint<Lhs, Rhs>();
+    are_table_names_disjoint<Lhs, Rhs>();
 
 template <StaticTable Lhs, DynamicTable Rhs>
   requires(can_be_joined_v<Lhs, Rhs>)

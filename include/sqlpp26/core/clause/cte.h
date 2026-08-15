@@ -253,10 +253,9 @@ constexpr auto all_of(const cte_t<Name, Statement>&) {
 
 template <typename Context,
           fixed_string Name,
-          typename Statement,
-          typename... ColumnSpecs>
+          typename Statement>
 auto to_sql_string(Context& context,
-                   const cte_t<Name, Statement, ColumnSpecs...>& t)
+                   const cte_t<Name, Statement>& t)
     -> std::string {
   return name_to_sql_string(context, Name) +
          " AS (" + to_sql_string(context, read.expression(t)) + ")";
@@ -264,35 +263,42 @@ auto to_sql_string(Context& context,
 
 // Note that `cte_t` is not a table, because `join` and `from` store
 // `cte_ref_t`.
-template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct is_cte<cte_t<Name, Statement, ColumnSpecs...>>
+template <fixed_string Name, typename Statement>
+struct is_cte<cte_t<Name, Statement>>
     : public std::true_type {};
 
-template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct is_recursive_cte<cte_t<Name, Statement, ColumnSpecs...>>
+template <fixed_string Name, typename Statement>
+struct is_recursive_cte<cte_t<Name, Statement>>
     {
   constexpr static bool value = required_ctes_of<
       Statement>::func().contains(^^cte_ref_t<Name>);
 };
 
-template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct is_table<cte_t<Name, Statement, ColumnSpecs...>>
+template <fixed_string Name, typename Statement>
+struct is_table<cte_t<Name, Statement>>
     : public std::true_type {};
 
-template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct name_of<cte_t<Name, Statement, ColumnSpecs...>> {
+template <fixed_string Name, typename Statement>
+struct name_of<cte_t<Name, Statement>> {
   static constexpr fixed_string value = Name;
 };
 
-template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct nodes_of<cte_t<Name, Statement, ColumnSpecs...>> {
+template <fixed_string Name, typename Statement>
+struct nodes_of<cte_t<Name, Statement>> {
   using type = detail::type_vector<Statement>;
 };
 
-template <fixed_string Name, typename Statement, typename... ColumnSpecs>
-struct provided_ctes_of<cte_t<Name, Statement, ColumnSpecs...>> {
+template <fixed_string Name, typename Statement>
+struct provided_ctes_of<cte_t<Name, Statement>> {
   static consteval auto func() -> detail::type_info_set {
     return detail::make_type_info_set<cte_ref_t<Name>>();
+  }
+};
+
+template <fixed_string Name, typename Statement>
+struct required_ctes_of<cte_t<Name, Statement>> {
+  static consteval auto func() -> detail::type_info_set {
+    return required_ctes_of<Statement>::func();
   }
 };
 

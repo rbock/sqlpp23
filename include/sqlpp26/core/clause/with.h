@@ -98,9 +98,11 @@ struct parameters_of<with_t<Ctes...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
 };
 
+/* TODO
 template <typename Context, typename... Ctes>
 struct compatibility_check<Context, with_t<Ctes...>>
     : public compatibility_check<Context, detail::type_vector<Ctes...>> {};
+    */
 
 // CTEs can depend on CTEs defined before (in the same query).
 // `have_correct_cte_dependencies` checks that by walking the CTEs from left to
@@ -110,12 +112,13 @@ template <typename... CTEs>
 consteval auto have_correct_cte_dependencies() -> bool{
   detail::type_info_set allowed;
   template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
-    auto required = provided_ctes_of<CTEs...[index];
+    using CTE = CTEs...[index];
+    detail::insert_type_info_set(allowed, provided_ctes_of<CTE>::func());
+    auto required = required_ctes_of<CTE>::func();
     if (not std::ranges::includes(allowed, required, sqlpp::detail::type_info_less{})) {
       // Maybe turn this into exception?
       return false;
     }
-    detail::insert_type_info_set(all, required);
   }
   return true;
 }
@@ -124,22 +127,34 @@ template <typename... CTEs>
 consteval auto have_correct_static_cte_dependencies() -> bool{
   detail::type_info_set allowed;
   template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
-    auto required = provided_static_ctes_of<CTEs...[index];
+    using CTE = CTEs...[index];
+    detail::insert_type_info_set(allowed, provided_static_ctes_of<CTE>::func());
+    auto required = required_static_ctes_of<CTE>::func();
     if (not std::ranges::includes(allowed, required, sqlpp::detail::type_info_less{})) {
       // Maybe turn this into exception?
       return false;
     }
-    detail::insert_type_info_set(all, required);
   }
   return true;
+}
+
+template<typename... CTEs>
+consteval bool are_cte_names_unique() {
+    std::flat_set<std::string_view> all_names;
+
+    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
+        auto [_, inserted] = all_names.insert(name_of_v<CTEs...[index]>);
+        if (!inserted) return false;
+    }
+
+    return true;
 }
 
 struct no_with_t {
   template <typename Statement, DynamicCte... Ctes>
     requires(have_correct_cte_dependencies<Ctes...>() and
-             have_correct_static_cte_dependencies<Ctes...>()/* TODO and
-             detail::are_unique<
-                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value*/)
+             have_correct_static_cte_dependencies<Ctes...>() and
+             are_cte_names_unique<Ctes...>())
   auto with(this Statement&& self, Ctes... ctes) {
     return new_statement<no_with_t>(
         std::forward<Statement>(self),
@@ -153,7 +168,7 @@ auto to_sql_string(Context&, const no_with_t&) -> std::string {
 }
 
 template <typename Statement>
-struct basic_consistency_check<Statement, with_t<Ctes...>> {
+struct basic_consistency_check<Statement, no_with_t> {
   static constexpr void verify() {
   }
 };
@@ -161,9 +176,8 @@ struct basic_consistency_check<Statement, with_t<Ctes...>> {
 
 template <DynamicCte... Ctes>
     requires(have_correct_cte_dependencies<Ctes...>() and
-             have_correct_static_cte_dependencies<Ctes...>()/* TODO and
-             detail::are_unique<
-                 make_char_sequence_t<remove_dynamic_t<Ctes>>...>::value*/)
+             have_correct_static_cte_dependencies<Ctes...>() and
+             are_cte_names_unique<Ctes...>())
 constexpr auto with(Ctes... ctes) {
   return statement_t<no_with_t>{}.with(std::move(ctes)...);
 }
