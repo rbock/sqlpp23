@@ -34,6 +34,7 @@
 #include <sqlpp26/core/detail/get_first.h>
 #include <sqlpp26/core/detail/get_last.h>
 #include <sqlpp26/core/detail/pick_arg.h>
+#include <sqlpp26/core/hidden.h>
 #include <sqlpp26/core/noop.h>
 #include <sqlpp26/core/query/statement_constructor_arg.h>
 #include <sqlpp26/core/query/statement_fwd.h>

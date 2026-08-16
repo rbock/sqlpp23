@@ -40,11 +40,8 @@ template <typename Clause>
 struct is_clause<hidden_t<Clause>> : public std::true_type {};
 
 template <typename Statement, typename Clause>
-struct consistency_check<Statement, hidden_t<Clause>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+struct basic_consistency_check<Statement, hidden_t<Clause>> {
+  static constexpr void verify() {}
 };
 
 template <typename Context, typename Clause>

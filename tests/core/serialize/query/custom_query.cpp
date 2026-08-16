@@ -73,7 +73,7 @@ int main() {
   const auto x = 17;
   SQLPP_COMPARE(
       insert_into(foo).columns(foo.doubleN)
-          << select(sqlpp::value(x).as(foo.doubleN))
+          << select(sqlpp::value(x).as<"double_n">())
                  .from(foo)
                  .where(not exists(
                      select(foo.doubleN).from(foo).where(foo.doubleN == x)))
