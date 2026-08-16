@@ -39,12 +39,10 @@ consteval void insert_type_info_set(auto& sink, const auto& data) {
   }
 }
 
-consteval type_info_set make_joined_type_info_set(const auto&... Sets) {
-  type_info_set all;
-
-  (insert_type_info_set(all, Sets), ...);
-
-  return all;
+consteval void remove_type_info_set(auto& result, const auto& data) {
+  for (const auto& entry : data) {
+    result.erase(entry);
+  }
 }
 
 template <typename... T>
@@ -54,6 +52,23 @@ consteval type_info_set make_type_info_set() {
   (all.insert(^^T), ...);
 
   return all;
+}
+
+consteval type_info_set make_joined_type_info_set(const auto&... Sets) {
+  type_info_set all;
+
+  (insert_type_info_set(all, Sets), ...);
+
+  return all;
+}
+
+consteval type_info_set make_type_info_set_difference(const auto& lhs, const auto& rhs) {
+  type_info_set difference;
+
+  insert_type_info_set(difference, lhs);
+  remove_type_info_set(difference, rhs);
+
+  return difference;
 }
 
 template <typename... T>

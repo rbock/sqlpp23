@@ -103,9 +103,9 @@ int main(int, char*[]) {
     using X = std::decay_t<decltype(x)>;
     using Y = std::decay_t<decltype(y)>;
     static_assert(sqlpp::required_ctes_of<Y>::func().size() == 1);
-    static_assert(sqlpp::have_correct_cte_dependencies<Y, X>());
+    static_assert(sqlpp::have_correct_cte_dependencies<X, Y>());
 
-    SQLPP_COMPARE(with(y, x),
+    SQLPP_COMPARE(with(x, y),
                   "WITH x AS (SELECT tab_foo.id FROM tab_foo), y AS (SELECT "
                   "x.id FROM x) ");
   }

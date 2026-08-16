@@ -308,6 +308,11 @@ struct required_insert_columns_of<statement_t<Clauses...>> {
 };
 
 template <typename... Clauses>
+struct parameters_of<statement_t<Clauses...>> {
+  using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
+};
+
+template <typename... Clauses>
 struct provided_tables_of<statement_t<Clauses...>> {
   static consteval detail::type_info_set func() {
       return detail::make_joined_type_info_set(provided_tables_of<Clauses>::func()...);
@@ -315,36 +320,54 @@ struct provided_tables_of<statement_t<Clauses...>> {
 };
 
 template <typename... Clauses>
-struct parameters_of<statement_t<Clauses...>> {
-  using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
-};
-
-template <typename... Clauses>
 struct provided_optional_tables_of<statement_t<Clauses...>> {
-  using type =
-      detail::make_joined_set_t<provided_optional_tables_of_t<Clauses>...>;
+  static consteval detail::type_info_set func() {
+      return detail::make_joined_type_info_set(provided_optional_tables_of<Clauses>::func()...);
+  }
 };
 
 template <typename... Clauses>
 struct required_tables_of<statement_t<Clauses...>> {
-  using type = typename statement_t<Clauses...>::_unknown_required_tables_of;
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set_difference(
+        detail::make_joined_type_info_set(
+            required_tables_of<Clauses>::func()...),
+        detail::make_joined_type_info_set(
+            provided_tables_of<Clauses>::func()...));
+  }
 };
 
 template <typename... Clauses>
 struct required_static_tables_of<statement_t<Clauses...>> {
-  using type =
-      typename statement_t<Clauses...>::_unknown_required_static_tables_of;
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set_difference(
+        detail::make_joined_type_info_set(
+            required_static_tables_of<Clauses>::func()...),
+        detail::make_joined_type_info_set(
+            provided_static_tables_of<Clauses>::func()...));
+  }
 };
 
 template <typename... Clauses>
 struct required_ctes_of<statement_t<Clauses...>> {
-  using type = typename statement_t<Clauses...>::_unknown_required_ctes_of;
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set_difference(
+        detail::make_joined_type_info_set(
+            required_ctes_of<Clauses>::func()...),
+        detail::make_joined_type_info_set(
+            provided_ctes_of<Clauses>::func()...));
+  }
 };
 
 template <typename... Clauses>
 struct required_static_ctes_of<statement_t<Clauses...>> {
-  using type =
-      typename statement_t<Clauses...>::_unknown_required_static_ctes_of;
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set_difference(
+        detail::make_joined_type_info_set(
+            required_static_ctes_of<Clauses>::func()...),
+        detail::make_joined_type_info_set(
+            provided_static_ctes_of<Clauses>::func()...));
+  }
 };
 
 template <typename... Clauses>
