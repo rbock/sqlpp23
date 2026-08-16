@@ -30,10 +30,9 @@ int main(int, char*[]) {
   {
     const auto val = sqlpp::value(17);
 
-    SQLPP_COMPARE(any(select(val.as<"v">())), "ANY (SELECT 17 AS v)");
-    SQLPP_COMPARE(val == any(select(val.as<"v">())), "17 = ANY (SELECT 17 AS v)");
+    SQLPP_COMPARE(any(value(select(val.as<"v">()))), "ANY (SELECT 17 AS v)");
+    SQLPP_COMPARE(val == any(value(select(val.as<"v">()))), "17 = ANY (SELECT 17 AS v)");
   }
-
   {
     const auto val = sqlpp::value(1);
     const auto expr = sqlpp::value(17) + 4;
@@ -428,5 +427,6 @@ int main(int, char*[]) {
     SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc, sqlpp::null_position::last), "(17 + 4) ASC NULLS LAST");
     //SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc, sqlpp::null_position::first), "(17 + 4) DESC NULLS FIRST");
   }
+
   return 0;
 }

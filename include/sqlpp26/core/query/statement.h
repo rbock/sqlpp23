@@ -275,8 +275,11 @@ struct is_result_clause<statement_t<Clauses...>> {
       typename statement_t<Clauses...>::_result_type_provider>::value;
 };
 */
+// No data_type_of for statements. 
+// * sqlpp::any and sqlpp::exists operators can handle statements directly.
+// * wrap the statement in sqlpp::value() to use it as a value.
 template <typename... Clauses>
-struct data_type_of<statement_t<Clauses...>> {
+struct statement_data_type_of<statement_t<Clauses...>> {
   using type =
       data_type_of_t<result_type_provider_t<Clauses...>>;
 };

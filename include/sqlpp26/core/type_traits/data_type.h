@@ -71,6 +71,23 @@ template <typename T>
 inline constexpr bool has_data_type_v = has_data_type<T>::value;
 
 template <typename T>
+struct statement_data_type_of {
+  using type = no_value_t;
+};
+
+template <typename T>
+using statement_data_type_of_t = typename statement_data_type_of<T>::type;
+
+template <typename T>
+struct has_statement_data_type
+    : public std::integral_constant<
+          bool,
+          not std::is_same<statement_data_type_of_t<T>, no_value_t>::value> {};
+
+template <typename T>
+inline constexpr bool has_statement_data_type_v = has_statement_data_type<T>::value;
+
+template <typename T>
 struct is_data_type : public std::false_type {};
 
 template <typename T>

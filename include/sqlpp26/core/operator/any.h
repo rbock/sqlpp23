@@ -28,6 +28,7 @@
  */
 
 #include <sqlpp26/core/query/statement_fwd.h>
+#include <sqlpp26/core/basic/value.h>
 #include <sqlpp26/core/reader.h>
 #include <sqlpp26/core/type_traits.h>
 
@@ -72,13 +73,9 @@ auto to_sql_string(Context& context, const any_t<Select>& t) -> std::string {
   return "ANY (" + to_sql_string(context, read.expression(t)) + ")";
 }
 
-template <typename... Clauses>
-  requires(has_data_type<statement_t<Clauses...>>::value)
-auto any(statement_t<Clauses...> s) -> any_t<statement_t<Clauses...>> {
-  // TODO: Need to add this to similar functions
-  consteval {
-    statement_t<Clauses...>::check_basic_consistency();
-  }
+template <typename Select>
+  requires(has_statement_data_type_v<Select>)
+auto any(value_t<Select> s) -> any_t<value_t<Select>> {
   return {std::move(s)};
 }
 }  // namespace sqlpp

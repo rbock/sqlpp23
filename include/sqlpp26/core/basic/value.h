@@ -49,6 +49,12 @@ struct data_type_of<value_t<T>> {
   using type = data_type_of_t<T>;
 };
 
+template <typename Select>
+requires(is_statement_v<Select>)
+struct data_type_of<value_t<Select>> {
+  using type = statement_data_type_of_t<Select>;
+};
+
 template <typename T>
 struct nodes_of<value_t<T>> {
   // Required in case of value(select(...)).
@@ -69,10 +75,12 @@ constexpr auto value(T t) -> value_t<T> {
   return {std::move(t)};
 }
 
-template <typename T>
-  requires(has_data_type_v<T> and is_statement_v<T> and
-           not is_optional<T>::value)
-constexpr auto value(T t) -> value_t<T> {
+template <typename Select>
+  requires(has_statement_data_type_v<Select> and is_statement_v<Select>)
+constexpr auto value(Select t) -> value_t<Select> {
+  consteval {
+    Select::check_basic_consistency();
+  }
   return {std::move(t)};
 }
 

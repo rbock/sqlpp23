@@ -39,10 +39,10 @@ int main(int, char*[]) {
                 "AVG(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(avg(select(sqlpp::value(7).as<"a">())),
+  SQLPP_COMPARE(avg(value(select(sqlpp::value(7).as<"a">()))),
                 "AVG(SELECT 7 AS a)");
   SQLPP_COMPARE(
-      avg(sqlpp::distinct, select(sqlpp::value(7).as<"a">())),
+      avg(sqlpp::distinct, value(select(sqlpp::value(7).as<"a">()))),
       "AVG(DISTINCT SELECT 7 AS a)");
 
   return 0;

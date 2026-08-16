@@ -40,10 +40,10 @@ int main(int, char*[]) {
                 "MIN(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(min(select(sqlpp::value(7).as<"a">())),
+  SQLPP_COMPARE(min(value(select(sqlpp::value(7).as<"a">()))),
                 "MIN(SELECT 7 AS a)");
   SQLPP_COMPARE(
-      min(sqlpp::distinct, select(sqlpp::value(7).as<"a">())),
+      min(sqlpp::distinct, value(select(sqlpp::value(7).as<"a">()))),
       "MIN(DISTINCT SELECT 7 AS a)");
 
   return 0;

@@ -39,10 +39,10 @@ int main(int, char*[]) {
                 "MAX(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(max(select(sqlpp::value(7).as<"a">())),
+  SQLPP_COMPARE(max(value(select(sqlpp::value(7).as<"a">()))),
                 "MAX(SELECT 7 AS a)");
   SQLPP_COMPARE(
-      max(sqlpp::distinct, select(sqlpp::value(7).as<"a">())),
+      max(sqlpp::distinct, value(select(sqlpp::value(7).as<"a">()))),
       "MAX(DISTINCT SELECT 7 AS a)");
 
   return 0;
