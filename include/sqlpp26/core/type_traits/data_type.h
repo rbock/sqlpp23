@@ -83,6 +83,8 @@ struct is_raw_boolean: public std::false_type {};
 template<>
 struct is_raw_boolean<bool>: public std::true_type {};
 
+using boolean = bool;
+
 template <typename T>
 requires(is_raw_boolean<T>::value)
 struct is_data_type<T> : std::true_type {};
@@ -119,6 +121,8 @@ struct is_raw_integral<int32_t>: public std::true_type {};
 
 template<>
 struct is_raw_integral<int64_t>: public std::true_type {};
+
+using integral = int64_t;
 
 template <typename T>
 requires(is_raw_integral<T>::value)
@@ -157,6 +161,8 @@ struct is_raw_unsigned_integral<uint32_t>: public std::true_type {};
 template<>
 struct is_raw_unsigned_integral<uint64_t>: public std::true_type {};
 
+using unsigned_integral = uint64_t;
+
 template <typename T>
 requires(is_raw_unsigned_integral<T>::value)
 struct is_data_type<T> : std::true_type {};
@@ -190,6 +196,8 @@ struct is_raw_floating_point<double>: public std::true_type {};
 
 template<>
 struct is_raw_floating_point<long double>: public std::true_type {};
+
+using floating_point = double;
 
 template <typename T>
 requires(is_raw_floating_point<T>::value)
@@ -228,6 +236,8 @@ struct is_raw_text<std::string>: public std::true_type {};
 template<>
 struct is_raw_text<std::string_view>: public std::true_type {};
 
+using text = std::string;
+
 template <typename T>
 requires(is_raw_text<T>::value)
 struct is_data_type<T> : std::true_type {};
@@ -262,6 +272,8 @@ struct is_raw_blob<std::vector<uint8_t>>: public std::true_type {};
 template<>
 struct is_raw_blob<std::span<uint8_t>>: public std::true_type {};
 
+using blob = std::vector<uint8_t>;
+
 template <typename T>
 requires(is_raw_blob<T>::value)
 struct is_data_type<T> : std::true_type {};
@@ -290,6 +302,8 @@ struct is_raw_date: public std::false_type {};
 template<>
 struct is_raw_date<std::chrono::sys_days>: public std::true_type {};
 
+using date = std::chrono::sys_days;
+
 template <typename T>
 requires(is_raw_date<T>::value)
 struct is_data_type<T> : std::true_type {};
@@ -317,6 +331,8 @@ struct is_raw_time_of_day: public std::false_type {};
 
 template<typename Rep, typename Period>
 struct is_raw_time_of_day<std::chrono::duration<Rep, Period>>: public std::true_type {};
+
+using time_of_day = std::chrono::microseconds;
 
 template <typename T>
 requires(is_raw_time_of_day<T>::value)
@@ -348,6 +364,9 @@ template <typename Period>
 struct is_raw_timestamp<
     std::chrono::time_point<std::chrono::system_clock, Period>>
     : public std::true_type {};
+
+using timestamp = std::chrono::time_point<std::chrono::system_clock,
+                                          std::chrono::microseconds>;
 
 template <typename T>
 requires(is_raw_timestamp<T>::value)

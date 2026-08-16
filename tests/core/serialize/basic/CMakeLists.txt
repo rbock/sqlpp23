@@ -25,7 +25,6 @@
 create_tests_group(
     join
     parameter
-    schema_qualified_table
     value
     verbatim
     verbatim_table

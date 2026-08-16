@@ -106,6 +106,7 @@ struct operator_not_in {
   static constexpr auto symbol = " NOT IN";
 };
 
+// TODO specialize for select statement and exclude selects otherwise
 template <typename L, typename... Args>
   requires((sizeof...(Args) != 0) and
            logic::all<values_are_comparable<L, Args>::value...>::value)

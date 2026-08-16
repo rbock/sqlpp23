@@ -28,7 +28,6 @@
 
 int TableAlias(int, char*[]) {
   const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
 
   // Individual values
   SQLPP_COMPARE(foo.as<"tab_bar">(), "tab_foo AS tab_bar");

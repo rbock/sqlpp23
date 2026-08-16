@@ -184,9 +184,8 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   using _parameter_check =
       static_check_t<_parameters::empty(), assert_no_parameters_t>;
       */
-
-  constexpr static void check_basic_consistency() {
-    (basic_consistency_check<statement_t, Clauses>::verify(), ...);
+  static constexpr void check_basic_consistency() {
+    (basic_consistency_check<statement_t<Clauses...>, Clauses>::verify(), ...);
   }
 
   // Constructors
@@ -275,15 +274,11 @@ struct is_result_clause<statement_t<Clauses...>> {
       typename statement_t<Clauses...>::_result_type_provider>::value;
 };
 */
-/*
 template <typename... Clauses>
 struct data_type_of<statement_t<Clauses...>> {
-  using type = std::conditional_t<
-      statement_consistency_check_t<statement_t<Clauses...>>::value,
-      data_type_of_t<result_type_provider_t<Clauses...>>,
-      no_value_t>;
+  using type =
+      data_type_of_t<result_type_provider_t<Clauses...>>;
 };
-*/
 
 // statements explicitly do not expose any nodes as most recursive traits
 // should not traverse into sub queries, e.g.
@@ -386,8 +381,8 @@ template <typename... Clauses>
 }
 
 template <typename... Clauses>
-[[nodiscard]] constexpr auto check_prepare_consistency(const statement_t<Clauses...>& t) {
-  (t.check_basic_consistency() /* TODO && ... &&
+[[nodiscard]] constexpr auto check_prepare_consistency(const statement_t<Clauses...>&) {
+  (statement_t<Clauses...>::check_basic_consistency() /* TODO && ... &&
           prepare_check_t<statement_t<Clauses...>, Clauses>{}*/)
     //&& (typename statement_t<Clauses...>::_table_check{})
     //&& (typename statement_t<Clauses...>::_cte_check{});

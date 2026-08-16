@@ -258,52 +258,59 @@ auto name_to_sql_string(Context& /*context*/, const std::string_view& name) -> s
   //}
 }
 
-/* TODO
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const boolean&) {
+template <typename T, typename Context>
+  requires(is_boolean_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "BOOLEAN";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const integral&) {
+template <typename T, typename Context>
+  requires(is_integral_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "BIGINT";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const unsigned_integral&) {
+template <typename T, typename Context>
+  requires(is_unsigned_integral_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "BIGINT UNSIGNED";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const floating_point&) {
+template <typename T, typename Context>
+  requires(is_floating_point_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "DOUBLE PRECISION";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const text&) {
+template <typename T, typename Context>
+  requires(is_text_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "VARCHAR";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const blob&) {
+template <typename T, typename Context>
+  requires(is_blob_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "BLOB";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const time&) {
+template <typename T, typename Context>
+  requires(is_time_of_day_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "TIME";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const timestamp&) {
+template <typename T, typename Context>
+  requires(is_timestamp_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "TIMESTAMP";
 }
 
-template<typename Context>
-std::string data_type_to_sql_string(Context&, const date&) {
+template <typename T, typename Context>
+  requires(is_date_v<T>)
+auto data_type_to_sql_string(Context&) -> std::string {
   return "DATE";
 }
-*/
 
 template <typename Context, typename Data>
 auto dynamic_clause_to_sql_string(Context& context,

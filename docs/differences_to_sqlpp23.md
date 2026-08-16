@@ -2,6 +2,7 @@
 
 # Differences between sqlpp11 and sqlpp23
 
+Dropped schema-qualified tables (or rather, the idea is to make the schema part of the table name)
 Reflection:
   - table definition
   - type_set

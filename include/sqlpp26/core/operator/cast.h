@@ -66,7 +66,7 @@ auto to_sql_string(Context& context, const cast_t<Expression, DataType>& t)
   return std::format(
       "CAST({} AS {})",
       operand_to_sql_string(context, read.expression(t)),
-      data_type_to_sql_string(context, DataType{}));
+      data_type_to_sql_string<DataType>(context));
 }
 
 template <typename DataType>
@@ -80,7 +80,7 @@ struct data_type_of<cast_as_t<DataType>> {
 
 template <typename DataType>
   requires(is_data_type<DataType>::value)
-constexpr auto as(DataType)
+constexpr auto as()
     -> cast_as_t<DataType> {
   return {};
 }

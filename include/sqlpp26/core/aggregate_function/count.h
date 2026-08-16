@@ -73,6 +73,8 @@ auto to_sql_string(Context& context, const count_t<Flag, Expr>& t)
          to_sql_string(context, read.expression(t)) + ")";
 }
 
+// TODO Need to check statement consistency here and in other aggregated functions
+// if the statement is used as sub-select
 template <typename T>
   requires(has_data_type_v<T> and not contains_aggregate_function<T>::value)
 constexpr auto count(T t) -> count_t<no_flag_t, T> {

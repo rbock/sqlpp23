@@ -35,11 +35,6 @@
 namespace sqlpp {
 template <typename DataType, fixed_string Name>
 struct parameter_t : public enable_as, public enable_comparison {
-  //TODO 
-#if 0
-  using _instance_t =
-      typename NameTag::template _member_t<parameter_value_t<DataType>>;
-#endif
   parameter_t() = default;
 
   parameter_t(const parameter_t&) = default;
@@ -63,14 +58,6 @@ template <typename Context, typename DataType, fixed_string Name>
 auto to_sql_string(Context&, const parameter_t<DataType, Name>&)
     -> std::string {
   return "?";
-}
-
-template <typename NamedExpr>
-  requires(has_data_type_v<NamedExpr> and has_name_v<NamedExpr>)
-auto parameter(const NamedExpr& /*unused*/) -> parameter_t<
-    data_type_of_t<NamedExpr>,
-    name_of_v<NamedExpr>> {
-  return {};
 }
 
 template <fixed_string Name, typename DataType>

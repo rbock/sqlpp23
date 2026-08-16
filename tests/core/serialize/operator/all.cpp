@@ -200,17 +200,17 @@ int main(int, char*[]) {
                   "CASE WHEN 1 THEN 11 WHEN 0 THEN 13 ELSE (17 + 4) END");
   }
   {
-    SQLPP_COMPARE(cast("7", as(sqlpp::boolean{})), "CAST('7' AS BOOLEAN)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::integral{})), "CAST('7' AS BIGINT)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::unsigned_integral{})),
+    SQLPP_COMPARE(cast("7", sqlpp::as<bool>()), "CAST('7' AS BOOLEAN)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<int>()), "CAST('7' AS BIGINT)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<unsigned>()),
                   "CAST('7' AS BIGINT UNSIGNED)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::floating_point{})),
+    SQLPP_COMPARE(cast("7", sqlpp::as<float>()),
                   "CAST('7' AS DOUBLE PRECISION)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::text{})), "CAST('7' AS VARCHAR)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::blob{})), "CAST('7' AS BLOB)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::date{})), "CAST('7' AS DATE)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::timestamp{})), "CAST('7' AS TIMESTAMP)");
-    SQLPP_COMPARE(cast("7", as(sqlpp::time{})), "CAST('7' AS TIME)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::text>()), "CAST('7' AS VARCHAR)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::blob>()), "CAST('7' AS BLOB)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<std::chrono::sys_days>()), "CAST('7' AS DATE)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::timestamp>()), "CAST('7' AS TIMESTAMP)");
+    SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::time_of_day>()), "CAST('7' AS TIME)");
   }
   {
     const auto val = sqlpp::value(1);
