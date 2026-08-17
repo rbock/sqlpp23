@@ -76,7 +76,7 @@ int main(int, char*[]) {
                   "LOWER(CONCAT(tab_bar.text_n, 'suffix'))");
 
     // With sub select.
-    SQLPP_COMPARE(lower(select(sqlpp::value("something").as<"a">())),
+    SQLPP_COMPARE(lower(value(select(sqlpp::value("something").as<"a">()))),
                   "LOWER(SELECT 'something' AS a)");
   }
   {
@@ -90,7 +90,7 @@ int main(int, char*[]) {
                   "TRIM(CONCAT(tab_bar.text_n, 'suffix'))");
 
     // With sub select.
-    SQLPP_COMPARE(trim(select(sqlpp::value("something").as<"a">())),
+    SQLPP_COMPARE(trim(value(select(sqlpp::value("something").as<"a">()))),
                   "TRIM(SELECT 'something' AS a)");
   }
   {
@@ -104,7 +104,7 @@ int main(int, char*[]) {
                   "UPPER(CONCAT(tab_bar.text_n, 'suffix'))");
 
     // With sub select.
-    SQLPP_COMPARE(upper(select(sqlpp::value("something").as<"a">())),
+    SQLPP_COMPARE(upper(value(select(sqlpp::value("something").as<"a">()))),
                   "UPPER(SELECT 'something' AS a)");
   }
   return 0;
