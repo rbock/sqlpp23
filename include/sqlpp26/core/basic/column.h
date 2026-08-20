@@ -80,6 +80,11 @@ struct name_of<column<Table, index>> {
 };
 
 template <typename Table, size_t index>
+struct sql_name_of<column<Table, index>> {
+  static constexpr fixed_string value = column_spec_of_t<column<Table, index>>::sql_name;
+};
+
+template <typename Table, size_t index>
 struct required_tables_of<column<Table, index>> {
   static consteval detail::type_info_set func() {
     return detail::make_type_info_set<Table>();
@@ -104,7 +109,7 @@ auto to_sql_string(Context& context, const column<Table, index>&)
   using T = column<Table, index>;
 
   return name_to_sql_string(context, name_of_v<Table>) + "." +
-         name_to_sql_string(context, name_of_v<T>);
+         name_to_sql_string(context, sql_name_of_v<T>);
 }
 /*
 // Table can be a table_t or a cte_ref_t or a select_ref_t

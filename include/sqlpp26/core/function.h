@@ -57,6 +57,7 @@ auto flatten(Context& context, const Expression& exp)
 
 template <typename T>
 constexpr std::string_view get_sql_name(const T& /*unused*/) {
+  // TODO: Why not sql_name_of?
   return name_of_v<T>;
 }
 

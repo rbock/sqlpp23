@@ -66,7 +66,7 @@ struct table_spec_of<table<TableSpec>>
 };
 
 // Table generator
-template <typename TableSpec, fixed_string Name, typename... ColumnSpecs>
+template <typename TableSpec, fixed_string SqlName, typename... ColumnSpecs>
 struct table_generator {
   struct columns;
   consteval {
@@ -96,7 +96,7 @@ struct table_generator {
   template<size_t Idx>
   using column_spec = ColumnSpecs...[Idx];
 
-  static constexpr fixed_string name = Name;
+  static constexpr fixed_string name = SqlName;
 };
 
 template <typename TableSpec>
@@ -114,7 +114,7 @@ struct provided_tables_of<table<TableSpec>> {
 
 template <typename TableSpec>
 struct name_of<table<TableSpec>> {
-  static constexpr fixed_string value = TableSpec::generator::name.data;
+  static constexpr fixed_string value = TableSpec::generator::name;
 };
 
 template <typename TableSpec>
@@ -127,7 +127,7 @@ constexpr auto all_of(const table<TableSpec>& t) {
 template <typename Context, typename TableSpec>
 auto to_sql_string(Context& context, const table<TableSpec>& /*unused*/)
     -> std::string {
-  return name_to_sql_string(context, name_of_v<TableSpec>);
+  return name_to_sql_string(context, name_of_v<table<TableSpec>>);
 }
 
 }  // namespace sqlpp

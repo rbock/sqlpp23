@@ -25,6 +25,7 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
+#include "sqlpp26/core/basic/column_spec.h"
 
 int main(int, char*[]) {
   {

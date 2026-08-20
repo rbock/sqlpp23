@@ -28,31 +28,18 @@
  */
 
 #include <type_traits>
-#include "sqlpp26/core/detail/type_set.h"
 
 #include <sqlpp26/core/clause/select_column_traits.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-template <fixed_string Name, typename DataType>
+template <fixed_string Name, typename DataType, auto SqlName>
 struct field_spec {
+  // TODO
   static constexpr fixed_string name = Name;
   using data_type = DataType;
 };
 
-// TODO
-#if 0
-template <typename NameTag, typename DataType>
-struct name_tag_of<field_spec<NameTag, DataType>> {
-  using type = NameTag;
-};
-
-template <typename NameTag, typename DataType>
-struct data_type_of<field_spec<NameTag, DataType>> {
-  using type = DataType;
-};
-
-#endif
 template <typename Left, typename Right>
 struct is_field_compatible {
   static constexpr auto value = false;
@@ -60,10 +47,12 @@ struct is_field_compatible {
 
 template <fixed_string LeftName,
           typename LeftDataType,
+          auto LeftSqlName,
           fixed_string RightName,
-          typename RightDataType>
-struct is_field_compatible<field_spec<LeftName, LeftDataType>,
-                           field_spec<RightName, RightDataType>> {
+          typename RightDataType,
+          auto RightSqlName>
+struct is_field_compatible<field_spec<LeftName, LeftDataType, LeftSqlName>,
+                           field_spec<RightName, RightDataType, RightSqlName>> {
   static constexpr auto value =
       std::string_view(LeftName.data) == std::string_view(RightName.data) and
       std::is_same<remove_optional_t<result_data_type_of_t<LeftDataType>>,
@@ -75,23 +64,51 @@ struct is_field_compatible<field_spec<LeftName, LeftDataType>,
                                              // hand side allows it
 };
 
+// Tables can joined dynamically or as the optional part of an outer join. In
+// that case, their respective columns can be NULL.
 template <typename Statement, typename SelectColumn>
-struct make_field_spec {
-  using DataType = select_column_data_type_of_t<SelectColumn>;
+struct field_depends_on_optional_table {
   static constexpr bool _depends_on_optional_table =
       detail::make_joined_type_info_set(
           provided_optional_tables_of<Statement>::func(),
           required_tables_of<SelectColumn>::func())
           .size() < provided_optional_tables_of<Statement>::func().size() +
                         required_tables_of<SelectColumn>::func().size();
+};
 
+template <typename Statement, typename SelectColumn>
+struct field_data_type {
+  using type = select_column_data_type_of_t<SelectColumn>;
+};
+template <typename Statement, typename SelectColumn>
+using field_data_type_t = typename field_data_type<Statement, SelectColumn>::type;
+
+template <typename Statement, typename SelectColumn>
+requires(field_depends_on_optional_table<Statement, SelectColumn>::value)
+struct field_data_type<Statement, SelectColumn> {
+  using type =
+      sqlpp::force_optional_t<select_column_data_type_of_t<SelectColumn>>;
+};
+
+
+
+template <typename Statement, typename SelectColumn>
+struct make_field_spec {
   using type =
       field_spec<select_column_name_of_v<SelectColumn>,
-                   std::conditional_t<_depends_on_optional_table,
-                                      sqlpp::force_optional_t<DataType>,
-                                      DataType>>;
+                   field_data_type_t<Statement, SelectColumn>, nullptr>;
 };
 
 template <typename Statement, typename SelectColumn>
 using make_field_spec_t = typename make_field_spec<Statement, SelectColumn>::type;
+
+template <typename Statement, typename SelectColumn>
+  requires(std::string_view{select_column_name_of_v<SelectColumn>} !=
+           std::string_view{select_column_sql_name_of_v<SelectColumn>})
+struct make_field_spec<Statement, SelectColumn> {
+  using type =
+      field_spec<select_column_name_of_v<SelectColumn>, field_data_type_t<Statement, SelectColumn>,
+                 select_column_sql_name_of_v<SelectColumn>>;
+};
+
 }  // namespace sqlpp

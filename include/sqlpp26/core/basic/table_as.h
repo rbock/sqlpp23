@@ -33,6 +33,9 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
+template <typename TableSpec>
+struct table;
+
 template <typename TableSpec, fixed_string Alias>
 struct table_as
     : public TableSpec::generator::template table_as_columns<Alias>::type,
@@ -63,7 +66,7 @@ constexpr auto all_of(const table_as<TableSpec, Alias>& t) {
 template <typename Context, typename TableSpec, fixed_string Alias>
 auto to_sql_string(Context& context, const table_as<TableSpec, Alias>&)
     -> std::string {
-  return name_to_sql_string(context, name_of_v<TableSpec>) + " AS " +
+  return name_to_sql_string(context, name_of_v<table<TableSpec>>) + " AS " +
          name_to_sql_string(context, Alias);
 }
 }  // namespace sqlpp
