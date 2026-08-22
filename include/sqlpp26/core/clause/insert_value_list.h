@@ -246,11 +246,11 @@ auto to_sql_string(Context& context, const column_list_t<Columns...>& t)
   auto result = std::string{" ("};
   result += tuple_to_sql_string(context, read.columns(t),
                                 tuple_operand_no_dynamic{", "});
-  result += ")";
+  result += ") ";
   bool first = true;
   for (const auto& row : read.expressions(t)) {
     if (first) {
-      result += " VALUES ";
+      result += "VALUES ";
       first = false;
     } else {
       result += ", ";
@@ -273,12 +273,14 @@ class assert_no_unknown_tables_in_column_list_t : public wrapped_static_assert {
                         "otherwise not known in the statement");
   }
 };
+*/
 
 template <typename... Columns>
 struct is_clause<column_list_t<Columns...>> : public std::true_type {};
 
 template <typename Statement, typename... Columns>
-struct consistency_check<Statement, column_list_t<Columns...>> {
+struct basic_consistency_check<Statement, column_list_t<Columns...>> {
+  /*
   using type = static_combined_check_t<
       static_check_t<
           Statement::template _no_unknown_tables<column_list_t<Columns...>>,
@@ -286,8 +288,9 @@ struct consistency_check<Statement, column_list_t<Columns...>> {
       static_check_t<
           detail::have_all_required_columns<Statement, Columns...>::value,
           assert_all_required_columns_t>>;
-  constexpr auto operator()() {
-    return type{};
+          */
+  static constexpr void verify() {
+    // TODO
   }
 };
 
@@ -295,7 +298,6 @@ template <typename... Columns>
 struct nodes_of<column_list_t<Columns...>> {
   using type = detail::type_vector<Columns...>;
 };
-*/
 
 // NO INSERT COLUMNS/VALUES YET
 struct no_insert_value_list_t {

@@ -32,12 +32,12 @@ int TableAlias(int, char*[]) {
   // Individual values
   SQLPP_COMPARE(foo.as<"tab_bar">(), "tab_foo AS tab_bar");
   SQLPP_COMPARE(select(foo.float_n).from(foo).as<"tab_bar">(),
-                "(SELECT tab_foo.double_n FROM tab_foo) AS tab_bar");
+                "(SELECT tab_foo.double_n AS float_n FROM tab_foo) AS tab_bar");
 
   // Table alias
   const auto tab = foo.as<"sample">();
   SQLPP_COMPARE(select(tab.float_n).from(tab),
-                "SELECT sample.double_n FROM tab_foo AS sample");
+                "SELECT sample.double_n AS float_n FROM tab_foo AS sample");
 
   return 0;
 }

@@ -33,7 +33,7 @@ int main() {
   // Unconditionally
   SQLPP_COMPARE(sqlpp::select() << select_columns(sqlpp::distinct, foo.float_n)
                                 << from(foo),
-                "SELECT DISTINCT tab_foo.double_n FROM tab_foo");
+                "SELECT DISTINCT tab_foo.double_n AS float_n FROM tab_foo");
 
   // A full select statement made individual clauses
   SQLPP_COMPARE(sqlpp::select()
@@ -42,7 +42,7 @@ int main() {
                     << where(bar.id > 17) << group_by(foo.float_n)
                     << having(avg(bar.id) > 19) << order_by(foo.float_n.asc())
                     << sqlpp::limit(10u) << sqlpp::offset(100u),
-                "SELECT DISTINCT tab_foo.double_n FROM tab_foo INNER JOIN "
+                "SELECT DISTINCT tab_foo.double_n AS float_n FROM tab_foo INNER JOIN "
                 "tab_bar ON tab_foo.double_n = tab_bar.id WHERE "
                 "tab_bar.id > 17 GROUP BY tab_foo.double_n HAVING "
                 "AVG(tab_bar.id) > 19 ORDER BY tab_foo.double_n ASC "
@@ -57,7 +57,7 @@ int main() {
                     << order_by(foo.float_n.asc(),
                                 foo.u_int_n.order(sqlpp::sort_type::desc))
                     << sqlpp::limit(7u) << sqlpp::offset(3u),
-                "SELECT DISTINCT tab_foo.double_n FROM tab_foo INNER JOIN "
+                "SELECT DISTINCT tab_foo.double_n AS float_n FROM tab_foo INNER JOIN "
                 "tab_bar ON tab_foo.double_n = tab_bar.id WHERE "
                 "tab_bar.id > 17 GROUP BY tab_foo.double_n HAVING "
                 "AVG(tab_bar.id) > 19 ORDER BY tab_foo.double_n "
@@ -71,6 +71,15 @@ int main() {
 
   // An insert from select for postgresql
   const auto x = 17;
+  /*
+      insert_into(foo).columns(foo.float_n).hansi;
+     (insert_into(foo).columns(foo.float_n)
+          << select(sqlpp::value(x).as<"double_n">())
+                 .from(foo)
+                 .where(not exists(
+                     select(foo.float_n).from(foo).where(foo.float_n == x)))
+          << with_result_type_of(insert_into(foo))).berti;
+          */
   SQLPP_COMPARE(
       insert_into(foo).columns(foo.float_n)
           << select(sqlpp::value(x).as<"double_n">())
@@ -78,9 +87,9 @@ int main() {
                  .where(not exists(
                      select(foo.float_n).from(foo).where(foo.float_n == x)))
           << with_result_type_of(insert_into(foo)),
-      "INSERT INTO tab_foo (double_n)"
+      "INSERT INTO tab_foo (double_n) "
       "SELECT 17 AS double_n FROM tab_foo "
-      "WHERE NOT EXISTS (SELECT tab_foo.double_n FROM tab_foo WHERE "
+      "WHERE NOT EXISTS (SELECT tab_foo.double_n AS float_n FROM tab_foo WHERE "
       "tab_foo.double_n = 17)");
 
   // A multi-row "insert or ignore"
