@@ -32,23 +32,23 @@ void save_regular(sqlpp::postgresql::connection& db,
                   ::sqlpp::chrono::sys_microseconds tp,
                   std::chrono::microseconds tod,
                   std::chrono::sys_days dp) {
-  test::TabDateTime tab{};
-  db(update(tab).set(tab.timestampNTz = tp, tab.timeNTz = tod,
-                     tab.dateN = dp));
+  test::tab_date_time tab{};
+  db(update(tab).set(tab.timestamp_nTz = tp, tab.time_nTz = tod,
+                     tab.date_n = dp));
 }
 
 void save_prepared(sqlpp::postgresql::connection& db,
                    ::sqlpp::chrono::sys_microseconds tp,
                    std::chrono::microseconds tod,
                    std::chrono::sys_days dp) {
-  test::TabDateTime tab{};
+  test::tab_date_time tab{};
   auto prepared_update =
-      db.prepare(update(tab).set(tab.timestampNTz = parameter(tab.timestampNTz),
-                                 tab.timeNTz = parameter(tab.timeNTz),
-                                 tab.dateN = parameter(tab.dateN)));
-  prepared_update.parameters.timestampNTz = tp;
-  prepared_update.parameters.timeNTz = tod;
-  prepared_update.parameters.dateN = dp;
+      db.prepare(update(tab).set(tab.timestamp_nTz = parameter(tab.timestamp_nTz),
+                                 tab.time_nTz = parameter(tab.time_nTz),
+                                 tab.date_n = parameter(tab.date_n)));
+  prepared_update.parameters.timestamp_nTz = tp;
+  prepared_update.parameters.time_nTz = tod;
+  prepared_update.parameters.date_n = dp;
   db(prepared_update);
 }
 
@@ -56,21 +56,21 @@ void check_saved_values(sqlpp::postgresql::connection& db,
                         ::sqlpp::chrono::sys_microseconds tp,
                         std::chrono::microseconds tod,
                         std::chrono::sys_days dp) {
-  test::TabDateTime tab{};
+  test::tab_date_time tab{};
 
   const auto& rows_1 =
       db(select(
-             // timestampNTz as microseconds from the start of the UNIX epoch
+             // timestamp_nTz as microseconds from the start of the UNIX epoch
              // (1970-01-01 00:00:00 UTC)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from timestamp_n_tz)*1000000)::int8")
                  .as(sqlpp::alias::a),
-             // timeNTz as microseconds from the start of the day (00:00:00
+             // time_nTz as microseconds from the start of the day (00:00:00
              // UTC)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from time_n_tz)*1000000)::int8")
                  .as(sqlpp::alias::b),
-             // dateN as days from 1970-01-01 (timezone is not applicable to
+             // date_n as days from 1970-01-01 (timezone is not applicable to
              // date fields)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from date_n)/86400)::int8")
@@ -90,9 +90,9 @@ void check_saved_values(sqlpp::postgresql::connection& db,
   // types from C++ to PostgreSQL and then back from PostgreSQL to C++.
   const auto rows_2 = db(select(all_of(tab)).from(tab));
   const auto& row_2 = rows_2.front();
-  require_equal(__LINE__, row_2.timestampNTz.value(), tp);
-  require_equal(__LINE__, row_2.timeNTz.value(), tod);
-  require_equal(__LINE__, row_2.dateN.value(), dp);
+  require_equal(__LINE__, row_2.timestamp_nTz.value(), tp);
+  require_equal(__LINE__, row_2.time_nTz.value(), tod);
+  require_equal(__LINE__, row_2.date_n.value(), dp);
 }
 
 void test_timestamp(sqlpp::postgresql::connection& db,
@@ -117,9 +117,9 @@ int TimeZone(int, char*[]) {
   // serialization/parsing bugs
   auto db = sql::make_test_connection("+1");
 
-  test::createTabDateTime(db);
+  test::createtab_date_time(db);
 
-  test::TabDateTime tab{};
+  test::tab_date_time tab{};
   try {
     db(insert_into(tab).default_values());
 

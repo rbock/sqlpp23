@@ -31,8 +31,8 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{&db};
   using CTX = decltype(ctx);
 
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // OK
   std::ignore = to_sql_string(ctx, foo.join(bar).on(true));

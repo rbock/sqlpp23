@@ -27,8 +27,8 @@
 #include <sqlpp26/tests/core/all.h>
 
 void test_join() {
-  auto foo = test::TabFoo{};
-  auto bar = test::TabBar{};
+  auto foo = test::tab_foo{};
+  auto bar = test::tab_bar{};
   auto cheese = foo.as<"cheese">();
   auto cake = foo.as<"cake">();
   auto meme = schema_qualified_table({"meme"}, foo).as<"meme">();
@@ -245,7 +245,7 @@ void test_join() {
 
     // parameters from sub select and condition are being exposed
     using ExpectedParameters = sqlpp::detail::type_vector<
-        sqlpp::parameter_t<sqlpp::integral, test::TabFoo_::Id::_sqlpp_name_tag>,
+        sqlpp::parameter_t<sqlpp::integral, test::tab_foo_::Id::_sqlpp_name_tag>,
         sqlpp::parameter_t<sqlpp::integral,
                            decltype(sqlpp::alias::a)::_sqlpp_name_tag>>;
     static_assert(

@@ -48,8 +48,8 @@ concept cannot_call_using_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
   const auto c = sqlpp::ccte<"something">().as(select(foo.id).from(foo));
 
   // using_(<non arguments>) is inconsistent and cannot be constructed.

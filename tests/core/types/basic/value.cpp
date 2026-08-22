@@ -60,7 +60,7 @@ void test_value(Value v) {
 }
 
 void test_value_of_select_as() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   auto s = select(foo.id).from(foo).where(foo.id == 17);
   using S = decltype(s);

@@ -28,10 +28,10 @@
 
 int Function(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-  const auto f = test::TabFoo{};
-  const auto t = test::TabBar{};
+  const auto f = test::tab_foo{};
+  const auto t = test::tab_bar{};
 
-  // f.doubleN + 4 *= "";
+  // f.float_n + 4 *= "";
 
   // MEMBER FUNCTIONS
   // ----------------
@@ -39,8 +39,8 @@ int Function(int, char*[]) {
   // Test in
   {
     using TI = decltype(t.id.in(1, 2, 3));
-    using TF = decltype(f.doubleN.in(1.0, 2.0, 3.0));
-    using TT = decltype(t.textN.in("a", "b", "c"));
+    using TF = decltype(f.float_n.in(1.0, 2.0, 3.0));
+    using TT = decltype(t.text_n.in("a", "b", "c"));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -55,8 +55,8 @@ int Function(int, char*[]) {
   // Test in with value list
   {
     using TI = decltype(t.id.in(std::vector<int>({1, 2, 3})));
-    using TF = decltype(f.doubleN.in(std::vector<float>({1.0, 2.0, 3.0})));
-    using TT = decltype(t.textN.in(std::vector<std::string>({"a", "b", "c"})));
+    using TF = decltype(f.float_n.in(std::vector<float>({1.0, 2.0, 3.0})));
+    using TT = decltype(t.text_n.in(std::vector<std::string>({"a", "b", "c"})));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -71,8 +71,8 @@ int Function(int, char*[]) {
   // Test not_in
   {
     using TI = decltype(t.id.not_in(1, 2, 3));
-    using TF = decltype(f.doubleN.not_in(1.0, 2.0, 3.0));
-    using TT = decltype(t.textN.not_in("a", "b", "c"));
+    using TF = decltype(f.float_n.not_in(1.0, 2.0, 3.0));
+    using TT = decltype(t.text_n.not_in("a", "b", "c"));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -87,9 +87,9 @@ int Function(int, char*[]) {
   // Test not in with value list
   {
     using TI = decltype(t.id.not_in(std::vector<int>({1, 2, 3})));
-    using TF = decltype(f.doubleN.not_in(std::vector<float>({1.0, 2.0, 3.0})));
+    using TF = decltype(f.float_n.not_in(std::vector<float>({1.0, 2.0, 3.0})));
     using TT =
-        decltype(t.textN.not_in(std::vector<std::string>({"a", "b", "c"})));
+        decltype(t.text_n.not_in(std::vector<std::string>({"a", "b", "c"})));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -103,7 +103,7 @@ int Function(int, char*[]) {
 
   // Test like
   {
-    using TT = decltype(t.textN.like("%c%"));
+    using TT = decltype(t.text_n.like("%c%"));
     static_assert(sqlpp::is_boolean<TT>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TT>::value, "type requirement");
     static_assert(not sqlpp::is_text<TT>::value, "type requirement");
@@ -112,11 +112,11 @@ int Function(int, char*[]) {
   // Test is_null
   {
     using TI = decltype(t.id.is_null());
-    using TF = decltype(f.doubleN.is_null());
-    using TT = decltype(t.textN.is_null());
+    using TF = decltype(f.float_n.is_null());
+    using TT = decltype(t.text_n.is_null());
     using TTI = decltype(is_null(t.id));
-    using TTF = decltype(is_null(f.doubleN));
-    using TTT = decltype(is_null(t.textN));
+    using TTF = decltype(is_null(f.float_n));
+    using TTT = decltype(is_null(t.text_n));
     static_assert(std::is_same<TI, TTI>::value, "type requirement");
     static_assert(std::is_same<TF, TTF>::value, "type requirement");
     static_assert(std::is_same<TT, TTT>::value, "type requirement");
@@ -134,11 +134,11 @@ int Function(int, char*[]) {
   // Test is_not_null
   {
     using TI = decltype(t.id.is_not_null());
-    using TF = decltype(f.doubleN.is_not_null());
-    using TT = decltype(t.textN.is_not_null());
+    using TF = decltype(f.float_n.is_not_null());
+    using TT = decltype(t.text_n.is_not_null());
     using TTI = decltype(is_not_null(t.id));
-    using TTF = decltype(is_not_null(f.doubleN));
-    using TTT = decltype(is_not_null(t.textN));
+    using TTF = decltype(is_not_null(f.float_n));
+    using TTT = decltype(is_not_null(t.text_n));
     static_assert(std::is_same<TI, TTI>::value, "type requirement");
     static_assert(std::is_same<TF, TTF>::value, "type requirement");
     static_assert(std::is_same<TT, TTT>::value, "type requirement");
@@ -159,7 +159,7 @@ int Function(int, char*[]) {
   // Test exists
   {
     using TI = decltype(exists(select(t.id).from(t)));
-    using TT = decltype(exists(select(t.textN).from(t)));
+    using TT = decltype(exists(select(t.text_n).from(t)));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -179,8 +179,8 @@ int Function(int, char*[]) {
     static_assert(sqlpp::is_numeric<S>::value, "type requirement");
 
     using TI = decltype(any(select(t.id).from(t)));
-    using TT = decltype(any(select(t.textN).from(t)));
-    using TF = decltype(any(select(f.doubleN).from(f)));
+    using TT = decltype(any(select(t.text_n).from(t)));
+    using TF = decltype(any(select(f.float_n).from(f)));
     static_assert(not sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -199,7 +199,7 @@ int Function(int, char*[]) {
   // Test avg
   {
     using TI = decltype(avg(t.id));
-    using TF = decltype(avg(f.doubleN));
+    using TF = decltype(avg(f.float_n));
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(sqlpp::is_floating_point<TI>::value, "type requirement");
@@ -211,8 +211,8 @@ int Function(int, char*[]) {
   // Test count
   {
     using TI = decltype(count(t.id));
-    using TT = decltype(count(t.textN));
-    using TF = decltype(count(f.doubleN));
+    using TT = decltype(count(t.text_n));
+    using TF = decltype(count(f.float_n));
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point<TI>::value, "type requirement");
@@ -232,8 +232,8 @@ int Function(int, char*[]) {
   // Test max
   {
     using TI = decltype(max(t.id));
-    using TF = decltype(max(f.doubleN));
-    using TT = decltype(max(t.textN));
+    using TF = decltype(max(f.float_n));
+    using TT = decltype(max(t.text_n));
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point<TI>::value, "type requirement");
@@ -247,8 +247,8 @@ int Function(int, char*[]) {
   // Test min
   {
     using TI = decltype(min(t.id));
-    using TF = decltype(min(f.doubleN));
-    using TT = decltype(min(t.textN));
+    using TF = decltype(min(f.float_n));
+    using TT = decltype(min(t.text_n));
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point<TI>::value, "type requirement");
@@ -262,7 +262,7 @@ int Function(int, char*[]) {
   // Test sum
   {
     using TI = decltype(sum(t.id));
-    using TF = decltype(sum(f.doubleN));
+    using TF = decltype(sum(f.float_n));
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point<TI>::value, "type requirement");
@@ -289,10 +289,10 @@ int Function(int, char*[]) {
   // test flatten
   {
     auto ctx = sqlpp::mock_db::context_t{};
-    using TB = decltype(flatten(ctx, t.boolNn));
+    using TB = decltype(flatten(ctx, t.bool_nn));
     using TI = decltype(flatten(ctx, t.id));
-    using TF = decltype(flatten(ctx, f.doubleN));
-    using TT = decltype(flatten(ctx, t.textN));
+    using TF = decltype(flatten(ctx, f.float_n));
+    using TT = decltype(flatten(ctx, t.text_n));
     static_assert(sqlpp::is_boolean<TB>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(sqlpp::is_floating_point<TF>::value, "type requirement");

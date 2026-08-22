@@ -27,17 +27,17 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  auto const foo = test::TabFoo{};
+  auto const foo = test::tab_foo{};
 
-  SQLPP_COMPARE(avg(foo.doubleN).over().as<"cheese">(),
+  SQLPP_COMPARE(avg(foo.float_n).over().as<"cheese">(),
                 "AVG(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(count(foo.doubleN).over().as<"cheese">(),
+  SQLPP_COMPARE(count(foo.float_n).over().as<"cheese">(),
                 "COUNT(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(max(foo.doubleN).over().as<"cheese">(),
+  SQLPP_COMPARE(max(foo.float_n).over().as<"cheese">(),
                 "MAX(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(min(foo.doubleN).over().as<"cheese">(),
+  SQLPP_COMPARE(min(foo.float_n).over().as<"cheese">(),
                 "MIN(tab_foo.double_n) OVER() AS cheese");
-  SQLPP_COMPARE(sum(foo.doubleN).over().as<"cheese">(),
+  SQLPP_COMPARE(sum(foo.float_n).over().as<"cheese">(),
                 "SUM(tab_foo.double_n) OVER() AS cheese");
 
   return 0;

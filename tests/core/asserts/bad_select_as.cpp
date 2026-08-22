@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   // Missing from
   auto incomplete_select = sqlpp::select(bar.id);

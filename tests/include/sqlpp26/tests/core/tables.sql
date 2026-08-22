@@ -28,32 +28,33 @@ DROP TABLE IF EXISTS tab_foo;
 
 CREATE TABLE tab_foo
 (
-	id BIGSERIAL PRIMARY KEY,
-	text_nn_d varchar(255) NOT NULL DEFAULT "",
-	int_n bigint,
-        int_c_n bigint GENERATED ALWAYS AS (int_n * 2) STORED,
-	double_n double,
-	u_int_n bigint UNSIGNED,
-	blob_n BLOB,
-        bool_n bool
+  id BIGSERIAL PRIMARY KEY,
+  text_nn_d varchar(255) NOT NULL DEFAULT "",
+  int_n bigint,
+  int_c_n bigint GENERATED ALWAYS AS (int_n * 2) STORED,
+  -- cpp_name:float_n
+  double_n double,
+  u_int_n bigint UNSIGNED,
+  blob_n BLOB,
+  bool_n bool
 );
 
 DROP TABLE IF EXISTS tab_bar;
 
 CREATE TABLE tab_bar
 (
-	id bigint AUTO_INCREMENT PRIMARY KEY,
-	text_n varchar(255) NULL DEFAULT "",
-	bool_nn bool NOT NULL,
-	int_n int
+    id bigint AUTO_INCREMENT PRIMARY KEY,
+    text_n varchar(255) NULL DEFAULT "",
+    bool_nn bool NOT NULL,
+    int_n int
 );
 
 DROP TABLE IF EXISTS tab_date_time;
 
 CREATE TABLE tab_date_time
 (
-	id bigint AUTO_INCREMENT PRIMARY KEY,
-	date_n date,
-	timestamp_n datetime,
-	time_n time
+    id bigint AUTO_INCREMENT PRIMARY KEY,
+    date_n date,
+    timestamp_n datetime,
+    time_n time
 );

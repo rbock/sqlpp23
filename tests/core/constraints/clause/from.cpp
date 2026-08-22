@@ -46,8 +46,8 @@ concept cannot_call_from_with =
 }  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   from(foo);  // this is OK since cross_joins are condition-free.
   from(

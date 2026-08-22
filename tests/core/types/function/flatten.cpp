@@ -30,13 +30,13 @@ void test_flatten() {
   auto ctx = sqlpp::mock_db::context_t{};
 
   {
-    auto x = flatten(ctx, test::TabFoo{}.id);
+    auto x = flatten(ctx, test::tab_foo{}.id);
     using X = decltype(x);
     static_assert(std::is_same<X, sqlpp::verbatim_t<sqlpp::integral>>::value,
                   "");
   }
   {
-    auto x = flatten(ctx, from(test::TabFoo{}));
+    auto x = flatten(ctx, from(test::tab_foo{}));
     using X = decltype(x);
     static_assert(std::is_same<X, sqlpp::verbatim_t<sqlpp::no_value_t>>::value,
                   "");

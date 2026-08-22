@@ -28,21 +28,21 @@
 
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sqlpp::mock_db::make_test_connection();
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select avg
     for (const auto& row : db(select(
-            avg(tab.intN).as<"avg_">(),
-            avg(sqlpp::distinct, tab.intN).as<"distinct_avg_">()
+            avg(tab.int_n).as<"avg_">(),
+            avg(sqlpp::distinct, tab.int_n).as<"distinct_avg_">()
             ).from(tab))) {
       std::ignore = row.avg_;
       std::ignore = row.distinct_avg_;

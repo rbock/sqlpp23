@@ -32,7 +32,7 @@ int Attach(int, char*[]) {
   // Opening a connection to an in-memory database and creating a table in it
   auto config = sql::make_test_config();
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   // Attaching another in-memory database and creating the same table in it
   auto other = db.attach(*config, "other");
@@ -46,9 +46,9 @@ int Attach(int, char*[]) {
   blob_n blob
 ))");
 
-  auto left = test::TabFoo{};
+  auto left = test::tab_foo{};
   auto right =
-      schema_qualified_table(other, test::TabFoo{})
+      schema_qualified_table(other, test::tab_foo{})
           .as(sqlpp::alias::right);  // this is a table in the attached database
 
   // inserting in one tab_sample

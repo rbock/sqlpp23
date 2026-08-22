@@ -31,7 +31,7 @@
 #include <sqlpp26/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 /*
  * max default blob/text is 1,000,000,000
@@ -45,12 +45,12 @@ constexpr size_t blob_small_size = 999;
 void verify_blob(sql::connection& db,
                  const std::vector<uint8_t>& expected,
                  uint64_t id) {
-  auto result = db(select(tab.blobN).from(tab).where(tab.id == id));
+  auto result = db(select(tab.blob_n).from(tab).where(tab.id == id));
   const auto& result_row = result.front();
-  if (!result_row.blobN)
-    throw std::runtime_error("blob blobN is unpexpectedly NULL for id " +
+  if (!result_row.blob_n)
+    throw std::runtime_error("blob blob_n is unpexpectedly NULL for id " +
                              std::to_string(id));
-  const auto received = *result_row.blobN;
+  const auto received = *result_row.blob_n;
 
   if (expected.size() != received.size()) {
     std::cerr << "Size mismatch" << std::endl;
@@ -72,34 +72,34 @@ void verify_blob(sql::connection& db,
 
 int Blob(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
-  std::cerr << "Generating blobN " << blob_size << std::endl;
-  std::vector<uint8_t> blobN(blob_size);
+  test::createtab_foo(db);
+  std::cerr << "Generating blob_n " << blob_size << std::endl;
+  std::vector<uint8_t> blob_n(blob_size);
   std::uniform_int_distribution<unsigned short> distribution(0, 255);
   std::mt19937 engine;
   auto generator = std::bind(distribution, engine);
-  std::generate_n(blobN.begin(), blob_size, generator);
+  std::generate_n(blob_n.begin(), blob_size, generator);
 
   std::vector<uint8_t> smallBlob(blob_small_size);
-  std::generate_n(blobN.begin(), blob_small_size, generator);
+  std::generate_n(blob_n.begin(), blob_small_size, generator);
 
   // If we use the bigger blob it will trigger SQLITE_TOOBIG for the query
-  auto result = db(insert_into(tab).set(tab.blobN = smallBlob));
+  auto result = db(insert_into(tab).set(tab.blob_n = smallBlob));
 
   auto prepared_insert =
-      db.prepare(insert_into(tab).set(tab.blobN = parameter(tab.blobN)));
-  prepared_insert.parameters.blobN = blobN;
+      db.prepare(insert_into(tab).set(tab.blob_n = parameter(tab.blob_n)));
+  prepared_insert.parameters.blob_n = blob_n;
   const auto prep_result = db(prepared_insert);
-  prepared_insert.parameters.blobN = std::nullopt;
+  prepared_insert.parameters.blob_n = std::nullopt;
   const auto null_result = db(prepared_insert);
 
   verify_blob(db, smallBlob, result.last_insert_id);
-  verify_blob(db, blobN, prep_result.last_insert_id);
+  verify_blob(db, blob_n, prep_result.last_insert_id);
   {
-    auto result2 = db(select(tab.blobN).from(tab).where(tab.id == null_result.last_insert_id));
+    auto result2 = db(select(tab.blob_n).from(tab).where(tab.id == null_result.last_insert_id));
     const auto& result_row = result2.front();
     std::cerr << "Null blob is_null:\t" << std::boolalpha
-              << (result_row.blobN == std::nullopt) << std::endl;
+              << (result_row.blob_n == std::nullopt) << std::endl;
   }
   return 0;
 }

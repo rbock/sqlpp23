@@ -41,23 +41,23 @@ auto require_close(int line, double l, double r) -> void
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select avg
     for (const auto& row : db(select(
-            avg(tab.intN).as(sqlpp::alias::avg_),
-            avg(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_avg_)
+            avg(tab.int_n).as(sqlpp::alias::avg_),
+            avg(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_avg_)
             ).from(tab))) {
       assert(row.avg_.has_value());
       assert(row.distinct_avg_.has_value());

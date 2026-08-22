@@ -26,7 +26,7 @@
 
 #include <sqlpp26/tests/mysql/all.h>
 
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 namespace sql = sqlpp::mysql;
 
@@ -34,20 +34,20 @@ int DeleteFrom(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
-    db(insert_into(tab).set(tab.textNnD = "1", tab.boolN = false));
-    db(insert_into(tab).set(tab.textNnD = "2", tab.boolN = false));
-    db(insert_into(tab).set(tab.textNnD = "3", tab.boolN = false));
+    db(insert_into(tab).set(tab.text_nn_d = "1", tab.bool_n = false));
+    db(insert_into(tab).set(tab.text_nn_d = "2", tab.bool_n = false));
+    db(insert_into(tab).set(tab.text_nn_d = "3", tab.bool_n = false));
 
-    db(sql::delete_from(tab).order_by(tab.intN.desc()).limit(1u));
-    for (const auto& row : db(sqlpp::select(tab.textNnD)
+    db(sql::delete_from(tab).order_by(tab.int_n.desc()).limit(1u));
+    for (const auto& row : db(sqlpp::select(tab.text_nn_d)
                                   .from(tab)
-                                  .order_by(tab.intN.desc())
+                                  .order_by(tab.int_n.desc())
                                   .limit(1u))) {
-      if (row.textNnD != "2")
-        throw std::runtime_error("unexpected value for row.textNnD: " +
-                                 std::string(row.textNnD));
+      if (row.text_nn_d != "2")
+        throw std::runtime_error("unexpected value for row.text_nn_d: " +
+                                 std::string(row.text_nn_d));
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

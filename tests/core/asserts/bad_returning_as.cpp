@@ -27,8 +27,8 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
 
   // Table mismatch
   auto bad_returning = insert_into(bar) << returning(foo.id);

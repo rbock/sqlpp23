@@ -42,9 +42,9 @@ void test_select_columns() {
   const auto maybe = true;
 
   auto v = sqlpp::value("text");
-  auto col_int = test::TabFoo{}.id;
-  auto col_txt = test::TabFoo{}.textNnD;
-  auto col_bool = test::TabFoo{}.boolN;
+  auto col_int = test::tab_foo{}.id;
+  auto col_txt = test::tab_foo{}.text_nn_d;
+  auto col_bool = test::tab_foo{}.bool_n;
   auto flag = sqlpp::all;
 
   // Single column.

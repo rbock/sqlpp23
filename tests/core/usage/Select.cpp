@@ -38,7 +38,7 @@ struct to_cerr {
 template <typename Row>
 void print_row(Row const& row) {
   const std::optional<int64_t> a = row.id;
-  const std::optional<std::string_view> b = row.textN;
+  const std::optional<std::string_view> b = row.text_n;
   std::cout << a << ", " << b << std::endl;
 }
 
@@ -47,8 +47,8 @@ int Select(int, char*[]) {
   sqlpp::mock_db::context_t printer;
 
   const auto maybe = true;
-  const auto f = test::TabFoo{};
-  const auto t = test::TabBar{};
+  const auto f = test::tab_foo{};
+  const auto t = test::tab_bar{};
   const auto tab_a = f.as<"a">();
 
   select(count(t.id).as<"N">());
@@ -72,32 +72,32 @@ int Select(int, char*[]) {
 
   for (const auto& row : db(select(all_of(t)).from(t))) {
     const std::optional<int64_t> a = row.id;
-    const std::optional<std::string_view> b = row.textN;
+    const std::optional<std::string_view> b = row.text_n;
     std::cout << a << ", " << b << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t), t.boolNn.as<"t">())
+  for (const auto& row : db(select(all_of(t), t.bool_nn.as<"t">())
                                 .from(t)
-                                .where(t.id > 7 and trim(t.textN) == "test")
+                                .where(t.id > 7 and trim(t.text_n) == "test")
                                 .for_update())) {
     const std::optional<int64_t> a = row.id;
-    const std::optional<std::string_view> b = row.textN;
+    const std::optional<std::string_view> b = row.text_n;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
 
   for (const auto& row :
-       db(select(all_of(t), f.textNnD)
-              .from(t.join(f).on(t.id > f.doubleN and not t.boolNn)))) {
+       db(select(all_of(t), f.text_nn_d)
+              .from(t.join(f).on(t.id > f.float_n and not t.bool_nn)))) {
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t), f.textNnD)
+  for (const auto& row : db(select(all_of(t), f.text_nn_d)
                                 .from(t.join(f)
-                                          .on(t.id > f.doubleN)
+                                          .on(t.id > f.float_n)
                                           .join(tab_a)
-                                          .on(t.id == tab_a.doubleN)))) {
+                                          .on(t.id == tab_a.float_n)))) {
     std::cout << row.id << std::endl;
   }
 
@@ -117,8 +117,8 @@ int Select(int, char*[]) {
                   .from(t)
                   .where(t.id > 0)
                   .group_by(t.id)
-                  .order_by(t.boolNn.asc())
-                  .having(max(t.boolNn) > 0)
+                  .order_by(t.bool_nn.asc())
+                  .having(max(t.bool_nn) > 0)
                   .offset(19u)
                   .limit(7u);
   std::cerr << to_sql_string(printer, stat) << std::endl;
@@ -129,7 +129,7 @@ int Select(int, char*[]) {
                .where(t.id > 3)
                .group_by(t.id)
                .order_by(t.id.asc())
-               .having(sum(t.id) > parameter(t.intN))
+               .having(sum(t.id) > parameter(t.int_n))
                .limit(32u)
                .offset(7u);
   for (const auto& row : db(db.prepare(s))) {
@@ -156,11 +156,11 @@ int Select(int, char*[]) {
   select(sqlpp::value(7).as<"t.id">());
 
   for (const auto& row : db(select(sqlpp::case_when(true)
-                                       .then(t.textN)
+                                       .then(t.text_n)
                                        .else_(std::nullopt)
-                                       .as<"t.textN">())
+                                       .as<"t.text_n">())
                                 .from(t))) {
-    std::cerr << row.textN << std::endl;
+    std::cerr << row.text_n << std::endl;
   }
 
   for (const auto& row : db(select(all_of(t)).from(t))) {
@@ -190,9 +190,9 @@ int Select(int, char*[]) {
 
   // Move to type tests?
   for (const auto& row :
-       db(select(f.doubleN, value(select(count(t.id).as<"N">()).from(t)).as<"cheese">())
+       db(select(f.float_n, value(select(count(t.id).as<"N">()).from(t)).as<"cheese">())
               .from(f))) {
-    std::cout << row.doubleN << " " << row.cheese << std::endl;
+    std::cout << row.float_n << " " << row.cheese << std::endl;
   }
 
   // checking #584

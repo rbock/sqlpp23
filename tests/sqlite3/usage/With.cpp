@@ -27,22 +27,22 @@
 #include <sqlpp26/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 int With(int, char*[]) {
 #if SQLITE_VERSION_NUMBER >= 3008003
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   auto a = sqlpp::cte(sqlpp::alias::a)
-               .as(select(all_of(tab)).from(tab).where(tab.intN > 3));
-  for (const auto& row : db(with(a) << select(a.intN).from(a))) {
-    std::cout << row.intN << std::endl;
+               .as(select(all_of(tab)).from(tab).where(tab.int_n > 3));
+  for (const auto& row : db(with(a) << select(a.int_n).from(a))) {
+    std::cout << row.int_n << std::endl;
   }
 
   for (const auto& row : db(with(a.union_all(select(all_of(a)).from(a)))
                             << select(all_of(a)).from(a))) {
-    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+    std::cout << row.int_n << row.text_nn_d << row.bool_n << std::endl;
   }
 
 #endif

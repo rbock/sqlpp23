@@ -29,27 +29,27 @@
 void test_required_tables_of() {
   // Columns require tables.
   {
-    using T = decltype(test::TabFoo{}.id);
+    using T = decltype(test::tab_foo{}.id);
     static_assert(std::is_same<sqlpp::required_tables_of_t<T>,
-                               sqlpp::detail::type_set<test::TabFoo>>::value,
+                               sqlpp::detail::type_set<test::tab_foo>>::value,
                   "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<T>,
-                               sqlpp::detail::type_set<test::TabFoo>>::value,
+                               sqlpp::detail::type_set<test::tab_foo>>::value,
                   "");
   }
 
   // Tables do not require tables.
   {
-    using T = decltype(test::TabFoo{});
+    using T = decltype(test::tab_foo{});
     static_assert(sqlpp::required_tables_of_t<T>::empty(), "");
     static_assert(sqlpp::required_static_tables_of_t<T>::empty(), "");
   }
 
   // Static expressions require collective tables.
   {
-    using TF = test::TabFoo;
-    using TB = test::TabBar;
-    using TC = decltype(test::TabFoo{}.as<"cheese">());
+    using TF = test::tab_foo;
+    using TB = test::tab_bar;
+    using TC = decltype(test::tab_foo{}.as<"cheese">());
     using T = decltype(TF{}.id + TB{}.id + TC{}.id);
     static_assert(std::is_same<sqlpp::required_tables_of_t<T>,
                                sqlpp::detail::type_set<TF, TB, TC>>::value,
@@ -62,9 +62,9 @@ void test_required_tables_of() {
   // Dynamic expressions require all tables, but on the the static parts
   // contribute to the statically required tables.
   {
-    using TF = test::TabFoo;
-    using TB = test::TabBar;
-    using TC = decltype(test::TabFoo{}.as<"cheese">());
+    using TF = test::tab_foo;
+    using TB = test::tab_bar;
+    using TC = decltype(test::tab_foo{}.as<"cheese">());
     using T =
         decltype(TF{}.id < 17 and dynamic(true, TB{}.id < 17) and TC{}.id < 17);
     static_assert(std::is_same<sqlpp::required_tables_of_t<T>,
@@ -79,7 +79,7 @@ void test_required_tables_of() {
 void test_provided_tables_of() {
   // Columns do not provide tables.
   {
-    using T = decltype(test::TabFoo{}.id);
+    using T = decltype(test::tab_foo{}.id);
     static_assert(sqlpp::provided_tables_of_t<T>::empty(), "");
     static_assert(sqlpp::provided_static_tables_of_t<T>::empty(), "");
     static_assert(sqlpp::provided_optional_tables_of_t<T>::empty(), "");
@@ -87,7 +87,7 @@ void test_provided_tables_of() {
 
   // Tables provide tables.
   {
-    using T = test::TabFoo;
+    using T = test::tab_foo;
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<T>>::value,
                   "");
@@ -102,7 +102,7 @@ void test_provided_tables_of() {
   // Schema-qualified tables provide tables.
   {
     using T =
-        decltype(schema_qualified_table({"meme"}, test::TabFoo{}).as<"cheese">());
+        decltype(schema_qualified_table({"meme"}, test::tab_foo{}).as<"cheese">());
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<T>>::value,
                   "");
@@ -116,7 +116,7 @@ void test_provided_tables_of() {
 
   // Tables AS provide tables.
   {
-    using T = decltype(test::TabFoo{}.as<"cheese">());
+    using T = decltype(test::tab_foo{}.as<"cheese">());
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<T>>::value,
                   "");
@@ -131,7 +131,7 @@ void test_provided_tables_of() {
   // SELECT AS provides tables.
   {
     using T =
-        decltype(select(test::TabFoo{}.id).from(test::TabFoo{}).as<"cheese">());
+        decltype(select(test::tab_foo{}.id).from(test::tab_foo{}).as<"cheese">());
     using Ref = sqlpp::select_ref_t<cheese_t::_sqlpp_name_tag>;
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<Ref>>::value,
@@ -146,8 +146,8 @@ void test_provided_tables_of() {
 
   // JOIN provides tables.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
+    using F = test::tab_foo;
+    using B = test::tab_bar;
     using T = decltype(F{}.cross_join(B{}));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<F, B>>::value,
@@ -162,8 +162,8 @@ void test_provided_tables_of() {
 
   // Dynamic JOIN provides non-static tables.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
+    using F = test::tab_foo;
+    using B = test::tab_bar;
     using T = decltype(F{}.cross_join(dynamic(true, B{})));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
                                sqlpp::detail::type_set<F, B>>::value,
@@ -179,8 +179,8 @@ void test_provided_tables_of() {
   // Left outer join makes right-hand-side table "optional", i.e. columns can by
   // NULL.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
+    using F = test::tab_foo;
+    using B = test::tab_bar;
     using T =
         decltype(F{}.left_outer_join(dynamic(true, B{})).on(F{}.id == B{}.id));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
@@ -197,8 +197,8 @@ void test_provided_tables_of() {
   // Right outer join makes left-hand-side table "optional", i.e. columns can by
   // NULL.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
+    using F = test::tab_foo;
+    using B = test::tab_bar;
     using T =
         decltype(F{}.right_outer_join(dynamic(true, B{})).on(F{}.id == B{}.id));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
@@ -215,8 +215,8 @@ void test_provided_tables_of() {
   // Full outer join makes left-hand-side table "optional", i.e. columns can by
   // NULL.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
+    using F = test::tab_foo;
+    using B = test::tab_bar;
     using T =
         decltype(F{}.full_outer_join(dynamic(true, B{})).on(F{}.id == B{}.id));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
@@ -232,9 +232,9 @@ void test_provided_tables_of() {
 
   // Nested joins propagate their provided tables.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
-    using C = decltype(test::TabFoo{}.as<"cheese">());
+    using F = test::tab_foo;
+    using B = test::tab_bar;
+    using C = decltype(test::tab_foo{}.as<"cheese">());
     using T = decltype(C{}.cross_join(
         F{}.full_outer_join(dynamic(true, B{})).on(F{}.id == B{}.id)));
     static_assert(std::is_same<sqlpp::provided_tables_of_t<T>,
@@ -250,9 +250,9 @@ void test_provided_tables_of() {
 
   // Nested joins propagate their provided tables.
   {
-    using F = test::TabFoo;
-    using B = test::TabBar;
-    using C = decltype(test::TabFoo{}.as<"cheese">());
+    using F = test::tab_foo;
+    using B = test::tab_bar;
+    using C = decltype(test::tab_foo{}.as<"cheese">());
     using T = decltype(F{}.full_outer_join(dynamic(true, B{}))
                            .on(F{}.id == B{}.id)
                            .cross_join(C{}));

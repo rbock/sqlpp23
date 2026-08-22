@@ -29,23 +29,23 @@
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select sum
     for (const auto& row : db(select(
-            sum(tab.intN).as(sqlpp::alias::sum_),
-            sum(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_sum_)
+            sum(tab.int_n).as(sqlpp::alias::sum_),
+            sum(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_sum_)
             ).from(tab))) {
       assert(row.sum_ == 23);
       assert(row.distinct_sum_ == 16);

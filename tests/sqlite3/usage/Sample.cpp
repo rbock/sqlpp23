@@ -35,87 +35,87 @@ SQLPP_CREATE_NAME_TAG(something);
 namespace sql = sqlpp::sqlite3;
 int Sample(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
-  test::createTabBar(db);
+  test::createtab_foo(db);
+  test::createtab_bar(db);
 
-  const auto tab = test::TabFoo{};
+  const auto tab = test::tab_foo{};
 
   // clear the table
   db(delete_from(tab));
 
   // explicit all_of(tab)
   for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    std::cerr << "row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
-              << ", row.boolN: " << row.boolN << std::endl;
+    std::cerr << "row.int_n: " << row.int_n << ", row.text_nn_d: " << row.text_nn_d
+              << ", row.bool_n: " << row.bool_n << std::endl;
   };
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   // selecting a table implicitly expands to all_of(tab)
   for (const auto& row : db(select(all_of(tab)).from(tab))) {
-    std::cerr << "row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
-              << ", row.boolN: " << row.boolN << std::endl;
+    std::cerr << "row.int_n: " << row.int_n << ", row.text_nn_d: " << row.text_nn_d
+              << ", row.bool_n: " << row.bool_n << std::endl;
   };
   // insert
   std::cerr << "no of required columns: "
-            << sqlpp::required_insert_columns_of_t<test::TabFoo>::size()
+            << sqlpp::required_insert_columns_of_t<test::tab_foo>::size()
             << std::endl;
   db(insert_into(tab).default_values());
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
-  db(insert_into(tab).set(tab.boolN = true, dynamic(true, tab.intN = 7)));
-  db(insert_into(tab).set(tab.boolN = true, dynamic(false, tab.intN = 7)));
+  db(insert_into(tab).set(tab.bool_n = true, dynamic(true, tab.int_n = 7)));
+  db(insert_into(tab).set(tab.bool_n = true, dynamic(false, tab.int_n = 7)));
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
 
   // update
-  db(update(tab).set(tab.boolN = false).where(tab.intN.in(1)));
+  db(update(tab).set(tab.bool_n = false).where(tab.int_n.in(1)));
   db(update(tab)
-         .set(tab.boolN = false)
-         .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
+         .set(tab.bool_n = false)
+         .where(tab.int_n.in(std::vector<int>{1, 2, 3, 4})));
 
   // delete
-  db(delete_from(tab).where(tab.intN == tab.intN + 3));
+  db(delete_from(tab).where(tab.int_n == tab.int_n + 3));
 
   auto result = db(select(all_of(tab)).from(tab));
   std::cerr
       << "Accessing a field directly from the result (using the current row): "
-      << result.begin()->intN << std::endl;
-  std::cerr << "Can do that again, no problem: " << result.begin()->intN
+      << result.begin()->int_n << std::endl;
+  std::cerr << "Can do that again, no problem: " << result.begin()->int_n
             << std::endl;
 
   auto tx = start_transaction(db);
-  test::TabBar bar;
+  test::tab_bar bar;
   for (const auto& row :
-       db(select(all_of(tab), value(select(max(bar.intN).as(something))
+       db(select(all_of(tab), value(select(max(bar.int_n).as(something))
                                         .from(bar)
-                                        .where(bar.intN > tab.intN))
+                                        .where(bar.int_n > tab.int_n))
                                   .as(something))
               .from(tab))) {
-    std::optional<int64_t> x = row.intN;
+    std::optional<int64_t> x = row.int_n;
     std::optional<int64_t> a = row.something;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();
 
   for (const auto& row :
-       db(select(tab.intN).from(tab.join(bar).on(tab.intN == bar.intN)))) {
-    std::cerr << row.intN << std::endl;
+       db(select(tab.int_n).from(tab.join(bar).on(tab.int_n == bar.int_n)))) {
+    std::cerr << row.int_n << std::endl;
   }
 
-  for (const auto& row : db(select(tab.intN).from(
-           tab.left_outer_join(bar).on(tab.intN == bar.intN)))) {
-    std::cerr << row.intN << std::endl;
+  for (const auto& row : db(select(tab.int_n).from(
+           tab.left_outer_join(bar).on(tab.int_n == bar.int_n)))) {
+    std::cerr << row.int_n << std::endl;
   }
 
   auto ps = db.prepare(select(all_of(tab))
                            .from(tab)
-                           .where(tab.intN != parameter(tab.intN) and
-                                  tab.textNnD != parameter(tab.textNnD) and
-                                  tab.boolN != parameter(tab.boolN)));
-  ps.parameters.intN = 7;
-  ps.parameters.textNnD = "wurzelbrunft";
-  ps.parameters.boolN = true;
+                           .where(tab.int_n != parameter(tab.int_n) and
+                                  tab.text_nn_d != parameter(tab.text_nn_d) and
+                                  tab.bool_n != parameter(tab.bool_n)));
+  ps.parameters.int_n = 7;
+  ps.parameters.text_nn_d = "wurzelbrunft";
+  ps.parameters.bool_n = true;
   for (const auto& row : db(ps)) {
-    std::cerr << "bound result: intN: " << row.intN << std::endl;
-    std::cerr << "bound result: textNnD: " << row.textNnD << std::endl;
-    std::cerr << "bound result: boolN: " << row.boolN << std::endl;
+    std::cerr << "bound result: int_n: " << row.int_n << std::endl;
+    std::cerr << "bound result: text_nn_d: " << row.text_nn_d << std::endl;
+    std::cerr << "bound result: bool_n: " << row.bool_n << std::endl;
   }
 
   std::cerr << "--------" << std::endl;
@@ -124,63 +124,63 @@ int Sample(int, char*[]) {
                     .as(something)))
           .front()
           .something;
-  ps.parameters.intN = last_id.value();
-  ps.parameters.boolN = false;
+  ps.parameters.int_n = last_id.value();
+  ps.parameters.bool_n = false;
   for (const auto& row : db(ps)) {
-    std::cerr << "bound result: intN: " << row.intN << std::endl;
-    std::cerr << "bound result: textNnD: " << row.textNnD << std::endl;
-    std::cerr << "bound result: boolN: " << row.boolN << std::endl;
+    std::cerr << "bound result: int_n: " << row.int_n << std::endl;
+    std::cerr << "bound result: text_nn_d: " << row.text_nn_d << std::endl;
+    std::cerr << "bound result: bool_n: " << row.bool_n << std::endl;
   }
 
   std::cerr << "--------" << std::endl;
-  ps.parameters.textNnD = "kaesekuchen";
+  ps.parameters.text_nn_d = "kaesekuchen";
   for (const auto& row : db(ps)) {
-    std::cerr << "bound result: intN: " << row.intN << std::endl;
-    std::cerr << "bound result: textNnD: " << row.textNnD << std::endl;
-    std::cerr << "bound result: boolN: " << row.boolN << std::endl;
+    std::cerr << "bound result: int_n: " << row.int_n << std::endl;
+    std::cerr << "bound result: text_nn_d: " << row.text_nn_d << std::endl;
+    std::cerr << "bound result: bool_n: " << row.bool_n << std::endl;
   }
 
   auto pi = db.prepare(
-      insert_into(tab).set(tab.textNnD = parameter(tab.textNnD), tab.boolN = true));
-  pi.parameters.textNnD = "prepared cake";
+      insert_into(tab).set(tab.text_nn_d = parameter(tab.text_nn_d), tab.bool_n = true));
+  pi.parameters.text_nn_d = "prepared cake";
   std::cerr << "Inserted: " << db(pi).last_insert_id << std::endl;
 
   auto pu = db.prepare(update(tab)
-                           .set(tab.boolN = parameter(tab.boolN))
-                           .where(tab.textNnD == "prepared cake"));
-  pu.parameters.boolN = false;
+                           .set(tab.bool_n = parameter(tab.bool_n))
+                           .where(tab.text_nn_d == "prepared cake"));
+  pu.parameters.bool_n = false;
   std::cerr << "Updated: " << db(pu).last_insert_id << std::endl;
 
-  auto pr = db.prepare(delete_from(tab).where(tab.textNnD != parameter(tab.textNnD)));
-  pr.parameters.textNnD = "prepared cake";
+  auto pr = db.prepare(delete_from(tab).where(tab.text_nn_d != parameter(tab.text_nn_d)));
+  pr.parameters.text_nn_d = "prepared cake";
   std::cerr << "Deleted lines: " << db(pr).affected_rows << std::endl;
 
   {
     // insert_or with static assignments
     auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
-        tab.textNnD = "test", tab.boolN = true)).affected_rows;
+        tab.text_nn_d = "test", tab.bool_n = true)).affected_rows;
     std::cerr << i << std::endl;
 
-    i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(tab.textNnD = "test",
-                                                          tab.boolN = true)).affected_rows;
+    i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(tab.text_nn_d = "test",
+                                                          tab.bool_n = true)).affected_rows;
     std::cerr << i << std::endl;
   }
 
   {
     // insert_or with a dynamic assignment
     auto i = db(sqlpp::sqlite3::insert_or_replace().into(tab).set(
-        tab.textNnD = "test", dynamic(true, tab.boolN = true))).last_insert_id;
+        tab.text_nn_d = "test", dynamic(true, tab.bool_n = true))).last_insert_id;
     std::cerr << i << std::endl;
 
     i = db(sqlpp::sqlite3::insert_or_ignore().into(tab).set(
-        tab.textNnD = "test", dynamic(true, tab.boolN = true))).last_insert_id;
+        tab.text_nn_d = "test", dynamic(true, tab.bool_n = true))).last_insert_id;
     std::cerr << i << std::endl;
   }
 
   assert(db(select(count(tab.id).as(something)).from(tab)).begin()->something);
   assert(db(select(all_of(tab))
                 .from(tab)
-                .where(tab.intN.not_in(select(tab.intN).from(tab))))
+                .where(tab.int_n.not_in(select(tab.int_n).from(tab))))
              .empty());
 
   auto x = sqlpp::statement_t<>{}
@@ -193,14 +193,14 @@ int Sample(int, char*[]) {
   std::cerr << pragmaValue << std::endl;
 
   // Testing sub select tables and unconditional joins
-  const auto subQuery = select(tab.intN).from(tab).as(sub);
-  for (const auto& row : db(select(subQuery.intN).from(subQuery))) {
-    std::cerr << row.intN;
+  const auto subQuery = select(tab.int_n).from(tab).as(sub);
+  for (const auto& row : db(select(subQuery.int_n).from(subQuery))) {
+    std::cerr << row.int_n;
   }
 
   for (const auto& row :
-       db(select(subQuery.intN).from(tab.cross_join(subQuery)))) {
-    std::cerr << "row.intN: " << row.intN << std::endl;
+       db(select(subQuery.int_n).from(tab.cross_join(subQuery)))) {
+    std::cerr << "row.int_n: " << row.int_n << std::endl;
   }
 
   return 0;

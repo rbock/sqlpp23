@@ -71,15 +71,15 @@ concept cannot_call_where_with = not(can_call_where_with<Lhs, Expressions...>);
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   using sqlpp::on_conflict;
 
   // OK
   on_conflict();
   on_conflict(foo.id);
-  on_conflict(foo.id, foo.textNnD);
+  on_conflict(foo.id, foo.text_nn_d);
   on_conflict(foo.id, bar.id);
   static_assert(can_call_on_conflict_with<>, "");
   static_assert(can_call_on_conflict_with<decltype(foo.id)>, "");
@@ -97,7 +97,7 @@ int main() {
   {
     auto insert = sqlpp::insert_into(foo).default_values() << on_conflict();
     static_assert(
-        cannot_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>);
+        cannot_call_do_update_with<decltype(insert), decltype(foo.int_n = 7)>);
   }
 
   // do_update requires assignments as arguments
@@ -105,13 +105,13 @@ int main() {
     auto insert = sqlpp::insert_into(foo).default_values()
                   << on_conflict(foo.id);
     static_assert(
-        can_call_do_update_with<decltype(insert), decltype(foo.intN = 7)>);
+        can_call_do_update_with<decltype(insert), decltype(foo.int_n = 7)>);
     static_assert(
         can_call_do_update_with<decltype(insert),
-                                decltype(dynamic(maybe, foo.intN = 7))>,
+                                decltype(dynamic(maybe, foo.int_n = 7))>,
         "");
     static_assert(
-        cannot_call_do_update_with<decltype(insert), decltype(foo.intN == 7)>,
+        cannot_call_do_update_with<decltype(insert), decltype(foo.int_n == 7)>,
         "");
 
     using I = decltype(insert);
@@ -132,20 +132,20 @@ int main() {
 
     // Assignment columns need to be unique
     static_assert(
-        cannot_call_do_update_with<decltype(insert), decltype(foo.intN = 5),
-                                   decltype(foo.intN = 19)>);
+        cannot_call_do_update_with<decltype(insert), decltype(foo.int_n = 5),
+                                   decltype(foo.int_n = 19)>);
 
     // Assignment columns need to be unique
     static_assert(
-        cannot_call_do_update_with<decltype(insert), decltype(foo.intN = 5),
-                                   decltype(bar.boolNn = false)>);
+        cannot_call_do_update_with<decltype(insert), decltype(foo.int_n = 5),
+                                   decltype(bar.bool_nn = false)>);
   }
 
   // do_update can be qualified with `where` being called with a single boolean
   // expression
   {
     auto insert = sqlpp::insert_into(foo).default_values()
-                  << on_conflict(foo.id).do_update(foo.intN = 7);
+                  << on_conflict(foo.id).do_update(foo.int_n = 7);
 
     static_assert(can_call_where_with<decltype(insert), decltype(foo.id == 7)>,
                   "");
@@ -153,9 +153,9 @@ int main() {
                                       decltype(dynamic(maybe, foo.id == 7))>,
                   "");
     static_assert(
-        cannot_call_where_with<decltype(insert), decltype(foo.intN = 7)>, "");
+        cannot_call_where_with<decltype(insert), decltype(foo.int_n = 7)>, "");
     static_assert(
-        cannot_call_where_with<decltype(insert), decltype(foo.intN = 7),
+        cannot_call_where_with<decltype(insert), decltype(foo.int_n = 7),
                                decltype(true)>,
         "");
   }
@@ -163,7 +163,7 @@ int main() {
   // do_update.where in-function checks
   {
     auto insert = sqlpp::insert_into(foo).default_values()
-                  << on_conflict(foo.id).do_update(foo.intN = 7);
+                  << on_conflict(foo.id).do_update(foo.int_n = 7);
     static_assert(cannot_call_where_with<decltype(insert), decltype(max(foo.id) > 3)>);
   }
 
@@ -172,7 +172,7 @@ int main() {
   // -----------------------------------------
   {
     auto insert = sqlpp::insert_into(foo).default_values()
-                  << on_conflict(bar.id).do_update(foo.intN = 7);
+                  << on_conflict(bar.id).do_update(foo.int_n = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -186,7 +186,7 @@ int main() {
 
   {
     auto insert = sqlpp::insert_into(foo).default_values()
-                  << on_conflict(foo.id).do_update(bar.intN = 7);
+                  << on_conflict(foo.id).do_update(bar.int_n = 7);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -201,7 +201,7 @@ int main() {
   {
     auto insert =
         sqlpp::insert_into(foo).default_values()
-        << on_conflict(foo.id).do_update(foo.intN = 7).where(bar.id > 8);
+        << on_conflict(foo.id).do_update(foo.int_n = 7).where(bar.id > 8);
     using I = decltype(insert);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,
@@ -220,7 +220,7 @@ int main() {
   {
     auto nonsense =
         from(dynamic(maybe, foo))
-        << on_conflict(foo.id).do_update(foo.intN = 7).where(foo.id > 8);
+        << on_conflict(foo.id).do_update(foo.int_n = 7).where(foo.id > 8);
     using I = decltype(nonsense);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::consistent_t>::value,

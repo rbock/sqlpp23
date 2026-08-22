@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 void test_no_of_result_columns() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   static_assert(sqlpp::no_of_result_columns<int>::value == 0);
 
@@ -42,7 +42,7 @@ void test_no_of_result_columns() {
   }
 
   {
-    using X = decltype(select(foo.id, foo.intN));
+    using X = decltype(select(foo.id, foo.int_n));
     static_assert(sqlpp::no_of_result_columns<X>::value == 2);
   }
 

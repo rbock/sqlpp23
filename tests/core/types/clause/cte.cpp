@@ -28,8 +28,8 @@
 
 void test_cte() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // Simple CTE: X AS SELECT
   {
@@ -215,7 +215,7 @@ void test_cte() {
 
   // A CTE depending on another CTE
   {
-    auto pb = sqlpp::parameter(foo.intN);
+    auto pb = sqlpp::parameter(foo.int_n);
     auto p = sqlpp::parameter(foo.id);
     auto b =
         sqlpp::cte(sqlpp::alias::b).as(select(foo.id).from(foo).where(foo.id != pb));
@@ -256,7 +256,7 @@ void test_cte() {
 
   // A recursive CTE depending on another CTE
   {
-    auto pb = sqlpp::parameter(foo.intN);
+    auto pb = sqlpp::parameter(foo.int_n);
     auto p = sqlpp::parameter(foo.id);
     auto b = sqlpp::cte(sqlpp::alias::b)
                  .as(select(foo.id.as<"a">())

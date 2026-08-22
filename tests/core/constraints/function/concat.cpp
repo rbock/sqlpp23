@@ -46,18 +46,18 @@ struct can_call_concat_with : public can_call_concat_with_impl<
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // concat(<non arguments>) cannot be called.
   static_assert(not can_call_concat_with<>::value,
                 "No argument");
 
   // concat(<non-text-order arguments>) cannot be called.
-  static_assert(not can_call_concat_with<decltype(bar.boolNn)>::value,
+  static_assert(not can_call_concat_with<decltype(bar.bool_nn)>::value,
                 "Not a text argument");
   static_assert(
-      not can_call_concat_with<decltype(dynamic(true, bar.boolNn))>::value,
+      not can_call_concat_with<decltype(dynamic(true, bar.bool_nn))>::value,
       "Not a text argument");
   static_assert(not can_call_concat_with<decltype((bar.id + 7).asc())>::value,
                 "Not a text argument");
@@ -65,18 +65,18 @@ int main() {
                 "Not a text argument");
   static_assert(not can_call_concat_with<decltype(7)>::value,
                 "Not a text argument");
-  static_assert(not can_call_concat_with<decltype(bar.intN = 7),
-                                         decltype(bar.boolNn)>::value,
+  static_assert(not can_call_concat_with<decltype(bar.int_n = 7),
+                                         decltype(bar.bool_nn)>::value,
                 "Not a text argument");
   static_assert(not can_call_concat_with<decltype(all_of(bar)),
-                                         decltype(bar.boolNn)>::value,
+                                         decltype(bar.bool_nn)>::value,
                 "Not a text argument");
 
   // concat(<one or more text arguments>) is OK
   static_assert(can_call_concat_with<decltype("a")>::value, "");
   static_assert(can_call_concat_with<decltype("a"), decltype("b")>::value, "");
   static_assert(can_call_concat_with<decltype(std::nullopt)>::value, "");
-  static_assert(can_call_concat_with<decltype(foo.textNnD)>::value, "");
+  static_assert(can_call_concat_with<decltype(foo.text_nn_d)>::value, "");
   static_assert(
-      can_call_concat_with<decltype(dynamic(maybe, foo.textNnD))>::value, "");
+      can_call_concat_with<decltype(dynamic(maybe, foo.text_nn_d))>::value, "");
 }

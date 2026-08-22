@@ -56,8 +56,8 @@ MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
 
   const auto ref = sqlpp::cte<"something">();
   using Ref = decltype(ref);
@@ -130,16 +130,16 @@ int main() {
   // CTE UNION requires statements with same result row
   {
     auto c_foo_int =
-        sqlpp::cte<"something">().as(select(foo.textNnD, foo.id).from(foo));
-    auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo);
+        sqlpp::cte<"something">().as(select(foo.text_nn_d, foo.id).from(foo));
+    auto s_foo_int_n = select(foo.text_nn_d, foo.int_n).from(foo);
     auto c_value_id = sqlpp::cte<"something">().as(
-        select(foo.textNnD, sqlpp::value(7).as(foo.id)).from(foo));
+        select(foo.text_nn_d, sqlpp::value(7).as(foo.id)).from(foo));
     auto s_value_oid =
-        select(foo.textNnD, sqlpp::value(7).as(something)).from(foo);
+        select(foo.text_nn_d, sqlpp::value(7).as(something)).from(foo);
 
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
-                         sqlpp::data_type_of_t<decltype(foo.intN)>>::value,
+                         sqlpp::data_type_of_t<decltype(foo.int_n)>>::value,
         "");
 
     // Different data types

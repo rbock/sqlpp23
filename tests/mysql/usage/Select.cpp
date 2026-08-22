@@ -33,7 +33,7 @@ const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 SQLPP_CREATE_NAME_TAG(something);
 SQLPP_CREATE_NAME_TAG(max_int_n);
@@ -61,8 +61,8 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
     printRowWithNames(get_sql_name_tuple(row), as_tuple(row));
-    std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
-              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
+    std::cerr << ">>> row.id: " << row.id << ", >>> row.int_n: " << row.int_n
+              << ", row.text_nn_d: " << row.text_nn_d << ", row.bool_n: " << row.bool_n
               << std::endl;
     assert(i == row.id);
   };
@@ -73,8 +73,8 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   i = 0;
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
-    std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
-              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
+    std::cerr << ">>> row.id: " << row.id << ", >>> row.int_n: " << row.int_n
+              << ", row.text_nn_d: " << row.text_nn_d << ", row.bool_n: " << row.bool_n
               << std::endl;
     assert(i == row.id);
   };
@@ -85,8 +85,8 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   i = 0;
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
-    std::cerr << ">>> row.id: " << row.id << ", >>> row.intN: " << row.intN
-              << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
+    std::cerr << ">>> row.id: " << row.id << ", >>> row.int_n: " << row.int_n
+              << ", row.text_nn_d: " << row.text_nn_d << ", row.bool_n: " << row.bool_n
               << std::endl;
     assert(i == row.id);
   };
@@ -97,69 +97,69 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
 int Select(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     testSelectAll(db, 0);
     db(insert_into(tab).default_values());
     testSelectAll(db, 1);
-    db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
+    db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheesecake"));
     testSelectAll(db, 2);
-    db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
+    db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheesecake"));
     testSelectAll(db, 3);
 
-    db(select(coalesce(tab.textNnD, "fallback").as(something)).from(tab));
+    db(select(coalesce(tab.text_nn_d, "fallback").as(something)).from(tab));
 
     // Test size functionality
     const auto test_size = db(select(all_of(tab)).from(tab));
     assert(test_size.size() == 3ull);
 
     // test functions and operators
-    db(select(all_of(tab)).from(tab).where(tab.intN.is_null()));
-    db(select(all_of(tab)).from(tab).where(tab.intN.is_not_null()));
-    db(select(all_of(tab)).from(tab).where(tab.intN.in(1, 2, 3)));
+    db(select(all_of(tab)).from(tab).where(tab.int_n.is_null()));
+    db(select(all_of(tab)).from(tab).where(tab.int_n.is_not_null()));
+    db(select(all_of(tab)).from(tab).where(tab.int_n.in(1, 2, 3)));
     db(select(all_of(tab))
            .from(tab)
-           .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
-    db(select(all_of(tab)).from(tab).where(tab.intN.not_in(1, 2, 3)));
+           .where(tab.int_n.in(std::vector<int>{1, 2, 3, 4})));
+    db(select(all_of(tab)).from(tab).where(tab.int_n.not_in(1, 2, 3)));
     db(select(all_of(tab))
            .from(tab)
-           .where(tab.intN.not_in(std::vector<int>{1, 2, 3, 4})));
-    db(select(count(tab.intN).as(something)).from(tab));
-    db(select(avg(tab.intN).as(something)).from(tab));
-    db(select(max(tab.intN).as(something)).from(tab));
-    db(select(min(tab.intN).as(something)).from(tab));
+           .where(tab.int_n.not_in(std::vector<int>{1, 2, 3, 4})));
+    db(select(count(tab.int_n).as(something)).from(tab));
+    db(select(avg(tab.int_n).as(something)).from(tab));
+    db(select(max(tab.int_n).as(something)).from(tab));
+    db(select(min(tab.int_n).as(something)).from(tab));
     db(select(
-           exists(select(tab.intN).from(tab).where(tab.intN > 7)).as(something))
+           exists(select(tab.int_n).from(tab).where(tab.int_n > 7)).as(something))
            .from(tab));
     db(select(all_of(tab))
            .from(tab)
-           .where(tab.intN ==
-                  any(select(tab.intN).from(tab).where(tab.intN < 3))));
+           .where(tab.int_n ==
+                  any(select(tab.int_n).from(tab).where(tab.int_n < 3))));
 
-    db(select(all_of(tab)).from(tab).where(tab.intN + tab.intN > 3));
-    db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD) == ""));
+    db(select(all_of(tab)).from(tab).where(tab.int_n + tab.int_n > 3));
+    db(select(all_of(tab)).from(tab).where((tab.text_nn_d + tab.text_nn_d) == ""));
     db(select(all_of(tab))
            .from(tab)
-           .where((tab.textNnD + tab.textNnD).like("%'\"%")));
+           .where((tab.text_nn_d + tab.text_nn_d).like("%'\"%")));
 
     // insert
-    db(insert_into(tab).set(tab.boolN = true));
+    db(insert_into(tab).set(tab.bool_n = true));
 
     // update
-    db(update(tab).set(tab.boolN = false).where(tab.intN.in(1)));
+    db(update(tab).set(tab.bool_n = false).where(tab.int_n.in(1)));
     db(update(tab)
-           .set(tab.boolN = false)
-           .where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
+           .set(tab.bool_n = false)
+           .where(tab.int_n.in(std::vector<int>{1, 2, 3, 4})));
 
     // remove
     {
-      db(delete_from(tab).where(tab.intN == tab.intN + 3));
+      db(delete_from(tab).where(tab.int_n == tab.int_n + 3));
 
       auto result = db(select(all_of(tab)).from(tab));
       std::cerr << "Accessing a field directly from the result (using the "
                    "current row): "
-                << result.begin()->intN << std::endl;
-      std::cerr << "Can do that again, no problem: " << result.begin()->intN
+                << result.begin()->int_n << std::endl;
+      std::cerr << "Can do that again, no problem: " << result.begin()->int_n
                 << std::endl;
     }
 
@@ -168,11 +168,11 @@ int Select(int, char*[]) {
       auto tx = start_transaction(db);
       auto result =
           db(select(all_of(tab),
-                    value(select(max(tab.intN).as(max_int_n)).from(tab))
+                    value(select(max(tab.int_n).as(max_int_n)).from(tab))
                         .as(max_int_n))
                  .from(tab));
       if (const auto& row = *result.begin()) {
-        std::optional<int64_t> a = row.intN;
+        std::optional<int64_t> a = row.int_n;
         std::optional<int64_t> m = row.max_int_n;
         std::cerr << "-----------------------------" << a << ", " << m
                   << std::endl;

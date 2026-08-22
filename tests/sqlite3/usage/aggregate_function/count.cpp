@@ -44,22 +44,22 @@ auto require_close(int line, double l, double r) -> void
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select count
     for (const auto& row : db(select(
-            count(tab.intN).as(sqlpp::alias::count_),
+            count(tab.int_n).as(sqlpp::alias::count_),
             sqlpp::count(1).as(count_1),
             count(sqlpp::star).as(count_star)
             ).from(tab))) {
@@ -70,7 +70,7 @@ int main(int, char*[]) {
 
     // select distinct count
     for (const auto& row : db(select(
-            count(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_count_),
+            count(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_count_),
             count(sqlpp::distinct, 1).as(count_1)
             ).from(tab))) {
       assert(row.distinct_count_ == 2);

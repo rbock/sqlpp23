@@ -27,24 +27,24 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Plain columns.
   SQLPP_COMPARE(union_order_by(foo.id.asc()), " ORDER BY id ASC");
-  SQLPP_COMPARE(union_order_by(foo.textNnD.asc()), " ORDER BY text_nn_d ASC");
-  SQLPP_COMPARE(union_order_by(foo.boolN.asc()), " ORDER BY bool_n ASC");
+  SQLPP_COMPARE(union_order_by(foo.text_nn_d.asc()), " ORDER BY text_nn_d ASC");
+  SQLPP_COMPARE(union_order_by(foo.bool_n.asc()), " ORDER BY bool_n ASC");
 
   SQLPP_COMPARE(union_order_by(foo.id.desc()), " ORDER BY id DESC");
-  SQLPP_COMPARE(union_order_by(foo.textNnD.desc()),
+  SQLPP_COMPARE(union_order_by(foo.text_nn_d.desc()),
                 " ORDER BY text_nn_d DESC");
-  SQLPP_COMPARE(union_order_by(foo.boolN.desc()), " ORDER BY bool_n DESC");
+  SQLPP_COMPARE(union_order_by(foo.bool_n.desc()), " ORDER BY bool_n DESC");
 
   // Multiple plain columns.
   SQLPP_COMPARE(
-      union_order_by(foo.id.asc(), foo.textNnD.desc(), foo.boolN.desc()),
+      union_order_by(foo.id.asc(), foo.text_nn_d.desc(), foo.bool_n.desc()),
       " ORDER BY id ASC, text_nn_d DESC, bool_n DESC");
-  SQLPP_COMPARE(union_order_by(foo.id.asc().nulls_first(), foo.textNnD.desc(),
-                               foo.boolN.desc().nulls_last()),
+  SQLPP_COMPARE(union_order_by(foo.id.asc().nulls_first(), foo.text_nn_d.desc(),
+                               foo.bool_n.desc().nulls_last()),
                 " ORDER BY id ASC NULLS FIRST, text_nn_d DESC, bool_n DESC NULLS LAST");
 
   // Single dynamic column (this is odd)
@@ -54,38 +54,38 @@ int main(int, char*[]) {
 
   // Multiple dynamic columns (this is odd if all are dynamic)
   SQLPP_COMPARE(
-      union_order_by(dynamic(true, foo.id.asc()), foo.textNnD.asc(), foo.boolN.asc()),
+      union_order_by(dynamic(true, foo.id.asc()), foo.text_nn_d.asc(), foo.bool_n.asc()),
       " ORDER BY id ASC, text_nn_d ASC, bool_n ASC");
   SQLPP_COMPARE(
-      union_order_by(foo.id.asc(), dynamic(true, foo.textNnD.asc()), foo.boolN.asc()),
+      union_order_by(foo.id.asc(), dynamic(true, foo.text_nn_d.asc()), foo.bool_n.asc()),
       " ORDER BY id ASC, text_nn_d ASC, bool_n ASC");
   SQLPP_COMPARE(
-      union_order_by(foo.id.asc(), foo.textNnD.asc(), dynamic(true, foo.boolN.asc())),
+      union_order_by(foo.id.asc(), foo.text_nn_d.asc(), dynamic(true, foo.bool_n.asc())),
       " ORDER BY id ASC, text_nn_d ASC, bool_n ASC");
 
-  SQLPP_COMPARE(union_order_by(dynamic(false, foo.id.asc()), foo.textNnD.asc(),
-                         foo.boolN.asc()),
+  SQLPP_COMPARE(union_order_by(dynamic(false, foo.id.asc()), foo.text_nn_d.asc(),
+                         foo.bool_n.asc()),
                 " ORDER BY text_nn_d ASC, bool_n ASC");
-  SQLPP_COMPARE(union_order_by(foo.id.asc(), dynamic(false, foo.textNnD.asc()),
-                         foo.boolN.asc()),
+  SQLPP_COMPARE(union_order_by(foo.id.asc(), dynamic(false, foo.text_nn_d.asc()),
+                         foo.bool_n.asc()),
                 " ORDER BY id ASC, bool_n ASC");
-  SQLPP_COMPARE(union_order_by(foo.id.asc(), foo.textNnD.asc(),
-                         dynamic(false, foo.boolN.asc())),
+  SQLPP_COMPARE(union_order_by(foo.id.asc(), foo.text_nn_d.asc(),
+                         dynamic(false, foo.bool_n.asc())),
                 " ORDER BY id ASC, text_nn_d ASC");
 
-  SQLPP_COMPARE(union_order_by(foo.id.asc(), dynamic(false, foo.textNnD.asc()),
-                         dynamic(false, foo.boolN.asc())),
+  SQLPP_COMPARE(union_order_by(foo.id.asc(), dynamic(false, foo.text_nn_d.asc()),
+                         dynamic(false, foo.bool_n.asc())),
                 " ORDER BY id ASC");
-  SQLPP_COMPARE(union_order_by(dynamic(false, foo.id.asc()), foo.textNnD.asc(),
-                         dynamic(false, foo.boolN.asc())),
+  SQLPP_COMPARE(union_order_by(dynamic(false, foo.id.asc()), foo.text_nn_d.asc(),
+                         dynamic(false, foo.bool_n.asc())),
                 " ORDER BY text_nn_d ASC");
   SQLPP_COMPARE(union_order_by(dynamic(false, foo.id.asc()),
-                         dynamic(false, foo.textNnD.asc()), foo.boolN.asc()),
+                         dynamic(false, foo.text_nn_d.asc()), foo.bool_n.asc()),
                 " ORDER BY bool_n ASC");
 
   SQLPP_COMPARE(
-      union_order_by(dynamic(false, foo.id.asc()), dynamic(false, foo.textNnD.asc()),
-               dynamic(false, foo.boolN.asc())),
+      union_order_by(dynamic(false, foo.id.asc()), dynamic(false, foo.text_nn_d.asc()),
+               dynamic(false, foo.bool_n.asc())),
       "");
 
   return 0;

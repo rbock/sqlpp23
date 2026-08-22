@@ -27,23 +27,23 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Update all.
-  SQLPP_COMPARE(update(foo).set(foo.intN = 7), "UPDATE tab_foo SET int_n = 7");
+  SQLPP_COMPARE(update(foo).set(foo.int_n = 7), "UPDATE tab_foo SET int_n = 7");
 
   // Update some.
   SQLPP_COMPARE(update(foo)
-                    .set(sqlpp::dynamic(true, foo.intN = 7),
-                         sqlpp::dynamic(false, foo.textNnD = "cheesecake"))
+                    .set(sqlpp::dynamic(true, foo.int_n = 7),
+                         sqlpp::dynamic(false, foo.text_nn_d = "cheesecake"))
                     .where(foo.id > 17),
                 "UPDATE tab_foo SET int_n = 7 WHERE tab_foo.id > 17");
 
   // Update some with alternative spelling of dynamic.
   const bool maybe = true;
   SQLPP_COMPARE(update(foo)
-                    .set(maybe ? sqlpp::dynamic(foo.intN = 7) : std::nullopt,
-                         not maybe ? sqlpp::dynamic(foo.textNnD = "cheesecake")
+                    .set(maybe ? sqlpp::dynamic(foo.int_n = 7) : std::nullopt,
+                         not maybe ? sqlpp::dynamic(foo.text_nn_d = "cheesecake")
                                    : std::nullopt)
                     .where(foo.id > 17),
                 "UPDATE tab_foo SET int_n = 7 WHERE tab_foo.id > 17");

@@ -31,56 +31,56 @@ int Returning(int, char*[]) {
 
   sql::connection db = sql::make_test_connection();
 
-  test::TabFoo foo = {};
+  test::tab_foo foo = {};
 
   try {
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     std::cout << db(sqlpp::sqlite3::insert_into(foo)
-                        .set(foo.textNnD = "dsa")
-                        .returning(foo.doubleN))
+                        .set(foo.text_nn_d = "dsa")
+                        .returning(foo.float_n))
                      .front()
-                     .doubleN
+                     .float_n
               << std::endl;
 
     std::cout << db(sqlpp::sqlite3::insert_into(foo)
-                        .set(foo.textNnD = "asd")
-                        .returning(std::make_tuple(foo.doubleN)))
+                        .set(foo.text_nn_d = "asd")
+                        .returning(std::make_tuple(foo.float_n)))
                      .front()
-                     .doubleN
+                     .float_n
               << std::endl;
 
     auto updated = db(sqlpp::sqlite3::update(foo)
-                          .set(foo.intN = 0)
-                          .returning(foo.textNnD, foo.intN));
+                          .set(foo.int_n = 0)
+                          .returning(foo.text_nn_d, foo.int_n));
     for (const auto& row : updated)
-      std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN
+      std::cout << "Gamma: " << row.text_nn_d << " Beta: " << row.int_n
                 << std::endl;
 
     auto dynamic_updated =
         db(sqlpp::sqlite3::update(foo)
-               .set(foo.intN = 0, foo.doubleN = std::nullopt)
-               .returning(foo.textNnD, dynamic(true, foo.intN)));
+               .set(foo.int_n = 0, foo.float_n = std::nullopt)
+               .returning(foo.text_nn_d, dynamic(true, foo.int_n)));
     for (const auto& row : updated)
-      std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN
+      std::cout << "Gamma: " << row.text_nn_d << " Beta: " << row.int_n
                 << std::endl;
 
     auto removed = db(sqlpp::sqlite3::delete_from(foo)
-                          .where(foo.intN == 0)
-                          .returning(foo.textNnD, foo.intN));
+                          .where(foo.int_n == 0)
+                          .returning(foo.text_nn_d, foo.int_n));
     for (const auto& row : removed)
-      std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN
+      std::cout << "Gamma: " << row.text_nn_d << " Beta: " << row.int_n
                 << std::endl;
 
     auto multi_insert =
-        sqlpp::sqlite3::insert_into(foo).columns(foo.intN).returning(
-            foo.id, foo.intN);
-    multi_insert.add_values(foo.intN = 1);
-    multi_insert.add_values(foo.intN = 2);
+        sqlpp::sqlite3::insert_into(foo).columns(foo.int_n).returning(
+            foo.id, foo.int_n);
+    multi_insert.add_values(foo.int_n = 1);
+    multi_insert.add_values(foo.int_n = 2);
     auto inserted = db(multi_insert);
 
     for (const auto& row : inserted)
-      std::cout << row.intN << std::endl;
+      std::cout << row.int_n << std::endl;
 
   }
 

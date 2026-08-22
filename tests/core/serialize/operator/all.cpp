@@ -98,7 +98,7 @@ int main(int, char*[]) {
     const auto val = sqlpp::value(17);
     const auto expr = sqlpp::value(17) + 4;
 
-    const auto col_id = test::TabFoo{}.id;
+    const auto col_id = test::tab_foo{}.id;
 
     SQLPP_COMPARE(val.as<"v">(), "17 AS v");
     SQLPP_COMPARE(expr.as<"v">(), "(17 + 4) AS v");
@@ -111,13 +111,13 @@ int main(int, char*[]) {
     SQLPP_COMPARE(select_columns(dynamic(false, col_id.as<"v">())), "NULL AS v");
   }
   {
-    constexpr auto t = test::TabFoo{};
+    constexpr auto t = test::tab_foo{};
     const auto val = sqlpp::value(17);
 
     // Operands in assignments are enclosed in parentheses as required.
-    SQLPP_COMPARE(t.intN = val, "int_n = 17");
-    SQLPP_COMPARE(t.intN = val + 4, "int_n = (17 + 4)");
-    SQLPP_COMPARE(t.intN = std::nullopt, "int_n = NULL");
+    SQLPP_COMPARE(t.int_n = val, "int_n = 17");
+    SQLPP_COMPARE(t.int_n = val + 4, "int_n = (17 + 4)");
+    SQLPP_COMPARE(t.int_n = std::nullopt, "int_n = NULL");
   }
   {
     const auto val = sqlpp::value(1);

@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 void test_parameter() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   {
     auto p = parameter(foo.id);
@@ -46,7 +46,7 @@ void test_parameter() {
     static_assert(sqlpp::has_enabled_comparison<P>::value, "");
   }
   {
-    auto p = parameter(foo.doubleN);
+    auto p = parameter(foo.float_n);
     using P = decltype(p);
     static_assert(std::is_same<sqlpp::data_type_of_t<P>,
                                std::optional<sqlpp::floating_point>>::value,

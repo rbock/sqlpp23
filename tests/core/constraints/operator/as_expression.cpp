@@ -42,7 +42,7 @@ struct can_call_as_with<Expression,
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   // OK
   static_assert(can_call_as_with<decltype(bar.id), decltype(something)>::value,
@@ -56,11 +56,11 @@ int main() {
 
   // OK, functions can be named
   static_assert(
-      can_call_as_with<decltype(max(bar.boolNn)), decltype(something)>::value,
+      can_call_as_with<decltype(max(bar.bool_nn)), decltype(something)>::value,
       "");
 
   // dynamic cannot be named can be named
-  static_assert(not can_call_as_with<decltype(dynamic(maybe, bar.boolNn)),
+  static_assert(not can_call_as_with<decltype(dynamic(maybe, bar.bool_nn)),
                                      decltype(bar)>::value,
                 "");
 

@@ -30,24 +30,24 @@ const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 int Union(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     auto u =
         select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));
 
     for (const auto& row : db(u)) {
-      std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+      std::cout << row.int_n << row.text_nn_d << row.bool_n << std::endl;
     }
 
     for (const auto& row :
          db(u.union_distinct(select(all_of(tab)).from(tab)))) {
-      std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+      std::cout << row.int_n << row.text_nn_d << row.bool_n << std::endl;
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

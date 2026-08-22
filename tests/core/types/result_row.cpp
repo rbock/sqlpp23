@@ -32,8 +32,8 @@ constexpr bool is_same_type() {
   return std::is_same<A, B>::value;
 }
 
-constexpr auto bar = test::TabBar{};
-constexpr auto foo = test::TabFoo{};
+constexpr auto bar = test::tab_bar{};
+constexpr auto foo = test::tab_foo{};
 auto db = sqlpp::mock_db::make_test_connection();
 }  // namespace
 

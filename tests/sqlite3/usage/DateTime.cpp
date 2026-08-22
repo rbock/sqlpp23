@@ -38,44 +38,44 @@ namespace sql = sqlpp::sqlite3;
 int DateTime(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createTabDateTime(db);
+    test::createtab_date_time(db);
 
-    const auto tab = test::TabDateTime{};
+    const auto tab = test::tab_date_time{};
     db(insert_into(tab).default_values());
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.dateN == std::nullopt, true);
-      require_equal(__LINE__, row.timestampN == std::nullopt, true);
+      require_equal(__LINE__, row.date_n == std::nullopt, true);
+      require_equal(__LINE__, row.timestamp_n == std::nullopt, true);
     }
 
-    db(update(tab).set(tab.dateN = today, tab.timestampN = now));
+    db(update(tab).set(tab.date_n = today, tab.timestamp_n = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timestampN.value(), now);
+      require_equal(__LINE__, row.date_n.value(), today);
+      require_equal(__LINE__, row.timestamp_n.value(), now);
     }
 
-    db(update(tab).set(tab.dateN = yesterday, tab.timestampN = now));
+    db(update(tab).set(tab.date_n = yesterday, tab.timestamp_n = now));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.dateN.value(), yesterday);
-      require_equal(__LINE__, row.timestampN.value(), now);
+      require_equal(__LINE__, row.date_n.value(), yesterday);
+      require_equal(__LINE__, row.timestamp_n.value(), now);
     }
 
     auto prepared_update =
-        db.prepare(update(tab).set(tab.dateN = parameter(tab.dateN),
-                                   tab.timestampN = parameter(tab.timestampN),
-                                   tab.timeN = parameter(tab.timeN)));
-    prepared_update.parameters.dateN = today;
-    prepared_update.parameters.timestampN = now;
-    prepared_update.parameters.timeN = time_of_day;
+        db.prepare(update(tab).set(tab.date_n = parameter(tab.date_n),
+                                   tab.timestamp_n = parameter(tab.timestamp_n),
+                                   tab.time_n = parameter(tab.time_n)));
+    prepared_update.parameters.date_n = today;
+    prepared_update.parameters.timestamp_n = now;
+    prepared_update.parameters.time_n = time_of_day;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.dateN.value(), today);
-      require_equal(__LINE__, row.timestampN.value(), now);
-      require_equal(__LINE__, row.timeN.value(), time_of_day);
+      require_equal(__LINE__, row.date_n.value(), today);
+      require_equal(__LINE__, row.timestamp_n.value(), now);
+      require_equal(__LINE__, row.time_n.value(), time_of_day);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

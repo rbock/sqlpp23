@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Delete all (don't do this at home, use truncate instead).
   SQLPP_COMPARE(delete_from(foo), "DELETE FROM tab_foo");

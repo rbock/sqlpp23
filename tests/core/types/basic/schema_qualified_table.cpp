@@ -28,13 +28,13 @@
 
 int main(int, char*[]) {
   // A schema-qualified table cannot be used without AS.
-  auto major = schema_qualified_table(sqlpp::schema("major"), test::TabFoo{});
+  auto major = schema_qualified_table(sqlpp::schema("major"), test::tab_foo{});
   using M = decltype(major);
 
   static_assert(not sqlpp::is_table<M>::value, "");
 
   // A schema-qualified table can be used as table with AS:
-  auto major_foo = major.as(test::TabFoo{});
+  auto major_foo = major.as(test::tab_foo{});
   using MF = decltype(major_foo);
 
   static_assert(sqlpp::is_table<MF>::value, "");

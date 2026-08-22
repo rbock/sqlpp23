@@ -29,17 +29,17 @@
 int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // -----------------------------------------
   // --  returning(<columns>)
   // -----------------------------------------
   // Single column
-  SQLPP_COMPARE(returning(foo.doubleN), " RETURNING tab_foo.double_n");
+  SQLPP_COMPARE(returning(foo.float_n), " RETURNING tab_foo.double_n");
 
   // Two columns
-  SQLPP_COMPARE(returning(foo.doubleN, bar.id),
+  SQLPP_COMPARE(returning(foo.float_n, bar.id),
                 " RETURNING tab_foo.double_n, tab_bar.id");
 
   // All columns of a table
@@ -53,7 +53,7 @@ int main(int, char*[]) {
   SQLPP_COMPARE(returning(dynamic(false, bar.id)), " RETURNING NULL AS id");
 
   // Multiple plain columns.
-  SQLPP_COMPARE(returning(foo.id, foo.textNnD, foo.boolN),
+  SQLPP_COMPARE(returning(foo.id, foo.text_nn_d, foo.bool_n),
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
   // Single expression
@@ -67,28 +67,28 @@ int main(int, char*[]) {
                 " RETURNING NULL AS cake");
 
   // Multiple dynamic columns (this is odd if all are dynamic)
-  SQLPP_COMPARE(returning(dynamic(true, foo.id), foo.textNnD, foo.boolN),
+  SQLPP_COMPARE(returning(dynamic(true, foo.id), foo.text_nn_d, foo.bool_n),
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(returning(foo.id, dynamic(true, foo.textNnD), foo.boolN),
+  SQLPP_COMPARE(returning(foo.id, dynamic(true, foo.text_nn_d), foo.bool_n),
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(returning(foo.id, foo.textNnD, dynamic(true, foo.boolN)),
+  SQLPP_COMPARE(returning(foo.id, foo.text_nn_d, dynamic(true, foo.bool_n)),
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
-  SQLPP_COMPARE(returning(dynamic(false, foo.id), foo.textNnD, foo.boolN),
+  SQLPP_COMPARE(returning(dynamic(false, foo.id), foo.text_nn_d, foo.bool_n),
                 " RETURNING NULL AS id, tab_foo.text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(returning(foo.id, dynamic(false, foo.textNnD), foo.boolN),
+  SQLPP_COMPARE(returning(foo.id, dynamic(false, foo.text_nn_d), foo.bool_n),
                 " RETURNING tab_foo.id, NULL AS text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(returning(foo.id, foo.textNnD, dynamic(false, foo.boolN)),
+  SQLPP_COMPARE(returning(foo.id, foo.text_nn_d, dynamic(false, foo.bool_n)),
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, NULL AS bool_n");
 
-  SQLPP_COMPARE(returning(foo.id, dynamic(false, foo.textNnD),
-                               dynamic(false, foo.boolN)),
+  SQLPP_COMPARE(returning(foo.id, dynamic(false, foo.text_nn_d),
+                               dynamic(false, foo.bool_n)),
                 " RETURNING tab_foo.id, NULL AS text_nn_d, NULL AS bool_n");
-  SQLPP_COMPARE(returning(dynamic(false, foo.id), foo.textNnD,
-                               dynamic(false, foo.boolN)),
+  SQLPP_COMPARE(returning(dynamic(false, foo.id), foo.text_nn_d,
+                               dynamic(false, foo.bool_n)),
                 " RETURNING NULL AS id, tab_foo.text_nn_d, NULL AS bool_n");
   SQLPP_COMPARE(returning(dynamic(false, foo.id),
-                               dynamic(false, foo.textNnD), foo.boolN),
+                               dynamic(false, foo.text_nn_d), foo.bool_n),
                 " RETURNING NULL AS id, NULL AS text_nn_d, tab_foo.bool_n");
 
   // Single value

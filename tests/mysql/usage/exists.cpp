@@ -29,27 +29,27 @@
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
 
     // select exists
     for (const auto& row :
-         db(select(exists(select(tab.id).from(tab).where(tab.intN == 7))
+         db(select(exists(select(tab.id).from(tab).where(tab.int_n == 7))
                        .as(sqlpp::alias::exists_)))) {
       assert(row.exists_ == true);
     }
 
     // select exists
     for (const auto& row : db(select(exists(
-              select(tab.id).from(tab).where(tab.intN == 8)).as(sqlpp::alias::exists_)))) {
+              select(tab.id).from(tab).where(tab.int_n == 8)).as(sqlpp::alias::exists_)))) {
       assert(row.exists_ == false);
     }
   } catch (const std::exception& e) {

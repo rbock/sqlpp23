@@ -38,7 +38,7 @@ template <typename SelectWith>
 using extract_with_t = typename extract_with<SelectWith>::type;
 
 void test_with() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // ctes referencing other CTEs require such ctes. `have_correct_dependencies`
   // checks that.

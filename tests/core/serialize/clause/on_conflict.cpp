@@ -29,43 +29,43 @@
 int main() {
   using sqlpp::on_conflict;
 
-  auto foo = test::TabFoo{};
+  auto foo = test::tab_foo{};
 
   // Testing ON CONFLICT with zero or more conflict targets
   SQLPP_COMPARE(on_conflict(), " ON CONFLICT");
   SQLPP_COMPARE(on_conflict(foo.id), " ON CONFLICT (id)");
   SQLPP_COMPARE(on_conflict(dynamic(true, foo.id)), " ON CONFLICT (id)");
   SQLPP_COMPARE(on_conflict(dynamic(false, foo.id)), " ON CONFLICT");
-  SQLPP_COMPARE(on_conflict(foo.id, foo.textNnD),
+  SQLPP_COMPARE(on_conflict(foo.id, foo.text_nn_d),
                 " ON CONFLICT (id, text_nn_d)");
-  SQLPP_COMPARE(on_conflict(dynamic(true, foo.id), foo.textNnD),
+  SQLPP_COMPARE(on_conflict(dynamic(true, foo.id), foo.text_nn_d),
                 " ON CONFLICT (id, text_nn_d)");
-  SQLPP_COMPARE(on_conflict(dynamic(false, foo.id), foo.textNnD),
+  SQLPP_COMPARE(on_conflict(dynamic(false, foo.id), foo.text_nn_d),
                 " ON CONFLICT (text_nn_d)");
 
   // Testing NO NOTHING
   SQLPP_COMPARE(on_conflict().do_nothing(), " ON CONFLICT DO NOTHING");
 
   // Testing DO UPDATE
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.int_n = 7),
                 " ON CONFLICT (id) DO UPDATE SET int_n = 7");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7, foo.textNnD = "cake"),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.int_n = 7, foo.text_nn_d = "cake"),
                 " ON CONFLICT (id) DO UPDATE SET int_n = 7, text_nn_d = 'cake'");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(true, foo.intN = 7),
-                                              foo.textNnD = "cake"),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(true, foo.int_n = 7),
+                                              foo.text_nn_d = "cake"),
                 " ON CONFLICT (id) DO UPDATE SET int_n = 7, text_nn_d = 'cake'");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(false, foo.intN = 7),
-                                              foo.textNnD = "cake"),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(dynamic(false, foo.int_n = 7),
+                                              foo.text_nn_d = "cake"),
                 " ON CONFLICT (id) DO UPDATE SET text_nn_d = 'cake'");
 
   // Testing WHERE
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.int_n = 7),
                 " ON CONFLICT (id) DO UPDATE SET int_n = 7");
-  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.intN = 7).where(foo.id == 17),
+  SQLPP_COMPARE(on_conflict(foo.id).do_update(foo.int_n = 7).where(foo.id == 17),
                 " ON CONFLICT (id) DO UPDATE SET int_n = 7 WHERE tab_foo.id = 17");
   SQLPP_COMPARE(on_conflict(foo.id)
-                    .do_update(foo.intN = 7)
-                    .where(foo.id == 17 and foo.textNnD > "cheese"),
+                    .do_update(foo.int_n = 7)
+                    .where(foo.id == 17 and foo.text_nn_d > "cheese"),
                 " ON CONFLICT (id) DO UPDATE SET int_n = 7 WHERE (tab_foo.id = "
                 "17) AND (tab_foo.text_nn_d > 'cheese')");
 

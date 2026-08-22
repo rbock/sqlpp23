@@ -47,8 +47,8 @@ concept cannot_call_with_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   const auto c_ref = sqlpp::ccte<"something">();
   const auto c = c_ref.as(select(bar.id).from(bar));

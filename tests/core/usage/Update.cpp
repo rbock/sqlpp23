@@ -32,7 +32,7 @@ int Update(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t printer;
 
-  const auto t = test::TabBar{};
+  const auto t = test::tab_bar{};
 
   {
     using T = decltype(update(t));
@@ -41,39 +41,39 @@ int Update(int, char*[]) {
 
   {
     using T = decltype(update(t)
-                           .set(t.boolNn = false)
-                           .where(t.textN != "transparent"));
+                           .set(t.bool_nn = false)
+                           .where(t.text_n != "transparent"));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   to_sql_string(printer, update(t));
-  to_sql_string(printer, update(t).set(t.boolNn = false));
+  to_sql_string(printer, update(t).set(t.bool_nn = false));
   to_sql_string(
-      printer, update(t).set(t.boolNn = false).where(t.textN != "transparent"));
+      printer, update(t).set(t.bool_nn = false).where(t.text_n != "transparent"));
   to_sql_string(printer, update(t)
-                             .set(t.textN = "opaque")
-                             .where(t.textN != t.textN + "this is nonsense"));
+                             .set(t.text_n = "opaque")
+                             .where(t.text_n != t.text_n + "this is nonsense"));
   to_sql_string(printer, update(t)
-                             .set(t.textN = "opaque")
-                             .where(t.textN != t.textN + "this is nonsense"));
+                             .set(t.text_n = "opaque")
+                             .where(t.text_n != t.text_n + "this is nonsense"));
 
   to_sql_string(
       printer,
       update(t)
-          .set(dynamic(maybe, t.textN = "opaque"))
-          .where(dynamic(maybe, t.textN != t.textN + "this is nonsense")));
+          .set(dynamic(maybe, t.text_n = "opaque"))
+          .where(dynamic(maybe, t.text_n != t.text_n + "this is nonsense")));
 
-  db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")));
+  db(update(t).set(t.int_n = sqlpp::verbatim<sqlpp::integral>("17+4")));
   db(update(t)
-         .set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4"))
+         .set(t.int_n = sqlpp::verbatim<sqlpp::integral>("17+4"))
          .where(sqlpp::verbatim<sqlpp::text>("'hansi'") == "hansi"));
-  db(update(t).set(t.intN = std::nullopt));
-  db(update(t).set(t.intN = sqlpp::default_value));
+  db(update(t).set(t.int_n = std::nullopt));
+  db(update(t).set(t.int_n = sqlpp::default_value));
 
-  db(update(t).set(t.intN = t.id * 2, t.textN = t.textN + " and cake"));
+  db(update(t).set(t.int_n = t.id * 2, t.text_n = t.text_n + " and cake"));
   db(update(t).set(
-      t.intN = t.id * 2,
-      maybe ? dynamic(t.textN = t.textN + " and cake") : std::nullopt));
+      t.int_n = t.id * 2,
+      maybe ? dynamic(t.text_n = t.text_n + " and cake") : std::nullopt));
 
   return 0;
 }

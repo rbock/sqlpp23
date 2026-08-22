@@ -27,20 +27,20 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // Unconditionally
-  SQLPP_COMPARE(sqlpp::select() << select_columns(sqlpp::distinct, foo.doubleN)
+  SQLPP_COMPARE(sqlpp::select() << select_columns(sqlpp::distinct, foo.float_n)
                                 << from(foo),
                 "SELECT DISTINCT tab_foo.double_n FROM tab_foo");
 
   // A full select statement made individual clauses
   SQLPP_COMPARE(sqlpp::select()
-                    << select_columns(sqlpp::distinct, foo.doubleN)
-                    << from(foo.join(bar).on(foo.doubleN == bar.id))
-                    << where(bar.id > 17) << group_by(foo.doubleN)
-                    << having(avg(bar.id) > 19) << order_by(foo.doubleN.asc())
+                    << select_columns(sqlpp::distinct, foo.float_n)
+                    << from(foo.join(bar).on(foo.float_n == bar.id))
+                    << where(bar.id > 17) << group_by(foo.float_n)
+                    << having(avg(bar.id) > 19) << order_by(foo.float_n.asc())
                     << sqlpp::limit(10u) << sqlpp::offset(100u),
                 "SELECT DISTINCT tab_foo.double_n FROM tab_foo INNER JOIN "
                 "tab_bar ON tab_foo.double_n = tab_bar.id WHERE "
@@ -50,12 +50,12 @@ int main() {
 
   // A full select statement made of individual clauses
   SQLPP_COMPARE(sqlpp::select()
-                    << select_columns(sqlpp::distinct, foo.doubleN)
-                    << from(foo.join(bar).on(foo.doubleN == bar.id))
-                    << where(bar.id > 17) << group_by(foo.doubleN)
+                    << select_columns(sqlpp::distinct, foo.float_n)
+                    << from(foo.join(bar).on(foo.float_n == bar.id))
+                    << where(bar.id > 17) << group_by(foo.float_n)
                     << having(avg(bar.id) > 19)
-                    << order_by(foo.doubleN.asc(),
-                                foo.uIntN.order(sqlpp::sort_type::desc))
+                    << order_by(foo.float_n.asc(),
+                                foo.u_int_n.order(sqlpp::sort_type::desc))
                     << sqlpp::limit(7u) << sqlpp::offset(3u),
                 "SELECT DISTINCT tab_foo.double_n FROM tab_foo INNER JOIN "
                 "tab_bar ON tab_foo.double_n = tab_bar.id WHERE "
@@ -72,11 +72,11 @@ int main() {
   // An insert from select for postgresql
   const auto x = 17;
   SQLPP_COMPARE(
-      insert_into(foo).columns(foo.doubleN)
+      insert_into(foo).columns(foo.float_n)
           << select(sqlpp::value(x).as<"double_n">())
                  .from(foo)
                  .where(not exists(
-                     select(foo.doubleN).from(foo).where(foo.doubleN == x)))
+                     select(foo.float_n).from(foo).where(foo.float_n == x)))
           << with_result_type_of(insert_into(foo)),
       "INSERT INTO tab_foo (double_n)"
       "SELECT 17 AS double_n FROM tab_foo "
@@ -84,9 +84,9 @@ int main() {
       "tab_foo.double_n = 17)");
 
   // A multi-row "insert or ignore"
-  auto batch = insert_columns(bar.textN, bar.boolNn);
-  batch.add_values(bar.textN = "sample", bar.boolNn = true);
-  batch.add_values(bar.textN = "ample", bar.boolNn = false);
+  auto batch = insert_columns(bar.text_n, bar.bool_nn);
+  batch.add_values(bar.text_n = "sample", bar.bool_nn = true);
+  batch.add_values(bar.text_n = "ample", bar.bool_nn = false);
   SQLPP_COMPARE(sqlpp::insert()
                     << sqlpp::verbatim_clause(" OR IGNORE") << into(bar) << batch,
                 "INSERT OR IGNORE INTO tab_bar (text_n, bool_nn) VALUES "

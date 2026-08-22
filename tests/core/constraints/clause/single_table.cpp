@@ -49,8 +49,8 @@ concept cannot_call_single_table_with =
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
   const auto c = sqlpp::ccte<"something">().as(select(bar.id).from(bar));
 
   // OK
@@ -60,7 +60,7 @@ int main() {
   static_assert(cannot_call_single_table_with<decltype(dynamic(maybe, bar))>);
 
   // Try assignment as table
-  static_assert(cannot_call_single_table_with<decltype(bar.boolNn = true)>);
+  static_assert(cannot_call_single_table_with<decltype(bar.bool_nn = true)>);
 
   // Try a column
   static_assert(cannot_call_single_table_with<decltype(bar.id)>);

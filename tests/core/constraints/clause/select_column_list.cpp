@@ -52,13 +52,13 @@ SQLPP_CREATE_NAME_TAG(max_id);
 }
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
-  // Confirming the required columns of TabBar.
-  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::TabBar>,
+  // Confirming the required columns of tab_bar.
+  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::tab_bar>,
                              sqlpp::detail::type_set<sqlpp::column_t<
-                                 test::TabBar, test::TabBar_::BoolNn>>>::value,
+                                 test::tab_bar, test::tab_bar_::BoolNn>>>::value,
                 "");
 
   // -------------------------
@@ -84,17 +84,17 @@ int main() {
   static_assert(cannot_call_select_columns_with<sqlpp::all_t>);
 
   // select_columns(<arguments with no value>) cannot be called.
-  static_assert(can_call_select_columns_with<decltype(bar.boolNn)>,
+  static_assert(can_call_select_columns_with<decltype(bar.bool_nn)>,
                 "OK, argument a column");
   static_assert(
-      can_call_select_columns_with<decltype(dynamic(true, bar.boolNn))>,
+      can_call_select_columns_with<decltype(dynamic(true, bar.bool_nn))>,
       "OK, argument a column");
   static_assert(cannot_call_select_columns_with<decltype(bar.id == 7)>,
                 "not a value: comparison");
   static_assert(cannot_call_select_columns_with<sqlpp::all_t, decltype(bar.id == 7)>,
                 "not a value: comparison (the leading flag does not change that)");
-  static_assert(cannot_call_select_columns_with<decltype(bar.intN = 7),
-                                                decltype(bar.boolNn)>,
+  static_assert(cannot_call_select_columns_with<decltype(bar.int_n = 7),
+                                                decltype(bar.bool_nn)>,
                 "not value: assignment");
 
   // select_columns(<bad flags>) cannot be called.
@@ -189,7 +189,7 @@ int main() {
   }
 
   {
-    auto s = select(foo.id, foo.intN).from(foo).group_by(foo.intN);
+    auto s = select(foo.id, foo.int_n).from(foo).group_by(foo.int_n);
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -200,7 +200,7 @@ int main() {
 
   {
     auto s =
-        select(foo.id, dynamic(true, foo.intN)).from(foo).group_by(foo.intN);
+        select(foo.id, dynamic(true, foo.int_n)).from(foo).group_by(foo.int_n);
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -210,9 +210,9 @@ int main() {
   }
 
   {
-    auto s = select(foo.id, dynamic(true, (foo.intN + 7).as<"test::max_id">()))
+    auto s = select(foo.id, dynamic(true, (foo.int_n + 7).as<"test::max_id">()))
                  .from(foo)
-                 .group_by(foo.intN);
+                 .group_by(foo.int_n);
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -223,18 +223,18 @@ int main() {
 
   // Dynamic group by column
   {
-    auto s = select(foo.id, dynamic(true, foo.intN.as<"test::max_id">()))
+    auto s = select(foo.id, dynamic(true, foo.int_n.as<"test::max_id">()))
                  .from(foo)
-                 .group_by(foo.id, dynamic(true, foo.intN));
+                 .group_by(foo.id, dynamic(true, foo.int_n));
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
                   "");
   }
   {
-    auto s = select(foo.id, foo.intN)
+    auto s = select(foo.id, foo.int_n)
                  .from(foo)
-                 .group_by(foo.id, dynamic(true, foo.intN));
+                 .group_by(foo.id, dynamic(true, foo.int_n));
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -245,9 +245,9 @@ int main() {
         "");
   }
   {
-    auto s = select(foo.id, (foo.intN + 7).as<"test::max_id">())
+    auto s = select(foo.id, (foo.int_n + 7).as<"test::max_id">())
                  .from(foo)
-                 .group_by(foo.id, dynamic(true, foo.intN));
+                 .group_by(foo.id, dynamic(true, foo.int_n));
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -260,7 +260,7 @@ int main() {
 
   // Non-column group by
   {
-    const auto c = foo.id + foo.intN;
+    const auto c = foo.id + foo.int_n;
     auto s = select(c.as<"something">())
                  .from(foo)
                  .group_by(c);
@@ -270,20 +270,20 @@ int main() {
                   "");
   }
   {
-    const auto c = foo.id + foo.intN;
-    auto s = select((foo.doubleN + c).as<"something">())
+    const auto c = foo.id + foo.int_n;
+    auto s = select((foo.float_n + c).as<"something">())
                  .from(foo)
-                 .group_by(foo.doubleN, c);
+                 .group_by(foo.float_n, c);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
                   "");
   }
   {
-    const auto c = foo.id + foo.intN;
+    const auto c = foo.id + foo.int_n;
     auto s = select((foo.id + c).as<"something">())
                  .from(foo)
-                 .group_by(foo.doubleN, c);
+                 .group_by(foo.float_n, c);
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -339,7 +339,7 @@ int main() {
   {
     // Fail: This is a sub select that statically requires `foo` but provides it
     // dynamically only.
-    auto s = select(foo.id, bar.intN).from(dynamic(true, foo));
+    auto s = select(foo.id, bar.int_n).from(dynamic(true, foo));
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -357,7 +357,7 @@ int main() {
   {
     // Fail: foo is statically required in a selected expression, but provided
     // dynamically only.
-    auto s = select((foo.id + bar.intN).as<"something">()).from(dynamic(true, foo));
+    auto s = select((foo.id + bar.int_n).as<"something">()).from(dynamic(true, foo));
     using S = decltype(s);
     static_assert(
         std::is_same<

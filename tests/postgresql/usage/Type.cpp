@@ -33,51 +33,51 @@ int Type(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
   try {
-    test::createTabFoo(db);
-    test::createTabBar(db);
+    test::createtab_foo(db);
+    test::createtab_bar(db);
 
-    const auto tab = test::TabBar{};
+    const auto tab = test::tab_bar{};
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.intN.has_value(), false);
-      require_equal(__LINE__, row.textN.has_value(), false);
-      require_equal(__LINE__, row.boolNn, false);
+      require_equal(__LINE__, row.int_n.has_value(), false);
+      require_equal(__LINE__, row.text_n.has_value(), false);
+      require_equal(__LINE__, row.bool_nn, false);
     }
 
-    db(update(tab).set(tab.intN = 10, tab.textN = "Cookies!",
-                       tab.boolNn = true));
+    db(update(tab).set(tab.int_n = 10, tab.text_n = "Cookies!",
+                       tab.bool_nn = true));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.intN.has_value(), true);
-      require_equal(__LINE__, row.intN.value(), 10);
-      require_equal(__LINE__, row.textN.has_value(), true);
-      require_equal(__LINE__, row.textN.value(), "Cookies!");
-      require_equal(__LINE__, row.boolNn, true);
+      require_equal(__LINE__, row.int_n.has_value(), true);
+      require_equal(__LINE__, row.int_n.value(), 10);
+      require_equal(__LINE__, row.text_n.has_value(), true);
+      require_equal(__LINE__, row.text_n.value(), "Cookies!");
+      require_equal(__LINE__, row.bool_nn, true);
     }
 
-    db(update(tab).set(tab.intN = 20, tab.textN = "Monster",
-                       tab.boolNn = false));
+    db(update(tab).set(tab.int_n = 20, tab.text_n = "Monster",
+                       tab.bool_nn = false));
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.intN.value(), 20);
-      require_equal(__LINE__, row.textN.value(), "Monster");
-      require_equal(__LINE__, row.boolNn, false);
+      require_equal(__LINE__, row.int_n.value(), 20);
+      require_equal(__LINE__, row.text_n.value(), "Monster");
+      require_equal(__LINE__, row.bool_nn, false);
     }
 
     auto prepared_update = db.prepare(update(tab).set(
-        tab.intN = parameter(tab.intN), tab.textN = parameter(tab.textN),
-        tab.boolNn = parameter(tab.boolNn)));
-    prepared_update.parameters.intN = 30;
-    prepared_update.parameters.textN = "IceCream";
-    prepared_update.parameters.boolNn = true;
+        tab.int_n = parameter(tab.int_n), tab.text_n = parameter(tab.text_n),
+        tab.bool_nn = parameter(tab.bool_nn)));
+    prepared_update.parameters.int_n = 30;
+    prepared_update.parameters.text_n = "IceCream";
+    prepared_update.parameters.bool_nn = true;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
 
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
-      require_equal(__LINE__, row.intN.value(), 30);
-      require_equal(__LINE__, row.textN.value(), "IceCream");
-      require_equal(__LINE__, row.boolNn, true);
+      require_equal(__LINE__, row.int_n.value(), 30);
+      require_equal(__LINE__, row.text_n.value(), "IceCream");
+      require_equal(__LINE__, row.bool_nn, true);
     }
   } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

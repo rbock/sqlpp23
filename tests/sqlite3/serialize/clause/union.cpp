@@ -27,8 +27,8 @@
 #include <sqlpp26/tests/sqlite3/all.h>
 
 int main(int, char*[]) {
-  const auto t = test::TabBar{};
-  const auto f = test::TabFoo{};
+  const auto t = test::tab_bar{};
+  const auto f = test::tab_foo{};
 
   // UNION ALL (as in other connectors)
   SQLPP_COMPARE(select(t.id).from(t).union_all(select(f.id).from(f)),

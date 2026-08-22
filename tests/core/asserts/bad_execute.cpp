@@ -29,7 +29,7 @@
 int main() {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   // Missing run-consistency
   auto parameter_select = sqlpp::select(parameter(bar.id).as<"a">());

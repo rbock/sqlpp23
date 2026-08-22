@@ -27,14 +27,14 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Without condition.
   SQLPP_COMPARE(sqlpp::where(true), " WHERE 1");
 
   // Whith static condition.
-  SQLPP_COMPARE(sqlpp::where(foo.boolN), " WHERE tab_foo.bool_n");
-  SQLPP_COMPARE(sqlpp::where(foo.boolN.is_not_distinct_from(true)),
+  SQLPP_COMPARE(sqlpp::where(foo.bool_n), " WHERE tab_foo.bool_n");
+  SQLPP_COMPARE(sqlpp::where(foo.bool_n.is_not_distinct_from(true)),
                 " WHERE tab_foo.bool_n IS NOT DISTINCT FROM 1");
   SQLPP_COMPARE(sqlpp::where(foo.id > 17), " WHERE tab_foo.id > 17");
 

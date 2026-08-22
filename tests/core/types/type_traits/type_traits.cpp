@@ -29,8 +29,8 @@
 void test_is_as_expression() {
   auto v = sqlpp::value(17);
   auto t = sqlpp::value("");
-  auto col_int = test::TabFoo{}.id;
-  auto col_txt = test::TabFoo{}.textNnD;
+  auto col_int = test::tab_foo{}.id;
+  auto col_txt = test::tab_foo{}.text_nn_d;
 
   // Constant values are no expression alias
   static_assert(not sqlpp::is_as_expression<decltype(v)>::value, "");
@@ -86,7 +86,7 @@ void test_is_as_expression() {
   static_assert(sqlpp::is_data_type<sqlpp::time>::value);
 
   // Data type of nested optionals is still just optional something
-  using OptText = decltype(test::TabBar{}.textN);
+  using OptText = decltype(test::tab_bar{}.text_n);
   static_assert(std::is_same_v<sqlpp::data_type_of_t<OptText>,
                                std::optional<sqlpp::text>>);
   static_assert(std::is_same_v<sqlpp::data_type_of_t<std::optional<OptText>>,

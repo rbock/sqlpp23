@@ -28,8 +28,8 @@
 
 int Prepared(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-  // test::TabFoo f;
-  const auto t = test::TabBar{};
+  // test::tab_foo f;
+  const auto t = test::tab_bar{};
 
   // empty parameter lists
   {
@@ -48,10 +48,10 @@ int Prepared(int, char*[]) {
 
   // single parameter
   {
-    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.textN))>;
+    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.text_n))>;
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
-    p.textN = "cheesecake";
+    p.text_n = "cheesecake";
     std::ignore = p;  // silence warnings about `p` being unused.
   }
 
@@ -66,9 +66,9 @@ int Prepared(int, char*[]) {
 
   // single parameter in larger expression
   {
-    using P = sqlpp::make_parameter_list_t<decltype((t.textN.like("%") and
+    using P = sqlpp::make_parameter_list_t<decltype((t.text_n.like("%") and
                                                      t.id == parameter(t.id)) or
-                                                    t.boolNn != false)>;
+                                                    t.bool_nn != false)>;
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
@@ -78,23 +78,23 @@ int Prepared(int, char*[]) {
   // three parameters in expression
   {
     using P =
-        sqlpp::parameters_of_t<decltype((t.textN.like(parameter(t.textN)) and
+        sqlpp::parameters_of_t<decltype((t.text_n.like(parameter(t.text_n)) and
                                          t.id == parameter(t.id)) or
-                                        t.boolNn != parameter(t.boolNn))>;
+                                        t.bool_nn != parameter(t.bool_nn))>;
     // parameters
     static_assert(
         std::is_same<
             P, sqlpp::detail::type_vector<
-                   decltype(parameter(t.textN)), decltype(parameter(t.id)),
-                   decltype(parameter(t.boolNn))>>::value,
+                   decltype(parameter(t.text_n)), decltype(parameter(t.id)),
+                   decltype(parameter(t.bool_nn))>>::value,
         "type requirement");
   }
 
   // OK, fine, now create a named parameter list from an expression
   {
-    using Exp = decltype((t.textN.like(parameter(t.textN)) and
+    using Exp = decltype((t.text_n.like(parameter(t.text_n)) and
                           t.id == parameter(t.id)) or
-                         t.boolNn != parameter(t.boolNn));
+                         t.bool_nn != parameter(t.bool_nn));
     using P = sqlpp::make_parameter_list_t<Exp>;
     P npl;
     static_assert(
@@ -104,20 +104,20 @@ int Prepared(int, char*[]) {
         "type requirement");
     static_assert(
         std::is_same<
-            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.textN)>>,
-            decltype(npl.textN)>::value,
+            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.text_n)>>,
+            decltype(npl.text_n)>::value,
         "type requirement");
     static_assert(std::is_same<sqlpp::parameter_value_t<
-                                   sqlpp::data_type_of_t<decltype(t.boolNn)>>,
-                               decltype(npl.boolNn)>::value,
+                                   sqlpp::data_type_of_t<decltype(t.bool_nn)>>,
+                               decltype(npl.bool_nn)>::value,
                   "type requirement");
   }
 
   // Wonderful, now take a look at the parameter list of a select
   {
     auto s = select(all_of(t)).from(t).where(
-        (t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
-        t.boolNn != parameter(t.boolNn));
+        (t.text_n.like(parameter(t.text_n)) and t.id == parameter(t.id)) or
+        t.bool_nn != parameter(t.bool_nn));
     auto p = db.prepare(s);
     p.parameters.id = 7;
     using S = decltype(s);
@@ -131,12 +131,12 @@ int Prepared(int, char*[]) {
         "type requirement");
     static_assert(
         std::is_same<
-            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.textN)>>,
-            decltype(npl.textN)>::value,
+            sqlpp::parameter_value_t<sqlpp::data_type_of_t<decltype(t.text_n)>>,
+            decltype(npl.text_n)>::value,
         "type requirement");
     static_assert(std::is_same<sqlpp::parameter_value_t<
-                                   sqlpp::data_type_of_t<decltype(t.boolNn)>>,
-                               decltype(npl.boolNn)>::value,
+                                   sqlpp::data_type_of_t<decltype(t.bool_nn)>>,
+                               decltype(npl.bool_nn)>::value,
                   "type requirement");
     npl.id = 7;
     auto x = npl;
@@ -148,7 +148,7 @@ int Prepared(int, char*[]) {
 
   // Can we prepare a query without parameters?
   {
-    auto ps = db.prepare(select(all_of(t)).from(t).where((t.textN.like("%"))));
+    auto ps = db.prepare(select(all_of(t)).from(t).where((t.text_n.like("%"))));
     for (const auto& row : db(ps)) {
       std::cerr << row.id << std::endl;
     }

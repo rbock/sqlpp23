@@ -49,23 +49,23 @@ concept cannot_call_group_by_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // group_by(<non arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_group_by_with<>);
 
   // group_by(<arguments with no value>) cannot be called.
-  static_assert(can_call_group_by_with<decltype(bar.boolNn)>);
-  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>);
+  static_assert(can_call_group_by_with<decltype(bar.bool_nn)>);
+  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.bool_nn))>);
   static_assert(can_call_group_by_with<decltype(bar.id + 7)>);
-  static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>);
+  static_assert(can_call_group_by_with<decltype(7), decltype(bar.bool_nn)>);
 
   static_assert(
-      cannot_call_group_by_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
+      cannot_call_group_by_with<decltype(bar.int_n = 7), decltype(bar.bool_nn)>,
       "not value: assignment");
   static_assert(
-      cannot_call_group_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,
+      cannot_call_group_by_with<decltype(all_of(bar)), decltype(bar.bool_nn)>,
       "not value: tuple");
 
   // group_by(<containing aggregate functions>) is inconsistent and cannot be

@@ -33,9 +33,9 @@ namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
-    const auto foo = test::TabFoo{};
+    const auto foo = test::tab_foo{};
 
     // select value
     for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
@@ -48,16 +48,16 @@ int main(int, char*[]) {
     }
 
     // select two columns
-    for (const auto& row : db(select(foo.id, foo.textNnD).from(foo))) {
+    for (const auto& row : db(select(foo.id, foo.text_nn_d).from(foo))) {
       std::ignore = row.id;
-      std::ignore = row.textNnD;
+      std::ignore = row.text_nn_d;
     }
 
     // select all columns
     for (const auto& row : db(select(all_of(foo)).from(foo))) {
       std::ignore = row.id;
-      std::ignore = row.textNnD;
-      std::ignore = row.intN;
+      std::ignore = row.text_nn_d;
+      std::ignore = row.int_n;
     }
 
   } catch (const sql::exception& e) {

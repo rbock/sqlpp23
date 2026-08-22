@@ -11,7 +11,7 @@
 
 namespace test {
 template<typename Db>
-void createTabEnums(Db& db) {
+void create_tab_enums(Db& db) {
   db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
   db(R"+++(CREATE TABLE tab_enums (
   -- cpp_type:animal
@@ -21,12 +21,12 @@ void createTabEnums(Db& db) {
 ))+++");
 }
 
-struct TabEnums_ {
-  using generator = ::sqlpp::table_generator<TabEnums_, "tab_enums",
+struct tab_enums_ {
+  using generator = ::sqlpp::table_generator<tab_enums_, "tab_enums",
     ::sqlpp::column_spec<"animal", std::optional<animal>>::with_default,
     ::sqlpp::column_spec<"cage", std::optional<shape>>::with_default>;
 };
-using TabEnums = ::sqlpp::table<TabEnums_>;
+using tab_enums = ::sqlpp::table<tab_enums_>;
 
 
 } // namespace test

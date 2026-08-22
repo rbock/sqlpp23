@@ -30,11 +30,11 @@
 namespace sql = sqlpp::postgresql;
 
 int truncate(int, char*[]) {
-  test::TabFoo foo = {};
+  test::tab_foo foo = {};
 
   sql::connection db = sql::make_test_connection();
 
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   // insert a row
   db(sql::insert_into(foo).default_values());

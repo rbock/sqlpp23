@@ -28,11 +28,11 @@
 
 namespace sql = sqlpp::sqlite3;
 
-const auto foo = test::TabFoo{};
+const auto foo = test::tab_foo{};
 
 int Integral(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   // The connector supports uint64_t values and will always retrieve the correct
   // value from the database. Sqlite3 stores the values as int64_t internally
@@ -53,44 +53,44 @@ int Integral(int, char*[]) {
   int32_t int32_t_value = std::numeric_limits<int32_t>::max();
 
   db(insert_into(foo).set(
-      foo.intN = int64_t_value_max,
-      foo.uIntN = uint64_t_value_supported));
+      foo.int_n = int64_t_value_max,
+      foo.u_int_n = uint64_t_value_supported));
 
   auto prepared_insert = db.prepare(insert_into(foo).set(
-      foo.intN = parameter(foo.intN),
-      foo.uIntN = parameter(foo.uIntN)));
-  prepared_insert.parameters.intN = int64_t_value_min;
-  prepared_insert.parameters.uIntN = uint64_t_value_unsupported;
+      foo.int_n = parameter(foo.int_n),
+      foo.u_int_n = parameter(foo.u_int_n)));
+  prepared_insert.parameters.int_n = int64_t_value_min;
+  prepared_insert.parameters.u_int_n = uint64_t_value_unsupported;
   db(prepared_insert);
 
-  db(insert_into(foo).set(foo.intN = size_t_value_min,
-                                foo.uIntN = size_t_value_max));
-  db(insert_into(foo).set(foo.intN = int32_t_value,
-                                foo.uIntN = uint32_t_value));
+  db(insert_into(foo).set(foo.int_n = size_t_value_min,
+                                foo.u_int_n = size_t_value_max));
+  db(insert_into(foo).set(foo.int_n = int32_t_value,
+                                foo.u_int_n = uint32_t_value));
 
   auto q =
-      select(foo.intN, foo.uIntN).from(foo);
+      select(foo.int_n, foo.u_int_n).from(foo);
 
   auto rows = db(q);
 
-  require_equal(__LINE__, rows.front().intN.value(), int64_t_value_max);
-  require_equal(__LINE__, rows.front().uIntN.value(),
+  require_equal(__LINE__, rows.front().int_n.value(), int64_t_value_max);
+  require_equal(__LINE__, rows.front().u_int_n.value(),
                 uint64_t_value_supported);
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().intN.value(), int64_t_value_min);
-  require_equal(__LINE__, rows.front().uIntN.value(),
+  require_equal(__LINE__, rows.front().int_n.value(), int64_t_value_min);
+  require_equal(__LINE__, rows.front().u_int_n.value(),
                 uint64_t_value_unsupported);
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().intN.value(), int64_t{});
+  require_equal(__LINE__, rows.front().int_n.value(), int64_t{});
   // the uint64_t_value_max gets truncated to int64_t_value_max
-  require_equal(__LINE__, rows.front().uIntN.value(),
+  require_equal(__LINE__, rows.front().u_int_n.value(),
                 static_cast<uint64_t>(int64_t_value_max));
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().intN.value(), int32_t_value);
-  require_equal(__LINE__, rows.front().uIntN.value(), uint32_t_value);
+  require_equal(__LINE__, rows.front().int_n.value(), int32_t_value);
+  require_equal(__LINE__, rows.front().u_int_n.value(), uint32_t_value);
   rows.pop_front();
 
   return 0;

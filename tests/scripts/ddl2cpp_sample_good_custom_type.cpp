@@ -39,5 +39,5 @@ void test_db_model() {
 }
 
 int main() {
-  test_db_model<test::dbm::TabFoo>();
+  test_db_model<test::dbm::tab_foo>();
 }

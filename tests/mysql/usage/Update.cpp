@@ -26,7 +26,7 @@
 
 #include <sqlpp26/tests/mysql/all.h>
 
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 namespace sql = sqlpp::mysql;
 
@@ -34,19 +34,19 @@ int Update(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
-    db(insert_into(tab).set(tab.textNnD = "1", tab.boolN = false));
-    db(insert_into(tab).set(tab.textNnD = "2", tab.boolN = false));
-    db(insert_into(tab).set(tab.textNnD = "3", tab.boolN = false));
+    db(insert_into(tab).set(tab.text_nn_d = "1", tab.bool_n = false));
+    db(insert_into(tab).set(tab.text_nn_d = "2", tab.bool_n = false));
+    db(insert_into(tab).set(tab.text_nn_d = "3", tab.bool_n = false));
 
     db(sql::update(tab)
-           .set(tab.boolN = true)
-           .order_by(tab.intN.desc())
+           .set(tab.bool_n = true)
+           .order_by(tab.int_n.desc())
            .limit(1u));
     for (const auto& row :
-         db(sqlpp::select(tab.boolN).from(tab).where(tab.textNnD == "3"))) {
-      if (not row.boolN.has_value())
+         db(sqlpp::select(tab.bool_n).from(tab).where(tab.text_nn_d == "3"))) {
+      if (not row.bool_n.has_value())
         throw std::runtime_error("no value for bool_n");
     }
   } catch (const std::exception& e) {

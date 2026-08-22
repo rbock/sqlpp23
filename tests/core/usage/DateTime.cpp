@@ -39,48 +39,48 @@ std::chrono::microseconds time(T t) {
 int DateTime(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t printer;
-  const auto t = test::TabDateTime{};
+  const auto t = test::tab_date_time{};
 
   for (const auto& row :
        db(select(::sqlpp::value(std::chrono::system_clock::now()).as<"now">()))) {
     std::cout << row.now;
   }
   for (const auto& row : db(select(all_of(t)).from(t))) {
-    std::cout << row.dateN;
-    std::cout << row.timestampN;
-    const auto tp = row.timestampN.value();
+    std::cout << row.date_n;
+    std::cout << row.timestamp_n;
+    const auto tp = row.timestamp_n.value();
     std::cout << std::chrono::system_clock::to_time_t(tp);
   }
   std::cerr << to_sql_string(printer,
                              ::sqlpp::value(std::chrono::system_clock::now()))
             << std::endl;
 
-  db(insert_into(t).set(t.dateN = std::chrono::floor<std::chrono::days>(
+  db(insert_into(t).set(t.date_n = std::chrono::floor<std::chrono::days>(
                             std::chrono::system_clock::now())));
-  db(insert_into(t).set(t.timestampN = std::chrono::system_clock::now()));
-  db(insert_into(t).set(t.timeN = time(
+  db(insert_into(t).set(t.timestamp_n = std::chrono::system_clock::now()));
+  db(insert_into(t).set(t.time_n = time(
                             std::chrono::system_clock::now())));
 
   db(update(t)
-         .set(t.dateN = std::chrono::floor<std::chrono::days>(
+         .set(t.date_n = std::chrono::floor<std::chrono::days>(
                   std::chrono::system_clock::now()))
-         .where(t.dateN < std::chrono::system_clock::now()));
+         .where(t.date_n < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.timestampN = std::chrono::system_clock::now(),
-              t.timeN =
+         .set(t.timestamp_n = std::chrono::system_clock::now(),
+              t.time_n =
                   time(std::chrono::system_clock::now()))
-         .where(t.dateN < std::chrono::system_clock::now()));
+         .where(t.date_n < std::chrono::system_clock::now()));
 
   db(delete_from(t).where(
-      t.dateN ==
+      t.date_n ==
       std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
-  db(delete_from(t).where(t.dateN == std::chrono::system_clock::now()));
+  db(delete_from(t).where(t.date_n == std::chrono::system_clock::now()));
   db(delete_from(t).where(
-      t.timestampN ==
+      t.timestamp_n ==
       std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
-  db(delete_from(t).where(t.timestampN == std::chrono::system_clock::now()));
+  db(delete_from(t).where(t.timestamp_n == std::chrono::system_clock::now()));
   db(delete_from(t).where(
-      t.timeN ==
+      t.time_n ==
       time(std::chrono::system_clock::now())));
 
   return 0;

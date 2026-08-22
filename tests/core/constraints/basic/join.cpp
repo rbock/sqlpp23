@@ -147,14 +147,14 @@ template <>
 struct is_table<weird_table> : public std::true_type {};
 template <>
 struct required_tables_of<weird_table> {
-  using type = detail::type_vector<::test::TabBar>;
+  using type = detail::type_vector<::test::tab_bar>;
 };
 }  // namespace sqlpp
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
   const auto aFoo = foo.as<"a">();
   const auto bFoo = foo.as<"b">();
 

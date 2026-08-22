@@ -29,14 +29,14 @@
 int Result(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
-  const auto t = test::TabBar{};
+  const auto t = test::tab_bar{};
 
   static_assert(not sqlpp::is_optional<decltype(t.id)>::value,
                 "t.id cannot be null");
 
   // Using a non-enforcing db
   for (const auto& row :
-       db(select(all_of(t), t.textN.like("").as<"something">()).from(t))) {
+       db(select(all_of(t), t.text_n.like("").as<"something">()).from(t))) {
     static_assert(not sqlpp::is_optional<decltype(row.id)>::value,
                   "row.id cannot be null");
 
@@ -44,7 +44,7 @@ int Result(int, char*[]) {
          db(select(all_of(t)).from(t).where(t.id == row.id))) {
       std::cerr << sub.id << std::endl;
     }
-    db(insert_into(t).set(t.textN = row.textN.value(), t.boolNn = false));
+    db(insert_into(t).set(t.text_n = row.text_n.value(), t.bool_nn = false));
   }
 
   sqlpp::select(sqlpp::all, (t.id + 1).as<"t.id">()).from(t);

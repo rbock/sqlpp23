@@ -30,11 +30,11 @@
 namespace sql = sqlpp::postgresql;
 
 int InsertOnConflict(int, char*[]) {
-  test::TabFoo foo = {};
+  test::tab_foo foo = {};
 
   sql::connection db = sql::make_test_connection();
 
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   // Test on conflict
   db(sql::insert_into(foo).default_values().on_conflict().do_nothing());
@@ -45,36 +45,36 @@ int InsertOnConflict(int, char*[]) {
   // Test on conflict (with mulitple conflict targets)
   db(sql::insert_into(foo)
          .default_values()
-         .on_conflict(foo.id, dynamic(true, foo.intNnU))
+         .on_conflict(foo.id, dynamic(true, foo.int_nnU))
          .do_nothing());
   db(sql::insert_into(foo)
          .default_values()
-         .on_conflict(foo.id, dynamic(false, foo.intNnU))
+         .on_conflict(foo.id, dynamic(false, foo.int_nnU))
          .do_nothing());
 
   // Conflict target
   db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_update(
-      foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true));
+      foo.int_n = 5, foo.text_nn_d = "test bla", foo.bool_n = true));
 
   // With where statement
   for (const auto& row : db(sql::insert_into(foo)
                                 .default_values()
                                 .on_conflict(foo.id)
-                                .do_update(foo.intN = 5,
-          dynamic(true, foo.textNnD = "test bla"), foo.boolN = true)
-                                .where(foo.intN == 2)
-                                .returning(foo.textNnD))) {
-    std::cout << row.textNnD << std::endl;
+                                .do_update(foo.int_n = 5,
+          dynamic(true, foo.text_nn_d = "test bla"), foo.bool_n = true)
+                                .where(foo.int_n == 2)
+                                .returning(foo.text_nn_d))) {
+    std::cout << row.text_nn_d << std::endl;
   }
 
   // Returning
   for (const auto& row : db(sql::insert_into(foo)
                                 .default_values()
                                 .on_conflict(foo.id)
-                                .do_update(foo.intN = 5,
-          foo.textNnD = "test bla", foo.boolN = true)
-                                .returning(foo.intN))) {
-    std::cout << row.intN << std::endl;
+                                .do_update(foo.int_n = 5,
+          foo.text_nn_d = "test bla", foo.bool_n = true)
+                                .returning(foo.int_n))) {
+    std::cout << row.int_n << std::endl;
   }
 
   return 0;

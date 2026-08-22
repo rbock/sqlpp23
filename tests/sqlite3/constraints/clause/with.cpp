@@ -51,7 +51,7 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{&db};
   using CTX = decltype(ctx);
 
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   {
     const auto c = sqlpp::cte(something).as(select(foo.id).from(foo));

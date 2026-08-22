@@ -29,15 +29,15 @@
 int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Plain columns.
   SQLPP_COMPARE(group_by(foo.id), " GROUP BY tab_foo.id");
-  SQLPP_COMPARE(group_by(foo.textNnD), " GROUP BY tab_foo.text_nn_d");
-  SQLPP_COMPARE(group_by(foo.boolN), " GROUP BY tab_foo.bool_n");
+  SQLPP_COMPARE(group_by(foo.text_nn_d), " GROUP BY tab_foo.text_nn_d");
+  SQLPP_COMPARE(group_by(foo.bool_n), " GROUP BY tab_foo.bool_n");
 
   // Multiple plain columns.
-  SQLPP_COMPARE(group_by(foo.id, foo.textNnD, foo.boolN),
+  SQLPP_COMPARE(group_by(foo.id, foo.text_nn_d, foo.bool_n),
                 " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
   // Single dynamic column
@@ -45,32 +45,32 @@ int main(int, char*[]) {
   SQLPP_COMPARE(group_by(dynamic(false, foo.id)), "");
 
   // Multiple dynamic columns (including all dynamic)
-  SQLPP_COMPARE(group_by(dynamic(true, foo.id), foo.textNnD, foo.boolN),
+  SQLPP_COMPARE(group_by(dynamic(true, foo.id), foo.text_nn_d, foo.bool_n),
                 " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(group_by(foo.id, dynamic(true, foo.textNnD), foo.boolN),
+  SQLPP_COMPARE(group_by(foo.id, dynamic(true, foo.text_nn_d), foo.bool_n),
                 " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(group_by(foo.id, foo.textNnD, dynamic(true, foo.boolN)),
+  SQLPP_COMPARE(group_by(foo.id, foo.text_nn_d, dynamic(true, foo.bool_n)),
                 " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
-  SQLPP_COMPARE(group_by(dynamic(false, foo.id), foo.textNnD, foo.boolN),
+  SQLPP_COMPARE(group_by(dynamic(false, foo.id), foo.text_nn_d, foo.bool_n),
                 " GROUP BY tab_foo.text_nn_d, tab_foo.bool_n");
-  SQLPP_COMPARE(group_by(foo.id, dynamic(false, foo.textNnD), foo.boolN),
+  SQLPP_COMPARE(group_by(foo.id, dynamic(false, foo.text_nn_d), foo.bool_n),
                 " GROUP BY tab_foo.id, tab_foo.bool_n");
-  SQLPP_COMPARE(group_by(foo.id, foo.textNnD, dynamic(false, foo.boolN)),
+  SQLPP_COMPARE(group_by(foo.id, foo.text_nn_d, dynamic(false, foo.bool_n)),
                 " GROUP BY tab_foo.id, tab_foo.text_nn_d");
 
   SQLPP_COMPARE(
-      group_by(foo.id, dynamic(false, foo.textNnD), dynamic(false, foo.boolN)),
+      group_by(foo.id, dynamic(false, foo.text_nn_d), dynamic(false, foo.bool_n)),
       " GROUP BY tab_foo.id");
   SQLPP_COMPARE(
-      group_by(dynamic(false, foo.id), foo.textNnD, dynamic(false, foo.boolN)),
+      group_by(dynamic(false, foo.id), foo.text_nn_d, dynamic(false, foo.bool_n)),
       " GROUP BY tab_foo.text_nn_d");
   SQLPP_COMPARE(
-      group_by(dynamic(false, foo.id), dynamic(false, foo.textNnD), foo.boolN),
+      group_by(dynamic(false, foo.id), dynamic(false, foo.text_nn_d), foo.bool_n),
       " GROUP BY tab_foo.bool_n");
 
-  SQLPP_COMPARE(group_by(dynamic(false, foo.id), dynamic(false, foo.textNnD),
-                         dynamic(false, foo.boolN)),
+  SQLPP_COMPARE(group_by(dynamic(false, foo.id), dynamic(false, foo.text_nn_d),
+                         dynamic(false, foo.bool_n)),
                 "");
 
   // Single declared column

@@ -32,15 +32,15 @@
 #include <sqlpp26/tests/postgresql/all.h>
 
 namespace sql = sqlpp::postgresql;
-test::TabFoo tab = {};
+test::tab_foo tab = {};
 
 void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
-    std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
-              << ", row.textNnD: " << row.textNnD << std::endl;
+    std::cerr << ">>> row.id: " << row.id << ", row.int_n: " << row.int_n
+              << ", row.text_nn_d: " << row.text_nn_d << std::endl;
     assert(i == row.id);
   };
   assert(i == expectedRowCount);
@@ -49,8 +49,8 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
   i = 0;
   for (const auto& row : db(preparedSelectAll)) {
     ++i;
-    std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
-              << ", row.textNnD: " << row.textNnD << std::endl;
+    std::cerr << ">>> row.id: " << row.id << ", row.int_n: " << row.int_n
+              << ", row.text_nn_d: " << row.text_nn_d << std::endl;
     assert(i == row.id);
   };
   assert(i == expectedRowCount);
@@ -89,14 +89,14 @@ SQLPP_CREATE_NAME_TAG(something);
 int Select(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   testSelectAll(db, 0);
   db(insert_into(tab).default_values());
   testSelectAll(db, 1);
-  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
+  db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheesecake"));
   testSelectAll(db, 2);
-  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
+  db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheesecake"));
   testSelectAll(db, 3);
 
   testParameter(db);
@@ -126,11 +126,11 @@ int Select(int, char*[]) {
          .from(tab)
          .where(tab.id == any(select(tab.id).from(tab).where(tab.id < 3))));
   db(select(all_of(tab)).from(tab).where(tab.id + tab.id > 3));
-  db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD) == ""));
+  db(select(all_of(tab)).from(tab).where((tab.text_nn_d + tab.text_nn_d) == ""));
   db(select(all_of(tab))
          .from(tab)
-         .where((tab.textNnD + tab.textNnD).like("%'\"%")));
-  db(select(coalesce(tab.textNnD, "fallback").as(something)).from(tab));
+         .where((tab.text_nn_d + tab.text_nn_d).like("%'\"%")));
+  db(select(coalesce(tab.text_nn_d, "fallback").as(something)).from(tab));
   db(select(cast("17", as(sqlpp::integral{})).as(something)).from(tab));
   db(select(cast(std::chrono::system_clock::now(), as(sqlpp::date{})).as(something)).from(tab));
   db(select(cast(std::chrono::sys_days(std::chrono::floor<std::chrono::days>(
@@ -140,25 +140,25 @@ int Select(int, char*[]) {
          .from(tab));
 
   // test boolean value
-  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "asdf"));
-  db(insert_into(tab).set(tab.boolN = false, tab.textNnD = "asdfg"));
+  db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "asdf"));
+  db(insert_into(tab).set(tab.bool_n = false, tab.text_nn_d = "asdfg"));
 
-  assert(db(select(tab.boolN).from(tab).where(tab.textNnD == "asdf"))
+  assert(db(select(tab.bool_n).from(tab).where(tab.text_nn_d == "asdf"))
              .front()
-             .boolN);
-  assert(not db(select(tab.boolN).from(tab).where(tab.textNnD == "asdfg"))
+             .bool_n);
+  assert(not db(select(tab.bool_n).from(tab).where(tab.text_nn_d == "asdfg"))
                  .front()
-                 .boolN.value());
-  assert(not db(select(tab.boolN).from(tab).where(tab.id == 1))
+                 .bool_n.value());
+  assert(not db(select(tab.bool_n).from(tab).where(tab.id == 1))
                  .front()
-                 .boolN.has_value());
+                 .bool_n.has_value());
 
   // test
 
   // update
-  db(update(tab).set(tab.boolN = false).where(tab.id.in(1)));
+  db(update(tab).set(tab.bool_n = false).where(tab.id.in(1)));
   db(update(tab)
-         .set(tab.boolN = false)
+         .set(tab.bool_n = false)
          .where(tab.id.in(std::vector<int>{1, 2, 3, 4})));
 
   // delete

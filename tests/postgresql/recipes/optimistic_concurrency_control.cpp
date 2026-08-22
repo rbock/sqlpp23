@@ -83,18 +83,18 @@ auto tx(F&& handler) {
 
 void tab_bar_create() {
   auto dbc = get_connection();
-  test::createTabBar(dbc);
-  auto tb = test::TabBar{};
-  dbc(insert_into(tb).set(tb.intN = 0));
+  test::createtab_bar(dbc);
+  auto tb = test::tab_bar{};
+  dbc(insert_into(tb).set(tb.int_n = 0));
 }
 
 void tab_bar_update_st(int num_updates) {
-  auto tb = test::TabBar{};
+  auto tb = test::tab_bar{};
   for (int i = 0; i < num_updates; ++i) {
     tx([&](auto&& dbc) {
-      auto value = dbc(select(tb.intN).from(tb).limit(1)).front().intN.value();
+      auto value = dbc(select(tb.int_n).from(tb).limit(1)).front().int_n.value();
       ++value;
-      dbc(update(tb).set(tb.intN = value));
+      dbc(update(tb).set(tb.int_n = value));
     });
   }
 }
@@ -120,8 +120,8 @@ void tab_bar_update_mt(int num_threads, int num_updates) {
 
 void tab_bar_check(int expected) {
   auto dbc = get_connection();
-  auto tb = test::TabBar{};
-  auto actual = dbc(select(tb.intN).from(tb).limit(1)).front().intN.value();
+  auto tb = test::tab_bar{};
+  auto actual = dbc(select(tb.int_n).from(tb).limit(1)).front().int_n.value();
   if (actual != expected) {
     throw std::runtime_error{
         std::format("Expected value {}, but got {}", expected, actual)};

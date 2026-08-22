@@ -78,8 +78,8 @@ void test_any(Value v) {
 }
 
 void test_any_sub_select() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // Use a select that depends on a table that would need to be provided by the
   // enclosing query.

@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Single table
   SQLPP_COMPARE(single_table(foo), "tab_foo");

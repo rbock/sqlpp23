@@ -50,19 +50,19 @@ struct on_duplicate_key_update {
 };
 }  // namespace
 
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 namespace sql = sqlpp::mysql;
 int CustomQuery(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     // Create a MYSQL style custom "insert on duplicate update"
-    db(sqlpp::insert_into(tab).set(tab.textNnD = "sample", tab.boolN = true)
-       << on_duplicate_key_update(db, tab.textNnD = "sample")(db,
-                                                            tab.boolN = false)
+    db(sqlpp::insert_into(tab).set(tab.text_nn_d = "sample", tab.bool_n = true)
+       << on_duplicate_key_update(db, tab.text_nn_d = "sample")(db,
+                                                            tab.bool_n = false)
               .get());
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

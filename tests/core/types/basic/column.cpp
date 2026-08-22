@@ -29,12 +29,12 @@
 void test_column() {
   {
     // Column integer with default (auto-increment).
-    auto foo = test::TabFoo{};
+    auto foo = test::tab_foo{};
     using Foo = decltype(foo);
     using Id = decltype(foo.id);
     using Cheese = decltype(foo.id.as<"cheese">);
-    using BarId = decltype(foo.as(test::TabBar{}).id);
-    using BarCheese = decltype(foo.as(test::TabBar{}).id.as(cheese));
+    using BarId = decltype(foo.as(test::tab_bar{}).id);
+    using BarCheese = decltype(foo.as(test::tab_bar{}).id.as(cheese));
 
     static_assert(not sqlpp::is_table<Id>::value, "");
     static_assert(sqlpp::has_default<Id>::value, "");
@@ -44,7 +44,7 @@ void test_column() {
     static_assert(not sqlpp::is_aggregate_neutral<Id>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<Id>,
-                               test::TabFoo_::Id::_sqlpp_name_tag>::value,
+                               test::tab_foo_::Id::_sqlpp_name_tag>::value,
                   "");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>,
                                sqlpp::detail::type_set<>>::value,
@@ -100,7 +100,7 @@ void test_column() {
     static_assert(sqlpp::has_default<BarId>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BarId>,
-                               test::TabFoo_::Id::_sqlpp_name_tag>::value,
+                               test::tab_foo_::Id::_sqlpp_name_tag>::value,
                   "");
     static_assert(get_sql_name(BarId{}) == "id");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<BarId>,
@@ -116,7 +116,7 @@ void test_column() {
         std::is_same<
             sqlpp::required_tables_of_t<BarId>,
             sqlpp::detail::type_set<sqlpp::table_as_t<
-                test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>>::value,
+                test::tab_foo_, test::tab_bar_::_sqlpp_name_tag>>>::value,
         "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<BarId>,
                                sqlpp::required_tables_of_t<BarId>>::value,
@@ -146,7 +146,7 @@ void test_column() {
         std::is_same<
             sqlpp::required_tables_of_t<BarCheese>,
             sqlpp::detail::type_set<sqlpp::table_as_t<
-                test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>>::value,
+                test::tab_foo_, test::tab_bar_::_sqlpp_name_tag>>>::value,
         "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<BarCheese>,
                                sqlpp::required_tables_of_t<BarCheese>>::value,
@@ -159,15 +159,15 @@ void test_column() {
 
   {
     // Column optional (can be null) text with default.
-    auto bar = test::TabBar{};
+    auto bar = test::tab_bar{};
     using Bar = decltype(bar);
-    using TextN = decltype(bar.textN);
+    using TextN = decltype(bar.text_n);
 
     static_assert(not sqlpp::is_table<TextN>::value, "");
     static_assert(sqlpp::has_default<TextN>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<TextN>,
-                               test::TabBar_::TextN::_sqlpp_name_tag>::value,
+                               test::tab_bar_::TextN::_sqlpp_name_tag>::value,
                   "");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<TextN>,
                                sqlpp::detail::type_set<>>::value,
@@ -192,15 +192,15 @@ void test_column() {
 
   {
     // Column bool without default.
-    auto bar = test::TabBar{};
+    auto bar = test::tab_bar{};
     using Bar = decltype(bar);
-    using BoolNn = decltype(bar.boolNn);
+    using BoolNn = decltype(bar.bool_nn);
 
     static_assert(not sqlpp::is_table<BoolNn>::value, "");
     static_assert(not sqlpp::has_default<BoolNn>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BoolNn>,
-                               test::TabBar_::BoolNn::_sqlpp_name_tag>::value,
+                               test::tab_bar_::BoolNn::_sqlpp_name_tag>::value,
                   "");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<BoolNn>,
                                sqlpp::detail::type_set<>>::value,
@@ -225,7 +225,7 @@ void test_column() {
 
   {
     // table() function
-    auto bar = test::TabBar{};
+    auto bar = test::tab_bar{};
     using Bar = decltype(bar);
     using Id = decltype(bar.id);
 

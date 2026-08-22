@@ -30,8 +30,8 @@ int main(int, char*[]) {
   auto db = sqlpp::mysql::make_test_connection();
   auto ctx = sqlpp::mysql::context_t{&db};
 
-  SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
-  SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
+  SQLPP_COMPARE(flatten(ctx, test::tab_foo{}.id), "tab_foo.id");
+  SQLPP_COMPARE(flatten(ctx, from(test::tab_foo{})), " FROM tab_foo");
 
   return 0;
 }

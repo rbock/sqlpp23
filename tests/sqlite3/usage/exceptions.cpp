@@ -37,12 +37,12 @@ int main() {
     }
 
     sql::connection db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
-    constexpr auto foo = test::TabFoo{};
+    constexpr auto foo = test::tab_foo{};
 
     assert_throw(db(insert_into(foo).set(
-                     foo.intN = sqlpp::verbatim<sqlpp::integral>("nonsense"))),
+                     foo.int_n = sqlpp::verbatim<sqlpp::integral>("nonsense"))),
                  sql::exception);
 
     // Test fields of a result_exception

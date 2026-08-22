@@ -49,15 +49,15 @@ concept cannot_call_having_with =
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
 
   // OK
-  static_assert(can_call_having_with<decltype(bar.boolNn)>, "");
-  static_assert(can_call_having_with<decltype(bar.boolNn == true)>, "");
+  static_assert(can_call_having_with<decltype(bar.bool_nn)>, "");
+  static_assert(can_call_having_with<decltype(bar.bool_nn == true)>, "");
 
   // Try assignment as condition
-  static_assert(cannot_call_having_with<decltype(bar.boolNn = true)>, "");
+  static_assert(cannot_call_having_with<decltype(bar.bool_nn = true)>, "");
 
   // Try non-boolean expression
   static_assert(cannot_call_having_with<decltype(bar.id)>, "");
@@ -70,7 +70,7 @@ int main() {
 
   // Try alias bool column (can only be used as select column, but not as a
   // value in `having`).
-  static_assert(cannot_call_having_with<decltype(bar.boolNn.as<"something">())>,
+  static_assert(cannot_call_having_with<decltype(bar.bool_nn.as<"something">())>,
                 "");
 
   // --------------------------------
@@ -79,7 +79,7 @@ int main() {
   const auto select_without_group_by = select(all_of(bar)).from(bar);
   const auto select_with_group_by = select(bar.id).from(bar).group_by(bar.id);
   const auto select_with_dynamic_group_by =
-      select(bar.id).from(bar).group_by(bar.id, dynamic(maybe, bar.textN));
+      select(bar.id).from(bar).group_by(bar.id, dynamic(maybe, bar.text_n));
 
   // OK
   {
@@ -130,21 +130,21 @@ int main() {
                   "");
   }
   {
-    using S = decltype(select_with_group_by.having(bar.textN > "17"));
+    using S = decltype(select_with_group_by.having(bar.text_n > "17"));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_having_all_aggregates_t>::value,
                   "");
   }
   {
-    using S = decltype(select_with_group_by.having(count(bar.textN) > 3 and
-                                                   bar.textN > "17"));
+    using S = decltype(select_with_group_by.having(count(bar.text_n) > 3 and
+                                                   bar.text_n > "17"));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_having_all_aggregates_t>::value,
                   "");
   }
   {
     using S = decltype(select_with_group_by.having(
-        count(bar.textN) > 3 and dynamic(maybe, bar.textN > "17")));
+        count(bar.text_n) > 3 and dynamic(maybe, bar.text_n > "17")));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_having_all_aggregates_t>::value,
                   "");
@@ -152,14 +152,14 @@ int main() {
 
   // Try foreign table
   {
-    using S = decltype(select_without_group_by.having(foo.doubleN > 17));
+    using S = decltype(select_without_group_by.having(foo.float_n > 17));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_having_all_aggregates_t>::value,
                   "");
   }
 
   {
-    using S = decltype(select_with_group_by.having(foo.doubleN > 17));
+    using S = decltype(select_with_group_by.having(foo.float_n > 17));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_having_all_aggregates_t>::value,
                   "");
@@ -167,14 +167,14 @@ int main() {
 
   // Use in sub queries: Allow foreign expressions in aggregate functions
   {
-    using S = decltype(select_without_group_by.having(avg(foo.doubleN) > 17));
+    using S = decltype(select_without_group_by.having(avg(foo.float_n) > 17));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
                   "");
   }
 
   // Use dynamic group-by expressions
-  // id is statically and textN is dynamically grouped by.
+  // id is statically and text_n is dynamically grouped by.
   {
     using S = decltype(select_with_dynamic_group_by.having(bar.id > 3));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
@@ -182,7 +182,7 @@ int main() {
                   "");
   }
   {
-    using S = decltype(select_with_dynamic_group_by.having(bar.textN !=
+    using S = decltype(select_with_dynamic_group_by.having(bar.text_n !=
                                                            "cheesecake"));
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,

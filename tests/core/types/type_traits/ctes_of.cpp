@@ -38,7 +38,7 @@ template <typename SelectWith>
 using extract_with_t = typename extract_with<SelectWith>::type;
 
 void test_required_ctes_of() {
-  auto foo = test::TabFoo{};
+  auto foo = test::tab_foo{};
 
   // Incomplete ctes are represented as cte_ref_t which require themselves.
   {
@@ -208,7 +208,7 @@ void test_required_ctes_of() {
 }
 
 void test_provided_ctes_of() {
-  auto foo = test::TabFoo{};
+  auto foo = test::tab_foo{};
 
   // Incomplete ctes are represented as cte_ref_t which provide no ctes.
   {

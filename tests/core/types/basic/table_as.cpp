@@ -27,20 +27,20 @@
 #include <sqlpp26/tests/core/all.h>
 
 void test_table() {
-  auto foo = test::TabFoo{};
-  auto bar = test::TabBar{};
+  auto foo = test::tab_foo{};
+  auto bar = test::tab_bar{};
   using FooBar = decltype(foo.as(bar));
   using Id = decltype(foo.as(bar).id);
 
   static_assert(
       std::is_same<FooBar,
-                   sqlpp::table_as_t<test::TabFoo_,
-                                     test::TabBar_::_sqlpp_name_tag>>::value,
+                   sqlpp::table_as_t<test::tab_foo_,
+                                     test::tab_bar_::_sqlpp_name_tag>>::value,
       "");
   static_assert(sqlpp::is_table<FooBar>::value, "");
   static_assert(not sqlpp::is_raw_table<FooBar>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<FooBar>,
-                             test::TabBar_::_sqlpp_name_tag>::value,
+                             test::tab_bar_::_sqlpp_name_tag>::value,
                 "");
   static_assert(std::is_same<sqlpp::provided_tables_of_t<FooBar>,
                              sqlpp::detail::type_set<FooBar>>::value,
@@ -60,7 +60,7 @@ void test_table() {
 
   static_assert(not sqlpp::is_table<Id>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<Id>,
-                             test::TabFoo_::Id::_sqlpp_name_tag>::value,
+                             test::tab_foo_::Id::_sqlpp_name_tag>::value,
                 "");
   static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>,
                              sqlpp::detail::type_set<>>::value,

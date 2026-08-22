@@ -55,24 +55,24 @@ int main(int, char*[]) {
   {
     auto ctx = sqlpp::mock_db::context_t{};
 
-    SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
-    SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
-    SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id).asc(), "tab_foo.id ASC");
+    SQLPP_COMPARE(flatten(ctx, test::tab_foo{}.id), "tab_foo.id");
+    SQLPP_COMPARE(flatten(ctx, from(test::tab_foo{})), " FROM tab_foo");
+    SQLPP_COMPARE(flatten(ctx, test::tab_foo{}.id).asc(), "tab_foo.id ASC");
   }
   {
     // Note: The tests below serialize the string returned by `get_sql_name`.
     //       That serialization adds ticks.
-    SQLPP_COMPARE(get_sql_name(test::TabFoo{}), "'tab_foo'");
-    SQLPP_COMPARE(get_sql_name(test::TabFoo{}.id), "'id'");
+    SQLPP_COMPARE(get_sql_name(test::tab_foo{}), "'tab_foo'");
+    SQLPP_COMPARE(get_sql_name(test::tab_foo{}.id), "'id'");
   }
   {
-    const auto bar = test::TabBar{};
+    const auto bar = test::tab_bar{};
 
     // Single column.
-    SQLPP_COMPARE(lower(bar.textN), "LOWER(tab_bar.text_n)");
+    SQLPP_COMPARE(lower(bar.text_n), "LOWER(tab_bar.text_n)");
 
     // Expression.
-    SQLPP_COMPARE(lower(bar.textN + "suffix"),
+    SQLPP_COMPARE(lower(bar.text_n + "suffix"),
                   "LOWER(CONCAT(tab_bar.text_n, 'suffix'))");
 
     // With sub select.
@@ -80,13 +80,13 @@ int main(int, char*[]) {
                   "LOWER(SELECT 'something' AS a)");
   }
   {
-    const auto bar = test::TabBar{};
+    const auto bar = test::tab_bar{};
 
     // Single column.
-    SQLPP_COMPARE(trim(bar.textN), "TRIM(tab_bar.text_n)");
+    SQLPP_COMPARE(trim(bar.text_n), "TRIM(tab_bar.text_n)");
 
     // Expression.
-    SQLPP_COMPARE(trim(bar.textN + "suffix"),
+    SQLPP_COMPARE(trim(bar.text_n + "suffix"),
                   "TRIM(CONCAT(tab_bar.text_n, 'suffix'))");
 
     // With sub select.
@@ -94,13 +94,13 @@ int main(int, char*[]) {
                   "TRIM(SELECT 'something' AS a)");
   }
   {
-    const auto bar = test::TabBar{};
+    const auto bar = test::tab_bar{};
 
     // Single column.
-    SQLPP_COMPARE(upper(bar.textN), "UPPER(tab_bar.text_n)");
+    SQLPP_COMPARE(upper(bar.text_n), "UPPER(tab_bar.text_n)");
 
     // Expression.
-    SQLPP_COMPARE(upper(bar.textN + "suffix"),
+    SQLPP_COMPARE(upper(bar.text_n + "suffix"),
                   "UPPER(CONCAT(tab_bar.text_n, 'suffix'))");
 
     // With sub select.

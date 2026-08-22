@@ -29,32 +29,32 @@
 int Union(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
-  const auto t = test::TabBar{};
-  const auto f = test::TabFoo{};
+  const auto t = test::tab_bar{};
+  const auto f = test::tab_foo{};
 
-  db(select(f.intN.as<"id">()).from(f).union_distinct(select(t.id).from(t)));
-  db(select(f.intN.as<"id">()).from(f).union_all(select(t.id).from(t)));
+  db(select(f.int_n.as<"id">()).from(f).union_distinct(select(t.id).from(t)));
+  db(select(f.int_n.as<"id">()).from(f).union_all(select(t.id).from(t)));
 
   // t.id can be null, a given value cannot
   db(select(t.id).from(t).union_all(select(sqlpp::value(1).as<"id">())));
 
 
-  // t.textN can be null, f.textNnD cannot
+  // t.text_n can be null, f.text_nn_d cannot
   static_assert(
-      sqlpp::is_optional<sqlpp::data_type_of_t<decltype(t.textN)>>::value, "");
+      sqlpp::is_optional<sqlpp::data_type_of_t<decltype(t.text_n)>>::value, "");
   static_assert(not sqlpp::is_optional<
-                    sqlpp::data_type_of_t<decltype(f.textNnD)>>::value,
+                    sqlpp::data_type_of_t<decltype(f.text_nn_d)>>::value,
                 "");
-  db(select(t.textN).from(t).union_all(
+  db(select(t.text_n).from(t).union_all(
       // Note the text_n. This can be done better with reflection.
-      select(f.textNnD.as<"text_n">()).from(f)));
+      select(f.text_nn_d.as<"text_n">()).from(f)));
 
-  auto u = select(f.intN.as<"id">()).from(f)
+  auto u = select(f.int_n.as<"id">()).from(f)
                .union_all(select(t.id).from(t))
                .as<"u">();
 
-  db(select(all_of(u)).from(u).union_all(select(t.intN.as<"id">()).from(t)));
-  db(select(u.id).from(u).union_all(select(t.intN.as<"id">()).from(t)));
+  db(select(all_of(u)).from(u).union_all(select(t.int_n.as<"id">()).from(t)));
+  db(select(u.id).from(u).union_all(select(t.int_n.as<"id">()).from(t)));
 
   db(select(t.id)
          .from(t)

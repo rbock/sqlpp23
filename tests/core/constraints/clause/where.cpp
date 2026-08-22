@@ -48,16 +48,16 @@ concept cannot_call_where_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // OK
-  where(bar.boolNn);
-  where(bar.boolNn == true);
-  static_assert(can_call_where_with<decltype(bar.boolNn)>, "");
+  where(bar.bool_nn);
+  where(bar.bool_nn == true);
+  static_assert(can_call_where_with<decltype(bar.bool_nn)>, "");
 
   // Try assignment as condition
-  static_assert(cannot_call_where_with<decltype(bar.boolNn = true)>, "");
+  static_assert(cannot_call_where_with<decltype(bar.bool_nn = true)>, "");
 
   // Try non-boolean expression
   static_assert(cannot_call_where_with<decltype(bar.id)>, "");
@@ -70,12 +70,12 @@ int main() {
 
   // Try alias bool column (can only be used as select column, but not as a
   // value in `where`).
-  static_assert(cannot_call_where_with<decltype(bar.boolNn.as<"something">())>, "");
+  static_assert(cannot_call_where_with<decltype(bar.bool_nn.as<"something">())>, "");
 
   // Try using aggregate functions in where
   static_assert(cannot_call_where_with<decltype(count(bar.id) > 0)>);
-  static_assert(cannot_call_where_with<decltype(bar.boolNn and count(bar.id) > 0)>);
-  static_assert(cannot_call_where_with<decltype(bar.boolNn and dynamic(maybe, (count(bar.id) > 0)))>);
+  static_assert(cannot_call_where_with<decltype(bar.bool_nn and count(bar.id) > 0)>);
+  static_assert(cannot_call_where_with<decltype(bar.bool_nn and dynamic(maybe, (count(bar.id) > 0)))>);
 
   // `where` isn't required if neither tables nor CTEs are required.
   {

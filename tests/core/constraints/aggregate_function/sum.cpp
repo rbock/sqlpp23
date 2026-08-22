@@ -37,12 +37,12 @@ concept cannot_call_sum_with =
 }
 
 int main() {
-  auto foo = test::TabFoo{};
+  auto foo = test::tab_foo{};
 
   static_assert(can_call_sum_with<decltype(foo.id)>);
 
   static_assert(cannot_call_sum_with<sqlpp::star_t>);
-  static_assert(cannot_call_sum_with<decltype(foo.textNnD)>);
+  static_assert(cannot_call_sum_with<decltype(foo.text_nn_d)>);
   static_assert(cannot_call_sum_with<decltype(foo.id.as<"something">())>);
   static_assert(cannot_call_sum_with<decltype(foo)>);
 

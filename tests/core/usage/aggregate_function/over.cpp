@@ -28,24 +28,24 @@
 
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sqlpp::mock_db::make_test_connection();
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select aggregates with over()
     for (const auto& row : db(select(
-            avg(tab.intN).over().as<"avg_">(),
-            count(tab.intN).over().as<"count_">(),
-            max(tab.intN).over().as<"max_">(),
-            min(tab.intN).over().as<"min_">(),
-            sum(tab.intN).over().as<"sum_">()
+            avg(tab.int_n).over().as<"avg_">(),
+            count(tab.int_n).over().as<"count_">(),
+            max(tab.int_n).over().as<"max_">(),
+            min(tab.int_n).over().as<"min_">(),
+            sum(tab.int_n).over().as<"sum_">()
             ).from(tab))) {
       std::ignore = row.avg_;
       std::ignore = row.count_;

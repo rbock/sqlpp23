@@ -49,17 +49,17 @@ concept cannot_call_order_by_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // order_by(<non arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_order_by_with<>);
 
   // order_by(<non-sort-order arguments>) cannot be called.
-  static_assert(can_call_order_by_with<decltype(bar.boolNn.asc())>,
+  static_assert(can_call_order_by_with<decltype(bar.bool_nn.asc())>,
                 "OK, argument a column ascending");
   static_assert(
-      can_call_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc()))>,
+      can_call_order_by_with<decltype(dynamic(maybe, bar.bool_nn.desc()))>,
       "OK, argument a dynamic column");
   static_assert(can_call_order_by_with<decltype((bar.id + 7).asc())>,
                 "OK, declared order by column");
@@ -68,10 +68,10 @@ int main() {
   static_assert(cannot_call_order_by_with<decltype(7)>,
                 "not sort order: integer");
   static_assert(
-      cannot_call_order_by_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
+      cannot_call_order_by_with<decltype(bar.int_n = 7), decltype(bar.bool_nn)>,
       "not sort order: assignment");
   static_assert(
-      cannot_call_order_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,
+      cannot_call_order_by_with<decltype(all_of(bar)), decltype(bar.bool_nn)>,
       "not sort order: tuple");
 
   // order_by(<duplicate sort order expressions>) is allowed, see #39
@@ -121,7 +121,7 @@ int main() {
   {
     // OK, foo.id and max(...) are both aggregates
     auto s = select(foo.id).from(foo).group_by(foo.id).order_by(
-        foo.id.asc(), max(foo.intN).desc());
+        foo.id.asc(), max(foo.int_n).desc());
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::consistent_t>::value,
@@ -134,7 +134,7 @@ int main() {
   {
     // Fail: foo.id is a non-aggregate, but max(...) is an aggregate
     auto s =
-        select(foo.id).from(foo).order_by(foo.id.asc(), max(foo.intN).desc());
+        select(foo.id).from(foo).order_by(foo.id.asc(), max(foo.int_n).desc());
     using S = decltype(s);
     static_assert(
         std::is_same<sqlpp::statement_consistency_check_t<S>,
@@ -147,9 +147,9 @@ int main() {
   }
 
   {
-    // Fail: foo.id is an aggregate, but foo.intN is not.
+    // Fail: foo.id is an aggregate, but foo.int_n is not.
     auto s = select(foo.id).from(foo).group_by(foo.id).order_by(
-        foo.id.asc(), foo.intN.desc());
+        foo.id.asc(), foo.int_n.desc());
     using S = decltype(s);
     static_assert(
         std::is_same<
@@ -164,12 +164,12 @@ int main() {
   }
 
   {
-    // Fail: foo.intN is a dynamic aggregate, but foo.intN is statically used in
+    // Fail: foo.int_n is a dynamic aggregate, but foo.int_n is statically used in
     // order_by.
     auto s = select(foo.id)
                  .from(foo)
-                 .group_by(foo.id, dynamic(maybe, foo.intN))
-                 .order_by(foo.id.asc(), foo.intN.desc());
+                 .group_by(foo.id, dynamic(maybe, foo.int_n))
+                 .order_by(foo.id.asc(), foo.int_n.desc());
     using S = decltype(s);
     static_assert(
         std::is_same<

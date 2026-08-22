@@ -31,7 +31,7 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{&db};
   using CTX = decltype(ctx);
 
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
 #if SQLITE_VERSION_NUMBER >= 3035000
   // sqlite3 does not support returning before 3.35.0

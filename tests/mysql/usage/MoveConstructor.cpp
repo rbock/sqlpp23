@@ -34,18 +34,18 @@ int MoveConstructor(int, char*[]) {
     std::vector<sql::connection> connections;
     connections.emplace_back(sql::connection(config));
 
-    test::createTabFoo(connections.at(0));
+    test::createtab_foo(connections.at(0));
 
     assert(connections.at(0).is_transaction_active() == false);
     connections.at(0).start_transaction();
     auto db = std::move(connections.at(0));
     assert(db.is_transaction_active());
-    const auto tab = test::TabFoo{};
-    db(insert_into(tab).set(tab.boolN = true));
-    auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
-    i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
-    i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
-    i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
+    const auto tab = test::tab_foo{};
+    db(insert_into(tab).set(tab.bool_n = true));
+    auto i = insert_into(tab).columns(tab.text_nn_d, tab.bool_n);
+    i.add_values(tab.text_nn_d = "rhabarbertorte", tab.bool_n = false);
+    i.add_values(tab.text_nn_d = "cheesecake", tab.bool_n = false);
+    i.add_values(tab.text_nn_d = "kaesekuchen", tab.bool_n = true);
     db(i);
 
     db.commit_transaction();

@@ -31,9 +31,9 @@ int Insert(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t ctx;
   const auto maybe = true;
-  const auto t = test::TabBar{};
-  const auto tabDateTime = test::TabDateTime{};
-  const auto u = test::TabFoo{};
+  const auto t = test::tab_bar{};
+  const auto tabDateTime = test::tab_date_time{};
+  const auto u = test::tab_foo{};
 
   {
     using T = decltype(insert_into(t));
@@ -41,69 +41,69 @@ int Insert(int, char*[]) {
   }
 
   {
-    using T = decltype(insert_into(t).set(t.textN = "kirschauflauf"));
+    using T = decltype(insert_into(t).set(t.text_n = "kirschauflauf"));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   db(insert_into(u).default_values());
-  db(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
-  db(insert_into(t).set(t.boolNn = false, t.textN = std::optional{"pie"},
-                        t.intN = std::nullopt));
+  db(insert_into(t).set(t.bool_nn = true, t.text_n = "kirschauflauf"));
+  db(insert_into(t).set(t.bool_nn = false, t.text_n = std::optional{"pie"},
+                        t.int_n = std::nullopt));
 
   to_sql_string(ctx, insert_into(t).default_values());
 
   to_sql_string(ctx, insert_into(t));
   to_sql_string(ctx,
-                insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
-  to_sql_string(ctx, insert_into(t).columns(t.boolNn, t.textN));
-  auto multi_insert = insert_into(t).columns(t.boolNn, t.textN, t.intN);
-  multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
-  multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
-                          t.intN = sqlpp::default_value);
-  multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
-                          dynamic(maybe, t.intN = 7));
-  multi_insert.add_values(t.boolNn = true, t.textN = std::optional{"pie"},
-                          t.intN = std::nullopt);
+                insert_into(t).set(t.bool_nn = true, t.text_n = "kirschauflauf"));
+  to_sql_string(ctx, insert_into(t).columns(t.bool_nn, t.text_n));
+  auto multi_insert = insert_into(t).columns(t.bool_nn, t.text_n, t.int_n);
+  multi_insert.add_values(t.bool_nn = true, t.text_n = "cheesecake", t.int_n = 1);
+  multi_insert.add_values(t.bool_nn = false, t.text_n = sqlpp::default_value,
+                          t.int_n = sqlpp::default_value);
+  multi_insert.add_values(t.bool_nn = false, t.text_n = sqlpp::default_value,
+                          dynamic(maybe, t.int_n = 7));
+  multi_insert.add_values(t.bool_nn = true, t.text_n = std::optional{"pie"},
+                          t.int_n = std::nullopt);
   std::cerr << to_sql_string(ctx, multi_insert) << std::endl;
 
   // Beware, you need exact types for inserted values in multi_insert
   insert_into(tabDateTime)
-      .set(tabDateTime.timestampN = std::chrono::system_clock::now());
+      .set(tabDateTime.timestamp_n = std::chrono::system_clock::now());
 
   auto multi_time_insert =
-      insert_into(tabDateTime).columns(tabDateTime.timestampN);
+      insert_into(tabDateTime).columns(tabDateTime.timestamp_n);
   multi_time_insert.add_values(
-      tabDateTime.timestampN =
+      tabDateTime.timestamp_n =
           std::chrono::time_point_cast<std::chrono::microseconds>(
               std::chrono::system_clock::now()));
 
   db(multi_insert);
 
-  db(insert_into(t).set(t.boolNn = true,
-                        t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")));
-  db(insert_into(t).set(t.boolNn = true, t.intN = std::nullopt));
-  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::default_value));
-  db(insert_into(t).set(t.boolNn = true, t.intN = 0));
-  db(insert_into(t).set(t.boolNn = true, dynamic(maybe, t.intN = 0)));
+  db(insert_into(t).set(t.bool_nn = true,
+                        t.int_n = sqlpp::verbatim<sqlpp::integral>("17+4")));
+  db(insert_into(t).set(t.bool_nn = true, t.int_n = std::nullopt));
+  db(insert_into(t).set(t.bool_nn = true, t.int_n = sqlpp::default_value));
+  db(insert_into(t).set(t.bool_nn = true, t.int_n = 0));
+  db(insert_into(t).set(t.bool_nn = true, dynamic(maybe, t.int_n = 0)));
 
-  db(insert_into(t).set(t.boolNn = true, t.intN = 0,
-                        t.textN = select(u.textNnD).from(u)));
+  db(insert_into(t).set(t.bool_nn = true, t.int_n = 0,
+                        t.text_n = select(u.text_nn_d).from(u)));
 
   auto prepared_insert = db.prepare(insert_into(t).set(
-      t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN)));
-  prepared_insert.parameters.boolNn = true;
-  prepared_insert.parameters.intN = std::nullopt;
-  prepared_insert.parameters.intN = 17;
-  prepared_insert.parameters.intN = std::nullopt;
-  prepared_insert.parameters.intN = std::optional{17};
+      t.bool_nn = parameter(t.bool_nn), t.int_n = parameter(t.int_n)));
+  prepared_insert.parameters.bool_nn = true;
+  prepared_insert.parameters.int_n = std::nullopt;
+  prepared_insert.parameters.int_n = 17;
+  prepared_insert.parameters.int_n = std::nullopt;
+  prepared_insert.parameters.int_n = std::optional{17};
   db(prepared_insert);
 
   auto prepared_insert_sv = db.prepare(insert_into(t).set(
-      t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN),
-      t.textN = parameter(t.textN)));
-  prepared_insert_sv.parameters.boolNn = true;
-  prepared_insert_sv.parameters.intN = 17;
-  prepared_insert_sv.parameters.textN = std::string_view("string_view");
+      t.bool_nn = parameter(t.bool_nn), t.int_n = parameter(t.int_n),
+      t.text_n = parameter(t.text_n)));
+  prepared_insert_sv.parameters.bool_nn = true;
+  prepared_insert_sv.parameters.int_n = 17;
+  prepared_insert_sv.parameters.text_n = std::string_view("string_view");
   ;
   db(prepared_insert_sv);
 

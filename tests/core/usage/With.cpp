@@ -30,7 +30,7 @@ int With(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t printer;
 
-  const auto t = test::TabBar{};
+  const auto t = test::tab_bar{};
 
   auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
@@ -52,11 +52,11 @@ int With(int, char*[]) {
 
   // recursive CTE with join
   {
-    const auto selectBase = select(t.id, t.intN).from(t).where(t.id > 17);
+    const auto selectBase = select(t.id, t.int_n).from(t).where(t.id > 17);
     const auto initialCte = ::sqlpp::cte(sqlpp::alias::a).as(selectBase);
     const auto recursiveCte = initialCte.union_all(
-        select(t.id, t.intN)
-            .from(t.join(initialCte).on(t.id == initialCte.intN)));
+        select(t.id, t.int_n)
+            .from(t.join(initialCte).on(t.id == initialCte.int_n)));
     const auto query =
         with(recursiveCte) << select(recursiveCte.id).from(recursiveCte);
 

@@ -46,8 +46,8 @@ concept cannot_call_into_with =
 };  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // into() arg must be a table
   static_assert(can_call_into_with<decltype(bar)>, "");

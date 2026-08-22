@@ -41,12 +41,12 @@ void test_group_by() {
   using sqlpp::detail::type_set;
 
   auto v = sqlpp::value(17);
-  auto id = test::TabFoo{}.id;
-  auto textNnD = test::TabFoo{}.textNnD;
+  auto id = test::tab_foo{}.id;
+  auto text_nn_d = test::tab_foo{}.text_nn_d;
 
   using V = decltype(v);
   using Id = decltype(id);
-  using TextNnD = decltype(textNnD);
+  using TextNnD = decltype(text_nn_d);
 
   // Static columns are listed as such in known_aggregate_columns_of_t.
   {
@@ -58,7 +58,7 @@ void test_group_by() {
     static_assert(std::is_same<SAC, type_set<Id>>::value, "");
   }
   {
-    const auto g = group_by(id, textNnD);
+    const auto g = group_by(id, text_nn_d);
     using AC = decltype(known_aggregate_columns_of(g));
     using SAC = decltype(known_static_aggregate_columns_of(g));
 
@@ -76,7 +76,7 @@ void test_group_by() {
     static_assert(std::is_same<SAC, type_set<>>::value, "");
   }
   {
-    const auto g = group_by(id, dynamic(true, textNnD));
+    const auto g = group_by(id, dynamic(true, text_nn_d));
     using AC = decltype(known_aggregate_columns_of(g));
     using SAC = decltype(known_static_aggregate_columns_of(g));
 

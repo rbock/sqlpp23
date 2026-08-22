@@ -49,59 +49,59 @@ concept cannot_call_update_set_with =
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
 
   // OK
-  update_set(bar.boolNn = true);
-  update_set(bar.boolNn = true, bar.textN = "");
+  update_set(bar.bool_nn = true);
+  update_set(bar.bool_nn = true, bar.text_n = "");
 
-  update_set(dynamic(maybe, bar.boolNn = true));
-  update_set(dynamic(maybe, bar.boolNn = true), bar.textN = "");
-  update_set(bar.boolNn = true, dynamic(maybe, bar.textN = ""));
-  update_set(dynamic(maybe, bar.boolNn = true), dynamic(maybe, bar.textN = ""));
+  update_set(dynamic(maybe, bar.bool_nn = true));
+  update_set(dynamic(maybe, bar.bool_nn = true), bar.text_n = "");
+  update_set(bar.bool_nn = true, dynamic(maybe, bar.text_n = ""));
+  update_set(dynamic(maybe, bar.bool_nn = true), dynamic(maybe, bar.text_n = ""));
 
   // Cannot update nothing
   static_assert(cannot_call_update_set_with<>);
 
   // update_set requires assignments as arguments and cannot be called with
   // anything else.
-  static_assert(can_call_update_set_with<decltype(bar.boolNn = true)>,
+  static_assert(can_call_update_set_with<decltype(bar.bool_nn = true)>,
                 "OK, argument is an assignment");
   static_assert(cannot_call_update_set_with<decltype(bar.id == 7)>,
                 "not an assignment: comparison");
   static_assert(
-      cannot_call_update_set_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
-      "not an assignment: boolNn");
+      cannot_call_update_set_with<decltype(bar.int_n = 7), decltype(bar.bool_nn)>,
+      "not an assignment: bool_nn");
 
   // Try duplicate columns
-  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
-                                            decltype(bar.boolNn = false)>);
-  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
-                                            decltype(bar.textN = ""),
-                                            decltype(bar.boolNn = false)>);
+  static_assert(cannot_call_update_set_with<decltype(bar.bool_nn = true),
+                                            decltype(bar.bool_nn = false)>);
+  static_assert(cannot_call_update_set_with<decltype(bar.bool_nn = true),
+                                            decltype(bar.text_n = ""),
+                                            decltype(bar.bool_nn = false)>);
   static_assert(
-      cannot_call_update_set_with<decltype(dynamic(maybe, bar.boolNn = true)),
-                                  decltype(bar.boolNn = false)>);
-  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
+      cannot_call_update_set_with<decltype(dynamic(maybe, bar.bool_nn = true)),
+                                  decltype(bar.bool_nn = false)>);
+  static_assert(cannot_call_update_set_with<decltype(bar.bool_nn = true),
                                             decltype(dynamic(
-                                                maybe, bar.boolNn = false))>);
+                                                maybe, bar.bool_nn = false))>);
   static_assert(cannot_call_update_set_with<
-                decltype(dynamic(maybe, bar.boolNn = true)),
-                decltype(dynamic(maybe, bar.boolNn = false))>);
+                decltype(dynamic(maybe, bar.bool_nn = true)),
+                decltype(dynamic(maybe, bar.bool_nn = false))>);
 
   // Try to update multiple tables at once
-  static_assert(cannot_call_update_set_with<decltype(bar.boolNn = true),
-                                            decltype(foo.doubleN = 7)>);
+  static_assert(cannot_call_update_set_with<decltype(bar.bool_nn = true),
+                                            decltype(foo.float_n = 7)>);
   static_assert(
-      cannot_call_update_set_with<decltype(dynamic(maybe, bar.boolNn = true)),
-                                  decltype(foo.doubleN = 7)>);
+      cannot_call_update_set_with<decltype(dynamic(maybe, bar.bool_nn = true)),
+                                  decltype(foo.float_n = 7)>);
   static_assert(
-      cannot_call_update_set_with<decltype(bar.boolNn = true),
-                                  decltype(dynamic(maybe, foo.doubleN = 7))>);
+      cannot_call_update_set_with<decltype(bar.bool_nn = true),
+                                  decltype(dynamic(maybe, foo.float_n = 7))>);
   static_assert(
-      cannot_call_update_set_with<decltype(dynamic(maybe, bar.boolNn = true)),
-                                  decltype(dynamic(maybe, foo.doubleN = 7))>);
+      cannot_call_update_set_with<decltype(dynamic(maybe, bar.bool_nn = true)),
+                                  decltype(dynamic(maybe, foo.float_n = 7))>);
 
   {
     auto u = update(bar);
@@ -112,7 +112,7 @@ int main() {
   }
 
   {
-    auto u = update(bar).set(foo.intN = 7);
+    auto u = update(bar).set(foo.int_n = 7);
     using U = decltype(u);
     static_assert(
         std::is_same<

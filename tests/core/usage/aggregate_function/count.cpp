@@ -28,22 +28,22 @@
 
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sqlpp::mock_db::make_test_connection();
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select count
     for (const auto& row : db(select(
-            count(tab.intN).as<"count_">(),
+            count(tab.int_n).as<"count_">(),
             sqlpp::count(1).as<"count_1">(),
-            count(tab.intN).as<"count_star">()
+            count(tab.int_n).as<"count_star">()
             ).from(tab))) {
       std::ignore = row.count_;
       std::ignore = row.count_1;
@@ -52,7 +52,7 @@ int main(int, char*[]) {
 
     // select distinct count
     for (const auto& row : db(select(
-            count(sqlpp::distinct, tab.intN).as<"distinct_count_">(),
+            count(sqlpp::distinct, tab.int_n).as<"distinct_count_">(),
             count(sqlpp::distinct, 1).as<"count_1">()
             ).from(tab))) {
       std::ignore = row.distinct_count_;

@@ -27,8 +27,8 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
   const auto aFoo = foo.as<"a">();
 
   const auto x = sqlpp::cte<"x">().as(select(foo.id).from(foo));

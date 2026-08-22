@@ -36,20 +36,20 @@ int DynamicSelect(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
-    const auto tab = test::TabFoo{};
-    db(insert_into(tab).set(tab.boolN = true));
-    auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
-    i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
-    i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
-    i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
+    const auto tab = test::tab_foo{};
+    db(insert_into(tab).set(tab.bool_n = true));
+    auto i = insert_into(tab).columns(tab.text_nn_d, tab.bool_n);
+    i.add_values(tab.text_nn_d = "rhabarbertorte", tab.bool_n = false);
+    i.add_values(tab.text_nn_d = "cheesecake", tab.bool_n = false);
+    i.add_values(tab.text_nn_d = "kaesekuchen", tab.bool_n = true);
     db(i);
 
-    auto s = select(tab.intN, dynamic(false, tab.textNnD)).from(tab);
+    auto s = select(tab.int_n, dynamic(false, tab.text_nn_d)).from(tab);
 
     for (const auto& row : db(s)) {
-      std::cerr << "row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
+      std::cerr << "row.int_n: " << row.int_n << ", row.text_nn_d: " << row.text_nn_d
                 << std::endl;
     };
   } catch (const std::exception& e) {

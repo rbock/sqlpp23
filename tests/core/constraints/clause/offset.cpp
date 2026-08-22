@@ -49,7 +49,7 @@ concept cannot_call_offset_with =
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   // OK
   static_assert(can_call_offset_with<decltype(7u)>, "");
@@ -60,15 +60,15 @@ int main() {
 
   // Try offset by column
   static_assert(cannot_call_offset_with<decltype(bar.id)>, "");
-  static_assert(cannot_call_offset_with<decltype(bar.intN)>, "nullable is OK");
+  static_assert(cannot_call_offset_with<decltype(bar.int_n)>, "nullable is OK");
   static_assert(cannot_call_offset_with<decltype(dynamic(maybe, bar.id))>, "");
 
   // Try assignment or comparison
-  static_assert(cannot_call_offset_with<decltype(bar.intN = 7)>, "");
+  static_assert(cannot_call_offset_with<decltype(bar.int_n = 7)>, "");
   static_assert(cannot_call_offset_with<decltype(bar.id == 7)>, "");
 
   // Try non-integral expression
-  static_assert(cannot_call_offset_with<decltype(bar.textN)>, "");
+  static_assert(cannot_call_offset_with<decltype(bar.text_n)>, "");
 
   // Try some other types as expressions
   static_assert(cannot_call_offset_with<decltype("true")>, "");

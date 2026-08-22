@@ -37,7 +37,7 @@ concept cannot_call_any_with =
 }  // namespace
 
 int main() {
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   static_assert(cannot_call_any_with<decltype(7)>);
   static_assert(cannot_call_any_with<decltype(bar)>);
@@ -60,7 +60,7 @@ int main() {
 
   // Basic consistency is required for a statement to be considered a value.
   {
-    const auto inconsistent_select = sqlpp::select(bar.id).having(bar.intN > 7);
+    const auto inconsistent_select = sqlpp::select(bar.id).having(bar.int_n > 7);
     static_assert(
         std::is_same<decltype(check_basic_consistency(inconsistent_select)),
                      sqlpp::assert_having_all_aggregates_t>::value);
@@ -69,7 +69,7 @@ int main() {
 
   // Multi-column selects cannot be used as a value.
   {
-    const auto bad_select = sqlpp::select(bar.id, bar.textN);
+    const auto bad_select = sqlpp::select(bar.id, bar.text_n);
     static_assert(
         std::is_same<decltype(check_basic_consistency(bad_select)),
                      sqlpp::consistent_t>::value);

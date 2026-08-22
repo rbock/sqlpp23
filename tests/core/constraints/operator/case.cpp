@@ -50,9 +50,9 @@ concept can_call_else_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
-  const auto dt = test::TabDateTime{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
+  const auto dt = test::tab_date_time{};
 
   // -----------------------
   // case_when()
@@ -62,18 +62,18 @@ int main() {
   static_assert(can_call_case_when_with<decltype(true)>);
   static_assert(
       can_call_case_when_with<decltype(std::optional{true})>);
-  static_assert(can_call_case_when_with<decltype(foo.boolN)>);
-  static_assert(can_call_case_when_with<decltype(bar.boolNn)>);
-  static_assert(can_call_case_when_with<decltype(bar.boolNn == true)>);
+  static_assert(can_call_case_when_with<decltype(foo.bool_n)>);
+  static_assert(can_call_case_when_with<decltype(bar.bool_nn)>);
+  static_assert(can_call_case_when_with<decltype(bar.bool_nn == true)>);
   static_assert(can_call_case_when_with<decltype(count(foo.id) > 0)>);
   static_assert(can_call_case_when_with<decltype(std::nullopt)>);
 
   // Fail: Cannot call case_when with renamed boolean
   static_assert(
-      not can_call_case_when_with<decltype(bar.boolNn.as<"something">())>);
+      not can_call_case_when_with<decltype(bar.bool_nn.as<"something">())>);
   // Fail: Cannot call case_when with non-boolean expressions.
   static_assert(not can_call_case_when_with<decltype(bar.id)>);
-  static_assert(not can_call_case_when_with<decltype(bar.boolNn = true)>);
+  static_assert(not can_call_case_when_with<decltype(bar.bool_nn = true)>);
   static_assert(not can_call_case_when_with<decltype(bar)>);
 
   // -----------------------
@@ -85,7 +85,7 @@ int main() {
 
     // OK
     static_assert(can_call_then_with<CW, decltype(bar.id)>);
-    static_assert(can_call_then_with<CW, decltype(bar.textN)>);
+    static_assert(can_call_then_with<CW, decltype(bar.text_n)>);
     static_assert(
         can_call_then_with<CW,
                            decltype(std::optional<int>(std::nullopt))>);
@@ -94,9 +94,9 @@ int main() {
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_then_with<CW, decltype(bar.boolNn = true)>);
+        not can_call_then_with<CW, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_then_with<CW, decltype(bar.boolNn.as<"something">())>);
+        not can_call_then_with<CW, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_then_with<CW, decltype(bar)>);
   }
 
@@ -104,12 +104,12 @@ int main() {
   // case_when.then(<nullable text>)
   // -----------------------
   {
-    auto cw = sqlpp::case_when(maybe).then(bar.textN);
+    auto cw = sqlpp::case_when(maybe).then(bar.text_n);
     using CW = decltype(cw);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(bar.textN)>);
-    static_assert(can_call_else_with<CW, decltype(foo.textNnD)>);
+    static_assert(can_call_else_with<CW, decltype(bar.text_n)>);
+    static_assert(can_call_else_with<CW, decltype(foo.text_nn_d)>);
     static_assert(can_call_else_with<CW, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -118,23 +118,23 @@ int main() {
 
     // Fail: Anything that does not the right value type:
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn)>);
+        not can_call_else_with<CW, decltype(bar.bool_nn)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.intN)>);
+        not can_call_else_with<CW, decltype(bar.int_n)>);
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn = true)>);
+        not can_call_else_with<CW, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
+        not can_call_else_with<CW, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
-    auto cw2 = sqlpp::case_when(maybe).then(bar.textN).when(maybe);
+    auto cw2 = sqlpp::case_when(maybe).then(bar.text_n).when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_then_with<CW2, decltype(bar.textN)>);
-    static_assert(can_call_then_with<CW2, decltype(foo.textNnD)>);
+    static_assert(can_call_then_with<CW2, decltype(bar.text_n)>);
+    static_assert(can_call_then_with<CW2, decltype(foo.text_nn_d)>);
     static_assert(can_call_then_with<CW2, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -143,15 +143,15 @@ int main() {
 
     // Fail: Anything that does not the right value type:
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.intN)>);
+        not can_call_then_with<CW2, decltype(bar.int_n)>);
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
 
@@ -159,12 +159,12 @@ int main() {
   // case_when.then(integral).else_()
   // -----------------------
   {
-    auto cw = sqlpp::case_when(maybe).then(bar.textN);
+    auto cw = sqlpp::case_when(maybe).then(bar.text_n);
     using CW = decltype(cw);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(bar.textN)>);
-    static_assert(can_call_else_with<CW, decltype(foo.textNnD)>);
+    static_assert(can_call_else_with<CW, decltype(bar.text_n)>);
+    static_assert(can_call_else_with<CW, decltype(foo.text_nn_d)>);
     static_assert(can_call_else_with<CW, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -173,23 +173,23 @@ int main() {
 
     // Fail: Anything that does not the right value type:
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn)>);
+        not can_call_else_with<CW, decltype(bar.bool_nn)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.intN)>);
+        not can_call_else_with<CW, decltype(bar.int_n)>);
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn = true)>);
+        not can_call_else_with<CW, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
+        not can_call_else_with<CW, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
     auto cw2 = cw.when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_then_with<CW2, decltype(bar.textN)>);
-    static_assert(can_call_then_with<CW2, decltype(foo.textNnD)>);
+    static_assert(can_call_then_with<CW2, decltype(bar.text_n)>);
+    static_assert(can_call_then_with<CW2, decltype(foo.text_nn_d)>);
     static_assert(can_call_then_with<CW2, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -198,15 +198,15 @@ int main() {
 
     // Fail: Anything that does not the right value type:
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.intN)>);
+        not can_call_then_with<CW2, decltype(bar.int_n)>);
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
 
@@ -214,12 +214,12 @@ int main() {
   // case_when.then(<non-nullable text>).else_()
   // -----------------------
   {
-    auto cw = sqlpp::case_when(maybe).then(foo.textNnD);
+    auto cw = sqlpp::case_when(maybe).then(foo.text_nn_d);
     using CW = decltype(cw);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(bar.textN)>);
-    static_assert(can_call_else_with<CW, decltype(foo.textNnD)>);
+    static_assert(can_call_else_with<CW, decltype(bar.text_n)>);
+    static_assert(can_call_else_with<CW, decltype(foo.text_nn_d)>);
     static_assert(can_call_else_with<CW, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -228,17 +228,17 @@ int main() {
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn = true)>);
+        not can_call_else_with<CW, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
+        not can_call_else_with<CW, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
-    auto cw2 = cw.when(maybe).then(bar.textN).when(maybe);
+    auto cw2 = cw.when(maybe).then(bar.text_n).when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_then_with<CW2, decltype(bar.textN)>);
-    static_assert(can_call_then_with<CW2, decltype(foo.textNnD)>);
+    static_assert(can_call_then_with<CW2, decltype(bar.text_n)>);
+    static_assert(can_call_then_with<CW2, decltype(foo.text_nn_d)>);
     static_assert(can_call_then_with<CW2, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -247,15 +247,15 @@ int main() {
 
     // Fail: Anything that does not the right value type:
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.intN)>);
+        not can_call_then_with<CW2, decltype(bar.int_n)>);
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
 
@@ -267,8 +267,8 @@ int main() {
     using CW = decltype(cw);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(bar.textN)>);
-    static_assert(can_call_else_with<CW, decltype(foo.textNnD)>);
+    static_assert(can_call_else_with<CW, decltype(bar.text_n)>);
+    static_assert(can_call_else_with<CW, decltype(foo.text_nn_d)>);
     static_assert(can_call_else_with<CW, decltype(std::optional<std::string>(
                                              std::nullopt))>);
 
@@ -278,17 +278,17 @@ int main() {
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn = true)>);
+        not can_call_else_with<CW, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_else_with<CW, decltype(bar.boolNn.as<"something">())>);
+        not can_call_else_with<CW, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_else_with<CW, decltype(bar)>);
 
-    auto cw2 = cw.when(maybe).then(bar.textN).when(maybe);
+    auto cw2 = cw.when(maybe).then(bar.text_n).when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_then_with<CW2, decltype(bar.textN)>);
-    static_assert(can_call_then_with<CW2, decltype(foo.textNnD)>);
+    static_assert(can_call_then_with<CW2, decltype(bar.text_n)>);
+    static_assert(can_call_then_with<CW2, decltype(foo.text_nn_d)>);
     static_assert(can_call_then_with<CW2, decltype(std::optional<std::string>(
                                              std::nullopt))>);
     static_assert(can_call_then_with<CW2, decltype(std::nullopt)>);
@@ -298,52 +298,52 @@ int main() {
 
     // Fail: Anything that does not the right value type:
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.intN)>);
+        not can_call_then_with<CW2, decltype(bar.int_n)>);
 
     // Fail: Anything that does not have a value.
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn = true)>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn = true)>);
     static_assert(
-        not can_call_then_with<CW2, decltype(bar.boolNn.as<"something">())>);
+        not can_call_then_with<CW2, decltype(bar.bool_nn.as<"something">())>);
     static_assert(not can_call_then_with<CW2, decltype(bar)>);
   }
   // -----------------------
   // Cannot mix data types
   // -----------------------
   {
-    auto cw = sqlpp::case_when(maybe).then(foo.intN);
+    auto cw = sqlpp::case_when(maybe).then(foo.int_n);
     using CW = decltype(cw);
     auto cw2 = cw.when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(bar.intN)>);
+    static_assert(can_call_else_with<CW, decltype(bar.int_n)>);
     static_assert(can_call_else_with<CW, decltype(bar.id)>);
-    static_assert(can_call_then_with<CW2, decltype(bar.intN)>);
+    static_assert(can_call_then_with<CW2, decltype(bar.int_n)>);
     static_assert(can_call_then_with<CW2, decltype(bar.id)>);
 
     // Not OK
-    static_assert(not can_call_else_with<CW, decltype(foo.uIntN)>);
-    static_assert(not can_call_else_with<CW, decltype(foo.doubleN)>);
-    static_assert(not can_call_then_with<CW2, decltype(foo.uIntN)>);
-    static_assert(not can_call_then_with<CW2, decltype(foo.doubleN)>);
+    static_assert(not can_call_else_with<CW, decltype(foo.u_int_n)>);
+    static_assert(not can_call_else_with<CW, decltype(foo.float_n)>);
+    static_assert(not can_call_then_with<CW2, decltype(foo.u_int_n)>);
+    static_assert(not can_call_then_with<CW2, decltype(foo.float_n)>);
   }
   {
-    auto cw = sqlpp::case_when(maybe).then(dt.dateN);
+    auto cw = sqlpp::case_when(maybe).then(dt.date_n);
     using CW = decltype(cw);
     auto cw2 = cw.when(maybe);
     using CW2 = decltype(cw2);
 
     // OK
-    static_assert(can_call_else_with<CW, decltype(dt.dateN)>);
-    static_assert(can_call_then_with<CW2, decltype(dt.dateN)>);
+    static_assert(can_call_else_with<CW, decltype(dt.date_n)>);
+    static_assert(can_call_then_with<CW2, decltype(dt.date_n)>);
 
     // Not OK
-    static_assert(not can_call_else_with<CW, decltype(dt.timestampN)>);
-    static_assert(not can_call_else_with<CW, decltype(dt.timeN)>);
-    static_assert(not can_call_then_with<CW2, decltype(dt.timestampN)>);
-    static_assert(not can_call_then_with<CW2, decltype(dt.timeN)>);
+    static_assert(not can_call_else_with<CW, decltype(dt.timestamp_n)>);
+    static_assert(not can_call_else_with<CW, decltype(dt.time_n)>);
+    static_assert(not can_call_then_with<CW2, decltype(dt.timestamp_n)>);
+    static_assert(not can_call_then_with<CW2, decltype(dt.time_n)>);
   }
 }

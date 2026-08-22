@@ -88,10 +88,10 @@ void test_between_expression(Value v) {
 }
 
 void test_between_member_function() {
-  auto foo = test::TabFoo{};
-  auto bar = test::TabBar{};
+  auto foo = test::tab_foo{};
+  auto bar = test::tab_bar{};
   auto v_not_null = foo.id;
-  auto v_maybe_null = foo.intN;
+  auto v_maybe_null = foo.int_n;
 
   // Variations of nullable and non-nullable values
   static_assert(

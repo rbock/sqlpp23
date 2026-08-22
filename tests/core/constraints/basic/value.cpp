@@ -37,7 +37,7 @@ concept cannot_call_value_with =
 }  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
   auto s = select(foo.id).from(foo);
 
   // OK

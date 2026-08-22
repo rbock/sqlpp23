@@ -41,8 +41,8 @@ concept cannot_call_truncate_with =
 }  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   truncate(foo);
   // truncate() arg must be a raw table

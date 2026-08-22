@@ -37,7 +37,7 @@ concept cannot_call_dynamic_with =
 }  // namespace
 
 int main() {
-  auto foo = test::TabFoo{};
+  auto foo = test::tab_foo{};
 
   static_assert(can_call_dynamic_with<bool, decltype(foo)>);
   static_assert(can_call_dynamic_with<bool, decltype(foo.id)>);

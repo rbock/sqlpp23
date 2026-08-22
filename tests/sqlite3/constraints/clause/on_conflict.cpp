@@ -31,13 +31,13 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{&db};
   using CTX = decltype(ctx);
 
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
 #if SQLITE_VERSION_NUMBER >= 3035000
   // sqlite3 does not fully support on_conflict before 3.35.0
   // See https://www.sqlite.org/changes.html
   {
-    auto c = on_conflict(foo.id).do_update(foo.intN = 7);
+    auto c = on_conflict(foo.id).do_update(foo.int_n = 7);
 
       static_assert(
         std::is_same<decltype(check_compatibility<CTX>(c)),

@@ -29,12 +29,12 @@
 int main(int, char*[]) {
   auto db = sqlpp::sqlite3::make_test_connection();
 
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
-  SQLPP_COMPARE(foo.intN.is_distinct_from(7), "tab_foo.int_n IS NOT 7");
-  SQLPP_COMPARE(foo.intN.is_distinct_from(std::nullopt), "tab_foo.int_n IS NOT NULL");
-  SQLPP_COMPARE(foo.intN.is_not_distinct_from(7), "tab_foo.int_n IS 7");
-  SQLPP_COMPARE(foo.intN.is_not_distinct_from(std::nullopt), "tab_foo.int_n IS NULL");
+  SQLPP_COMPARE(foo.int_n.is_distinct_from(7), "tab_foo.int_n IS NOT 7");
+  SQLPP_COMPARE(foo.int_n.is_distinct_from(std::nullopt), "tab_foo.int_n IS NOT NULL");
+  SQLPP_COMPARE(foo.int_n.is_not_distinct_from(7), "tab_foo.int_n IS 7");
+  SQLPP_COMPARE(foo.int_n.is_not_distinct_from(std::nullopt), "tab_foo.int_n IS NULL");
 
   return 0;
 }

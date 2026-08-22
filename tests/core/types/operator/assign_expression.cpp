@@ -91,42 +91,42 @@ void test_assign_expression(const Column& col, const Value& v) {
 }
 
 int main() {
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
-  const auto date_time = test::TabDateTime{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
+  const auto date_time = test::tab_date_time{};
 
   // boolean
-  test_assign_expression(foo.boolN, bool{true});
+  test_assign_expression(foo.bool_n, bool{true});
 
   // integral
-  test_assign_expression(foo.intN, int8_t{7});
-  test_assign_expression(foo.intN, int8_t{7});
+  test_assign_expression(foo.int_n, int8_t{7});
+  test_assign_expression(foo.int_n, int8_t{7});
 
   // unsigned integral
-  test_assign_expression(foo.uIntN, uint8_t{7});
+  test_assign_expression(foo.u_int_n, uint8_t{7});
 
   // floating point
-  test_assign_expression(foo.doubleN, 7.7f);
+  test_assign_expression(foo.float_n, 7.7f);
 
   // text
-  test_assign_expression(bar.textN, '7');
-  test_assign_expression(bar.textN, "seven");
-  test_assign_expression(bar.textN, std::string("seven"));
-  test_assign_expression(bar.textN, std::string_view("seven"));
+  test_assign_expression(bar.text_n, '7');
+  test_assign_expression(bar.text_n, "seven");
+  test_assign_expression(bar.text_n, std::string("seven"));
+  test_assign_expression(bar.text_n, std::string_view("seven"));
 
   // blob
-  test_assign_expression(foo.blobN, std::vector<uint8_t>{});
+  test_assign_expression(foo.blob_n, std::vector<uint8_t>{});
 
   // date
-  test_assign_expression(date_time.dateN, std::chrono::sys_days{});
+  test_assign_expression(date_time.date_n, std::chrono::sys_days{});
 
   // timestamp
-  test_assign_expression(date_time.timestampN,
+  test_assign_expression(date_time.timestamp_n,
                          ::sqlpp::chrono::sys_microseconds{});
   using minute_point =
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_assign_expression(date_time.timestampN, minute_point{});
+  test_assign_expression(date_time.timestamp_n, minute_point{});
 
   // time
-  test_assign_expression(date_time.timeN, std::chrono::microseconds{});
+  test_assign_expression(date_time.time_n, std::chrono::microseconds{});
 }

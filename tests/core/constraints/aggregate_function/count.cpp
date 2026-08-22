@@ -36,12 +36,12 @@ concept cannot_call_count_with = not(can_call_count_with<Expressions...>);
 }  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   static_assert(can_call_count_with<decltype(foo.id)>);
   static_assert(can_call_count_with<sqlpp::distinct_t, decltype(foo.id)>);
   static_assert(can_call_count_with<sqlpp::star_t>);
-  static_assert(can_call_count_with<decltype(foo.textNnD)>);
+  static_assert(can_call_count_with<decltype(foo.text_nn_d)>);
 
   static_assert(cannot_call_count_with<sqlpp::distinct_t, sqlpp::star_t>);
   static_assert(cannot_call_count_with<decltype(foo.id.as<"something">())>);

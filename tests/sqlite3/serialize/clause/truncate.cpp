@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/sqlite3/all.h>
 
 int main(int, char*[]) {
-  const auto t = test::TabBar{};
+  const auto t = test::tab_bar{};
 
   // There is no TRUNCATE in sqlite3, see
   // https://www.sqlite.org/lang_delete.html

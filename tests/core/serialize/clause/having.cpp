@@ -29,14 +29,14 @@
 int main(int, char*[]) {
   const auto val = sqlpp::value(17);
 
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Without condition.
   SQLPP_COMPARE(sqlpp::having(true), " HAVING 1");
 
   // Whith static condition.
-  SQLPP_COMPARE(sqlpp::having(foo.boolN), " HAVING tab_foo.bool_n");
-  SQLPP_COMPARE(sqlpp::having(foo.boolN.is_not_distinct_from(true)),
+  SQLPP_COMPARE(sqlpp::having(foo.bool_n), " HAVING tab_foo.bool_n");
+  SQLPP_COMPARE(sqlpp::having(foo.bool_n.is_not_distinct_from(true)),
                 " HAVING tab_foo.bool_n IS NOT DISTINCT FROM 1");
   SQLPP_COMPARE(sqlpp::having(foo.id > 17), " HAVING tab_foo.id > 17");
   SQLPP_COMPARE(sqlpp::having(foo.id > val), " HAVING tab_foo.id > 17");

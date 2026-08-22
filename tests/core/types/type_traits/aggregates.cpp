@@ -30,8 +30,8 @@ void test_is_aggregate_function() {
   const auto maybe = true;
   auto v = sqlpp::value(17);
   auto t = sqlpp::value("");
-  auto col_int = test::TabFoo{}.id;
-  auto col_txt = test::TabFoo{}.textNnD;
+  auto col_int = test::tab_foo{}.id;
+  auto col_txt = test::tab_foo{}.text_nn_d;
 
   // Constant values are neutral and therefore considered neither aggregate and
   // non-aggregate.
@@ -136,8 +136,8 @@ void test_contains_aggregate_function() {
   const auto maybe = true;
   auto v = sqlpp::value(17);
   auto t = sqlpp::value("");
-  auto col_int = test::TabFoo{}.id;
-  auto col_txt = test::TabFoo{}.textNnD;
+  auto col_int = test::tab_foo{}.id;
+  auto col_txt = test::tab_foo{}.text_nn_d;
 
   // Constant values are neutral and therefore considered neither aggregate and
   // non-aggregate.
@@ -255,11 +255,11 @@ void test_is_aggregate_expression() {
   const auto maybe = true;
 
   auto v = sqlpp::value(17);
-  auto agg_int = test::TabFoo{}.id;
-  auto agg_txt = test::TabFoo{}.textNnD;
+  auto agg_int = test::tab_foo{}.id;
+  auto agg_txt = test::tab_foo{}.text_nn_d;
 
-  auto col_int = test::TabBar{}.id;
-  auto col_txt = test::TabBar{}.textN;
+  auto col_int = test::tab_bar{}.id;
+  auto col_txt = test::tab_bar{}.text_n;
 
   using unknown = sqlpp::detail::type_set<>;
   using known_aggregates =
@@ -425,11 +425,11 @@ void test_is_non_aggregate_expression() {
   const auto maybe = true;
 
   auto v = sqlpp::value(17);
-  auto agg_int = test::TabFoo{}.id;
-  auto agg_txt = test::TabFoo{}.textNnD;
+  auto agg_int = test::tab_foo{}.id;
+  auto agg_txt = test::tab_foo{}.text_nn_d;
 
-  auto col_int = test::TabBar{}.id;
-  auto col_txt = test::TabBar{}.textN;
+  auto col_int = test::tab_bar{}.id;
+  auto col_txt = test::tab_bar{}.text_n;
 
   using unknown = sqlpp::detail::type_set<>;
   using known_aggregates =

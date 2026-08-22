@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 void test_single_table() {
-  auto foo = test::TabFoo{};
+  auto foo = test::tab_foo{};
   using Foo = decltype(foo);
 
   // Valid single table clause

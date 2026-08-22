@@ -41,26 +41,26 @@ auto require_close(int line, double l, double r) -> void
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createTabFoo(db);
+    test::createtab_foo(db);
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select aggregates with over()
     for (const auto& row : db(select(
-            avg(tab.intN).over().as(sqlpp::alias::avg_),
-            count(tab.intN).over().as(sqlpp::alias::count_),
-            max(tab.intN).over().as(sqlpp::alias::max_),
-            min(tab.intN).over().as(sqlpp::alias::min_),
-            sum(tab.intN).over().as(sqlpp::alias::sum_)
+            avg(tab.int_n).over().as(sqlpp::alias::avg_),
+            count(tab.int_n).over().as(sqlpp::alias::count_),
+            max(tab.int_n).over().as(sqlpp::alias::max_),
+            min(tab.int_n).over().as(sqlpp::alias::min_),
+            sum(tab.int_n).over().as(sqlpp::alias::sum_)
             ).from(tab))) {
       require_close(__LINE__, row.avg_.value(), 7.666);
       assert(row.count_ == 3);

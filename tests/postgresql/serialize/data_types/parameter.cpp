@@ -27,11 +27,11 @@
 #include <sqlpp26/tests/postgresql/all.h>
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
-  SQLPP_COMPARE(parameter(foo.doubleN), "?");
-  SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > ?");
+  SQLPP_COMPARE(parameter(foo.float_n), "?");
+  SQLPP_COMPARE(bar.id > parameter(foo.float_n), "tab_bar.id > ?");
 
   SQLPP_COMPARE(parameter(sqlpp::integral{}, something), "?");
 

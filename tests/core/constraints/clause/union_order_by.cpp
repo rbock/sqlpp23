@@ -49,22 +49,22 @@ concept cannot_call_union_order_by_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // union_order_by(<non arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_union_order_by_with<>);
 
   // union_order_by(<non-sort-order arguments>) cannot be called.
-  static_assert(can_call_union_order_by_with<decltype(bar.boolNn.asc())>,
+  static_assert(can_call_union_order_by_with<decltype(bar.bool_nn.asc())>,
                 "OK, argument a column ascending");
   static_assert(
-      can_call_union_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc()))>,
+      can_call_union_order_by_with<decltype(dynamic(maybe, bar.bool_nn.desc()))>,
       "OK, argument a dynamic column");
-  static_assert(can_call_union_order_by_with<decltype(bar.boolNn.asc().nulls_last())>,
+  static_assert(can_call_union_order_by_with<decltype(bar.bool_nn.asc().nulls_last())>,
                 "OK, argument a column ascending");
   static_assert(
-      can_call_union_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc().nulls_first()))>,
+      can_call_union_order_by_with<decltype(dynamic(maybe, bar.bool_nn.desc().nulls_first()))>,
       "OK, argument a dynamic column");
   static_assert(cannot_call_union_order_by_with<decltype((bar.id + 7).asc())>,
                 "not a column: bar.id + 7");
@@ -75,10 +75,10 @@ int main() {
   static_assert(cannot_call_union_order_by_with<decltype(7)>,
                 "not sort order: integer");
   static_assert(
-      cannot_call_union_order_by_with<decltype(bar.intN = 7), decltype(bar.boolNn)>,
+      cannot_call_union_order_by_with<decltype(bar.int_n = 7), decltype(bar.bool_nn)>,
       "not sort order: assignment");
   static_assert(
-      cannot_call_union_order_by_with<decltype(all_of(bar)), decltype(bar.boolNn)>,
+      cannot_call_union_order_by_with<decltype(all_of(bar)), decltype(bar.bool_nn)>,
       "not sort order: tuple");
 
   // union_order_by(<duplicate sort order expressions>) is allowed, see #39
@@ -101,7 +101,7 @@ int main() {
   // union_order_by must not require unknown columns (name / value type)
   // We don't care about tables as we only represent simple, not table-qualified columns.
   {
-    auto s = select(foo.id).from(foo).union_all(select(foo.id).from(foo)).order_by(bar.intN.asc());
+    auto s = select(foo.id).from(foo).union_all(select(foo.id).from(foo)).order_by(bar.int_n.asc());
     using S = decltype(s);
 
     static_assert(

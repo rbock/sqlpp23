@@ -34,7 +34,7 @@ concept can_call_coalesce_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // coalesce(<non arguments>) cannot be called.
   static_assert(not can_call_coalesce_with<>);
@@ -47,9 +47,9 @@ int main() {
   // coalesce(<one or more same-type arguments>) is OK
   static_assert(can_call_coalesce_with<decltype("a")>);
   static_assert(can_call_coalesce_with<decltype("a"), decltype("b")>);
-  static_assert(can_call_coalesce_with<std::string_view, decltype(foo.textNnD)>);
+  static_assert(can_call_coalesce_with<std::string_view, decltype(foo.text_nn_d)>);
   static_assert(
-      can_call_coalesce_with<decltype(dynamic(maybe, foo.textNnD)), std::string>);
+      can_call_coalesce_with<decltype(dynamic(maybe, foo.text_nn_d)), std::string>);
 
   // coalesce(<plain NULL>) does not work as the type is unclear.
   // However, you can, if you really want to specify the type, of course.

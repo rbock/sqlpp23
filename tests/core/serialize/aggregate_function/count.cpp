@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   // star
   SQLPP_COMPARE(count(sqlpp::star), "COUNT(*)");

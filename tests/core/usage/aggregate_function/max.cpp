@@ -28,21 +28,21 @@
 
 int main(int, char*[]) {
   try {
-    const auto tab = test::TabFoo{};
+    const auto tab = test::tab_foo{};
     auto db = sqlpp::mock_db::make_test_connection();
 
     // clear the table
     db(truncate(tab));
 
     // insert
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 7));
-    db(insert_into(tab).set(tab.intN = 9));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 7));
+    db(insert_into(tab).set(tab.int_n = 9));
 
     // select max
     for (const auto& row : db(select(
-            max(tab.intN).as<"max_">(),
-            max(sqlpp::distinct, tab.intN).as<"distinct_max_">()
+            max(tab.int_n).as<"max_">(),
+            max(sqlpp::distinct, tab.int_n).as<"distinct_max_">()
             ).from(tab))) {
       std::ignore = row.max_;
       std::ignore = row.distinct_max_;

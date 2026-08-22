@@ -47,8 +47,8 @@ int main() {
   auto ctx = sqlpp::sqlite3::context_t{&db};
   using CTX = decltype(ctx);
 
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // OK
   std::ignore = to_sql_string(ctx, foo.join(bar).on(true));
@@ -58,7 +58,7 @@ int main() {
   {
     auto j = foo.full_outer_join(bar).on(foo.id == bar.id);
     auto f = from(j);
-    auto s = select(foo.id, bar.intN) << f;
+    auto s = select(foo.id, bar.int_n) << f;
     auto w = with(sqlpp::cte(sqlpp::alias::a).as(s));
 
     static_assert(
@@ -79,7 +79,7 @@ int main() {
   {
     auto j = foo.right_outer_join(bar).on(foo.id == bar.id);
     auto f = from(j);
-    auto s = select(foo.id, bar.intN) << f;
+    auto s = select(foo.id, bar.int_n) << f;
     auto w = with(sqlpp::cte(sqlpp::alias::a).as(s));
 
     static_assert(

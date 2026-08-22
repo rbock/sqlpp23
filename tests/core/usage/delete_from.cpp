@@ -32,8 +32,8 @@ int delete_from(int, char*[]) {
   sqlpp::mock_db::context_t printer;
 
   const auto maybe = true;
-  const auto t = test::TabBar{};
-  const auto f = test::TabFoo{};
+  const auto t = test::tab_bar{};
+  const auto f = test::tab_foo{};
 
   {
     using T = decltype(delete_from(t));
@@ -41,20 +41,20 @@ int delete_from(int, char*[]) {
   }
 
   {
-    using T = decltype(delete_from(t).where(t.textN != "transparent"));
-    auto x = delete_from(t).where(t.textN != "transparent");
+    using T = decltype(delete_from(t).where(t.text_n != "transparent"));
+    auto x = delete_from(t).where(t.text_n != "transparent");
     [[maybe_unused]] T y(x);
     [[maybe_unused]] T z(std::move(x));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   to_sql_string(printer, delete_from(t));
-  to_sql_string(printer, delete_from(t).where(t.textN != "transparent"));
+  to_sql_string(printer, delete_from(t).where(t.text_n != "transparent"));
   std::cerr << to_sql_string(printer, delete_from(t)) << std::endl;
 
-  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f))));
+  db(delete_from(t).where(t.text_n.in(select(f.text_nn_d).from(f))));
   db(delete_from(t).where(
-      dynamic(maybe, t.textN.in(select(f.textNnD).from(f)))));
+      dynamic(maybe, t.text_n.in(select(f.text_nn_d).from(f)))));
 
   db(truncate(t));
 

@@ -10,36 +10,36 @@ import sqlpp26.core;
 
 
 namespace test {
-struct TabFoo_ {
-  using generator = ::sqlpp::table_generator<TabFoo_, "tab_foo",
+struct tab_foo_ {
+  using generator = ::sqlpp::table_generator<tab_foo_, "tab_foo",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
-    ::sqlpp::column_spec<"textNnD", ::std::string_view>::with_default::with_sql_name<"text_nn_d">,
-    ::sqlpp::column_spec<"intN", std::optional<::std::int64_t>>::with_default::with_sql_name<"int_n">,
-    ::sqlpp::column_spec<"intCN", const std::optional<::std::int64_t>>::with_default::with_sql_name<"int_c_n">,
-    ::sqlpp::column_spec<"doubleN", std::optional<double>>::with_default::with_sql_name<"double_n">,
-    ::sqlpp::column_spec<"uIntN", std::optional<::std::uint64_t>>::with_default::with_sql_name<"u_int_n">,
-    ::sqlpp::column_spec<"blobN", std::optional<::std::span<const uint8_t>>>::with_default::with_sql_name<"blob_n">,
-    ::sqlpp::column_spec<"boolN", std::optional<bool>>::with_default::with_sql_name<"bool_n">>;
+    ::sqlpp::column_spec<"text_nn_d", ::std::string_view>::with_default,
+    ::sqlpp::column_spec<"int_n", std::optional<::std::int64_t>>::with_default,
+    ::sqlpp::column_spec<"int_c_n", const std::optional<::std::int64_t>>::with_default,
+    ::sqlpp::column_spec<"float_n", std::optional<double>>::with_default::with_sql_name<"double_n">,
+    ::sqlpp::column_spec<"u_int_n", std::optional<::std::uint64_t>>::with_default,
+    ::sqlpp::column_spec<"blob_n", std::optional<::std::span<const uint8_t>>>::with_default,
+    ::sqlpp::column_spec<"bool_n", std::optional<bool>>::with_default>;
 };
-using TabFoo = ::sqlpp::table<TabFoo_>;
+using tab_foo = ::sqlpp::table<tab_foo_>;
 
-struct TabBar_ {
-  using generator = ::sqlpp::table_generator<TabBar_, "tab_bar",
+struct tab_bar_ {
+  using generator = ::sqlpp::table_generator<tab_bar_, "tab_bar",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
-    ::sqlpp::column_spec<"textN", std::optional<::std::string_view>>::with_default::with_sql_name<"text_n">,
-    ::sqlpp::column_spec<"boolNn", bool>::with_sql_name<"bool_nn">,
-    ::sqlpp::column_spec<"intN", std::optional<::std::int64_t>>::with_default::with_sql_name<"int_n">>;
+    ::sqlpp::column_spec<"text_n", std::optional<::std::string_view>>::with_default,
+    ::sqlpp::column_spec<"bool_nn", bool>,
+    ::sqlpp::column_spec<"int_n", std::optional<::std::int64_t>>::with_default>;
 };
-using TabBar = ::sqlpp::table<TabBar_>;
+using tab_bar = ::sqlpp::table<tab_bar_>;
 
-struct TabDateTime_ {
-  using generator = ::sqlpp::table_generator<TabDateTime_, "tab_date_time",
+struct tab_date_time_ {
+  using generator = ::sqlpp::table_generator<tab_date_time_, "tab_date_time",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
-    ::sqlpp::column_spec<"dateN", std::optional<::std::chrono::sys_days>>::with_default::with_sql_name<"date_n">,
-    ::sqlpp::column_spec<"timestampN", std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>>::with_default::with_sql_name<"timestamp_n">,
-    ::sqlpp::column_spec<"timeN", std::optional<::std::chrono::microseconds>>::with_default::with_sql_name<"time_n">>;
+    ::sqlpp::column_spec<"date_n", std::optional<::std::chrono::sys_days>>::with_default,
+    ::sqlpp::column_spec<"timestamp_n", std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>>::with_default,
+    ::sqlpp::column_spec<"time_n", std::optional<::std::chrono::microseconds>>::with_default>;
 };
-using TabDateTime = ::sqlpp::table<TabDateTime_>;
+using tab_date_time = ::sqlpp::table<tab_date_time_>;
 
 
 } // namespace test

@@ -27,8 +27,8 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   // No expression (not super useful).
   SQLPP_COMPARE(sqlpp::cte<"x">(), "x");

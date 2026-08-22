@@ -74,8 +74,8 @@ concept cannot_call_union_distinct_with =
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::TabBar{};
-  const auto foo = test::TabFoo{};
+  const auto bar = test::tab_bar{};
+  const auto foo = test::tab_foo{};
 
   const auto incomplete_lhs = select(all_of(bar));
   const auto lhs = incomplete_lhs.from(bar);
@@ -108,14 +108,14 @@ int main() {
   // UNION requires statements with same result row (single column)
   {
     auto s_foo_int = select(foo.id).from(foo);
-    auto s_foo_int_n = select(foo.intN).from(foo);
+    auto s_foo_int_n = select(foo.int_n).from(foo);
     auto s_value_id = select(sqlpp::value(7).as<"foo.id">()).from(foo);
     auto s_value_oid =
         select(sqlpp::value(7).as<"something">()).from(foo);
     // Different value type
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
-                         sqlpp::data_type_of_t<decltype(foo.intN)>>::value,
+                         sqlpp::data_type_of_t<decltype(foo.int_n)>>::value,
         "");
     CANNOT_CALL_ANY_UNION_WITH(s_foo_int, s_foo_int_n);
     // Different name
@@ -127,15 +127,15 @@ int main() {
 
   // UNION requires statements with same result row (more than one column)
   {
-    auto s_foo_int = select(foo.textNnD, foo.id).from(foo);
-    auto s_foo_int_n = select(foo.textNnD, foo.intN).from(foo);
-    auto s_value_id = select(foo.textNnD, sqlpp::value(7).as<"foo.id">()).from(foo);
+    auto s_foo_int = select(foo.text_nn_d, foo.id).from(foo);
+    auto s_foo_int_n = select(foo.text_nn_d, foo.int_n).from(foo);
+    auto s_value_id = select(foo.text_nn_d, sqlpp::value(7).as<"foo.id">()).from(foo);
     auto s_value_oid =
-        select(foo.textNnD, sqlpp::value(7).as<"something">()).from(foo);
+        select(foo.text_nn_d, sqlpp::value(7).as<"something">()).from(foo);
     // Different value type
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
-                         sqlpp::data_type_of_t<decltype(foo.intN)>>::value,
+                         sqlpp::data_type_of_t<decltype(foo.int_n)>>::value,
         "");
     CANNOT_CALL_ANY_UNION_WITH(s_foo_int, s_foo_int_n);
     // Different name

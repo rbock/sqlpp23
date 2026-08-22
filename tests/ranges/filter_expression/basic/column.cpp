@@ -55,10 +55,10 @@ struct Foo {
   std::string_view something;
 };
 
-struct _TabFoo {
-  using generator = sqlpp::make_stl_table<_TabFoo, Foo>;
+struct _tab_foo {
+  using generator = sqlpp::make_stl_table<_tab_foo, Foo>;
 };
-using TabFoo = sqlpp::table<_TabFoo>;
+using tab_foo = sqlpp::table<_tab_foo>;
 }
 
 template <typename Statement>
@@ -68,7 +68,7 @@ constexpr void run(const Statement&) {
 
 
 int main() {
-  auto tab_foo = test::TabFoo{};
+  auto tab_foo = test::tab_foo{};
   auto filter = to_filter_expression(tab_foo.id);
   constexpr auto foo = [tab_foo]() -> test::Foo{
     constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");

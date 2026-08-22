@@ -49,14 +49,14 @@ concept cannot_call_returning_with =
 
 int main() {
   const auto maybe = true;
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
   using sqlpp::returning;
 
   // OK
   returning(foo.id);
-  returning(foo.id, foo.textNnD);
+  returning(foo.id, foo.text_nn_d);
   returning(all_of(foo));
   returning(foo.id, bar.id);
   returning(all_of(foo), bar.id.as<"something">());

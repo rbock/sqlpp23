@@ -52,8 +52,8 @@ int CustomQuery(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   sqlpp::mock_db::context_t printer;
 
-  const auto f = test::TabFoo{};
-  const auto t = test::TabBar{};
+  const auto f = test::tab_foo{};
+  const auto t = test::tab_bar{};
 
   // A void custom query
   auto x = sqlpp::statement_t{}
@@ -77,18 +77,18 @@ int CustomQuery(int, char*[]) {
 
   // Create a custom "insert or ignore"
   db(sqlpp::insert() << sqlpp::verbatim_clause(" OR IGNORE") << into(t)
-                     << insert_set(t.textN = "sample", t.boolNn = true));
+                     << insert_set(t.text_n = "sample", t.bool_nn = true));
 
   // Create a custom multi-row "insert or ignore"
-  auto batch = insert_columns(t.textN, t.boolNn);
-  batch.add_values(t.textN = "sample", t.boolNn = true);
-  batch.add_values(t.textN = "ample", t.boolNn = false);
+  auto batch = insert_columns(t.text_n, t.bool_nn);
+  batch.add_values(t.text_n = "sample", t.bool_nn = true);
+  batch.add_values(t.text_n = "ample", t.bool_nn = false);
   db(sqlpp::insert() << sqlpp::verbatim_clause(" OR IGNORE") << into(t) << batch);
 
   // Create a MYSQL style custom "insert on duplicate update"
-  db(sqlpp::insert_into(t).set(t.textN = "sample", t.boolNn = true)
-     << on_duplicate_key_update(printer, t.textN = "sample")(printer,
-                                                             t.boolNn = false)
+  db(sqlpp::insert_into(t).set(t.text_n = "sample", t.bool_nn = true)
+     << on_duplicate_key_update(printer, t.text_n = "sample")(printer,
+                                                             t.bool_nn = false)
             .get());
 
   // A custom (select ... into) with adjusted return type

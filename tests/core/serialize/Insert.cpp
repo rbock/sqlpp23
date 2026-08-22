@@ -27,24 +27,24 @@
 #include <sqlpp26/tests/core/all.h>
 
 int Insert(int, char*[]) {
-  const auto bar = test::TabBar{};
+  const auto bar = test::tab_bar{};
 
   SQLPP_COMPARE(insert_into(bar).default_values(),
                 "INSERT INTO tab_bar DEFAULT VALUES");
   SQLPP_COMPARE(
-      insert_into(bar).set(bar.textN = "cheesecake", bar.boolNn = true),
+      insert_into(bar).set(bar.text_n = "cheesecake", bar.bool_nn = true),
       "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', 1)");
   SQLPP_COMPARE(
-      insert_into(bar).set(bar.textN = std::nullopt, bar.boolNn = true),
+      insert_into(bar).set(bar.text_n = std::nullopt, bar.bool_nn = true),
       "INSERT INTO tab_bar (text_n, bool_nn) VALUES(NULL, 1)");
   std::string_view cheeseCake = "cheesecake";
   SQLPP_COMPARE(
-      insert_into(bar).set(bar.textN = std::string(cheeseCake),
-                           bar.boolNn = true),
+      insert_into(bar).set(bar.text_n = std::string(cheeseCake),
+                           bar.bool_nn = true),
       "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', 1)");
   SQLPP_COMPARE(
-      insert_into(bar).set(bar.textN = std::string_view(cheeseCake),
-                           bar.boolNn = true),
+      insert_into(bar).set(bar.text_n = std::string_view(cheeseCake),
+                           bar.bool_nn = true),
       "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', 1)");
 
   return 0;

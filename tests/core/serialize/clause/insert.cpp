@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
   // Without values.
   SQLPP_COMPARE(insert_into(foo), "INSERT INTO tab_foo");
@@ -38,16 +38,16 @@ int main(int, char*[]) {
 
   // Single row with "SET".
   SQLPP_COMPARE(
-      insert_into(foo).set(foo.intN = 17, foo.boolN = std::nullopt,
-                           foo.textNnD = "cake"),
+      insert_into(foo).set(foo.int_n = 17, foo.bool_n = std::nullopt,
+                           foo.text_nn_d = "cake"),
       "INSERT INTO tab_foo (int_n, bool_n, text_nn_d) VALUES(17, NULL, 'cake')");
 
   // Multiple rows with columns and values.
   {
-    auto i = insert_into(foo).columns(foo.intN, foo.boolN, foo.textNnD);
-    i.add_values(foo.intN = sqlpp::default_value,
-                 foo.boolN = sqlpp::default_value, foo.textNnD = "cheese");
-    i.add_values(foo.intN = 17, foo.boolN = std::nullopt, foo.textNnD = "cake");
+    auto i = insert_into(foo).columns(foo.int_n, foo.bool_n, foo.text_nn_d);
+    i.add_values(foo.int_n = sqlpp::default_value,
+                 foo.bool_n = sqlpp::default_value, foo.text_nn_d = "cheese");
+    i.add_values(foo.int_n = 17, foo.bool_n = std::nullopt, foo.text_nn_d = "cake");
     SQLPP_COMPARE(i,
                   "INSERT INTO tab_foo (int_n, bool_n, text_nn_d) VALUES "
                   "(DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");

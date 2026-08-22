@@ -32,11 +32,11 @@ SQLPP_CREATE_NAME_TAG(other);
 }  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
-  SQLPP_COMPARE(parameter(foo.doubleN), "$1");
-  SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > $1");
+  SQLPP_COMPARE(parameter(foo.float_n), "$1");
+  SQLPP_COMPARE(bar.id > parameter(foo.float_n), "tab_bar.id > $1");
 
   SQLPP_COMPARE(parameter(sqlpp::integral{}, something), "$1");
 
@@ -65,8 +65,8 @@ int main() {
 
   {
     auto s =
-        select(parameter(foo.id).as(something), parameter(bar.textN).as(other),
-               parameter(foo.doubleN).as(foo.doubleN));
+        select(parameter(foo.id).as(something), parameter(bar.text_n).as(other),
+               parameter(foo.float_n).as(foo.float_n));
 
     SQLPP_COMPARE(s, "SELECT $1 AS something, $2 AS other, $3 AS double_n");
   }
@@ -74,9 +74,9 @@ int main() {
   {
     auto left = select(parameter(foo.id).as(something)).as(sqlpp::alias::left);
     auto right =
-        select(parameter(bar.textN).as(something)).as(sqlpp::alias::right);
+        select(parameter(bar.text_n).as(something)).as(sqlpp::alias::right);
 
-    SQLPP_COMPARE(left.join(right).on(parameter(foo.doubleN) > 7),
+    SQLPP_COMPARE(left.join(right).on(parameter(foo.float_n) > 7),
                   "(SELECT $1 AS something) AS left INNER JOIN (SELECT $2 AS "
                   "something) AS right ON $3 > 7");
     SQLPP_COMPARE(left.cross_join(right),
@@ -93,26 +93,26 @@ int main() {
   }
 
   {
-    auto cwt = case_when(parameter(foo.boolN))
+    auto cwt = case_when(parameter(foo.bool_n))
                    .then(parameter(foo.id))
-                   .else_(parameter(bar.intN));
+                   .else_(parameter(bar.int_n));
 
     SQLPP_COMPARE(cwt, "CASE WHEN $1 THEN $2 ELSE $3 END");
   }
 
   {
-    auto cwt = case_when(parameter(foo.boolN))
+    auto cwt = case_when(parameter(foo.bool_n))
                    .then(parameter(foo.id))
-                   .when(parameter(bar.boolNn))
+                   .when(parameter(bar.bool_nn))
                    .then(parameter(bar.id))
-                   .else_(parameter(bar.intN));
+                   .else_(parameter(bar.int_n));
 
     SQLPP_COMPARE(cwt, "CASE WHEN $1 THEN $2 WHEN $3 THEN $4 ELSE $5 END");
   }
 
   SQLPP_COMPARE(
       sqlpp::on_conflict(foo.id).do_update(
-          foo.intN = parameter(foo.intN), foo.textNnD = parameter(foo.textNnD)),
+          foo.int_n = parameter(foo.int_n), foo.text_nn_d = parameter(foo.text_nn_d)),
       " ON CONFLICT (id) DO UPDATE SET int_n = $1, text_nn_d = $2");
 
   return 0;

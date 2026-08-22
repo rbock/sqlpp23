@@ -29,14 +29,14 @@
 namespace sql = sqlpp::sqlite3;
 int DynamicSelect(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
-  const auto tab = test::TabFoo{};
+  const auto tab = test::tab_foo{};
 
-  auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
-  i.add_values(tab.textNnD = "rhabarbertorte", tab.boolN = false);
-  i.add_values(tab.textNnD = "cheesecake", tab.boolN = false);
-  i.add_values(tab.textNnD = "kaesekuchen", tab.boolN = true);
+  auto i = insert_into(tab).columns(tab.text_nn_d, tab.bool_n);
+  i.add_values(tab.text_nn_d = "rhabarbertorte", tab.bool_n = false);
+  i.add_values(tab.text_nn_d = "cheesecake", tab.bool_n = false);
+  i.add_values(tab.text_nn_d = "kaesekuchen", tab.bool_n = true);
   const auto last_insert_rowid = db(i).last_insert_id;
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;
@@ -44,25 +44,25 @@ int DynamicSelect(int, char*[]) {
   // Just to demonstrate that you can call basically any function
   std::cerr << "last insert rowid: "
             << db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")
-                             .as(tab.intN)))
+                             .as(tab.int_n)))
                    .front()
-                   .intN
+                   .int_n
             << std::endl;
 
   std::cerr << "last insert rowid: "
             << db(select(dynamic(true, sqlpp::verbatim<sqlpp::integral>(
                                            "last_insert_rowid()")
-                                           .as(tab.intN))))
+                                           .as(tab.int_n))))
                    .front()
-                   .intN
+                   .int_n
             << std::endl;
 
   std::cerr << "last insert rowid: "
             << db(select(dynamic(false, sqlpp::verbatim<sqlpp::integral>(
                                             "last_insert_rowid()")
-                                            .as(tab.intN))))
+                                            .as(tab.int_n))))
                    .front()
-                   .intN
+                   .int_n
             << std::endl;
 
   return 0;

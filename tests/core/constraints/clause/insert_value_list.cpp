@@ -77,13 +77,13 @@ concept cannot_call_add_values_with =
 }  // namespace
 
 int main() {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto foo = test::tab_foo{};
+  const auto bar = test::tab_bar{};
 
-  // Confirming the required columns of TabBar.
-  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::TabBar>,
+  // Confirming the required columns of tab_bar.
+  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::tab_bar>,
                              sqlpp::detail::type_set<sqlpp::column_t<
-                                 test::TabBar, test::TabBar_::BoolNn>>>::value,
+                                 test::tab_bar, test::tab_bar_::BoolNn>>>::value,
                 "");
 
   // -------------------------
@@ -96,36 +96,36 @@ int main() {
 
   // insert_set(<arguments including non-assignments>) is inconsistent and
   // cannot be constructed.
-  static_assert(can_call_insert_set_with<decltype(bar.intN = 7)>);
-  static_assert(cannot_call_insert_set_with<decltype(bar.intN == 7)>);
-  static_assert(cannot_call_insert_set_with<decltype(bar.intN = 7),
-                                            decltype(bar.boolNn)>);
+  static_assert(can_call_insert_set_with<decltype(bar.int_n = 7)>);
+  static_assert(cannot_call_insert_set_with<decltype(bar.int_n == 7)>);
+  static_assert(cannot_call_insert_set_with<decltype(bar.int_n = 7),
+                                            decltype(bar.bool_nn)>);
 
   // insert_into(table).set(<arguments including non-assignments>) is
   // inconsistent and cannot be constructed.
-  static_assert(cannot_call_insert_set_with<decltype(bar.boolNn = true),
-                                            decltype(bar.boolNn = false)>);
-  static_assert(cannot_call_insert_set_with<decltype(bar.boolNn = true),
-                                            decltype(dynamic(false, bar.boolNn = false))>);
+  static_assert(cannot_call_insert_set_with<decltype(bar.bool_nn = true),
+                                            decltype(bar.bool_nn = false)>);
+  static_assert(cannot_call_insert_set_with<decltype(bar.bool_nn = true),
+                                            decltype(dynamic(false, bar.bool_nn = false))>);
 
   // insert_into(table).set(<assignments from more than one table>) is
   // inconsistent and cannot be constructed.
-  static_assert(cannot_call_insert_set_with<decltype(foo.intN = 7),
-                                            decltype(bar.boolNn = false)>);
-  static_assert(cannot_call_insert_set_with<decltype(dynamic(false, foo.intN = 7)),
-                                            decltype(bar.boolNn = false)>);
+  static_assert(cannot_call_insert_set_with<decltype(foo.int_n = 7),
+                                            decltype(bar.bool_nn = false)>);
+  static_assert(cannot_call_insert_set_with<decltype(dynamic(false, foo.int_n = 7)),
+                                            decltype(bar.bool_nn = false)>);
 
   // insert_into(table).set(<not all required columns>) is inconsistent but can
   // be constructed (check can only run later)
   {
-    auto i = insert_into(bar).set(bar.intN = sqlpp::default_value);
+    auto i = insert_into(bar).set(bar.int_n = sqlpp::default_value);
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_assignments_t>::value,
                   "");
   }
   {
-    auto i = insert_into(bar).set(dynamic(true, bar.intN = sqlpp::default_value));
+    auto i = insert_into(bar).set(dynamic(true, bar.int_n = sqlpp::default_value));
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_assignments_t>::value,
@@ -135,7 +135,7 @@ int main() {
   // insert_into(table).set(<dynamic required columns>) is also inconsistent but
   // can be constructed (check can only run later)
   {
-    auto i = insert_into(bar).set(dynamic(true, bar.boolNn = true));
+    auto i = insert_into(bar).set(dynamic(true, bar.bool_nn = true));
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_assignments_t>::value,
@@ -152,33 +152,33 @@ int main() {
 
   // insert_into(table).columns(<arguments including non-columns>) is
   // inconsistent and cannot be constructed.
-  static_assert(can_call_insert_columns_with<decltype(bar.intN)>);
-  static_assert(cannot_call_insert_columns_with<decltype(bar.intN = 7)>);
+  static_assert(can_call_insert_columns_with<decltype(bar.int_n)>);
+  static_assert(cannot_call_insert_columns_with<decltype(bar.int_n = 7)>);
 
   // insert_into(table).columns(dynamic arguments) cannot be constructed.
-  static_assert(cannot_call_insert_columns_with<decltype(dynamic(true, bar.intN))>);
+  static_assert(cannot_call_insert_columns_with<decltype(dynamic(true, bar.int_n))>);
 
   // insert_into(table).columns(duplicate columns>) is
   // inconsistent and cannot be constructed.
   static_assert(
-      cannot_call_insert_columns_with<decltype(bar.boolNn), decltype(bar.intN),
-                                      decltype(bar.boolNn)>);
+      cannot_call_insert_columns_with<decltype(bar.bool_nn), decltype(bar.int_n),
+                                      decltype(bar.bool_nn)>);
   static_assert(
-      cannot_call_insert_columns_with<decltype(bar.boolNn), decltype(bar.intN),
-                                      decltype(dynamic(false, bar.boolNn))>);
+      cannot_call_insert_columns_with<decltype(bar.bool_nn), decltype(bar.int_n),
+                                      decltype(dynamic(false, bar.bool_nn))>);
 
   // insert_into(table).columns(<columns from more than one table>) is
   // inconsistent and cannot be constructed.
   static_assert(
-      cannot_call_insert_columns_with<decltype(bar.boolNn), decltype(foo.intN)>);
+      cannot_call_insert_columns_with<decltype(bar.bool_nn), decltype(foo.int_n)>);
   static_assert(
-      cannot_call_insert_columns_with<decltype(dynamic(false, bar.boolNn)),
-                                      decltype(foo.intN)>);
+      cannot_call_insert_columns_with<decltype(dynamic(false, bar.bool_nn)),
+                                      decltype(foo.int_n)>);
 
   // insert_into(table).columns(<not all required columns>) is inconsistent but
   // can be constructed (check can only run later)
   {
-    auto i = insert_into(bar).columns(bar.intN);
+    auto i = insert_into(bar).columns(bar.int_n);
     using I = decltype(i);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
                                sqlpp::assert_all_required_columns_t>::value,
@@ -189,46 +189,46 @@ int main() {
   // insert_into(tab).columns(...).add_value(...)
   // -------------------------
   {
-    auto i = insert_into(bar).columns(bar.intN, bar.boolNn);
+    auto i = insert_into(bar).columns(bar.int_n, bar.bool_nn);
     using I = decltype(i);
 
     // OK, correct assignments
-    static_assert(can_call_add_values_with<I, decltype(bar.intN = 7),
-                                           decltype(bar.boolNn = true)>);
+    static_assert(can_call_add_values_with<I, decltype(bar.int_n = 7),
+                                           decltype(bar.bool_nn = true)>);
     static_assert(
-        can_call_add_values_with<I, decltype(bar.intN = sqlpp::default_value),
-                                 decltype(bar.boolNn = true)>);
+        can_call_add_values_with<I, decltype(bar.int_n = sqlpp::default_value),
+                                 decltype(bar.bool_nn = true)>);
 
     static_assert(
-        can_call_add_values_with<I, decltype(dynamic(true, bar.intN = 42)),
-                                 decltype(bar.boolNn = true)>);
+        can_call_add_values_with<I, decltype(dynamic(true, bar.int_n = 42)),
+                                 decltype(bar.bool_nn = true)>);
 
     // Not OK, missing assignment
-    static_assert(cannot_call_add_values_with<I, decltype(bar.boolNn = true)>);
-    static_assert(cannot_call_add_values_with<I, decltype(bar.intN = 7)>);
+    static_assert(cannot_call_add_values_with<I, decltype(bar.bool_nn = true)>);
+    static_assert(cannot_call_add_values_with<I, decltype(bar.int_n = 7)>);
     static_assert(
         cannot_call_add_values_with<I,
-                                    decltype(bar.intN = sqlpp::default_value)>);
+                                    decltype(bar.int_n = sqlpp::default_value)>);
 
     // Not OK, cannot assign expressions
     static_assert(
         cannot_call_add_values_with<I,
-                                    decltype(bar.intN = sqlpp::default_value),
-                                    decltype(bar.boolNn = not bar.boolNn)>);
+                                    decltype(bar.int_n = sqlpp::default_value),
+                                    decltype(bar.bool_nn = not bar.bool_nn)>);
 
     // Not OK, cannot assign parameters
     static_assert(
-        cannot_call_add_values_with<I, decltype(bar.intN = parameter(bar.intN)),
-                                    decltype(bar.boolNn = true)>);
+        cannot_call_add_values_with<I, decltype(bar.int_n = parameter(bar.int_n)),
+                                    decltype(bar.bool_nn = true)>);
     static_assert(cannot_call_add_values_with<
-                  I, decltype(bar.intN = sqlpp::default_value),
-                  decltype(bar.boolNn = parameter(bar.boolNn))>);
+                  I, decltype(bar.int_n = sqlpp::default_value),
+                  decltype(bar.bool_nn = parameter(bar.bool_nn))>);
 
     // Not OK, cannot assign named values
     static_assert(
         cannot_call_add_values_with<I,
-                                    decltype(bar.intN = sqlpp::default_value),
-                                    decltype(bar.boolNn = bar.boolNn)>);
+                                    decltype(bar.int_n = sqlpp::default_value),
+                                    decltype(bar.bool_nn = bar.bool_nn)>);
   }
 
 }

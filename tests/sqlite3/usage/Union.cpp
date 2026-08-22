@@ -27,25 +27,25 @@
 #include <sqlpp26/tests/sqlite3/all.h>
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = test::TabFoo{};
+const auto tab = test::tab_foo{};
 
 int Union(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createTabFoo(db);
+  test::createtab_foo(db);
 
   auto u =
       select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));
 
   for (const auto& row : db(u)) {
-    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+    std::cout << row.int_n << row.text_nn_d << row.bool_n << std::endl;
   }
 
   for (const auto& row : db(u.order_by(tab.id.asc().nulls_first()))) {
-    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+    std::cout << row.int_n << row.text_nn_d << row.bool_n << std::endl;
   }
 
   for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab)))) {
-    std::cout << row.intN << row.textNnD << row.boolN << std::endl;
+    std::cout << row.int_n << row.text_nn_d << row.bool_n << std::endl;
   }
 
   return 0;

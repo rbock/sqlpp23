@@ -27,12 +27,12 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  const auto foo = test::TabFoo{};
+  const auto foo = test::tab_foo{};
 
-  // Confirming the required columns of TabBar.
-  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::TabBar>,
+  // Confirming the required columns of tab_bar.
+  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::tab_bar>,
                              sqlpp::detail::type_set<sqlpp::column_t<
-                                 test::TabBar, test::TabBar_::BoolNn>>>::value,
+                                 test::tab_bar, test::tab_bar_::BoolNn>>>::value,
                 "");
 
   // -------------------------

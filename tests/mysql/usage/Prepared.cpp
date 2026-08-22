@@ -31,27 +31,27 @@ const auto library_raii =
     sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = test::TabBar{};
+const auto tab = test::tab_bar{};
 
 SQLPP_CREATE_NAME_TAG(something);
 }  // namespace
 
 void testPreparedStatementResult(sql::connection& db) {
   auto preparedInsert =
-      db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN)));
-  preparedInsert.parameters.textN = std::nullopt;
+      db.prepare(insert_into(tab).set(tab.text_n = parameter(tab.text_n)));
+  preparedInsert.parameters.text_n = std::nullopt;
   db(preparedInsert);
-  preparedInsert.parameters.textN = "17";
+  preparedInsert.parameters.text_n = "17";
   db(preparedInsert);
-  preparedInsert.parameters.textN = std::nullopt;
+  preparedInsert.parameters.text_n = std::nullopt;
   db(preparedInsert);
-  preparedInsert.parameters.textN = "17";
+  preparedInsert.parameters.text_n = "17";
   db(preparedInsert);
 
   auto preparedSelectAll =
-      db.prepare(sqlpp::select(count(tab.intN).as(something)).from(tab));
+      db.prepare(sqlpp::select(count(tab.int_n).as(something)).from(tab));
   auto preparedUpdateAll =
-      db.prepare(sqlpp::update(tab).set(tab.boolNn = false));
+      db.prepare(sqlpp::update(tab).set(tab.bool_nn = false));
 
   {
     // explicit result scope
@@ -67,7 +67,7 @@ int Prepared(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabBar(db);
+    test::createtab_bar(db);
 
     testPreparedStatementResult(db);
   } catch (const std::exception& e) {
