@@ -53,7 +53,8 @@ template<typename T> struct name_of
 };
 template<typename T> inline constexpr auto name_of_v = name_of<T>::value;
 
-template<typename T> struct sql_name_of : public name_of<T> {};
+// Only defined to columns.
+template<typename T> struct sql_name_of;
 template<typename T> inline constexpr auto sql_name_of_v = sql_name_of<T>::value;
 
 template <typename T>

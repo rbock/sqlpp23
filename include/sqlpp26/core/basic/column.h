@@ -103,14 +103,38 @@ struct table_of<column<Table, index>> {
   using type = Table;
 };
 
+// In most places, e.g. WHERE expressions, we serialize columns as
+// <table name>.<column name>
 template <typename Context, typename Table, size_t index>
 auto to_sql_string(Context& context, const column<Table, index>&)
     -> std::string {
-  using T = column<Table, index>;
+  using Column = column<Table, index>;
 
   return name_to_sql_string(context, name_of_v<Table>) + "." +
-         name_to_sql_string(context, sql_name_of_v<T>);
+         name_to_sql_string(context, sql_name_of_v<Column>);
 }
+
+// Raw columns in a SELECT are special.
+// If sql name and c++ name differ, we serialize them as
+// <table name>.<column sql name> AS <column c++ name>.
+//
+// This ensures that derived tables as SELECT AS or CTE only need to care about
+// the c++ name.
+template <typename Context, typename Table, size_t index>
+auto select_field_to_sql_string(Context& context, const column<Table, index>&)
+    -> std::string {
+  using Column = column<Table, index>;
+
+  if constexpr (std::string_view{sql_name_of_v<Column>} !=
+                std::string_view{name_of_v<Column>}) {
+    return name_to_sql_string(context, name_of_v<Table>) + "." +
+           name_to_sql_string(context, sql_name_of_v<Column>) +
+           " AS " + name_of_v<Column>;
+  }
+  return name_to_sql_string(context, name_of_v<Table>) + "." +
+         name_to_sql_string(context, name_of_v<Column>);
+}
+
 /*
 // Table can be a table_t or a cte_ref_t or a select_ref_t
 template <typename Table, typename ColumnSpec>

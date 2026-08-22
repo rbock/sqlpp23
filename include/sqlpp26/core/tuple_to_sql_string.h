@@ -30,6 +30,7 @@
 #include <tuple>
 #include <utility>
 
+#include <sqlpp26/core/basic/column_fwd.h>
 #include <sqlpp26/core/operator/as_expression.h>
 #include <sqlpp26/core/to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
@@ -86,6 +87,13 @@ struct tuple_operand_select_column {
       -> std::string {
     const auto prefix = index ? std::string{separator} : std::string{};
     return prefix + operand_to_sql_string(context, t);
+  }
+
+  template <typename Context, typename Table, size_t Idx>
+  auto operator()(Context& context, const column<Table, Idx>& t, size_t index) const
+      -> std::string {
+    const auto prefix = index ? std::string{separator} : std::string{};
+    return prefix + select_field_to_sql_string(context, t);
   }
 
   template <typename Context, typename T, fixed_string Name>

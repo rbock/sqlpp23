@@ -329,13 +329,14 @@ class DdlExecutor:
 
     @dataclass
     class _ColumnDef:
-        name: str
+        sql_name: str
         is_const: bool
         is_nullable: bool
         has_default: bool
         is_array: bool
         comments: []
         cpp_type: str = None
+        cpp_name: str = None
 
     @dataclass
     class _TableDef:
@@ -357,11 +358,15 @@ class DdlExecutor:
             return name[len(cls._strip_sql_schema) + 1:]
         return name
 
-    # Extract annotations for columns. Currently the only recognized annotation is
+    # Extract annotations for columns. Currently the only recognized annotations are
     # - cpp_type: used to map a column to a C++ data type
+    # - cpp_name: used to map a column to a C++ name
     @classmethod
     def _extract_column_annotations(cls, comment):
         annotations = {}
+        m = re.search(r'cpp_name:\s*(\S+)', comment)
+        if m:
+            annotations['cpp_name'] = m.group(1)
         m = re.search(r'cpp_type:\s*(\S+)', comment)
         if m:
             annotations['cpp_type'] = m.group(1)
@@ -383,6 +388,9 @@ class DdlExecutor:
                     cls._has_error = True
                 annotations[key] = value
 
+        if 'cpp_name' in annotations:
+            column.cpp_name = annotations["cpp_name"]
+
         if 'cpp_type' in annotations:
             column.cpp_type = annotations["cpp_type"]
             column.is_array = False
@@ -391,7 +399,7 @@ class DdlExecutor:
     def apply_column_to_cpp_type(cls, table, column, column_to_cpp_type):
         schema_qualified_table_name = table.name
         table_name = table.name.split('.')[-1]
-        for name in [f"{schema_qualified_table_name}.{column.name}", f"{table_name}.{column.name}", column.name]:
+        for name in [f"{schema_qualified_table_name}.{column.sql_name}", f"{table_name}.{column.sql_name}", column.sql_name]:
             if name.upper() in column_to_cpp_type:
                 column.cpp_type = column_to_cpp_type[name.upper()]
                 column.is_array = False
@@ -420,6 +428,8 @@ class DdlExecutor:
                     col_def.has_default = True
                     col_def.is_nullable = False
                     col_def.cpp_type = "::std::int64_t"
+                if not col_def.cpp_name:
+                    col_def.cpp_name = col_def.sql_name
         if cls._has_error:
             sys.exit(ExitCode.BAD_COLUMN_ANNOTATION)
 
@@ -427,10 +437,10 @@ class DdlExecutor:
         for table_def in cls._tables.values():
             for col_def in table_def.columns.values():
                 if col_def.cpp_type == "UNKNOWN":
-                    logging.error(f"SQL data type of {table_def.name}.{col_def.name} is not supported.")
+                    logging.error(f"SQL data type of {table_def.name}.{col_def.sql_name} is not supported.")
                     cls._has_error = True
                 if col_def.is_array:
-                    logging.error(f"Array type of {table_def.name}.{col_def.name} is not supported.")
+                    logging.error(f"Array type of {table_def.name}.{col_def.sql_name} is not supported.")
                     cls._has_error = True
         if cls._has_error:
             logging.error("Unsupported SQL data type(s).")
@@ -507,7 +517,7 @@ class DdlExecutor:
         if column_comment:
             comments.append(column_comment)
         columns[col_name] = cls._ColumnDef(
-            name = col_name,
+            sql_name = col_name,
             is_const = col_expr.has_generated_value,
             is_nullable = is_nullable,
             has_default = (
@@ -652,9 +662,9 @@ namespace {namespace} {{
     def create_column_specs(self, table):
         lines = []
         for column in table.columns.values():
-            column_class = self._to_class_name(column.name)
-            column_member = self._to_member_name(column.name)
-            column_sql_name = self._escape_if_reserved(column.name)
+            column_class = self._to_class_name(column.cpp_name)
+            column_member = self._to_member_name(column.cpp_name)
+            column_sql_name = self._escape_if_reserved(column.sql_name)
             with_sql_name = f"""::with_sql_name<"{column_sql_name}">""" if column_sql_name != column_member else "";
             cpp_type = column.cpp_type
             if column.is_nullable:
@@ -673,7 +683,7 @@ namespace {namespace} {{
         table_spec = table_class + "_"
         column_specs = self.create_column_specs(table)
         if self._args.generate_table_creation_helper:
-            creation_helper_func = "create" + ("" if self._args.naming_style == "camel-case" else "_") + table_class
+            creation_helper_func = "create_" + table_class
             commands = self.create_commands(table)
             print(f"""{export}template<typename Db>
 void {creation_helper_func}(Db& db) {{
@@ -695,30 +705,22 @@ void {creation_helper_func}(Db& db) {{
 
     # Prepends optional schema with an `_`
     # Replaces each space in names with `_`
-    # Interprets `_` and numbers as word separators
     # Depending on naming_style
     #    - returns name as UpperCamelCase
     #    - returns identity
     def _to_class_name(self, name):
         name = name.replace(".", "_")
         name = name.replace(" ", "_")
-        if self._args.naming_style == "camel-case":
-            return re.sub(r"(^_*|[_0-9])(\S)", self._repl_camel_case_func, name)
-        # otherwise return identity (except that we concatenate an optional schema with the table name)
         return name
 
     # Prepends optional schema with an `_`
     # Replaces each space in names with `_`
-    # Interprets `_` and numbers as word separators
     # Depending on naming_style
     #    - returns name as lowerCamelCase
     #    - returns identity
     def _to_member_name(self, name):
         name = name.replace(".", "_")
         name = name.replace(" ", "_")
-        if self._args.naming_style == "camel-case":
-            return re.sub(r"(_|[0-9])(\S)", self._repl_camel_case_func, name)
-        # otherwise return identity (except that we concatenate an optional schema with the table name)
         return name
 
     @staticmethod
@@ -762,7 +764,6 @@ def parse_commandline_args():
     options.add_argument("--strip-sql-schema", help="strip this schema prefix from table names (e.g. 'public')")
     options.add_argument("--suppress-timestamp-warning", action="store_true", help="suppress show warning about date / time data types")
     options.add_argument("--assume-auto-id", action="store_true", help="assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID (default: False)")
-    options.add_argument("--naming-style", choices=["camel-case", "identity"], default="camel-case", help="naming style for generated tables and columns.\n\n\n\n 'camel-case' (default): interprets '_' as word separator and translates table names to UpperCamelCase and column names to lowerCamelCase, e.g. 'my_cool_table.important_column' will be represented as 'MyCoolTable{}.importantColumn' in generated code.\n 'identity' uses table and column names as is in generated code (default: 'camel-case')")
     options.add_argument("--generate-table-creation-helper", action="store_true", help="create a helper function for each table that drops and creates the table")
     options.add_argument("--use-import-sqlpp26", action="store_true", help="import sqlpp26 as module instead of including the header file (default: False)")
     options.add_argument("--use-import-std", action="store_true", help="import std as module instead of including the respective standard header files (default: False)")

@@ -36,7 +36,7 @@ int main(int, char*[]) {
   // --  SELECT(<columns>)
   // -----------------------------------------
   // Single column
-  SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n");
+  SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n AS doubleN");
   SQLPP_COMPARE(select(sqlpp::all, foo.doubleN), "SELECT ALL tab_foo.double_n");
   SQLPP_COMPARE(select(sqlpp::all, sqlpp::distinct, foo.doubleN),
                 "SELECT ALL DISTINCT tab_foo.double_n");

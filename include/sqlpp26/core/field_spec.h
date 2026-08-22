@@ -33,9 +33,8 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-template <fixed_string Name, typename DataType, auto SqlName>
+template <fixed_string Name, typename DataType>
 struct field_spec {
-  // TODO
   static constexpr fixed_string name = Name;
   using data_type = DataType;
 };
@@ -47,12 +46,10 @@ struct is_field_compatible {
 
 template <fixed_string LeftName,
           typename LeftDataType,
-          auto LeftSqlName,
           fixed_string RightName,
-          typename RightDataType,
-          auto RightSqlName>
-struct is_field_compatible<field_spec<LeftName, LeftDataType, LeftSqlName>,
-                           field_spec<RightName, RightDataType, RightSqlName>> {
+          typename RightDataType>
+struct is_field_compatible<field_spec<LeftName, LeftDataType>,
+                           field_spec<RightName, RightDataType>> {
   static constexpr auto value =
       std::string_view(LeftName.data) == std::string_view(RightName.data) and
       std::is_same<remove_optional_t<result_data_type_of_t<LeftDataType>>,
@@ -96,19 +93,10 @@ template <typename Statement, typename SelectColumn>
 struct make_field_spec {
   using type =
       field_spec<select_column_name_of_v<SelectColumn>,
-                   field_data_type_t<Statement, SelectColumn>, nullptr>;
+                   field_data_type_t<Statement, SelectColumn>>;
 };
 
 template <typename Statement, typename SelectColumn>
 using make_field_spec_t = typename make_field_spec<Statement, SelectColumn>::type;
-
-template <typename Statement, typename SelectColumn>
-  requires(std::string_view{select_column_name_of_v<SelectColumn>} !=
-           std::string_view{select_column_sql_name_of_v<SelectColumn>})
-struct make_field_spec<Statement, SelectColumn> {
-  using type =
-      field_spec<select_column_name_of_v<SelectColumn>, field_data_type_t<Statement, SelectColumn>,
-                 select_column_sql_name_of_v<SelectColumn>>;
-};
 
 }  // namespace sqlpp

@@ -33,13 +33,12 @@
 namespace sqlpp {
 template <size_t N>
 struct fixed_string {
-  char data[N + 1] = {};
+  char data[N];
 
   consteval fixed_string(char const (&s)[N]) noexcept { std::copy(s, s + N, data); }
-  consteval fixed_string(std::string_view s) noexcept { std::copy(s.data(), s.data() + N, data); }
 
   constexpr operator ::std::string_view() const {
-    return ::std::string_view(data, N);
+    return ::std::string_view(data);
   }
 
 };

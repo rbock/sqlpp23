@@ -68,12 +68,12 @@ consteval bool are_table_names_disjoint() {
 
   static constexpr auto lhs = std::define_static_array(provided_tables_of<Lhs>::func());
   template for (constexpr auto& info : lhs) {
-    lhs_names.insert(sql_name_of_v<typename [:info:]>);
+    lhs_names.insert(name_of_v<typename [:info:]>);
   }
 
   static constexpr auto rhs = std::define_static_array(provided_tables_of<Rhs>::func());
   template for (constexpr auto& info : rhs) {
-    if (lhs_names.contains(sql_name_of_v<typename [:info:]>)) {
+    if (lhs_names.contains(name_of_v<typename [:info:]>)) {
       return false;
     }
   }

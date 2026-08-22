@@ -50,12 +50,6 @@ struct select_column_name_of : public name_of<remove_dynamic_t<T>> {};
 template <typename T>
 inline constexpr fixed_string select_column_name_of_v = select_column_name_of<T>::value;
 
-template <typename T>
-struct select_column_sql_name_of : public sql_name_of<remove_dynamic_t<T>> {};
-
-template <typename T>
-inline constexpr fixed_string select_column_sql_name_of_v = select_column_sql_name_of<T>::value;
-
 // Test for value
 template <typename T>
 struct select_column_has_data_type

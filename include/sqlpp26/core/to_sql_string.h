@@ -258,6 +258,12 @@ auto name_to_sql_string(Context& /*context*/, const std::string_view& name) -> s
   //}
 }
 
+// Has to be specialized for raw columns.
+template <typename Context, typename Field>
+auto select_field_to_sql_string(Context& context, const Field& f) -> std::string {
+  return to_sql_name(context, f);
+}
+
 template <typename T, typename Context>
   requires(is_boolean_v<T>)
 auto data_type_to_sql_string(Context&) -> std::string {
