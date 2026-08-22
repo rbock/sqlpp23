@@ -190,7 +190,7 @@ auto dynamic_tuple_clause_to_sql_string(Context& context,
     return "";
   }
 
-  return std::format(" {} {}", name, expressions);
+  return std::format("{} {}", name, expressions);
 }
 
 }  // namespace sqlpp

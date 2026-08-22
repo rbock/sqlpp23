@@ -432,6 +432,9 @@ struct required_insert_columns_of {
 template <typename T>
 struct is_clause : public std::false_type {};
 
+template <typename T>
+struct is_hidden_clause : public std::false_type {};
+
 // Check if a clause makes sense in the context of the whole statement.
 // Note: This should /not/ be checking for missing tables as the statement might
 // be used as a sub-select that /might/ be using columns from the enclosing

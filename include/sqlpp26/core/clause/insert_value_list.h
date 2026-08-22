@@ -243,14 +243,14 @@ struct column_list_t {
 template <typename Context, typename... Columns>
 auto to_sql_string(Context& context, const column_list_t<Columns...>& t)
     -> std::string {
-  auto result = std::string{" ("};
+  auto result = std::string{"("};
   result += tuple_to_sql_string(context, read.columns(t),
                                 tuple_operand_no_dynamic{", "});
-  result += ") ";
+  result += ")";
   bool first = true;
   for (const auto& row : read.expressions(t)) {
     if (first) {
-      result += "VALUES ";
+      result += " VALUES ";
       first = false;
     } else {
       result += ", ";

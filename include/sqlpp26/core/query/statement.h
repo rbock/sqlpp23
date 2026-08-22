@@ -44,6 +44,7 @@
 #include <sqlpp26/core/wrapped_static_assert.h>
 #include <type_traits>
 #include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/indices.h>
 
 namespace sqlpp {
 class assert_no_unknown_ctes_t : public wrapped_static_assert {
@@ -478,7 +479,17 @@ auto to_sql_string(Context& context, const statement_t<Clauses...>& t)
     -> std::string {
   // TODO check_compatibility<Context>(t).verify();
   auto result = std::string{};
-  ((result += to_sql_string(context, static_cast<const Clauses&>(t))), ...);
+  auto first = true;
+  template for (constexpr auto Idx : indices<sizeof...(Clauses)>) {
+    using Clause = Clauses...[Idx];
+    if constexpr (is_clause<Clause>::value and not is_hidden_clause<Clause>::value) {
+      if (not first) {
+        result += " ";
+      }
+      result += to_sql_string(context, static_cast<const Clause&>(t));
+      first = false;
+    }
+  }
 
   return result;
 }

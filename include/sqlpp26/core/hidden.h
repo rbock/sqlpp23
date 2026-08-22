@@ -39,6 +39,9 @@ struct hidden_t {};
 template <typename Clause>
 struct is_clause<hidden_t<Clause>> : public std::true_type {};
 
+template <typename Clause>
+struct is_hidden_clause<hidden_t<Clause>> : public std::true_type {};
+
 template <typename Statement, typename Clause>
 struct basic_consistency_check<Statement, hidden_t<Clause>> {
   static constexpr void verify() {}

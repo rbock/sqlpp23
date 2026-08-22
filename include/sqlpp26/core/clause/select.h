@@ -45,7 +45,7 @@ struct select_t {};
 
 template <typename Context>
 auto to_sql_string(Context&, const select_t&) -> std::string {
-  return "SELECT ";
+  return "SELECT";
 }
 
 template <>

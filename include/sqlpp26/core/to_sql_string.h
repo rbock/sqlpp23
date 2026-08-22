@@ -324,11 +324,11 @@ auto dynamic_clause_to_sql_string(Context& context,
                                   const Data& data) -> std::string {
   if constexpr (is_dynamic<Data>::value) {
     if (data.has_value()) {
-      return std::format(" {} {}", name, to_sql_string(context, data.value()));
+      return std::format("{} {}", name, to_sql_string(context, data.value()));
     }
     return {};
   } else {
-    return std::format(" {} {}", name, to_sql_string(context, data));
+    return std::format("{} {}", name, to_sql_string(context, data));
   }
 }
 

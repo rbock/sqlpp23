@@ -53,7 +53,7 @@ struct into_t {
 
 template <typename Context, typename Table>
 auto to_sql_string(Context& context, const into_t<Table>& t) -> std::string {
-  return " INTO " + to_sql_string(context, read.table(t));
+  return "INTO " + to_sql_string(context, read.table(t));
 }
 
 template <typename Table>

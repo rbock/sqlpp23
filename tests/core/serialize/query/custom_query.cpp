@@ -71,15 +71,6 @@ int main() {
 
   // An insert from select for postgresql
   const auto x = 17;
-  /*
-      insert_into(foo).columns(foo.float_n).hansi;
-     (insert_into(foo).columns(foo.float_n)
-          << select(sqlpp::value(x).as<"double_n">())
-                 .from(foo)
-                 .where(not exists(
-                     select(foo.float_n).from(foo).where(foo.float_n == x)))
-          << with_result_type_of(insert_into(foo))).berti;
-          */
   SQLPP_COMPARE(
       insert_into(foo).columns(foo.float_n)
           << select(sqlpp::value(x).as<"double_n">())
@@ -97,7 +88,7 @@ int main() {
   batch.add_values(bar.text_n = "sample", bar.bool_nn = true);
   batch.add_values(bar.text_n = "ample", bar.bool_nn = false);
   SQLPP_COMPARE(sqlpp::insert()
-                    << sqlpp::verbatim_clause(" OR IGNORE") << into(bar) << batch,
+                    << sqlpp::verbatim_clause("OR IGNORE") << into(bar) << batch,
                 "INSERT OR IGNORE INTO tab_bar (text_n, bool_nn) VALUES "
                 "('sample', 1), ('ample', 0)");
 
