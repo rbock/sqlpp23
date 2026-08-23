@@ -27,7 +27,7 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main(int, char*[]) {
-  SQLPP_COMPARE(sqlpp::insert_default_values(), " DEFAULT VALUES");
+  SQLPP_COMPARE(sqlpp::insert_default_values(), "DEFAULT VALUES");
 
   return 0;
 }

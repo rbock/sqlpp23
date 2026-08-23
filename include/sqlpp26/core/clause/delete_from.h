@@ -39,7 +39,7 @@ struct delete_t {};
 
 template <typename Context>
 auto to_sql_string(Context&, const delete_t&) -> std::string {
-  return "DELETE FROM ";
+  return "DELETE FROM";
 }
 
 template <>

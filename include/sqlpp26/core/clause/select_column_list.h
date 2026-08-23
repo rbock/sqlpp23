@@ -38,7 +38,7 @@
 //#include <sqlpp26/core/clause/select_columns_aggregate_check.h>
 #include <sqlpp26/core/clause/select_flags.h>
 #include <sqlpp26/core/concepts.h>
-//#include <sqlpp26/core/database/prepared_select.h>
+#include <sqlpp26/core/database/prepared_select.h>
 #include <sqlpp26/core/detail/flat_tuple.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/basic/column_spec.h>
@@ -144,7 +144,6 @@ template <typename Statement, typename... Flags, typename... Columns>
 struct result_row_of<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
-      //TODO: Maybe re-introduce field_spec = column_spec without default and SQL name
   using type = result_row_t<make_field_spec_t<Statement, Columns>...>;
 };
 
@@ -161,7 +160,6 @@ struct select_result_methods_t {
     return table(std::forward<Statement>(self));
   }
 
-/* TODO
  private:
   friend class statement_handler_t;
 
@@ -181,7 +179,6 @@ struct select_result_methods_t {
         statement_handler_t{}.prepare_select(std::forward<Statement>(self),
                                              db)};
   }
-*/
 };
 
 /*

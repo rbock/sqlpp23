@@ -30,7 +30,7 @@
 #include <sqlpp26/core/clause/insert_value_list.h>
 #include <sqlpp26/core/clause/into.h>
 #include <sqlpp26/core/database/connection.h>
-//#include <sqlpp26/core/database/prepared_insert.h>
+#include <sqlpp26/core/database/prepared_insert.h>
 #include <sqlpp26/core/default_value.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/query/statement_handler.h>
@@ -51,7 +51,6 @@ struct insert_result_methods_t {
  private:
   friend class statement_handler_t;
 
-  /*
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& self, Db& db) {
@@ -66,7 +65,6 @@ struct insert_result_methods_t {
         statement_handler_t{}.prepare_insert(std::forward<Statement>(self),
                                              db)};
   }
-  */
 };
 
 template <>

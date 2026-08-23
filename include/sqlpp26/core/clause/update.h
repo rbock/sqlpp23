@@ -31,7 +31,7 @@
 #include <sqlpp26/core/clause/update_set_list.h>
 #include <sqlpp26/core/clause/where.h>
 #include <sqlpp26/core/database/connection.h>
-//#include <sqlpp26/core/database/prepared_update.h>
+#include <sqlpp26/core/database/prepared_update.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/query/statement_handler.h>
 #include <sqlpp26/core/type_traits.h>
@@ -41,7 +41,7 @@ struct update_t {};
 
 template <typename Context>
 auto to_sql_string(Context&, const update_t&) -> std::string {
-  return "UPDATE ";
+  return "UPDATE";
 }
 
 template <>
@@ -51,7 +51,6 @@ struct update_result_methods_t {
  private:
   friend class statement_handler_t;
 
-/*
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& self, Db& db) {
@@ -66,7 +65,6 @@ struct update_result_methods_t {
         statement_handler_t{}.prepare_update(std::forward<Statement>(self),
                                              db)};
   }
-*/
 };
 
 template <>

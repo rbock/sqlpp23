@@ -32,7 +32,7 @@ int main(int, char*[]) {
   const auto foo = test::tab_foo{};
 
   // Empty.
-  SQLPP_COMPARE(sqlpp::select(), "SELECT ");
+  SQLPP_COMPARE(sqlpp::select(), "SELECT");
 
   // SELECT a value.
   SQLPP_COMPARE(sqlpp::select(expr.as<"id">()), "SELECT (17 + 4) AS id");
@@ -54,7 +54,7 @@ int main(int, char*[]) {
   SQLPP_COMPARE(select(foo.id).from(foo).where(foo.int_n > 17),
                 "SELECT tab_foo.id FROM tab_foo WHERE tab_foo.int_n > 17");
   SQLPP_COMPARE(select(foo.id).from(foo).where(dynamic(false, foo.int_n > 17)),
-                "SELECT tab_foo.id FROM tab_foo");
+                "SELECT tab_foo.id FROM tab_foo ");
 
   // SELECT FROM WHERE GROUP BY HAVING.
   SQLPP_COMPARE(select(count(foo.id).as<"something">())

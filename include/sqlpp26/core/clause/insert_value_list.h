@@ -119,7 +119,7 @@ struct insert_default_values_t {
   template <typename Context>
   friend auto to_sql_string(Context&, const insert_default_values_t&)
       -> std::string {
-    return " DEFAULT VALUES";
+    return "DEFAULT VALUES";
   }
 };
 
@@ -169,7 +169,7 @@ struct insert_set_t {
 template <typename Context, typename... Assignments>
 auto to_sql_string(Context& context, const insert_set_t<Assignments...>& t)
     -> std::string {
-  auto result = std::string{" ("};
+  auto result = std::string{"("};
   result += tuple_to_sql_string(
       context, read.assignments(t),
       detail::tuple_lhs_assignment_operand_no_dynamic{", "});

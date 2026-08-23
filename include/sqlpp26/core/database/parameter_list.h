@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2026, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,32 @@
 #include <utility>
 
 #include <sqlpp26/core/detail/type_vector.h>
+#include <sqlpp26/core/indices.h>
 #include <sqlpp26/core/query/bind_parameter.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/core/wrong.h>
 
 namespace sqlpp {
+namespace detail {
+
+template <typename... Parameters>
+struct parameter_list_generator{
+  struct parameters;
+  consteval {
+    std::vector<std::meta::info> parameter_data_members;
+    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(Parameters))) {
+      using Parameter = Parameters...[index];
+      parameter_data_members.push_back(std::meta::data_member_spec(
+          ^^typename Parameter::data_type,
+          {.name = Parameter::name}));
+    }
+    define_aggregate(^^parameters, parameter_data_members);
+  }
+};
+
+class result_row_bridge;
+}  // namespace detail
+
 template <typename T>
 struct parameter_list_t {
   static_assert(
@@ -43,27 +64,20 @@ struct parameter_list_t {
       "Template parameter for parameter_list_t has to be a type_vector");
 };
 
-template <typename... Parameter>
-struct parameter_list_t<detail::type_vector<Parameter...>>
-    : public Parameter::_instance_t... {
-  using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
-  using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
+template <typename... Parameters>
+struct parameter_list_t<detail::type_vector<Parameters...>>
+    : public detail::parameter_list_generator<Parameters...>::parameters {
 
   parameter_list_t() = default;
 
+  using _parameters = detail::parameter_list_generator<Parameters...>::parameters;
+
   template <typename Target>
   void _bind(Target& target) const {
-    _bind_impl(target, std::make_index_sequence<size::value>{});
-  }
-
- private:
-  template <typename Target, size_t... Is>
-  void _bind_impl(Target& target,
-                  const std::index_sequence<Is...>& /*unused*/) const {
-    (bind_parameter(
-         target, Is,
-         std::tuple_element<Is, _member_tuple_t>::type::operator()()),
-     ...);
+    // Maybe unused if sizeof...(Parameters) == 0
+    [[maybe_unused]] static constexpr auto [...Idx] = indices<sizeof...(Parameters)>;
+    [[maybe_unused]] auto& [...parameters] = static_cast<const _parameters&>(*this);
+    (..., bind_parameter(target, Idx, parameters));
   }
 };
 

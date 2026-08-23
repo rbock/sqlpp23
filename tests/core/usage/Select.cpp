@@ -82,7 +82,7 @@ int Select(int, char*[]) {
                                 .for_update())) {
     const std::optional<int64_t> a = row.id;
     const std::optional<std::string_view> b = row.text_n;
-    const bool g = row.tabBar;
+    const bool g = row.t;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
@@ -158,7 +158,7 @@ int Select(int, char*[]) {
   for (const auto& row : db(select(sqlpp::case_when(true)
                                        .then(t.text_n)
                                        .else_(std::nullopt)
-                                       .as<"t.text_n">())
+                                       .as<"text_n">())
                                 .from(t))) {
     std::cerr << row.text_n << std::endl;
   }
@@ -199,7 +199,7 @@ int Select(int, char*[]) {
   auto abs = db.prepare(select(t.id).from(t).where(
       sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
           "ABS(field1 -", sqlpp::parameter(t.id), ")") <=
-      sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
+      sqlpp::parameter<"param2", unsigned>()));
   abs.parameters.id = 7;
   abs.parameters.param2 = 7;
   std::ignore = abs;

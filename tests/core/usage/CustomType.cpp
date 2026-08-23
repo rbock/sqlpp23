@@ -74,6 +74,10 @@ struct data_type_of<XCoord> {
   using type = XCoord;
 };
 
+// Specialize is_data_type, e.g. for parameters.
+template <>
+struct is_data_type<XCoord> : public std::true_type {};
+
 // Specializing result_data_type_of is required for sqlpp26 to know the field
 // type in the result row.
 template <>
@@ -81,10 +85,10 @@ struct result_data_type_of<XCoord> {
   using type = XCoord;
 };
 
-// Specializing parameter_value is required for sqlpp26 to know the type held
+// Specializing parameter_data_type is required for sqlpp26 to know the type held
 // in a prepared statement parameter struct.
 template <>
-struct parameter_value<XCoord> {
+struct parameter_data_type<XCoord> {
   using type = XCoord;
 };
 
@@ -100,8 +104,9 @@ template <typename L, typename R>
 struct values_are_comparable<L, R> : public std::true_type {};
 
 // We might also want to allow addition of XCoord values.
-template <>
-struct arithmetic_data_type<plus, XCoord, XCoord> {
+template <typename Lhs, typename Rhs>
+requires(is_xcoord_v<Lhs> and is_xcoord_v<Rhs>)
+struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = XCoord;
 };
 template <typename L, typename R>
@@ -112,8 +117,9 @@ constexpr auto operator+(L l, R r) -> arithmetic_expression<L, plus, R> {
 
 // We might also want to allow multiplication of XCoord values by an integral
 // value.
-template <>
-struct arithmetic_data_type<multiplies, integral, XCoord> {
+template <typename Lhs, typename Rhs>
+requires(is_integral_v<Lhs> and is_xcoord_v<Rhs>)
+struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = XCoord;
 };
 template <typename L, typename R>
@@ -162,12 +168,15 @@ struct data_type_of<YCoord> {
 };
 
 template <>
+struct is_data_type<YCoord> : public std::true_type {};
+
+template <>
 struct result_data_type_of<YCoord> {
   using type = YCoord;
 };
 
 template <>
-struct parameter_value<YCoord> {
+struct parameter_data_type<YCoord> {
   using type = YCoord;
 };
 
@@ -179,8 +188,9 @@ template <typename L, typename R>
   requires(is_ycoord_v<L> and is_ycoord_v<R>)
 struct values_are_comparable<L, R> : public std::true_type {};
 
-template <>
-struct arithmetic_data_type<plus, YCoord, YCoord> {
+template <typename Lhs, typename Rhs>
+requires(is_ycoord_v<Lhs> and is_ycoord_v<Rhs>)
+struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = YCoord;
 };
 template <typename L, typename R>
@@ -189,8 +199,9 @@ constexpr auto operator+(L l, R r) -> arithmetic_expression<L, plus, R> {
   return {std::move(l), std::move(r)};
 }
 
-template <>
-struct arithmetic_data_type<multiplies, integral, YCoord> {
+template <typename Lhs, typename Rhs>
+requires(is_integral_v<Lhs> and is_ycoord_v<Rhs>)
+struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = YCoord;
 };
 template <typename L, typename R>
@@ -203,37 +214,20 @@ constexpr auto operator*(L l, R r) -> arithmetic_expression<L, multiplies, R> {
 
 namespace test {
 
-struct TabPoint_ {
-  struct Id {
-    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(id, id);
-    using data_type = ::sqlpp::integral;
-    using has_default = std::true_type;  // SERIAL / auto-increment
-  };
-  struct X {
-    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(x, x);
-    using data_type = XCoord;
-    using has_default = std::false_type;  // required on INSERT
-  };
-  struct Y {
-    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(y, y);
-    using data_type = YCoord;
-    using has_default = std::false_type;  // required on INSERT
-  };
-  SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(tab_point, tabPoint);
-  template <typename T>
-  using _table_columns = sqlpp::table_columns<T, Id, X, Y>;
-  using _required_insert_columns =
-      sqlpp::detail::type_set<sqlpp::column_t<sqlpp::table_t<TabPoint_>, X>,
-                              sqlpp::column_t<sqlpp::table_t<TabPoint_>, Y>>;
+struct tab_point_ {
+  using generator = ::sqlpp::table_generator<tab_point_, "tab_point",
+    ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
+    ::sqlpp::column_spec<"x", XCoord>,
+    ::sqlpp::column_spec<"y", YCoord>>;
 };
-using TabPoint = ::sqlpp::table_t<TabPoint_>;
+using tab_point = ::sqlpp::table<tab_point_>;
 
 }  // namespace test
 
 int CustomType(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
 
-  const auto t = test::TabPoint{};
+  const auto t = test::tab_point{};
 
   // Insert (requires values_are_assignable)
   db(insert_into(t).set(t.x = XCoord{6}, t.y = YCoord{49}));

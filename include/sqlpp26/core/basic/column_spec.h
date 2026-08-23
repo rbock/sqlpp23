@@ -28,25 +28,34 @@
  */
 
 #include <meta>
+#include <optional>
 
 #include <sqlpp26/core/basic/fixed_string.h>
 
 namespace sqlpp {
+
+template <typename T, std::meta::info Templ>
+consteval bool is_specialization_of() {
+  constexpr auto type = std::meta::dealias(^^T);
+  return std::meta::has_template_arguments(type) &&
+         std::meta::template_of(type) == Templ;
+}
+
 template <typename Column>
 struct column_spec_of;
 
 template <typename Column>
 using column_spec_of_t = typename column_spec_of<Column>::type;
 
-template <fixed_string Name, typename DataType, bool HasDefault = false, fixed_string SqlName = Name>
+template <fixed_string SqlName, typename DataType, bool HasDefault = false, fixed_string CppName = SqlName>
 struct column_spec {
-  static constexpr fixed_string name = Name;
+  static constexpr fixed_string name = CppName;
   static constexpr fixed_string sql_name = SqlName;
   using data_type = DataType;
-  static constexpr bool has_default = HasDefault;
+  static constexpr bool has_default = HasDefault or is_specialization_of<DataType, ^^std::optional>();
 
-  using with_default = column_spec<Name, DataType, true, SqlName>;
-  template<fixed_string NewSqlName>
-  using with_sql_name = column_spec<Name, DataType, HasDefault, NewSqlName>;
+  using with_default = column_spec<SqlName, DataType, true, CppName>;
+  template<fixed_string NewCppName>
+  using with_cpp_name = column_spec<SqlName, DataType, HasDefault, NewCppName>;
 };
 }  // namespace sqlpp

@@ -56,7 +56,7 @@ int main(int, char*[]) {
     auto ctx = sqlpp::mock_db::context_t{};
 
     SQLPP_COMPARE(flatten(ctx, test::tab_foo{}.id), "tab_foo.id");
-    SQLPP_COMPARE(flatten(ctx, from(test::tab_foo{})), " FROM tab_foo");
+    SQLPP_COMPARE(flatten(ctx, from(test::tab_foo{})), "FROM tab_foo");
     SQLPP_COMPARE(flatten(ctx, test::tab_foo{}.id).asc(), "tab_foo.id ASC");
   }
   {

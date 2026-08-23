@@ -29,7 +29,7 @@
 
 #include <type_traits>
 
-//#include <sqlpp26/core/database/prepared_execute.h>
+#include <sqlpp26/core/database/prepared_execute.h>
 #include <sqlpp26/core/query/statement_handler.h>
 #include <sqlpp26/core/to_sql_string.h>
 
@@ -40,7 +40,6 @@ struct no_result_methods_t {
  private:
   friend class statement_handler_t;
 
-  /*
   // Execute
   template <typename Statement, typename Db>
   auto _run(this Statement&& self, Db& db) {
@@ -55,7 +54,6 @@ struct no_result_methods_t {
         statement_handler_t{}.prepare_execute(std::forward<Statement>(self),
                                               db)};
   }
-  */
 };
 
 template <>

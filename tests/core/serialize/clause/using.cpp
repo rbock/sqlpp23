@@ -35,22 +35,22 @@ int main() {
   const auto xa = x.as<"a">();
 
   // Single table
-  SQLPP_COMPARE(using_(foo), " USING tab_foo");
-  SQLPP_COMPARE(using_(aFoo), " USING tab_foo AS a");
-  SQLPP_COMPARE(using_(dynamic(true, foo)), " USING tab_foo");
+  SQLPP_COMPARE(using_(foo), "USING tab_foo");
+  SQLPP_COMPARE(using_(aFoo), "USING tab_foo AS a");
+  SQLPP_COMPARE(using_(dynamic(true, foo)), "USING tab_foo");
   SQLPP_COMPARE(using_(dynamic(false, foo)), "");
 
   // Static joins
   SQLPP_COMPARE(using_(foo.cross_join(bar)),
-                " USING tab_foo CROSS JOIN tab_bar");
+                "USING tab_foo CROSS JOIN tab_bar");
   SQLPP_COMPARE(using_(dynamic(true, foo.cross_join(bar))),
-                " USING tab_foo CROSS JOIN tab_bar");
+                "USING tab_foo CROSS JOIN tab_bar");
   SQLPP_COMPARE(using_(dynamic(false, foo.cross_join(bar))), "");
 
   // CTE
-  SQLPP_COMPARE(using_(x), " USING x");
-  SQLPP_COMPARE(using_(xa), " USING x AS a");
-  SQLPP_COMPARE(using_(dynamic(true, x)), " USING x");
+  SQLPP_COMPARE(using_(x), "USING x");
+  SQLPP_COMPARE(using_(xa), "USING x AS a");
+  SQLPP_COMPARE(using_(dynamic(true, x)), "USING x");
   SQLPP_COMPARE(using_(dynamic(false, x)), "");
 
   return 0;

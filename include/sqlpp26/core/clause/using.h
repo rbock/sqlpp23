@@ -44,7 +44,7 @@ namespace sqlpp {
 // USING
 template <typename _Table>
 struct using_t {
-  using_t(_Table table) : _table(std::move(table)) {}
+  constexpr using_t(_Table table) : _table(std::move(table)) {}
 
   using_t(const using_t&) = default;
   using_t(using_t&&) = default;

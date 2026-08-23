@@ -29,11 +29,11 @@ struct tab_foo_ {
   using generator = ::sqlpp::table_generator<tab_foo_, "tab_foo",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
     ::sqlpp::column_spec<"text_nn_d", ::std::string_view>::with_default,
-    ::sqlpp::column_spec<"int_n", std::optional<::std::int64_t>>::with_default,
-    ::sqlpp::column_spec<"double_n", std::optional<double>>::with_default,
-    ::sqlpp::column_spec<"u_int_n", std::optional<::std::uint64_t>>::with_default,
-    ::sqlpp::column_spec<"bool_n", std::optional<bool>>::with_default,
-    ::sqlpp::column_spec<"blob_n", std::optional<::std::span<const uint8_t>>>::with_default>;
+    ::sqlpp::column_spec<"int_n", std::optional<::std::int64_t>>,
+    ::sqlpp::column_spec<"double_n", std::optional<double>>,
+    ::sqlpp::column_spec<"u_int_n", std::optional<::std::uint64_t>>,
+    ::sqlpp::column_spec<"bool_n", std::optional<bool>>,
+    ::sqlpp::column_spec<"blob_n", std::optional<::std::span<uint8_t>>>>;
 };
 export using tab_foo = ::sqlpp::table<tab_foo_>;
 
@@ -52,9 +52,9 @@ void create_tab_bar(Db& db) {
 struct tab_bar_ {
   using generator = ::sqlpp::table_generator<tab_bar_, "tab_bar",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
-    ::sqlpp::column_spec<"text_n", std::optional<::std::string_view>>::with_default,
+    ::sqlpp::column_spec<"text_n", std::optional<::std::string_view>>,
     ::sqlpp::column_spec<"bool_nn", bool>::with_default,
-    ::sqlpp::column_spec<"int_n", std::optional<::std::int64_t>>::with_default>;
+    ::sqlpp::column_spec<"int_n", std::optional<::std::int64_t>>>;
 };
 export using tab_bar = ::sqlpp::table<tab_bar_>;
 
@@ -73,10 +73,10 @@ void create_tab_date_time(Db& db) {
 struct tab_date_time_ {
   using generator = ::sqlpp::table_generator<tab_date_time_, "tab_date_time",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
-    ::sqlpp::column_spec<"date_n", std::optional<::std::chrono::sys_days>>::with_default,
-    ::sqlpp::column_spec<"timestamp_n", std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>>::with_default,
-    ::sqlpp::column_spec<"date_timestamp_n_d", std::optional<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>>::with_default,
-    ::sqlpp::column_spec<"time_n", std::optional<::std::chrono::microseconds>>::with_default>;
+    ::sqlpp::column_spec<"date_n", std::optional<::std::chrono::sys_days>>,
+    ::sqlpp::column_spec<"timestamp_n", std::optional<::sqlpp::chrono::sys_microseconds>>,
+    ::sqlpp::column_spec<"date_timestamp_n_d", std::optional<::sqlpp::chrono::sys_microseconds>>,
+    ::sqlpp::column_spec<"time_n", std::optional<::std::chrono::microseconds>>>;
 };
 export using tab_date_time = ::sqlpp::table<tab_date_time_>;
 
@@ -109,7 +109,7 @@ void create_tab_department(Db& db) {
 struct tab_department_ {
   using generator = ::sqlpp::table_generator<tab_department_, "tab_department",
     ::sqlpp::column_spec<"id", ::std::int64_t>::with_default,
-    ::sqlpp::column_spec<"name", std::optional<::std::string_view>>::with_default,
+    ::sqlpp::column_spec<"name", std::optional<::std::string_view>>,
     ::sqlpp::column_spec<"division", ::std::string_view>::with_default>;
 };
 export using tab_department = ::sqlpp::table<tab_department_>;

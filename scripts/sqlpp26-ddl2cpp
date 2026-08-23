@@ -103,19 +103,19 @@ class DdlParser:
     "MEDIUMTEXT": "::std::string_view",  # MYSQL
     "RATIONAL": "::std::string_view", # PostgreSQL pg_rationale extension
     # blob types
-    "BYTEA": "::std::span<const uint8_t>",
-    "TINYBLOB": "::std::span<const uint8_t>",
-    "BLOB": "::std::span<const uint8_t>",
-    "MEDIUMBLOB": "::std::span<const uint8_t>",
-    "LONGBLOB": "::std::span<const uint8_t>",
-    "BINARY": "::std::span<const uint8_t>",  # MYSQL
-    "VARBINARY": "::std::span<const uint8_t>",  # MYSQL
+    "BYTEA": "::std::span<uint8_t>",
+    "TINYBLOB": "::std::span<uint8_t>",
+    "BLOB": "::std::span<uint8_t>",
+    "MEDIUMBLOB": "::std::span<uint8_t>",
+    "LONGBLOB": "::std::span<uint8_t>",
+    "BINARY": "::std::span<uint8_t>",  # MYSQL
+    "VARBINARY": "::std::span<uint8_t>",  # MYSQL
     # date types
     "DATE": "::std::chrono::sys_days",
     # timestamp types
-    "DATETIME": "std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>",
-    "TIMESTAMP": "std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>",
-    "TIMESTAMPTZ": "std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>",  # PostgreSQL
+    "DATETIME": "::sqlpp::chrono::sys_microseconds",
+    "TIMESTAMP": "::sqlpp::chrono::sys_microseconds",
+    "TIMESTAMPTZ": "::sqlpp::chrono::sys_microseconds",  # PostgreSQL
     # time types
     "TIME": "::std::chrono::microseconds",
     }
@@ -665,14 +665,15 @@ namespace {namespace} {{
             column_class = self._to_class_name(column.cpp_name)
             column_member = self._to_member_name(column.cpp_name)
             column_sql_name = self._escape_if_reserved(column.sql_name)
-            with_sql_name = f"""::with_sql_name<"{column_sql_name}">""" if column_sql_name != column_member else "";
+            with_cpp_name = f"""::with_cpp_name<"{column_member}">""" if column_sql_name != column_member else "";
             cpp_type = column.cpp_type
             if column.is_nullable:
                 cpp_type = f"std::optional<{cpp_type}>"
             if column.is_const:
                 cpp_type = f"const {cpp_type}"
-            with_default = "::with_default" if column.has_default else ""
-            lines.append(f"""    ::sqlpp::column_spec<"{column_member}", {cpp_type}>{with_default}{with_sql_name}""")
+            # Nullable columns implicitly have a default
+            with_default = "::with_default" if column.has_default and not column.is_nullable else ""
+            lines.append(f"""    ::sqlpp::column_spec<"{column_sql_name}", {cpp_type}>{with_default}{with_cpp_name}""")
         return ",\n".join(lines)
 
     def create_table(self, table, ostream):

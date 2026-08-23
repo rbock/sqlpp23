@@ -35,13 +35,8 @@
 namespace sqlpp {
 template <typename DataType, fixed_string Name>
 struct parameter_t : public enable_as, public enable_comparison {
-  parameter_t() = default;
-
-  parameter_t(const parameter_t&) = default;
-  parameter_t(parameter_t&&) = default;
-  parameter_t& operator=(const parameter_t&) = default;
-  parameter_t& operator=(parameter_t&&) = default;
-  ~parameter_t() = default;
+  static constexpr fixed_string name = Name;
+  using data_type = DataType;
 };
 
 template <typename DataType, fixed_string Name>
@@ -63,7 +58,14 @@ auto to_sql_string(Context&, const parameter_t<DataType, Name>&)
 template <fixed_string Name, typename DataType>
   requires(is_data_type_v<DataType>)
 auto parameter()
-    -> parameter_t<DataType, Name> {
+    -> parameter_t<parameter_data_type_t<DataType>, Name> {
+  return {};
+}
+
+template <typename T>
+  requires(has_data_type_v<T> and has_name_v<T>)
+auto parameter(const T&)
+    -> parameter_t<parameter_data_type_t<data_type_of_t<T>>, name_of_v<T>> {
   return {};
 }
 }  // namespace sqlpp

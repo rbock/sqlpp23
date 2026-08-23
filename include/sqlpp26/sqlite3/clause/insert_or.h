@@ -29,7 +29,6 @@
 
 #include <sqlpp26/core/clause/insert_value_list.h>
 #include <sqlpp26/core/clause/into.h>
-#include <sqlpp26/core/database/parameter_list.h>
 #include <sqlpp26/core/database/prepared_insert.h>
 #include <sqlpp26/core/default_value.h>
 #include <sqlpp26/core/noop.h>

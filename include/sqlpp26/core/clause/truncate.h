@@ -39,7 +39,7 @@ struct truncate_t {};
 
 template <typename Context>
 auto to_sql_string(Context&, const truncate_t&) -> std::string {
-  return "TRUNCATE ";
+  return "TRUNCATE";
 }
 
 template <>

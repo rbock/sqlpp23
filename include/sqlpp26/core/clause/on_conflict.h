@@ -78,9 +78,9 @@ auto to_sql_string(Context& context,
   const auto targets = tuple_to_sql_string(context, read.columns(t),
                                            tuple_operand_name_no_dynamic{", "});
   if (targets.empty()) {
-    return " ON CONFLICT";
+    return "ON CONFLICT";
   }
-  return " ON CONFLICT (" + targets + ")";
+  return "ON CONFLICT (" + targets + ")";
 }
 
 template <typename... Columns>

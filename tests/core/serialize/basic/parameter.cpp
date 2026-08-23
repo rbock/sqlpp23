@@ -39,7 +39,7 @@ int main(int, char*[]) {
   SQLPP_COMPARE(sqlpp::on_conflict(foo.id).do_update(
                     foo.int_n = sqlpp::parameter<"int_n", int>(),
                     foo.text_nn_d = sqlpp::parameter<"text_nn_d", std::string>()),
-                " ON CONFLICT (id) DO UPDATE SET int_n = ?, text_nn_d = ?");
+                "ON CONFLICT (id) DO UPDATE SET int_n = ?, text_nn_d = ?");
 
   return 0;
 }

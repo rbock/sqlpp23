@@ -30,17 +30,17 @@ int main(int, char*[]) {
   const auto foo = test::tab_foo{};
 
   // Without condition.
-  SQLPP_COMPARE(sqlpp::where(true), " WHERE 1");
+  SQLPP_COMPARE(sqlpp::where(true), "WHERE 1");
 
   // Whith static condition.
-  SQLPP_COMPARE(sqlpp::where(foo.bool_n), " WHERE tab_foo.bool_n");
+  SQLPP_COMPARE(sqlpp::where(foo.bool_n), "WHERE tab_foo.bool_n");
   SQLPP_COMPARE(sqlpp::where(foo.bool_n.is_not_distinct_from(true)),
-                " WHERE tab_foo.bool_n IS NOT DISTINCT FROM 1");
-  SQLPP_COMPARE(sqlpp::where(foo.id > 17), " WHERE tab_foo.id > 17");
+                "WHERE tab_foo.bool_n IS NOT DISTINCT FROM 1");
+  SQLPP_COMPARE(sqlpp::where(foo.id > 17), "WHERE tab_foo.id > 17");
 
   // With dynamic condition.
   SQLPP_COMPARE(sqlpp::where(dynamic(true, foo.id > 17)),
-                " WHERE tab_foo.id > 17");
+                "WHERE tab_foo.id > 17");
   SQLPP_COMPARE(sqlpp::where(dynamic(false, foo.id > 17)), "");
 
   return 0;

@@ -36,16 +36,16 @@ int main(int, char*[]) {
   // --  returning(<columns>)
   // -----------------------------------------
   // Single column
-  SQLPP_COMPARE(returning(foo.float_n), " RETURNING tab_foo.double_n");
+  SQLPP_COMPARE(returning(foo.float_n), " RETURNING tab_foo.double_n AS float_n");
 
   // Two columns
   SQLPP_COMPARE(returning(foo.float_n, bar.id),
-                " RETURNING tab_foo.double_n, tab_bar.id");
+                " RETURNING tab_foo.double_n AS float_n, tab_bar.id");
 
   // All columns of a table
   SQLPP_COMPARE(returning(all_of(foo)),
                 " RETURNING tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, "
-                "tab_foo.int_c_n, tab_foo.double_n, tab_foo.u_int_n, "
+                "tab_foo.int_c_n, tab_foo.double_n AS float_n, tab_foo.u_int_n, "
                 "tab_foo.blob_n, tab_foo.bool_n");
 
   // Optional column

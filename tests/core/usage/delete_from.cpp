@@ -52,9 +52,9 @@ int delete_from(int, char*[]) {
   to_sql_string(printer, delete_from(t).where(t.text_n != "transparent"));
   std::cerr << to_sql_string(printer, delete_from(t)) << std::endl;
 
-  db(delete_from(t).where(t.text_n.in(select(f.text_nn_d).from(f))));
+  db(delete_from(t).where(t.text_n.in(value(select(f.text_nn_d).from(f)))));
   db(delete_from(t).where(
-      dynamic(maybe, t.text_n.in(select(f.text_nn_d).from(f)))));
+      dynamic(maybe, t.text_n.in(value(select(f.text_nn_d).from(f))))));
 
   db(truncate(t));
 

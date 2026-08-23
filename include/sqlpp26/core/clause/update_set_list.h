@@ -53,7 +53,7 @@ struct update_set_list_t {
 template <typename Context, typename... Assignments>
 auto to_sql_string(Context& context, const update_set_list_t<Assignments...>& t)
     -> std::string {
-  return " SET " + tuple_to_sql_string(context, read.assignments(t),
+  return "SET " + tuple_to_sql_string(context, read.assignments(t),
                                        tuple_operand_no_dynamic{", "});
 }
 

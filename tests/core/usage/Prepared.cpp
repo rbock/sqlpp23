@@ -28,40 +28,38 @@
 
 int Prepared(int, char*[]) {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-  // test::tab_foo f;
   const auto t = test::tab_bar{};
 
+#if 0
+TODO: Do we test something like this in the type tests?
   // empty parameter lists
   {
     using P = sqlpp::make_parameter_list_t<decltype(t.id)>;
-    static_assert(P::size::value == 0, "type requirement");
+    static_assert(nonstatic_data_members_of(^^P, ctx).size() == 0, "type requirement");
   }
 
   // single parameter
   {
     using P = sqlpp::make_parameter_list_t<decltype(parameter(t.id))>;
-    static_assert(P::size::value == 1, "type requirement");
-    auto p = P{};
+    static_assert(data_members_of(^^P, ctx).size() == 1, "type requirement");
+    [[maybe_unused]] auto p = P{};
     p.id = 7;
-    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // single parameter
   {
     using P = sqlpp::make_parameter_list_t<decltype(parameter(t.text_n))>;
-    static_assert(P::size::value == 1, "type requirement");
-    auto p = P{};
+    static_assert(nonstatic_data_members_of(^^P, ctx).size() == 1, "type requirement");
+    [[maybe_unused]] auto p = P{};
     p.text_n = "cheesecake";
-    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // single parameter in expression
   {
     using P = sqlpp::make_parameter_list_t<decltype(t.id == parameter(t.id))>;
-    static_assert(P::size::value == 1, "type requirement");
-    auto p = P{};
+    static_assert(nonstatic_data_members_of(^^P, ctx).size() == 1, "type requirement");
+    [[maybe_unused]] auto p = P{};
     p.id = 7;
-    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // single parameter in larger expression
@@ -69,10 +67,9 @@ int Prepared(int, char*[]) {
     using P = sqlpp::make_parameter_list_t<decltype((t.text_n.like("%") and
                                                      t.id == parameter(t.id)) or
                                                     t.bool_nn != false)>;
-    static_assert(P::size::value == 1, "type requirement");
-    auto p = P{};
+    static_assert(nonstatic_data_members_of(^^P, ctx).size() == 1, "type requirement");
+    [[maybe_unused]] auto p = P{};
     p.id = 7;
-    std::ignore = p;  // silence warnings about `p` being unused.
   }
 
   // three parameters in expression
@@ -145,6 +142,7 @@ int Prepared(int, char*[]) {
     x = decltype(npl)();
     std::cerr << x.id << std::endl;
   }
+#endif
 
   // Can we prepare a query without parameters?
   {

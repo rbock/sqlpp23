@@ -38,8 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp {
 template <typename Lhs, typename Operator, typename Rhs>
-struct comparison_expression
-  /* TODO  : public enable_as, enable_comparison*/{
+struct comparison_expression : public enable_as, enable_comparison {
   constexpr comparison_expression(Lhs l, Rhs r)
       : _lhs(std::move(l)), _rhs(std::move(r)) {}
   comparison_expression(const comparison_expression&) = default;

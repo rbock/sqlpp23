@@ -32,20 +32,20 @@ int main(int, char*[]) {
   const auto foo = test::tab_foo{};
 
   // Without condition.
-  SQLPP_COMPARE(sqlpp::having(true), " HAVING 1");
+  SQLPP_COMPARE(sqlpp::having(true), "HAVING 1");
 
   // Whith static condition.
-  SQLPP_COMPARE(sqlpp::having(foo.bool_n), " HAVING tab_foo.bool_n");
+  SQLPP_COMPARE(sqlpp::having(foo.bool_n), "HAVING tab_foo.bool_n");
   SQLPP_COMPARE(sqlpp::having(foo.bool_n.is_not_distinct_from(true)),
-                " HAVING tab_foo.bool_n IS NOT DISTINCT FROM 1");
-  SQLPP_COMPARE(sqlpp::having(foo.id > 17), " HAVING tab_foo.id > 17");
-  SQLPP_COMPARE(sqlpp::having(foo.id > val), " HAVING tab_foo.id > 17");
+                "HAVING tab_foo.bool_n IS NOT DISTINCT FROM 1");
+  SQLPP_COMPARE(sqlpp::having(foo.id > 17), "HAVING tab_foo.id > 17");
+  SQLPP_COMPARE(sqlpp::having(foo.id > val), "HAVING tab_foo.id > 17");
   SQLPP_COMPARE(sqlpp::having(max(foo.id) > 17),
-                " HAVING MAX(tab_foo.id) > 17");
+                "HAVING MAX(tab_foo.id) > 17");
 
   // With dynamic condition.
   SQLPP_COMPARE(sqlpp::having(dynamic(true, max(foo.id) > 17)),
-                " HAVING MAX(tab_foo.id) > 17");
+                "HAVING MAX(tab_foo.id) > 17");
   SQLPP_COMPARE(sqlpp::having(dynamic(false, max(foo.id) > 17)), "");
 
   return 0;
