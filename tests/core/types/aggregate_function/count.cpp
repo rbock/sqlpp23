@@ -57,11 +57,9 @@ void test_count(Value v) {
                 "");
 
   // count has a name
-  static_assert(not sqlpp::has_name_tag<decltype(count(v_not_null))>::value,
-                "");
-  static_assert(not sqlpp::has_name_tag<decltype(count(sqlpp::distinct,
-                                                       v_not_null))>::value,
-                "");
+  static_assert(not sqlpp::has_name_v<decltype(count(v_not_null))>, "");
+  static_assert(
+      not sqlpp::has_name_v<decltype(count(sqlpp::distinct, v_not_null))>, "");
 
   // count enables comparison member functions.
   static_assert(

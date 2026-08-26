@@ -32,60 +32,52 @@ void test_parameter() {
   {
     auto p = parameter(foo.id);
     using P = decltype(p);
-    static_assert(
-        std::is_same<sqlpp::data_type_of_t<P>, sqlpp::integral>::value, "");
-    static_assert(std::is_same<sqlpp::parameters_of_t<P>,
-                               sqlpp::detail::type_vector<P>>::value,
-                  "");
+    static_assert(std::is_same_v<sqlpp::data_type_of_t<P>, int64_t>);
+    static_assert(std::is_same_v<sqlpp::parameters_of_t<P>,
+                                 sqlpp::detail::type_vector<P>>);
 
     // If parameters had a name tag, it would be possible to use them as select
     // columns.
-    static_assert(not sqlpp::has_name<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value);
 
-    static_assert(sqlpp::has_enabled_as<P>::value, "");
-    static_assert(sqlpp::has_enabled_comparison<P>::value, "");
+    static_assert(sqlpp::has_enabled_as<P>::value);
+    static_assert(sqlpp::has_enabled_comparison<P>::value);
   }
   {
     auto p = parameter(foo.float_n);
     using P = decltype(p);
-    static_assert(std::is_same<sqlpp::data_type_of_t<P>,
-                               std::optional<sqlpp::floating_point>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::parameters_of_t<P>,
-                               sqlpp::detail::type_vector<P>>::value,
-                  "");
+    static_assert(
+        std::is_same_v<sqlpp::data_type_of_t<P>, std::optional<double>>);
+    static_assert(std::is_same_v<sqlpp::parameters_of_t<P>,
+                                 sqlpp::detail::type_vector<P>>);
 
-    static_assert(not sqlpp::has_name<P>::value, "");
-    static_assert(sqlpp::has_enabled_as<P>::value, "");
-    static_assert(sqlpp::has_enabled_comparison<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value);
+    static_assert(sqlpp::has_enabled_as<P>::value);
+    static_assert(sqlpp::has_enabled_comparison<P>::value);
   }
 
   {
     auto p = sqlpp::parameter<"something", int64_t>();
     using P = decltype(p);
-    static_assert(
-        std::is_same<sqlpp::data_type_of_t<P>, sqlpp::integral>::value, "");
-    static_assert(std::is_same<sqlpp::parameters_of_t<P>,
-                               sqlpp::detail::type_vector<P>>::value,
-                  "");
+    static_assert(std::is_same_v<sqlpp::data_type_of_t<P>, int64_t>);
+    static_assert(std::is_same_v<sqlpp::parameters_of_t<P>,
+                                 sqlpp::detail::type_vector<P>>);
 
-    static_assert(not sqlpp::has_name<P>::value, "");
-    static_assert(sqlpp::has_enabled_as<P>::value, "");
-    static_assert(sqlpp::has_enabled_comparison<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value);
+    static_assert(sqlpp::has_enabled_as<P>::value);
+    static_assert(sqlpp::has_enabled_comparison<P>::value);
   }
   {
     auto p = sqlpp::parameter<"something", std::vector<uint8_t>>();
     using P = decltype(p);
-    static_assert(std::is_same<sqlpp::data_type_of_t<P>,
-                               std::optional<sqlpp::blob>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::parameters_of_t<P>,
-                               sqlpp::detail::type_vector<P>>::value,
-                  "");
+    static_assert(
+        std::is_same_v<sqlpp::data_type_of_t<P>, std::vector<uint8_t>>);
+    static_assert(std::is_same_v<sqlpp::parameters_of_t<P>,
+                                 sqlpp::detail::type_vector<P>>);
 
-    static_assert(not sqlpp::has_name<P>::value, "");
-    static_assert(sqlpp::has_enabled_as<P>::value, "");
-    static_assert(sqlpp::has_enabled_comparison<P>::value, "");
+    static_assert(not sqlpp::has_name<P>::value);
+    static_assert(sqlpp::has_enabled_as<P>::value);
+    static_assert(sqlpp::has_enabled_comparison<P>::value);
   }
 }
 

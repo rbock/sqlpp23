@@ -31,7 +31,6 @@ void test_join() {
   auto bar = test::tab_bar{};
   auto cheese = foo.as<"cheese">();
   auto cake = foo.as<"cake">();
-  auto meme = schema_qualified_table({"meme"}, foo).as<"meme">();
   auto verb = sqlpp::verbatim_table("verb").as<"verb">();
   auto cte = sqlpp::cte<"CTE">().as(select(foo.id).from(foo));
   auto sel_as = select(all_of(foo))
@@ -43,7 +42,6 @@ void test_join() {
   using Bar = decltype(bar);
   using Cheese = decltype(cheese);
   using Cake = decltype(cake);
-  using Meme = decltype(meme);
   using Verb = decltype(verb);
   using CteRef = sqlpp::cte_ref_t<"CTE">;
   using SelAsRef = sqlpp::select_ref_t<"sel_as">;
@@ -55,234 +53,174 @@ void test_join() {
   {
     using J = decltype(foo.join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   {
     using J = decltype(foo.cross_join(bar));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   {
     using J = decltype(foo.inner_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   {
     using J = decltype(foo.left_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<Bar>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Bar>());
   }
 
   {
     using J = decltype(foo.right_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo>());
   }
 
   {
     using J = decltype(foo.full_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
   }
 
   // Join with rhs alias table
   {
     using J = decltype(foo.join(cheese).on(foo.id == cheese.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Cheese>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Cheese>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // Join with rhs alias table
   {
     using J = decltype(foo.join(dynamic(true, cheese)).on(foo.id == cheese.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Cheese>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Cheese>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo>());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // Join with two alias tables
   {
     using J = decltype(cheese.join(cake).on(cheese.id == cake.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Cheese, Cake>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-  }
-
-  // Join with schema-qualified table
-  {
-    using J = decltype(meme.join(cake).on(meme.id == cake.id));
-    static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Meme, Cake>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Cheese, Cake>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // Join with verbatim table
   {
-    using J = decltype(verb.join(meme).on(
-        sqlpp::verbatim<sqlpp::integral>("verb.id") == meme.id));
+    using J = decltype(verb.join(cake).on(
+        sqlpp::verbatim<sqlpp::integral>("verb.id") == cake.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Verb, Meme>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Verb, Cake>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // Join with select as
   {
     using J = decltype(sel_as.join(foo).on(sel_as.id == foo.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<SelAsRef, Foo>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<SelAsRef, Foo>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // Join with select as and parameters
   {
     using J = decltype(sel_as.join(foo).on(
-        sel_as.id ==
-        foo.id + sqlpp::parameter(sqlpp::integral{}, sqlpp::alias::a)));
+        sel_as.id == foo.id + sqlpp::parameter<"a", int64_t>()));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<SelAsRef, Foo>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<SelAsRef, Foo>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
 
     // parameters from sub select and condition are being exposed
-    using ExpectedParameters = sqlpp::detail::type_vector<
-        sqlpp::parameter_t<sqlpp::integral, test::tab_foo_::Id::_sqlpp_name_tag>,
-        sqlpp::parameter_t<sqlpp::integral,
-                           decltype(sqlpp::alias::a)::_sqlpp_name_tag>>;
+    using ExpectedParameters =
+        sqlpp::detail::type_vector<sqlpp::parameter_t<int64_t, "id">,
+                                   sqlpp::parameter_t<int64_t, "a">>;
     static_assert(
         std::is_same<sqlpp::parameters_of_t<J>, ExpectedParameters>::value, "");
   }
 
   // Join with cte
   {
-    using J = decltype(cte.join(meme).on(cte.id == meme.id));
+    using J = decltype(cte.join(cake).on(cte.id == cake.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<CteRef, Meme>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::provided_tables_of_t<J>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<J>,
-                               sqlpp::detail::type_set<CteRef>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<CteRef, Cake>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::provided_tables_of<J>::func());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::required_ctes_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<CteRef>());
   }
 
   // Join with dynamic table
   {
     using J = decltype(foo.join(dynamic(true, bar)).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Bar>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo>());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // Join with dynamic table and static table
@@ -292,18 +230,13 @@ void test_join() {
                            .on(foo.id == cheese.id and
                                dynamic(true, bar.id == cheese.id)));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>,
-                     sqlpp::detail::type_set<Foo, Bar, Cheese>>::value,
-        "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>,
-                               sqlpp::detail::type_set<Foo, Cheese>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Bar, Cheese>());
+    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<Foo, Cheese>());
+    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
-
 }
 
 int main() {

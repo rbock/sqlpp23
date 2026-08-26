@@ -36,7 +36,7 @@ void test_max(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::optional{v});
 
-  using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
+  using OptDataType = std::optional<Value>;
 
   // max of non-nullable can be null because there could be zero result rows.
   static_assert(is_same_type<decltype(max(v_not_null)), OptDataType>::value,
@@ -59,9 +59,9 @@ void test_max(Value v) {
       "");
 
   // max has a name
-  static_assert(not sqlpp::has_name_tag<decltype(max(v_not_null))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(max(sqlpp::distinct,
-                                                     v_not_null))>::value,
+  static_assert(not sqlpp::has_name_v<decltype(max(v_not_null))>, "");
+  static_assert(not sqlpp::has_name_v<decltype(max(sqlpp::distinct,
+                                                     v_not_null))>,
                 "");
 
   // max enables comparison member functions.

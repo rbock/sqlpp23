@@ -455,7 +455,6 @@ struct prepare_check {
   static consteval void verify() {}
 };
 
-#if 0
 // Check if a clause within a statement is ready to be run by the connection.
 // This used in addition to the `consistency_check`.
 //
@@ -463,15 +462,8 @@ struct prepare_check {
 // missing tables.
 template <typename Statement, typename Clause>
 struct run_check {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
+  static consteval void verify() {}
 };
-
-template <typename Statement, typename Clause>
-using run_check_t = typename run_check<Statement, Clause>::type;
-#endif
 
 // Not implemented to ensure implementation for statement_t
 template <typename Statement>

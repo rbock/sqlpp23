@@ -28,55 +28,37 @@
 
 void test_table() {
   auto foo = test::tab_foo{};
-  auto bar = test::tab_bar{};
-  using FooBar = decltype(foo.as(bar));
-  using Id = decltype(foo.as(bar).id);
+  using FooBar = decltype(foo.as<"bar">());
+  using Id = decltype(foo.as<"bar">().id);
 
   static_assert(
-      std::is_same<FooBar,
-                   sqlpp::table_as_t<test::tab_foo_,
-                                     test::tab_bar_::_sqlpp_name_tag>>::value,
-      "");
+      std::is_same_v<FooBar, sqlpp::table_as<test::tab_foo_, "bar">>);
   static_assert(sqlpp::is_table<FooBar>::value, "");
   static_assert(not sqlpp::is_raw_table<FooBar>::value, "");
-  static_assert(std::is_same<sqlpp::name_tag_of_t<FooBar>,
-                             test::tab_bar_::_sqlpp_name_tag>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<FooBar>,
-                             sqlpp::detail::type_set<FooBar>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FooBar>,
-                             sqlpp::provided_tables_of_t<FooBar>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FooBar>,
-                             sqlpp::detail::type_set<>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::required_tables_of_t<FooBar>,
-                             sqlpp::detail::type_set<>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::required_static_tables_of_t<FooBar>,
-                             sqlpp::required_tables_of_t<FooBar>>::value,
-                "");
+  static_assert(std::string_view(sqlpp::name_of_v<FooBar>) == "bar");
+  static_assert(sqlpp::provided_tables_of<FooBar>::func() ==
+                sqlpp::detail::make_type_info_set<FooBar>());
+  static_assert(sqlpp::provided_static_tables_of<FooBar>::func() ==
+                sqlpp::provided_tables_of<FooBar>::func());
+  static_assert(sqlpp::provided_optional_tables_of<FooBar>::func() ==
+                sqlpp::detail::make_type_info_set<>());
+  static_assert(sqlpp::required_tables_of<FooBar>::func() ==
+                sqlpp::detail::make_type_info_set<>());
+  static_assert(sqlpp::required_static_tables_of<FooBar>::func() ==
+                sqlpp::required_tables_of<FooBar>::func());
 
-  static_assert(not sqlpp::is_table<Id>::value, "");
-  static_assert(std::is_same<sqlpp::name_tag_of_t<Id>,
-                             test::tab_foo_::Id::_sqlpp_name_tag>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>,
-                             sqlpp::detail::type_set<>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_static_tables_of_t<Id>,
-                             sqlpp::provided_tables_of_t<Id>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<Id>,
-                             sqlpp::provided_tables_of_t<Id>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::required_tables_of_t<Id>,
-                             sqlpp::detail::type_set<FooBar>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::required_static_tables_of_t<Id>,
-                             sqlpp::required_tables_of_t<Id>>::value,
-                "");
+  static_assert(not sqlpp::is_table<Id>::value);
+  static_assert(std::string_view(sqlpp::name_of_v<Id>) == "id");
+  static_assert(sqlpp::provided_tables_of<Id>::func() ==
+                sqlpp::detail::make_type_info_set<>());
+  static_assert(sqlpp::provided_static_tables_of<Id>::func() ==
+                sqlpp::provided_tables_of<Id>::func());
+  static_assert(sqlpp::provided_optional_tables_of<Id>::func() ==
+                sqlpp::provided_tables_of<Id>::func());
+  static_assert(sqlpp::required_tables_of<Id>::func() ==
+                sqlpp::detail::make_type_info_set<FooBar>());
+  static_assert(sqlpp::required_static_tables_of<Id>::func() ==
+                sqlpp::required_tables_of<Id>::func());
 }
 
 int main() {

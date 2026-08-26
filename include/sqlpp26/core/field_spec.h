@@ -65,7 +65,7 @@ struct is_field_compatible<field_spec<LeftName, LeftDataType>,
 // that case, their respective columns can be NULL.
 template <typename Statement, typename SelectColumn>
 struct field_depends_on_optional_table {
-  static constexpr bool _depends_on_optional_table =
+  static constexpr bool value =
       detail::make_joined_type_info_set(
           provided_optional_tables_of<Statement>::func(),
           required_tables_of<SelectColumn>::func())

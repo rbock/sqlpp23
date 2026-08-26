@@ -37,8 +37,8 @@ void test_sum(Value v) {
   auto v_maybe_null = sqlpp::value(std::optional{v});
 
   using DataType = typename std::conditional<std::is_same<Value, bool>::value,
-                                              int, Value>::type;
-  using OptDataType = sqlpp::data_type_of_t<std::optional<DataType>>;
+                                              int64_t, Value>::type;
+  using OptDataType = std::optional<DataType>;
 
   // sum non-nullable can be null because there could be zero result rows.
   static_assert(is_same_type<decltype(sum(v_not_null)), OptDataType>::value,
@@ -61,9 +61,9 @@ void test_sum(Value v) {
       "");
 
   // sum has a name
-  static_assert(not sqlpp::has_name_tag<decltype(sum(v_not_null))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(sum(sqlpp::distinct,
-                                                     v_not_null))>::value,
+  static_assert(not sqlpp::has_name_v<decltype(sum(v_not_null))>, "");
+  static_assert(not sqlpp::has_name_v<decltype(sum(sqlpp::distinct,
+                                                     v_not_null))>,
                 "");
 
   // sum enables OVER.

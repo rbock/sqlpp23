@@ -103,6 +103,10 @@ struct table_of<column<Table, index>> {
   using type = Table;
 };
 
+template <typename Table, size_t index>
+struct is_aggregate_neutral<column<Table, index>>
+    : public std::false_type {};
+
 // In most places, e.g. WHERE expressions, we serialize columns as
 // <table name>.<column name>
 template <typename Context, typename Table, size_t index>
@@ -155,10 +159,6 @@ struct column_t : public enable_as, public enable_comparison {
     return assign(*this, std::move(value));
   }
 };
-
-template <typename Table, typename ColumnSpec>
-struct is_aggregate_neutral<column<Table, ColumnSpec>>
-    : public std::false_type {};
 
 template <typename Table, typename ColumnSpec>
 struct has_default<column<Table, ColumnSpec>>

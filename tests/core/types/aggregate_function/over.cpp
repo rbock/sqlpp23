@@ -25,6 +25,7 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
+#include "sqlpp26/core/type_traits/data_type.h"
 
 namespace {
 template <typename T, typename V>
@@ -36,11 +37,11 @@ void test_aggregate_functions(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::optional{v});
 
-  using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
+  using OptDataType = std::optional<Value>;
 
   // Aggregate of non-nullable
   static_assert(
-      is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value,
+      is_same_type<decltype(count(v_not_null).over()), int64_t>::value,
       "");
   static_assert(
       is_same_type<decltype(max(v_not_null).over()), OptDataType>::value, "");
@@ -49,7 +50,7 @@ void test_aggregate_functions(Value v) {
 
   // Aggregate of nullable
   static_assert(
-      is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value,
+      is_same_type<decltype(count(v_not_null).over()), int64_t>::value,
       "");
   static_assert(
       is_same_type<decltype(max(v_maybe_null).over()), OptDataType>::value,
@@ -68,11 +69,11 @@ void test_aggregate_functions(Value v) {
 
   // Aggregate functions have a name
   static_assert(
-      not sqlpp::has_name_tag<decltype(count(v_not_null).over())>::value, "");
+      not sqlpp::has_name_v<decltype(count(v_not_null).over())>, "");
   static_assert(
-      not sqlpp::has_name_tag<decltype(max(v_not_null).over())>::value, "");
+      not sqlpp::has_name_v<decltype(max(v_not_null).over())>, "");
   static_assert(
-      not sqlpp::has_name_tag<decltype(min(v_not_null).over())>::value, "");
+      not sqlpp::has_name_v<decltype(min(v_not_null).over())>, "");
 
   // Aggregate functions enable comparison member functions.
   static_assert(
@@ -115,10 +116,10 @@ void test_numeric_aggregate_functions(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::optional{v});
 
-  using DataType = typename std::conditional<std::is_same<Value, bool>::value,
-                                              int, Value>::type;
-  using OptDataType = sqlpp::data_type_of_t<std::optional<DataType>>;
-  using OptFloat = sqlpp::data_type_of_t<std::optional<float>>;
+  using DataType = typename std::conditional<std::is_same_v<Value, bool>,
+                                              int64_t, Value>::type;
+  using OptDataType = std::optional<DataType>;
+  using OptFloat = std::optional<double>;
 
   // Aggregate of non-nullable
   static_assert(
@@ -141,9 +142,9 @@ void test_numeric_aggregate_functions(Value v) {
 
   // Aggregate functions have a name
   static_assert(
-      not sqlpp::has_name_tag<decltype(sum(v_not_null).over())>::value, "");
+      not sqlpp::has_name_v<decltype(sum(v_not_null).over())>, "");
   static_assert(
-      not sqlpp::has_name_tag<decltype(avg(v_not_null).over())>::value, "");
+      not sqlpp::has_name_v<decltype(avg(v_not_null).over())>, "");
 
   // Aggregate functions enable OVER.
   static_assert(

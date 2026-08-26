@@ -93,6 +93,9 @@ struct is_data_type : public std::false_type {};
 template <typename T>
 inline constexpr bool is_data_type_v = is_data_type<T>::value;
 
+template <typename T>
+struct is_data_type<std::optional<T>> : public is_data_type<T> {};
+
 // boolean
 template<typename T>
 struct is_raw_boolean: public std::false_type {};

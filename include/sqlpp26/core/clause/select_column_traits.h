@@ -37,9 +37,22 @@
 // These type traits consider `dynamic_t` and `as_expression`
 
 namespace sqlpp {
-// Get value type
+// Get data type
 template <typename T>
-struct select_column_data_type_of : public data_type_of<remove_as_t<remove_dynamic_t<T>>> {};
+struct select_column_data_type_of : public data_type_of<T> {};
+template <typename T>
+using select_column_data_type_of_t =
+    typename select_column_data_type_of<T>::type;
+
+template <typename T>
+struct select_column_data_type_of<dynamic_t<T>> {
+  using type = sqlpp::force_optional_t<select_column_data_type_of_t<T>>;
+};
+
+template <typename T, fixed_string Name>
+struct select_column_data_type_of<as_expression<T, Name>>
+    : public select_column_data_type_of<T> {};
+
 template <typename T>
 using select_column_data_type_of_t =
     typename select_column_data_type_of<T>::type;

@@ -36,7 +36,7 @@ void test_min(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::optional{v});
 
-  using OptDataType = sqlpp::data_type_of_t<std::optional<Value>>;
+  using OptDataType = std::optional<Value>;
 
   // min of non-nullable can be null because there could be zero result rows.
   static_assert(is_same_type<decltype(min(v_not_null)), OptDataType>::value,
@@ -59,9 +59,9 @@ void test_min(Value v) {
       "");
 
   // min has a name
-  static_assert(not sqlpp::has_name_tag<decltype(min(v_not_null))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(min(sqlpp::distinct,
-                                                     v_not_null))>::value,
+  static_assert(not sqlpp::has_name_v<decltype(min(v_not_null))>, "");
+  static_assert(not sqlpp::has_name_v<decltype(min(sqlpp::distinct,
+                                                     v_not_null))>,
                 "");
 
   // min enables comparison member functions.

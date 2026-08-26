@@ -25,6 +25,7 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
+#include "sqlpp26/core/type_traits.h"
 
 int main() {
   auto verb = sqlpp::verbatim_table("verb").as<"verb">();
@@ -32,13 +33,11 @@ int main() {
   using Verb = decltype(verb);
 
   static_assert(sqlpp::is_table<Verb>::value, "");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<Verb>,
-                             sqlpp::detail::type_set<Verb>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_static_tables_of_t<Verb>,
-                             sqlpp::provided_tables_of_t<Verb>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<Verb>,
-                             sqlpp::detail::type_set<>>::value,
-                "");
+  static_assert(std::string_view(sqlpp::name_of_v<Verb>) == "verb");
+  static_assert(sqlpp::provided_tables_of<Verb>::func() ==
+                sqlpp::detail::make_type_info_set<Verb>());
+  static_assert(sqlpp::provided_static_tables_of<Verb>::func() ==
+                sqlpp::provided_tables_of<Verb>::func());
+  static_assert(sqlpp::provided_optional_tables_of<Verb>::func() ==
+                sqlpp::detail::make_type_info_set<>());
 }

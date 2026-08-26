@@ -37,8 +37,8 @@ void test_dynamic(Value v) {
 
   auto v_not_null = dynamic(true, sqlpp::value(v));
   auto v_maybe_null = dynamic(true, sqlpp::value(std::optional{v}));
-  auto v_alias = sqlpp::value(v).as<"r_not_null">();
-  auto v_maybe_alias = sqlpp::value(std::optional{v}).as<"r_maybe_null">();
+  auto v_alias = sqlpp::value(v).template as<"r_not_null">();
+  auto v_maybe_alias = sqlpp::value(std::optional{v}).template as<"r_maybe_null">();
   auto v_not_null_alias = dynamic(true, v_alias);
   auto v_maybe_null_alias = true ? dynamic(v_maybe_alias) : std::nullopt;
 

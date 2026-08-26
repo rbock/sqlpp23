@@ -26,7 +26,6 @@ create_tests_compiles(
     column
     join
     parameter
-    schema_qualified_table
     table
     table_as
     value

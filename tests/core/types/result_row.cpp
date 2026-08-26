@@ -25,6 +25,9 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
+#include "sqlpp26/core/detail/type_set.h"
+#include "sqlpp26/core/field_spec.h"
+#include "sqlpp26/core/type_traits/tables_of.h"
 
 namespace {
 template <typename A, typename B>
@@ -42,20 +45,20 @@ void test_result_row(Value v) {
   using OptResultType = std::optional<ResultType>;
 
   // Selectable values.
-  auto v_not_null = sqlpp::value(v).as<"r_not_null">();
+  auto v_not_null = sqlpp::value(v).template as<"r_not_null">();
   const auto v_maybe_null =
-      sqlpp::value(std::optional{v}).as<"r_maybe_null">();
+      sqlpp::value(std::optional{v}).template as<"r_maybe_null">();
 
   // Dynamically selectable values.
-  const auto v_opt_not_null = dynamic(true, sqlpp::value(v).as<"r_opt_not_null">());
+  const auto v_opt_not_null = dynamic(true, sqlpp::value(v).template as<"r_opt_not_null">());
   const auto v_opt_maybe_null =
-      dynamic(true, sqlpp::value(std::optional{v}).as<"r_opt_maybe_null">());
+      dynamic(true, sqlpp::value(std::optional{v}).template as<"r_opt_maybe_null">());
 
   auto s = select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null);
   using S = decltype(s);
-  static_assert(
-      std::is_same<sqlpp::statement_run_check_t<S>, sqlpp::consistent_t>::value,
-      "");
+  consteval {
+    S::check_run_consistency();
+  }
 
   // result_t::iterator is an input iterator
   using Begin = decltype(db(select(v_not_null)).begin());

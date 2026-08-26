@@ -29,9 +29,10 @@
 
 #include <sqlpp26/core/basic/enable_join.h>
 #include <sqlpp26/core/basic/field_column.h>
+#include <sqlpp26/core/detail/type_set.h>
+#include <sqlpp26/core/query/result_row_fwd.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/reader.h>
-#include <sqlpp26/core/query/result_row_fwd.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
@@ -117,12 +118,11 @@ template <typename Select, fixed_string Name>
 struct is_table<select_as<Select, Name>>
     : public can_be_used_as_table<Select> {};
 
-#if 0
 template <typename Select, fixed_string Name>
-struct provided_tables_of<select_as<Select, Name>>
-    : public std::conditional<can_be_used_as_table<Select>::value,
-                              sqlpp::detail::type_set<select_ref_t<Name>>,
-                              sqlpp::detail::type_set<>> {};
+struct provided_tables_of<select_as<Select, Name>> {
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set<select_ref_t<Name>>();
+  }
+};
 
-#endif
 }  // namespace sqlpp

@@ -190,6 +190,16 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     (basic_consistency_check<statement_t<Clauses...>, Clauses>::verify(), ...);
   }
 
+  static constexpr void check_prepare_consistency() {
+    check_basic_consistency();
+    (prepare_check<statement_t<Clauses...>, Clauses>::verify(), ...);
+  }
+
+  static constexpr void check_run_consistency() {
+    check_prepare_consistency();
+    (run_check<statement_t<Clauses...>, Clauses>::verify(), ...);
+  }
+
   // Constructors
   statement_t() = default;
 

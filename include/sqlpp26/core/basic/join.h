@@ -76,17 +76,15 @@ struct provided_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
   static consteval auto func() -> detail::type_info_set {
-    constexpr auto lhs =
+    return make_joined_type_info_set(
         detail::type_vector<right_outer_join_t,
                             full_outer_join_t>::contains<JoinType>::value
             ? provided_tables_of<Lhs>::func()
-            : provided_optional_tables_of<Lhs>::func();
-    constexpr auto rhs =
+            : provided_optional_tables_of<Lhs>::func(),
         detail::type_vector<left_outer_join_t,
                             full_outer_join_t>::contains<JoinType>::value
             ? provided_tables_of<Rhs>::func()
-            : provided_optional_tables_of<Rhs>::func();
-    return make_joined_type_info_set(lhs, rhs);
+            : provided_optional_tables_of<Rhs>::func());
   }
 };
 

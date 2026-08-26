@@ -36,7 +36,7 @@ void test_avg(Value v) {
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(std::optional{v});
 
-  using OptFloat = sqlpp::data_type_of_t<std::optional<float>>;
+  using OptFloat = std::optional<double>;
 
   // avg non-nullable can be null because there could be zero result rows.
   static_assert(is_same_type<decltype(avg(v_not_null)), OptFloat>::value, "");
@@ -57,9 +57,9 @@ void test_avg(Value v) {
       "");
 
   // avg has a name
-  static_assert(not sqlpp::has_name_tag<decltype(avg(v_not_null))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(avg(sqlpp::distinct,
-                                                     v_not_null))>::value,
+  static_assert(not sqlpp::has_name_v<decltype(avg(v_not_null))>, "");
+  static_assert(not sqlpp::has_name_v<decltype(avg(sqlpp::distinct,
+                                                     v_not_null))>,
                 "");
 
   // avg enables OVER.

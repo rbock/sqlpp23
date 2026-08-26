@@ -27,14 +27,13 @@
 #include <sqlpp26/tests/core/all.h>
 
 int main() {
-  auto verb = sqlpp::verbatim<sqlpp::text>("verb");
+  auto verb = sqlpp::verbatim<std::string>("verb");
 
   using Verb = decltype(verb);
 
-  static_assert(std::is_same<sqlpp::data_type_of_t<Verb>,
-                             std::optional<sqlpp::text>>::value,
-                "");
-  static_assert(not sqlpp::has_name_tag<Verb>::value, "");
-  static_assert(sqlpp::has_enabled_as<Verb>::value, "");
-  static_assert(sqlpp::has_enabled_comparison<Verb>::value, "");
+  static_assert(std::is_same_v<sqlpp::data_type_of_t<Verb>,
+                               std::optional<std::string>>);
+  static_assert(not sqlpp::has_name_v<Verb>);
+  static_assert(sqlpp::has_enabled_as<Verb>::value);
+  static_assert(sqlpp::has_enabled_comparison<Verb>::value);
 }

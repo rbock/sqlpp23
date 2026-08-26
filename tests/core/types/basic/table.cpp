@@ -29,21 +29,14 @@
 void test_table() {
   static_assert(sqlpp::is_table<test::tab_foo>::value, "");
   static_assert(sqlpp::is_raw_table<test::tab_foo>::value, "");
-  static_assert(std::is_same<sqlpp::name_tag_of_t<test::tab_foo>,
-                             test::tab_foo_::_sqlpp_name_tag>::value,
-                "");
-  static_assert(sqlpp::get_sql_name<test::tab_foo>() == "tab_foo");
-  static_assert(sqlpp::get_sql_name(test::tab_foo{}) == "tab_foo");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<test::tab_foo>,
-                             sqlpp::detail::type_set<test::tab_foo>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::provided_static_tables_of_t<test::tab_foo>,
-                             sqlpp::provided_tables_of_t<test::tab_foo>>::value,
-                "");
+  static_assert(std::string_view(sqlpp::name_of_v<test::tab_foo>) == "tab_foo");
+  static_assert(sqlpp::provided_tables_of<test::tab_foo>::func() ==
+                             sqlpp::detail::make_type_info_set<test::tab_foo>());
+  static_assert(sqlpp::provided_static_tables_of<test::tab_foo>::func() == 
+                             sqlpp::provided_tables_of<test::tab_foo>::func());
   // Only joins can provide optional tables.
-  static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<test::tab_foo>,
-                             sqlpp::detail::type_set<>>::value,
-                "");
+  static_assert(sqlpp::provided_optional_tables_of<test::tab_foo>::func() ==
+                             sqlpp::detail::make_type_info_set<>());
 }
 
 int main() {
