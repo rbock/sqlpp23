@@ -90,385 +90,385 @@ using arithmetic_data_type_t =
 
 // Operator plus
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = int64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = uint64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = uint64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = uint64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<plus, Lhs, Rhs> {
   using type = uint64_t;
 };
 
 // Operator minus
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<minus, Lhs, Rhs> {
   using type = int64_t;
 };
 
 // Operator multiplies
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = int64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = uint64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = uint64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = int64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = uint64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_boolean_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<multiplies, Lhs, Rhs> {
   using type = bool;
 };
 
 // Operator divides
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_floating_point_v<Lhs> and is_boolean_v<Rhs>)
-struct arithmetic_data_type<divides, Lhs, Rhs> {
-  using type = double;
-};
-
-template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_floating_point_v<Rhs>)
-struct arithmetic_data_type<divides, Lhs, Rhs> {
-  using type = double;
-};
-template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_integral_v<Rhs>)
-struct arithmetic_data_type<divides, Lhs, Rhs> {
-  using type = double;
-};
-template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
-struct arithmetic_data_type<divides, Lhs, Rhs> {
-  using type = double;
-};
-template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_floating_point_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_floating_point_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_boolean_v<Lhs> and is_boolean_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_boolean_v<Rhs>)
+struct arithmetic_data_type<divides, Lhs, Rhs> {
+  using type = double;
+};
+
+template <typename Lhs, typename Rhs>
+  requires(is_raw_boolean_v<Lhs> and is_raw_floating_point_v<Rhs>)
+struct arithmetic_data_type<divides, Lhs, Rhs> {
+  using type = double;
+};
+template <typename Lhs, typename Rhs>
+  requires(is_raw_boolean_v<Lhs> and is_raw_integral_v<Rhs>)
+struct arithmetic_data_type<divides, Lhs, Rhs> {
+  using type = double;
+};
+template <typename Lhs, typename Rhs>
+  requires(is_raw_boolean_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
+struct arithmetic_data_type<divides, Lhs, Rhs> {
+  using type = double;
+};
+template <typename Lhs, typename Rhs>
+  requires(is_raw_boolean_v<Lhs> and is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<divides, Lhs, Rhs> {
   using type = double;
 };
 
 // Operator negate
 template <typename Rhs>
-  requires(is_floating_point_v<Rhs>)
+  requires(is_raw_floating_point_v<Rhs>)
 struct arithmetic_data_type<negate, no_value_t, Rhs> {
   using type = double;
 };
 template <typename Rhs>
-  requires(is_integral_v<Rhs>)
+  requires(is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<negate, no_value_t, Rhs> {
   using type = int64_t;
 };
 template <typename Rhs>
-  requires(is_unsigned_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<negate, no_value_t, Rhs> {
   using type = int64_t;
 };
 template <typename Rhs>
-  requires(is_boolean_v<Rhs>)
+  requires(is_raw_boolean_v<Rhs>)
 struct arithmetic_data_type<negate, no_value_t, Rhs> {
   using type = int64_t;
 };
 
 // Operator modulus
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<modulus, Lhs, Rhs> {
   using type = uint64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<modulus, Lhs, Rhs> {
   using type = uint64_t;
 };
 
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_integral_v<Rhs>)
 struct arithmetic_data_type<modulus, Lhs, Rhs> {
   using type = uint64_t;
 };
 template <typename Lhs, typename Rhs>
-  requires(is_unsigned_integral_v<Lhs> and is_unsigned_integral_v<Rhs>)
+  requires(is_raw_unsigned_integral_v<Lhs> and is_raw_unsigned_integral_v<Rhs>)
 struct arithmetic_data_type<modulus, Lhs, Rhs> {
   using type = uint64_t;
 };

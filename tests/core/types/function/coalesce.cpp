@@ -50,7 +50,7 @@ void test_avg(Value v) {
   static_assert(sqlpp::has_enabled_as<decltype(coalesce(v_not_null))>::value);
 
   // coalesce has no name
-  static_assert(not sqlpp::has_name_tag<decltype(coalesce(v_not_null))>::value);
+  static_assert(not sqlpp::has_name_v<decltype(coalesce(v_not_null))>);
 
   // coalesce enables comparison member functions.
   static_assert(sqlpp::has_enabled_comparison<decltype(coalesce(v_not_null))>::value,
@@ -62,8 +62,7 @@ void test_avg(Value v) {
   static_assert(
       std::is_same<
           sqlpp::nodes_of_t<decltype(coalesce(v_not_null, v_maybe_null))>,
-          sqlpp::detail::type_vector<A, B>>::value,
-      "");
+          sqlpp::detail::type_vector<A, B>>::value);
 }
 
 int main() {

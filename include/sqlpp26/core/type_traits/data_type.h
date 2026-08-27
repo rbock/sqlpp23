@@ -100,6 +100,9 @@ struct is_data_type<std::optional<T>> : public is_data_type<T> {};
 template<typename T>
 struct is_raw_boolean: public std::false_type {};
 
+template<typename T>
+inline constexpr bool is_raw_boolean_v = is_raw_boolean<T>::value;
+
 template<>
 struct is_raw_boolean<bool>: public std::true_type {};
 
@@ -129,6 +132,9 @@ struct is_boolean<std::nullopt_t> : public std::true_type {};
 // integral
 template<typename T>
 struct is_raw_integral: public std::false_type {};
+
+template<typename T>
+inline constexpr bool is_raw_integral_v = is_raw_integral<T>::value;
 
 template<>
 struct is_raw_integral<int8_t>: public std::true_type {};
@@ -169,6 +175,9 @@ struct is_integral<std::nullopt_t> : public std::true_type {};
 template<typename T>
 struct is_raw_unsigned_integral: public std::false_type {};
 
+template<typename T>
+inline constexpr bool is_raw_unsigned_integral_v = is_raw_unsigned_integral<T>::value;
+
 template<>
 struct is_raw_unsigned_integral<uint8_t>: public std::true_type {};
 
@@ -208,6 +217,9 @@ struct is_unsigned_integral<std::nullopt_t> : public std::true_type {};
 template<typename T>
 struct is_raw_floating_point: public std::false_type {};
 
+template<typename T>
+inline constexpr bool is_raw_floating_point_v = is_raw_floating_point<T>::value;
+
 template<>
 struct is_raw_floating_point<float>: public std::true_type {};
 
@@ -244,6 +256,9 @@ struct is_floating_point<std::nullopt_t> : public std::true_type {};
 template<typename T>
 struct is_raw_text: public std::false_type {};
 
+template<typename T>
+inline constexpr bool is_raw_text_v = is_raw_text<T>::value;
+
 template<>
 struct is_raw_text<char>: public std::true_type {};
 
@@ -256,7 +271,7 @@ struct is_raw_text<std::string>: public std::true_type {};
 template<>
 struct is_raw_text<std::string_view>: public std::true_type {};
 
-using text = std::string;
+using text = std::string_view;
 
 template <typename T>
 requires(is_raw_text<T>::value)
@@ -282,6 +297,9 @@ struct is_text<std::nullopt_t> : public std::true_type {};
 // blob
 template<typename T>
 struct is_raw_blob: public std::false_type {};
+
+template<typename T>
+inline constexpr bool is_raw_blob_v = is_raw_blob<T>::value;
 
 template<size_t N>
 struct is_raw_blob<std::array<std::uint8_t, N>>: public std::true_type {};
@@ -319,6 +337,9 @@ struct is_blob<std::nullopt_t> : public std::true_type {};
 template<typename T>
 struct is_raw_date: public std::false_type {};
 
+template<typename T>
+inline constexpr bool is_raw_date_v = is_raw_date<T>::value;
+
 template<>
 struct is_raw_date<std::chrono::sys_days>: public std::true_type {};
 
@@ -349,6 +370,9 @@ struct is_date<std::nullopt_t> : public std::true_type {};
 template<typename T>
 struct is_raw_time_of_day: public std::false_type {};
 
+template<typename T>
+inline constexpr bool is_raw_time_of_day_v = is_raw_time_of_day<T>::value;
+
 template<typename Rep, typename Period>
 struct is_raw_time_of_day<std::chrono::duration<Rep, Period>>: public std::true_type {};
 
@@ -378,6 +402,9 @@ struct is_time_of_day<std::nullopt_t> : public std::true_type {};
 // timestamp
 template<typename T>
 struct is_raw_timestamp: public std::false_type {};
+
+template<typename T>
+inline constexpr bool is_raw_timestamp_v = is_raw_timestamp<T>::value;
 
 template <typename Period>
   requires(Period{1} < std::chrono::days{1})

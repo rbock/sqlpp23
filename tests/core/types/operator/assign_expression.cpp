@@ -54,40 +54,34 @@ void test_assign_expression(const Column& col, const Value& v) {
 
   // Assignments have no name
   static_assert(
-      not sqlpp::has_name_tag<decltype(col = sqlpp::default_value)>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(col = v_not_null)>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(col = v_maybe_null)>::value,
-                "");
+      not sqlpp::has_name_v<decltype(col = sqlpp::default_value)>);
+  static_assert(not sqlpp::has_name_v<decltype(col = v_not_null)>);
+  static_assert(not sqlpp::has_name_v<decltype(col = v_maybe_null)>);
 
   // Assignment nodes
   static_assert(
       std::is_same<
           sqlpp::nodes_of_t<decltype(col = sqlpp::default_value)>,
-          sqlpp::detail::type_vector<Column, sqlpp::default_value_t>>::value,
-      "");
+          sqlpp::detail::type_vector<Column, sqlpp::default_value_t>>::value);
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col = v_not_null)>,
-                   sqlpp::detail::type_vector<Column, DataType>>::value,
-      "");
+                   sqlpp::detail::type_vector<Column, DataType>>::value);
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(col = v_maybe_null)>,
-                   sqlpp::detail::type_vector<Column, OptDataType>>::value,
-      "");
+                   sqlpp::detail::type_vector<Column, OptDataType>>::value);
 
   // Assign expressions do not have the `as` member function.
-  static_assert(not sqlpp::has_enabled_as<decltype(col = v_not_null)>::value,
-                "");
+  static_assert(not sqlpp::has_enabled_as<decltype(col = v_not_null)>::value);
 
   // Assign expressions do not enable comparison member functions.
   static_assert(
-      not sqlpp::has_enabled_comparison<decltype(col = v_not_null)>::value, "");
+      not sqlpp::has_enabled_comparison<decltype(col = v_not_null)>::value);
 
   // Assign expressions have their arguments as nodes.
   using L = typename std::decay<decltype(col)>::type;
   using R = typename std::decay<decltype(v_not_null)>::type;
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col = v_not_null)>,
-                             sqlpp::detail::type_vector<L, R>>::value,
-                "");
+                             sqlpp::detail::type_vector<L, R>>::value);
 }
 
 int main() {

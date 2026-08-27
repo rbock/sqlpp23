@@ -29,37 +29,32 @@
 template <typename Value>
 void test_exists(Value v) {
   // Selectable values.
-  const auto v_not_null = sqlpp::value(v).as<"r_not_null">();
+  const auto v_not_null = sqlpp::value(v).template as<"r_not_null">();
   const auto v_maybe_null =
-      sqlpp::value(std::optional{v}).as<"r_maybe_null">();
+      sqlpp::value(std::optional{v}).template as<"r_maybe_null">();
 
   // EXISTS expression can be used in basic comparison expressions, which use
   // remove_exists_t to look inside.
   static_assert(
       std::is_same<sqlpp::data_type_of_t<decltype(exists(select(v_not_null)))>,
-                   sqlpp::boolean>::value,
-      "");
-  static_assert(
-      std::is_same<
-          sqlpp::data_type_of_t<decltype(exists(select(v_maybe_null)))>,
-          sqlpp::boolean>::value,
-      "");
+                   sqlpp::boolean>::value);
+  static_assert(std::is_same<
+                sqlpp::data_type_of_t<decltype(exists(select(v_maybe_null)))>,
+                sqlpp::boolean>::value);
 
   // EXISTS expressions enable `as` member function.
   static_assert(
-      sqlpp::has_enabled_as<decltype(exists(select(v_not_null)))>::value, "");
+      sqlpp::has_enabled_as<decltype(exists(select(v_not_null)))>::value);
 
   // EXISTS expressions do not enable comparison member functions.
   static_assert(not sqlpp::has_enabled_comparison<decltype(exists(
-                    select(v_not_null)))>::value,
-                "");
+                    select(v_not_null)))>::value);
 
   // EXISTS expressions have the SELECT as node.
   using S = decltype(select(v_not_null));
   static_assert(
       std::is_same<sqlpp::nodes_of_t<decltype(exists(select(v_not_null)))>,
-                   sqlpp::detail::type_vector<S>>::value,
-      "");
+                   sqlpp::detail::type_vector<S>>::value);
 }
 
 void test_exists_sub_select() {
@@ -74,9 +69,8 @@ void test_exists_sub_select() {
   using S = decltype(s);
   using A = decltype(a);
 
-  static_assert(std::is_same<sqlpp::required_tables_of_t<A>,
-                             sqlpp::required_tables_of_t<S>>::value,
-                "");
+  static_assert(sqlpp::required_tables_of<A>::func() ==
+                sqlpp::required_tables_of<S>::func());
 }
 
 int main() {
