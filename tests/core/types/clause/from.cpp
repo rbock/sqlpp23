@@ -39,18 +39,14 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // FROM dynamic table
@@ -61,18 +57,14 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // FROM table join table
@@ -84,18 +76,14 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F, B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F, B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F, B>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F, B>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // FROM table join dynamic table
@@ -107,18 +95,14 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F, B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F, B>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // FROM table left_outer_join table
@@ -130,18 +114,14 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F, B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F, B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F, B>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F, B>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<B>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // FROM table right_outer_join dynamic table
@@ -154,41 +134,33 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F, B>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<F>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F, B>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<F>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
   }
 
   // FROM CTE
   {
-    auto x = sqlpp::cte(sqlpp::alias::x).as(select(foo.id).from(foo));
+    auto x = sqlpp::cte<"a">().as(select(foo.id).from(foo));
     auto statement = from(x);
 
     using R = decltype(make_table_ref(x));
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<R>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<R>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FROM>,
-                               sqlpp::detail::type_set<>>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<FROM>,
-                               sqlpp::detail::type_set<R>>::value,
-                  "");
+    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<R>());
+    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<R>());
+    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<>());
+    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+                  sqlpp::detail::make_type_info_set<R>());
   }
 }
 

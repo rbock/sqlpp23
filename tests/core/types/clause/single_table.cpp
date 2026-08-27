@@ -34,14 +34,14 @@ void test_single_table() {
   {
     using Statement = decltype(sqlpp::single_table(foo));
     using S = extract_clause_t<Statement>;
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<S>,
-                               sqlpp::detail::type_set<Foo>>::value,
+    static_assert(sqlpp::provided_tables_of<S>::func() ==
+                               sqlpp::detail::make_type_info_set<Foo>(),
                   "");
-    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<S>,
-                               sqlpp::provided_tables_of_t<S>>::value,
+    static_assert(sqlpp::provided_static_tables_of<S>::func() ==
+                               sqlpp::provided_tables_of<S>::func(),
                   "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<S>,
-                               sqlpp::detail::type_set<>>::value,
+    static_assert(sqlpp::provided_optional_tables_of<S>::func() ==
+                               sqlpp::detail::make_type_info_set<>(),
                   "");
   }
 }

@@ -35,6 +35,7 @@
 #include <sqlpp26/core/tuple_to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
 #include <tuple>
+#include "sqlpp26/core/query/dynamic_fwd.h"
 
 namespace sqlpp {
 template <typename... Expressions>
@@ -113,33 +114,32 @@ struct prepare_check<Statement, group_by_t<Expressions...>> {
 };
 */
 
-/*
 template <typename... Expressions>
 struct known_aggregate_columns_of<group_by_t<Expressions...>> {
-  using type =
-      detail::type_set<remove_dynamic_t<Expressions>...>;
+  static consteval detail::type_info_set func() {
+    return detail::make_type_info_set<remove_dynamic_t<Expressions>...>();
+  }
 };
 
 namespace detail {
-template <typename Column>
-struct make_static_aggregate_column_set {
-  using type = detail::type_set<Column>;
+template <typename Expression>
+consteval auto make_static_aggregate_column_set() -> detail::type_info_set {
+  if constexpr (sqlpp::is_dynamic_v<Expression>) {
+    return detail::type_info_set{};
+  }
+  else {
+    return sqlpp::detail::make_type_info_set<sqlpp::remove_dynamic_t<Expression>>();
+  }
 };
-template <typename Column>
-struct make_static_aggregate_column_set<dynamic_t<Column>> {
-  using type = detail::type_set<>;
-};
-template <typename Column>
-using make_static_aggregate_column_set_t =
-    typename make_static_aggregate_column_set<Column>::type;
 }  // namespace detail
 
 template <typename... Expressions>
 struct known_static_aggregate_columns_of<group_by_t<Expressions...>> {
-  using type = detail::make_joined_set_t<
-      detail::make_static_aggregate_column_set_t<Expressions>...>;
+  static consteval detail::type_info_set func() {
+    return detail::make_joined_type_info_set(
+        detail::make_static_aggregate_column_set<Expressions>()...);
+  }
 };
-*/
 
 template <typename... Expressions>
 struct nodes_of<group_by_t<Expressions...>> {

@@ -120,6 +120,9 @@ template <typename T>
 struct is_dynamic : public std::false_type {};
 
 template <typename T>
+constexpr inline bool is_dynamic_v = is_dynamic<T>::value;
+
+template <typename T>
 struct is_dynamic<dynamic_t<T>> : public std::true_type {};
 
 template <typename T>
