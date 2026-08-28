@@ -42,15 +42,14 @@
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/core/wrapped_static_assert.h>
 #include <stdexcept>
+#include "sqlpp26/core/detail/type_set.h"
 
 namespace sqlpp {
 namespace detail {
 
 template <typename Statement, typename... Columns>
 consteval bool have_all_required_columns(){
-  sqlpp::detail::type_info_set provided;
-  (provided.insert(^^Columns),...);
-  return std::ranges::includes(provided,
+  return std::ranges::includes(detail::make_type_info_set<Columns...>(),
                                required_insert_columns_of<Statement>::func(),
                                sqlpp::detail::type_info_less{});
 };
@@ -125,15 +124,6 @@ struct insert_default_values_t {
 
 template <>
 struct is_clause<insert_default_values_t> : public std::true_type {};
-
-class assert_all_required_columns_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one required column is missing in columns()");
-  }
-};
 
 template <typename Statement>
 struct basic_consistency_check<Statement, insert_default_values_t> {
@@ -263,34 +253,22 @@ auto to_sql_string(Context& context, const column_list_t<Columns...>& t)
   return result;
 }
 
-/*
-class assert_no_unknown_tables_in_column_list_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one column requires a table which is "
-                        "otherwise not known in the statement");
-  }
-};
-*/
-
 template <typename... Columns>
 struct is_clause<column_list_t<Columns...>> : public std::true_type {};
 
 template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, column_list_t<Columns...>> {
-  /*
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<column_list_t<Columns...>>,
-          assert_no_unknown_tables_in_column_list_t>,
-      static_check_t<
-          detail::have_all_required_columns<Statement, Columns...>::value,
-          assert_all_required_columns_t>>;
-          */
   static constexpr void verify() {
-    // TODO
+    if constexpr (not std::ranges::includes(
+                        provided_tables_of<Statement>::func(),
+                        required_tables_of<column_list_t<Columns...>>::func(),
+                        sqlpp::detail::type_info_less{})) {
+      throw std::domain_error("at least one column requires a table which is "
+                          "otherwise not known in the statement");
+    } else if constexpr (not detail::have_all_required_columns<
+                               Statement, Columns...>()) {
+      throw std::domain_error("at least one required column is missing in columns()");
+    }
   }
 };
 
@@ -342,7 +320,7 @@ auto to_sql_string(Context&, const no_insert_value_list_t&) -> std::string {
 
 template <typename Statement>
 struct basic_consistency_check<Statement, no_insert_value_list_t> {
-  constexpr auto operator()() {
+  static constexpr void verify() {
     throw std::domain_error("insert values required, e.g. set(...) or default_values()");
   }
 };

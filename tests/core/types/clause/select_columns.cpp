@@ -50,99 +50,93 @@ void test_select_columns() {
   // Single column.
   {
     using T = clause_of_t<decltype(select_columns(col_int))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(
-        std::is_same<sqlpp::data_type_of_t<T>, sqlpp::integral>::value, "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+        std::is_same<sqlpp::data_type_of_t<T>, sqlpp::integral>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single column with flag.
   {
     using T = clause_of_t<decltype(select_columns(flag, col_int))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(
-        std::is_same<sqlpp::data_type_of_t<T>, sqlpp::integral>::value, "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+        std::is_same<sqlpp::data_type_of_t<T>, sqlpp::integral>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single dynamic column.
   {
     auto t = select_columns(dynamic(maybe, col_int));
     using T = clause_of_t<decltype(t)>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
-                               std::optional<sqlpp::integral>>::value,
-                  "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+                               std::optional<sqlpp::integral>>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single dynamic column with dynamic flag.
   {
     auto t = select_columns(dynamic(maybe, flag), dynamic(maybe, col_int));
     using T = clause_of_t<decltype(t)>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
-                               std::optional<sqlpp::integral>>::value,
-                  "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+                               std::optional<sqlpp::integral>>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single aggregate function.
   {
     auto t = select_columns(avg(col_int).as<"cheese">());
     using T = clause_of_t<decltype(t)>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
-                               std::optional<sqlpp::floating_point>>::value,
-                  "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+                               std::optional<sqlpp::floating_point>>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single dynamic aggregate function.
   {
     auto t = select_columns(dynamic(maybe, avg(col_int).as<"cheese">()));
     using T = clause_of_t<decltype(t)>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
-                               std::optional<sqlpp::floating_point>>::value,
-                  "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+                               std::optional<sqlpp::floating_point>>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single value.
   {
     using T = clause_of_t<decltype(select_columns(v.as<"cheese">()))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(std::is_same<sqlpp::data_type_of_t<T>, sqlpp::text>::value,
-                  "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
+    static_assert(std::is_same<sqlpp::data_type_of_t<T>, const char*>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Single dynamic value.
   {
     using T = clause_of_t<decltype(select_columns(
         dynamic(maybe, v.as<"cheese">())))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
     static_assert(std::is_same<sqlpp::data_type_of_t<T>,
-                               std::optional<sqlpp::text>>::value,
-                  "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+                               std::optional<const char*>>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Multiple columns.
   {
     using T = clause_of_t<decltype(select_columns(col_int, col_txt, col_bool))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(not sqlpp::has_data_type<T>::value, "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
+    static_assert(not sqlpp::has_data_type<T>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Multiple columns with flag.
   {
     using T = clause_of_t<decltype(select_columns(flag, col_int, col_txt, col_bool))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(not sqlpp::has_data_type<T>::value, "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
+    static_assert(not sqlpp::has_data_type<T>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 
   // Mixed columns.
@@ -150,9 +144,9 @@ void test_select_columns() {
     using T = clause_of_t<decltype(select_columns(
         col_int, max(col_txt).as<"cake">(),
         v.as<"cheese">()))>;
-    static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(not sqlpp::has_data_type<T>::value, "");
-    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(not sqlpp::has_name_v<T>);
+    static_assert(not sqlpp::has_data_type<T>::value);
+    static_assert(sqlpp::is_result_clause<T>::value);
   }
 }
 

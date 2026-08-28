@@ -96,6 +96,17 @@ struct required_static_tables_of<column<Table, index>>
     : public required_tables_of<column<Table, index>> {};
 
 template <typename Table, size_t index>
+struct required_insert_columns_of<column<Table, index>> {
+  static consteval detail::type_info_set func() {
+    if (has_default_v<column<Table, index>> or is_optional_v<data_type_of_t<column<Table, index>>>){
+      return detail::type_info_set{}; 
+    } else {
+      return detail::make_type_info_set<column<Table, index>>();
+    }
+  }
+};
+
+template <typename Table, size_t index>
 struct is_column<column<Table, index>> : public std::true_type {};
 
 template <typename Table, size_t index>

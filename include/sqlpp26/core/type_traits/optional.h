@@ -34,6 +34,9 @@ template <typename T>
 struct is_optional : public std::false_type {};
 
 template <typename T>
+inline constexpr bool is_optional_v = is_optional<T>::value;
+
+template <typename T>
 struct is_optional<std::optional<T>> : public std::true_type {};
 
 template <>

@@ -31,6 +31,7 @@
 #include <vector>
 #include <ranges>
 #include <algorithm>
+#include "sqlpp26/core/detail/type_set.h"
 
 #include <sqlpp26/core/basic/column.h>
 #include <sqlpp26/core/basic/column_spec.h>
@@ -123,6 +124,19 @@ constexpr auto all_of(const table<TableSpec>& t) {
 
   return std::make_tuple(columns...);
 }
+
+template <typename... Columns>
+consteval detail::type_info_set get_required_insert_columns_of(const std::tuple<Columns...>&) {
+  return detail::make_joined_type_info_set(required_insert_columns_of<Columns>::func()...);
+};
+
+// TODO: This looks like it could be simpler...
+template <typename TableSpec>
+struct required_insert_columns_of<table<TableSpec>> {
+  static consteval detail::type_info_set func() {
+    return get_required_insert_columns_of(all_of(table<TableSpec>{}));
+  }
+};
 
 template <typename Context, typename TableSpec>
 auto to_sql_string(Context& context, const table<TableSpec>& /*unused*/)

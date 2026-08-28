@@ -107,6 +107,9 @@ struct name_of<select_as<Select, Name>> {
   static constexpr fixed_string value = Name;
 };
 
+template <typename Select, fixed_string Name>
+struct has_name<select_as<Select, Name>> : public std::true_type {};
+
 // We need to track nodes to find parameters or required tables in sub selects.
 template <typename Select, fixed_string Name>
 struct nodes_of<select_as<Select, Name>> {
