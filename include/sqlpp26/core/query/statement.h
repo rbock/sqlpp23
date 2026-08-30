@@ -186,6 +186,14 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   using _parameter_check =
       static_check_t<_parameters::empty(), assert_no_parameters_t>;
       */
+  static consteval auto get_known_static_aggregate_columns_of() -> detail::type_info_set {
+      return detail::make_joined_type_info_set(known_static_aggregate_columns_of<Clauses>::func()...);
+  }
+
+  static consteval auto get_known_aggregate_columns_of() -> detail::type_info_set {
+      return detail::make_joined_type_info_set(known_aggregate_columns_of<Clauses>::func()...);
+  }
+
   static constexpr void check_basic_consistency() {
     (basic_consistency_check<statement_t<Clauses...>, Clauses>::verify(), ...);
   }

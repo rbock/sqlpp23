@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <utility>
+
 namespace sqlpp {
 template <typename Expr>
 struct dynamic_t;
@@ -43,5 +45,11 @@ struct remove_dynamic<dynamic_t<Expr>> {
 
 template <typename T>
 using remove_dynamic_t = typename remove_dynamic<T>::type;
+
+template <typename T>
+struct is_dynamic : public std::false_type {};
+
+template <typename T>
+constexpr inline bool is_dynamic_v = is_dynamic<T>::value;
 
 }  // namespace sqlpp

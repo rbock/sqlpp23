@@ -91,13 +91,12 @@ struct nodes_of<having_t<Expression>> {
 template <typename Statement, typename Expression>
 struct basic_consistency_check<Statement, having_t<Expression>> {
   static constexpr void verify() {
-    if constexpr (not is_aggregate_expression<typename Statement::_all_provided_aggregates,
-                                    Expression>::value) {
-      throw std::domain_error("having expression not built out of aggregate expressions");
+    if constexpr (not is_aggregate_expression<Statement, Expression>()) {
+      throw std::domain_error(
+          "having expression not built out of aggregate expressions");
     }
-    if constexpr (not static_part_is_aggregate_expression<
-                           typename Statement::_all_provided_static_aggregates,
-                           Expression>::value) {
+    if constexpr (not static_part_is_aggregate_expression<Statement,
+                                                          Expression>()) {
       throw std::domain_error("at least one static having expression is provided "
                           "dynamically only in group_by");
     }

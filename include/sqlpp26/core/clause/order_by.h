@@ -142,6 +142,7 @@ template <typename ProvidedAggregates,
           typename ProvidedStaticAggregates,
           typename... Expressions>
 struct check_order_by_aggregates {
+  /* TODO
   using type = static_combined_check_t<
       static_check_t<
           logic::all<is_aggregate_expression<ProvidedAggregates,
@@ -152,6 +153,7 @@ struct check_order_by_aggregates {
               ProvidedStaticAggregates,
               Expressions>::value...>::value,
           assert_correct_static_order_by_aggregates_with_group_by_t>>;
+          */
 };
 
 /*

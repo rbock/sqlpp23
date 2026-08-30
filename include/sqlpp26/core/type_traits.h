@@ -114,18 +114,6 @@ template <>
 struct can_be_null<std::nullopt_t> : public std::true_type {};
 
 template <typename T>
-struct dynamic_t;
-
-template <typename T>
-struct is_dynamic : public std::false_type {};
-
-template <typename T>
-constexpr inline bool is_dynamic_v = is_dynamic<T>::value;
-
-template <typename T>
-struct is_dynamic<dynamic_t<T>> : public std::true_type {};
-
-template <typename T>
 struct is_static : public std::bool_constant<not is_dynamic<T>::value> {};
 
 template <typename L, typename R>
