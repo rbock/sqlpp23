@@ -236,11 +236,9 @@ struct can_be_used_as_table<statement_t<Clauses...>> {
                                 _S::_unknown_required_ctes_of::empty()*/;
 };
 
-/*
 template <typename... Clauses>
 struct no_of_result_columns<statement_t<Clauses...>>
     : public no_of_result_columns<result_type_provider_t<Clauses...>> {};
-*/
 
 template <typename... Clauses>
 struct result_methods_of<statement_t<Clauses...>> {

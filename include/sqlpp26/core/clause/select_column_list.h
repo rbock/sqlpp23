@@ -181,13 +181,11 @@ struct select_result_methods_t {
   }
 };
 
-/*
 template <typename... Flags, typename... Columns>
 struct no_of_result_columns<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   static constexpr size_t value = sizeof...(Columns);
 };
-*/
 
 template <typename... Flags, typename... Columns>
 struct result_methods_of<
