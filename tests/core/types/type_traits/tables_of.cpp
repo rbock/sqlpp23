@@ -31,10 +31,10 @@ void test_required_tables_of() {
   {
     using T = decltype(test::tab_foo{}.id);
     static_assert(sqlpp::required_tables_of<T>::func() ==
-                               sqlpp::detail::type_set<test::tab_foo>>::value,
+                               sqlpp::detail::make_type_info_set<test::tab_foo>(),
                   "");
     static_assert(sqlpp::required_static_tables_of<T>::func() ==
-                               sqlpp::detail::type_set<test::tab_foo>>::value,
+                               sqlpp::detail::make_type_info_set<test::tab_foo>(),
                   "");
   }
 
@@ -42,7 +42,7 @@ void test_required_tables_of() {
   {
     using T = decltype(test::tab_foo{});
     static_assert(sqlpp::required_tables_of<T>::func().empty(), "");
-    static_assert(sqlpp::required_static_tables_of_t<T>::empty(), "");
+    static_assert(sqlpp::required_static_tables_of<T>::func().empty(), "");
   }
 
   // Static expressions require collective tables.
@@ -81,28 +81,13 @@ void test_provided_tables_of() {
   {
     using T = decltype(test::tab_foo{}.id);
     static_assert(sqlpp::provided_tables_of<T>::func().empty(), "");
-    static_assert(sqlpp::provided_static_tables_of_t<T>::empty(), "");
-    static_assert(sqlpp::provided_optional_tables_of_t<T>::empty(), "");
+    static_assert(sqlpp::provided_static_tables_of<T>::func().empty(), "");
+    static_assert(sqlpp::provided_optional_tables_of<T>::func().empty(), "");
   }
 
   // Tables provide tables.
   {
     using T = test::tab_foo;
-    static_assert(sqlpp::provided_tables_of<T>::func() ==
-                               sqlpp::detail::make_type_info_set<T>(),
-                  "");
-    static_assert(sqlpp::provided_static_tables_of<T>::func() ==
-                               sqlpp::detail::make_type_info_set<T>(),
-                  "");
-    static_assert(sqlpp::provided_optional_tables_of<T>::func() ==
-                               sqlpp::detail::make_type_info_set<>(),
-                  "");
-  }
-
-  // Schema-qualified tables provide tables.
-  {
-    using T =
-        decltype(schema_qualified_table({"meme"}, test::tab_foo{}).as<"cheese">());
     static_assert(sqlpp::provided_tables_of<T>::func() ==
                                sqlpp::detail::make_type_info_set<T>(),
                   "");
@@ -132,7 +117,7 @@ void test_provided_tables_of() {
   {
     using T =
         decltype(select(test::tab_foo{}.id).from(test::tab_foo{}).as<"cheese">());
-    using Ref = sqlpp::select_ref_t<cheese_t::_sqlpp_name_tag>;
+    using Ref = sqlpp::select_ref_t<"cheese">;
     static_assert(sqlpp::provided_tables_of<T>::func() ==
                                sqlpp::detail::make_type_info_set<Ref>(),
                   "");

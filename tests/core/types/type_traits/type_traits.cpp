@@ -33,48 +33,45 @@ void test_is_as_expression() {
   auto col_txt = test::tab_foo{}.text_nn_d;
 
   // Constant values are no expression alias
-  static_assert(not sqlpp::is_as_expression<decltype(v)>::value, "");
-  static_assert(not sqlpp::is_as_expression<decltype(v + v)>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(v)>::value);
+  static_assert(not sqlpp::is_as_expression<decltype(v + v)>::value);
 
   // Columns are no expression alias
-  static_assert(not sqlpp::is_as_expression<decltype(col_int)>::value, "");
-  static_assert(not sqlpp::is_as_expression<decltype(col_int + v)>::value, "");
+  static_assert(not sqlpp::is_as_expression<decltype(col_int)>::value);
+  static_assert(not sqlpp::is_as_expression<decltype(col_int + v)>::value);
 
   // Normal functions are no expression alias
-  static_assert(not sqlpp::is_as_expression<decltype(trim(t))>::value, "");
-  static_assert(not sqlpp::is_as_expression<decltype(trim(col_txt))>::value,
-                "");
+  static_assert(not sqlpp::is_as_expression<decltype(trim(t))>::value);
+  static_assert(not sqlpp::is_as_expression<decltype(trim(col_txt))>::value);
 
   // But their alias is an expression alias (no surprise here, I guess)
-  static_assert(sqlpp::is_as_expression<decltype((v).as<"something">())>::value,
-                "");
-  static_assert(sqlpp::is_as_expression<decltype((v + v).as<"something">())>::value,
-                "");
+  static_assert(
+      sqlpp::is_as_expression<decltype((v).as<"something">())>::value);
+  static_assert(
+      sqlpp::is_as_expression<decltype((v + v).as<"something">())>::value);
 
   static_assert(
-      sqlpp::is_as_expression<decltype((col_int).as<"something">())>::value, "");
-  static_assert(
-      sqlpp::is_as_expression<decltype((col_int + v).as<"something">())>::value,
-      "");
+      sqlpp::is_as_expression<decltype((col_int).as<"something">())>::value);
+  static_assert(sqlpp::is_as_expression<
+                decltype((col_int + v).as<"something">())>::value);
 
   static_assert(
-      sqlpp::is_as_expression<decltype((trim(t)).as<"something">())>::value, "");
-  static_assert(
-      sqlpp::is_as_expression<decltype((trim(col_txt)).as<"something">())>::value,
-      "");
+      sqlpp::is_as_expression<decltype((trim(t)).as<"something">())>::value);
+  static_assert(sqlpp::is_as_expression<
+                decltype((trim(col_txt)).as<"something">())>::value);
 
-  // Data types themselves do not have data types
-  static_assert(not sqlpp::has_data_type<sqlpp::boolean>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::integral>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::unsigned_integral>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::floating_point>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::text>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::blob>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::date>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::timestamp>::value);
-  static_assert(not sqlpp::has_data_type<sqlpp::time>::value);
+  // Data types have data types (i.e. themselves)
+  static_assert(sqlpp::has_data_type<sqlpp::boolean>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::integral>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::unsigned_integral>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::floating_point>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::text>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::blob>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::date>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::timestamp>::value);
+  static_assert(sqlpp::has_data_type<sqlpp::time_of_day>::value);
 
-  // Data types themselves are data types, though
+  // Data types are data types :-)
   static_assert(sqlpp::is_data_type<sqlpp::boolean>::value);
   static_assert(sqlpp::is_data_type<sqlpp::integral>::value);
   static_assert(sqlpp::is_data_type<sqlpp::unsigned_integral>::value);
@@ -83,7 +80,7 @@ void test_is_as_expression() {
   static_assert(sqlpp::is_data_type<sqlpp::blob>::value);
   static_assert(sqlpp::is_data_type<sqlpp::date>::value);
   static_assert(sqlpp::is_data_type<sqlpp::timestamp>::value);
-  static_assert(sqlpp::is_data_type<sqlpp::time>::value);
+  static_assert(sqlpp::is_data_type<sqlpp::time_of_day>::value);
 
   // Data type of nested optionals is still just optional something
   using OptText = decltype(test::tab_bar{}.text_n);
