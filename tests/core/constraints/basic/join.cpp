@@ -147,7 +147,9 @@ template <>
 struct is_table<weird_table> : public std::true_type {};
 template <>
 struct required_tables_of<weird_table> {
-  using type = detail::type_vector<::test::tab_bar>;
+  static consteval auto func() -> sqlpp::detail::type_info_set {
+  return sqlpp::detail::make_type_info_set<::test::tab_bar>();
+  }
 };
 }  // namespace sqlpp
 
@@ -169,7 +171,7 @@ int main() {
   CANNOT_CALL_ANY_JOIN_WITH(foo, foo);
 
   // Cannot join two tables with identical names.
-  CANNOT_CALL_ANY_JOIN_WITH(foo, bar.as<"foo">());
+  CANNOT_CALL_ANY_JOIN_WITH(foo, bar.as<"tab_foo">());
 
   // JOIN must not be called with tables that depend on other tables.
   // Not sure this can happen in the wild, which is why we are using the

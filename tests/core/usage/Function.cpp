@@ -175,12 +175,12 @@ int Function(int, char*[]) {
 
   // Test any
   {
-    using S = decltype(value(select(t.id).from(t)));
-    static_assert(sqlpp::is_numeric<S>::value, "type requirement");
+    using S = decltype(select(t.id).from(t));
+    static_assert(sqlpp::is_numeric<sqlpp::value_t<S>>::value, "type requirement");
 
-    using TI = decltype(any(value(select(t.id).from(t))));
-    using TT = decltype(any(value(select(t.text_n).from(t))));
-    using TF = decltype(any(value(select(f.float_n).from(f))));
+    using TI = decltype(any(select(t.id).from(t)));
+    using TT = decltype(any(select(t.text_n).from(t)));
+    using TF = decltype(any(select(f.float_n).from(f)));
     static_assert(not sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");

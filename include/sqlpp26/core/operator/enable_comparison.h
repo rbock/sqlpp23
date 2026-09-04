@@ -52,6 +52,13 @@ class enable_comparison {
     return ::sqlpp::in(std::forward<Expr>(self), std::move(args));
   }
 
+  template <typename Expr, typename Select>
+    requires(has_statement_data_type_v<Select>)
+  constexpr auto in(this Expr&& self, Select arg)
+      -> decltype(::sqlpp::in(std::forward<Expr>(self), std::move(arg))) {
+    return ::sqlpp::in(std::forward<Expr>(self), std::move(arg));
+  }
+
   template <typename Expr, typename... Args>
   constexpr auto not_in(this Expr&& self, std::tuple<Args...> args)
       -> decltype(::sqlpp::not_in(std::forward<Expr>(self), std::move(args))) {
@@ -69,6 +76,13 @@ class enable_comparison {
   constexpr auto not_in(this Expr&& self, std::vector<Arg> args)
       -> decltype(::sqlpp::not_in(std::forward<Expr>(self), std::move(args))) {
     return ::sqlpp::not_in(std::forward<Expr>(self), std::move(args));
+  }
+
+  template <typename Expr, typename Select>
+    requires(has_statement_data_type_v<Select>)
+  constexpr auto not_in(this Expr&& self, Select arg)
+      -> decltype(::sqlpp::in(std::forward<Expr>(self), std::move(arg))) {
+    return ::sqlpp::not_in(std::forward<Expr>(self), std::move(arg));
   }
 
   template <typename Expr>

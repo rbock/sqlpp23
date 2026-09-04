@@ -36,6 +36,7 @@
 #include <sqlpp26/tests/core/incompatible.h>
 #include <sqlpp26/tests/core/make_test_connection.h>
 #include <sqlpp26/tests/core/result_helpers.h>
+#include <sqlpp26/tests/core/constraint_helpers.h>
 #include <sqlpp26/tests/core/serialize_helpers.h>
 #include <sqlpp26/tests/core/types_helpers.h>
 

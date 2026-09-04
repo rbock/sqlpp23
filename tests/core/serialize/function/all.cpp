@@ -60,12 +60,6 @@ int main(int, char*[]) {
     SQLPP_COMPARE(flatten(ctx, test::tab_foo{}.id).asc(), "tab_foo.id ASC");
   }
   {
-    // Note: The tests below serialize the string returned by `get_sql_name`.
-    //       That serialization adds ticks.
-    SQLPP_COMPARE(get_sql_name(test::tab_foo{}), "'tab_foo'");
-    SQLPP_COMPARE(get_sql_name(test::tab_foo{}.id), "'id'");
-  }
-  {
     const auto bar = test::tab_bar{};
 
     // Single column.

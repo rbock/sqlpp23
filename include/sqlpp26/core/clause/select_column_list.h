@@ -29,6 +29,7 @@
 
 #include <stdexcept>
 #include <tuple>
+#include "sqlpp26/core/detail/type_info_set.h"
 
 #include <sqlpp26/core/basic/table.h>
 #include <sqlpp26/core/field_spec.h>
@@ -70,17 +71,6 @@ constexpr size_t count_columns() {
   return (0 + ... + is_select_column<Args>::value);
 }
 }  // namespace detail
-
-class assert_no_unknown_tables_in_selected_columns_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one selected column requires a table "
-                        "which is otherwise not known in the statement");
-  }
-};
 
 class assert_no_unknown_static_tables_in_selected_columns_t
     : public wrapped_static_assert {
@@ -216,23 +206,31 @@ struct basic_consistency_check<
   }
 };
 
-/* TODO
 template <typename Statement, typename... Flags, typename... Columns>
 struct prepare_check<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
-  using type = static_combined_check_t<
-      static_check_t<Statement::template _no_unknown_tables<
-                         select_column_list_t<std::tuple<Flags...>,
-                                              std::tuple<Columns...>>>,
-                     assert_no_unknown_tables_in_selected_columns_t>,
-      static_check_t<Statement::template _no_unknown_static_tables<
-                         select_column_list_t<std::tuple<Flags...>,
-                                              std::tuple<Columns...>>>,
-                     assert_no_unknown_static_tables_in_selected_columns_t>>;
-  constexpr auto operator()() { return type{}; }
+  static constexpr void verify() {
+    using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
+    if constexpr (not std::ranges::includes(
+                      provided_tables_of<Statement>::func(),
+                      required_tables_of<Clause>::func(),
+                      detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one selected column requires a table which is otherwise not "
+          "known in the statement");
+    }
+    if constexpr (not std::ranges::includes(
+                      provided_static_tables_of<Statement>::func(),
+                      required_static_tables_of<Clause>::func(),
+                      detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one selected column statically requires a table which is "
+          "otherwise not known dynamically in the statement");
+    }
+    // TODO
+  }
 };
-*/
 
 template <typename... Flags, typename Column>
 struct data_type_of<

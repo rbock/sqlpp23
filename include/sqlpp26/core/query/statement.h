@@ -194,11 +194,11 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
       return detail::make_joined_type_info_set(known_aggregate_columns_of<Clauses>::func()...);
   }
 
-  static constexpr void check_basic_consistency() {
+  static consteval void check_basic_consistency() {
     (basic_consistency_check<statement_t<Clauses...>, Clauses>::verify(), ...);
   }
 
-  static constexpr void check_prepare_consistency() {
+  static consteval void check_prepare_consistency() {
     check_basic_consistency();
     (prepare_check<statement_t<Clauses...>, Clauses>::verify(), ...);
   }

@@ -132,6 +132,13 @@ constexpr auto in(L lhs, std::vector<Arg> args)
   return {std::move(lhs), std::move(args)};
 }
 
+template <typename L, typename Select>
+  requires(values_are_comparable<L, statement_data_type_of_t<Select>>::value)
+constexpr auto in(L lhs, Select arg)
+    -> in_expression<L, operator_in, Select> {
+  return {std::move(lhs), std::move(arg)};
+}
+
 template <typename L, typename... Args>
   requires((sizeof...(Args) != 0) and
            logic::all<values_are_comparable<L, Args>::value...>::value)
@@ -153,6 +160,13 @@ template <typename L, typename Arg>
 constexpr auto not_in(L lhs, std::vector<Arg> args)
     -> in_expression<L, operator_not_in, std::vector<Arg>> {
   return {std::move(lhs), std::move(args)};
+}
+
+template <typename L, typename Select>
+  requires(values_are_comparable<L, statement_data_type_of_t<Select>>::value)
+constexpr auto not_in(L lhs, Select arg)
+    -> in_expression<L, operator_not_in, Select> {
+  return {std::move(lhs), std::move(arg)};
 }
 
 template <typename L, typename R1, typename R2>

@@ -65,6 +65,10 @@ struct data_type_of<column<Table, index>> {
 };
 
 template <typename Table, size_t index>
+struct is_const<column<Table, index>>
+    : public std::is_const<data_type_of_t<column<Table, index>>> {};
+
+template <typename Table, size_t index>
 struct has_default<column<Table, index>> {
   static constexpr bool value = column_spec_of_t<column<Table, index>>::has_default;
 };
@@ -183,10 +187,6 @@ template <typename Table, typename ColumnSpec>
 struct data_type_of<column<Table, ColumnSpec>> {
   using type = std::remove_const_t<typename ColumnSpec::data_type>;
 };
-
-template <typename Table, typename ColumnSpec>
-struct is_const<column<Table, ColumnSpec>>
-    : public std::is_const<typename ColumnSpec::data_type> {};
 
 */
 }  // namespace sqlpp

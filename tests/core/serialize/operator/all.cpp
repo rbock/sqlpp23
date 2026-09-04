@@ -31,8 +31,8 @@ int main(int, char*[]) {
   {
     const auto val = sqlpp::value(17);
 
-    SQLPP_COMPARE(any(value(select(val.as<"v">()))), "ANY (SELECT 17 AS v)");
-    SQLPP_COMPARE(val == any(value(select(val.as<"v">()))), "17 = ANY (SELECT 17 AS v)");
+    SQLPP_COMPARE(any(select(val.as<"v">())), "ANY (SELECT 17 AS v)");
+    SQLPP_COMPARE(val == any(select(val.as<"v">())), "17 = ANY (SELECT 17 AS v)");
   }
   {
     const auto val = sqlpp::value(1);

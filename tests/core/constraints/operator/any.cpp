@@ -37,7 +37,7 @@ concept cannot_call_any_with =
 }  // namespace
 
 int main() {
-  const auto bar = test::tab_bar{};
+  constexpr auto bar = test::tab_bar{};
 
   static_assert(cannot_call_any_with<decltype(7)>);
   static_assert(cannot_call_any_with<decltype(bar)>);
@@ -46,35 +46,32 @@ int main() {
   // Prepare-consistency is not required, e.g. missing tables can be provided by
   // the enclosing statement.
   {
-    const auto incomplete_select = sqlpp::select(bar.id);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(incomplete_select)),
-                     sqlpp::consistent_t>::value);
-    static_assert(
-        std::is_same<
-            decltype(check_prepare_consistency(incomplete_select)),
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+    auto incomplete_select = sqlpp::select(bar.id);
+    expect_basic_consistency_succeeds<decltype(incomplete_select)>();
+    expect_prepare_consistency_fails<
+        decltype(incomplete_select),
+        "at least one selected column requires a table which is otherwise not "
+        "known in the statement">();
 
     static_assert(can_call_any_with<decltype(incomplete_select)>);
   }
-
-  // Basic consistency is required for a statement to be considered a value.
+  // Basic consistency is required for a statement to be used in any.
   {
-    const auto inconsistent_select = sqlpp::select(bar.id).having(bar.int_n > 7);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(inconsistent_select)),
-                     sqlpp::assert_having_all_aggregates_t>::value);
-    static_assert(cannot_call_any_with<decltype(inconsistent_select)>);
+    constexpr auto inconsistent_select =
+        sqlpp::select(bar.id).having(bar.int_n > 7);
+      constexpr sqlpp::fixed_string expected =
+          "having expression not built out of aggregate expressions";
+      expect_basic_consistency_fails<decltype(inconsistent_select), expected>();
+
+      static_assert(can_call_any_with<decltype(inconsistent_select)>);
+      expect_throws<expected>([&] { any(inconsistent_select); });
   }
 
   // Multi-column selects cannot be used as a value.
   {
     const auto bad_select = sqlpp::select(bar.id, bar.text_n);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(bad_select)),
-                     sqlpp::consistent_t>::value);
-    static_assert(not sqlpp::has_data_type<decltype(check_basic_consistency(
-                      bad_select))>::value);
+    expect_basic_consistency_succeeds<decltype(bad_select)>();
+    static_assert(not sqlpp::has_statement_data_type<decltype(bad_select)>::value);
     static_assert(cannot_call_any_with<decltype(bad_select)>);
   }
 }

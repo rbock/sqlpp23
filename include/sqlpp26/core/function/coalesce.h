@@ -77,9 +77,9 @@ auto to_sql_string(Context& context, const coalesce_t<Expressions...>& t)
 template <typename Arg, typename... Expressions>
   requires(
       has_data_type<remove_dynamic_t<Arg>>::value and
-      logic::all<std::is_same_v<
-          force_optional_t<data_type_of_t<remove_dynamic_t<Arg>>>,
-          force_optional_t<data_type_of_t<remove_dynamic_t<Expressions>>>>...>::
+      logic::all<values_are_optionally_same<
+          remove_dynamic_t<Arg>,
+          remove_dynamic_t<Expressions>>::value...>::
           value)
 auto coalesce(Arg arg, Expressions... expressions)
     -> coalesce_t<Arg, Expressions...> {

@@ -26,28 +26,6 @@
 
 #include <sqlpp26/tests/core/all.h>
 
-template <typename S, sqlpp::fixed_string Expected>
-consteval auto check_basic_consistency_message() -> std::string_view {
-  std::string_view expected = Expected;
-  try {
-    S::check_basic_consistency();
-    return std::define_static_string("missing expected exception");
-  } catch (const std::domain_error& e) {
-    if (e.what() != expected) {
-      return std::define_static_string(std::format(
-          "wrong exception message: '{}' != '{}'", expected, e.what()));
-    }
-    return {};
-  }
-}
-
-template <typename S, sqlpp::fixed_string Expected>
-consteval bool expect_basic_consistency_fails() {
-  constexpr auto message = check_basic_consistency_message<S, Expected>();
-  static_assert(message.empty(), message);
-  return true;
-}
-
 void test_no_insert_value_list() {
   const auto foo = test::tab_foo{};
   expect_basic_consistency_fails<

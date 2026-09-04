@@ -38,36 +38,37 @@ void test_any(Value v) {
 
   // ANY expression are not to be in most expressions and therefore have no
   // value defined.
-  static_assert(not sqlpp::has_data_type<decltype(any(
-                    value(select(v_not_null))))>::value);
-  static_assert(not sqlpp::has_data_type<decltype(any(
-                    value(select(v_maybe_null))))>::value);
+  static_assert(
+      not sqlpp::has_data_type<decltype(any(select(v_not_null)))>::value);
+  static_assert(
+      not sqlpp::has_data_type<decltype(any(select(v_maybe_null)))>::value);
 
   // ANY expression can be used in basic comparison expressions, which use
   // remove_any_t to look inside.
+  static_assert(
+      std::is_same<sqlpp::data_type_of_t<
+                       sqlpp::remove_any_t<decltype(any(select(v_not_null)))>>,
+                   DataType>::value);
   static_assert(std::is_same<sqlpp::data_type_of_t<sqlpp::remove_any_t<
-                                 decltype(any(value(select(v_not_null))))>>,
-                             DataType>::value);
-  static_assert(std::is_same<sqlpp::data_type_of_t<sqlpp::remove_any_t<
-                                 decltype(any(value(select(v_maybe_null))))>>,
+                                 decltype(any(select(v_maybe_null)))>>,
                              OptDataType>::value);
 
   // ANY expressions do not have `as` member function.
   static_assert(
-      not sqlpp::has_enabled_as<decltype(any(value(select(v_not_null))))>::value);
+      not sqlpp::has_enabled_as<decltype(any(select(v_not_null)))>::value);
 
   // ANY expressions do not enable comparison member functions.
   static_assert(not sqlpp::has_enabled_comparison<decltype(any(
-                    value(select(v_not_null))))>::value);
+                    select(v_not_null)))>::value);
 
   // ANY expressions have the SELECT as node.
-  using S = decltype(value(select(v_not_null)));
+  using S = decltype(select(v_not_null));
   static_assert(
-      std::is_same<sqlpp::nodes_of_t<decltype(any(value(select(v_not_null))))>,
-                   sqlpp::detail::type_vector<S>>::value);
+      std::is_same<sqlpp::nodes_of_t<decltype(any(select(v_not_null)))>,
+                   sqlpp::detail::type_vector<sqlpp::value_t<S>>>::value);
 
   static_assert(not sqlpp::requires_parentheses<decltype(any(
-                    value(select(v_not_null))))>::value);
+                    select(v_not_null)))>::value);
 }
 
 void test_any_sub_select() {
@@ -77,7 +78,7 @@ void test_any_sub_select() {
   // Use a select that depends on a table that would need to be provided by the
   // enclosing query.
   auto s = select(foo.id).from(foo).where(foo.id == bar.id);
-  auto a = any(value(s));
+  auto a = any(s);
 
   using S = decltype(s);
   using A = decltype(a);
