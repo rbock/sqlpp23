@@ -29,15 +29,11 @@
 namespace {
 // Returns true if `assign(declcal<Lhs>, declval<Rhs>())` is a valid function
 // call.
-template <typename Lhs, typename Rhs, typename = void>
-struct can_call_assign_with : public std::false_type {};
-
 template <typename Lhs, typename Rhs>
-struct can_call_assign_with<
-    Lhs,
-    Rhs,
-    std::void_t<decltype(assign(std::declval<Lhs>(), std::declval<Rhs>()))>>
-    : public std::true_type {};
+concept can_call_assign_with = requires(Lhs lhs, Rhs rhs) {
+  lhs = rhs;
+  sqlpp::assign(lhs, rhs);
+};
 }  // namespace
 
 int main() {
@@ -49,47 +45,39 @@ int main() {
   // OK
   bar.int_n = 7;
   bar.int_n = sqlpp::default_value;
-  static_assert(can_call_assign_with<decltype(bar.int_n), decltype(7)>::value, "");
+  static_assert(can_call_assign_with<decltype(bar.int_n), decltype(7)>);
 
   // Cannot assign wrong value type or other stuff like tables.
+  static_assert(can_call_assign_with<decltype(bar.bool_nn), decltype(true)>);
   static_assert(
-      can_call_assign_with<decltype(bar.bool_nn), decltype(true)>::value, "");
-  static_assert(not can_call_assign_with<decltype(bar.bool_nn),
-                                         decltype("cheesecake")>::value,
-                "");
-  static_assert(
-      not can_call_assign_with<decltype(bar.bool_nn), decltype(bar)>::value, "");
+      not can_call_assign_with<decltype(bar.bool_nn), decltype("cheesecake")>);
+  static_assert(not can_call_assign_with<decltype(bar.bool_nn), decltype(bar)>);
   static_assert(
       not can_call_assign_with<decltype(bar.bool_nn),
-                               decltype(sqlpp::dynamic(maybe, true))>::value,
-      "");
+                               decltype(sqlpp::dynamic(maybe, true))>);
 
   date_time.timestamp_n = ::sqlpp::chrono::sys_microseconds{};
   // Can assign different std::chrono::sys_time types to timestamp
   static_assert(
       can_call_assign_with<decltype(date_time.timestamp_n),
-                               decltype(::sqlpp::chrono::sys_microseconds{})>::value);
+                           decltype(::sqlpp::chrono::sys_microseconds{})>);
 
-  static_assert(
-      can_call_assign_with<decltype(date_time.timestamp_n),
-                               decltype(std::chrono::sys_time<std::chrono::seconds>{})>::value);
-
+  static_assert(can_call_assign_with<
+                decltype(date_time.timestamp_n),
+                decltype(std::chrono::sys_time<std::chrono::seconds>{})>);
 
   // Must not mix date and date_time in assignments, see e.g.
-  // https://github.com/rbock/sqlpp26/issues/26
-  static_assert(not can_call_assign_with<
-                decltype(date_time.date_n),
-                decltype(::sqlpp::chrono::sys_microseconds{})>::value);
-  static_assert(not can_call_assign_with<
-                decltype(date_time.date_n),
-                decltype(date_time.timestamp_n)>::value);
+  // https://github.com/rbock/sqlpp23/issues/26
+  static_assert(
+      not can_call_assign_with<decltype(date_time.date_n),
+                               decltype(::sqlpp::chrono::sys_microseconds{})>);
+  static_assert(not can_call_assign_with<decltype(date_time.date_n),
+                                         decltype(date_time.timestamp_n)>);
 
-  static_assert(
-      not can_call_assign_with<decltype(date_time.timestamp_n),
-                               decltype(std::chrono::sys_days{})>::value);
-  static_assert(
-      not can_call_assign_with<decltype(date_time.timestamp_n),
-                               decltype(date_time.date_n)>::value);
+  static_assert(not can_call_assign_with<decltype(date_time.timestamp_n),
+                                         decltype(std::chrono::sys_days{})>);
+  static_assert(not can_call_assign_with<decltype(date_time.timestamp_n),
+                                         decltype(date_time.date_n)>);
 
   // std::chrono::sys_time<Period> can be assigned to timestamp columns if
   // `Period{1} < std::chrono::days{1}`.
@@ -101,55 +89,42 @@ int main() {
       std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
 
   static_assert(not can_call_assign_with<decltype(date_time.timestamp_n),
-                                         decltype(week_point{})>::value);
+                                         decltype(week_point{})>);
 
   static_assert(can_call_assign_with<decltype(date_time.timestamp_n),
-                                         decltype(hour_point{})>::value);
+                                     decltype(hour_point{})>);
 
   static_assert(can_call_assign_with<decltype(date_time.timestamp_n),
-                                         decltype(minute_point{})>::value);
+                                     decltype(minute_point{})>);
 
   static_assert(can_call_assign_with<decltype(date_time.timestamp_n),
-                                         decltype(date_time.timestamp_n)>::value);
+                                     decltype(date_time.timestamp_n)>);
 
   // Non-nullable without default cannot be assigned null / default
+  static_assert(not can_call_assign_with<decltype(bar.bool_nn),
+                                         decltype(std::optional{true})>);
   static_assert(
-      not can_call_assign_with<decltype(bar.bool_nn),
-                               decltype(std::optional{true})>::value,
-      "");
+      not can_call_assign_with<decltype(bar.bool_nn), decltype(std::nullopt)>);
   static_assert(not can_call_assign_with<decltype(bar.bool_nn),
-                                         decltype(std::nullopt)>::value,
-                "");
-  static_assert(not can_call_assign_with<decltype(bar.bool_nn),
-                                         decltype(sqlpp::default_value)>::value,
-                "");
+                                         decltype(sqlpp::default_value)>);
 
   // Non-nullable with default cannot be assigned null, but default
   static_assert(
-      can_call_assign_with<decltype(foo.text_nn_d), decltype("cake")>::value, "");
-  static_assert(
-      not can_call_assign_with<decltype(foo.text_nn_d),
-                               decltype(std::optional{"cake"})>::value,
-      "");
+      can_call_assign_with<decltype(foo.text_nn_d), decltype("cake")>);
   static_assert(not can_call_assign_with<decltype(foo.text_nn_d),
-                                         decltype(std::nullopt)>::value,
-                "");
+                                         decltype(std::optional{"cake"})>);
+  static_assert(not can_call_assign_with<decltype(foo.text_nn_d),
+                                         decltype(std::nullopt)>);
   static_assert(can_call_assign_with<decltype(foo.text_nn_d),
-                                     decltype(sqlpp::default_value)>::value,
-                "");
+                                     decltype(sqlpp::default_value)>);
 
   // Const column cannot be assigned anything
   const auto const_col = foo.int_c_n;
+  static_assert(not can_call_assign_with<decltype(const_col), decltype(7)>);
   static_assert(
-      not can_call_assign_with<decltype(const_col), decltype(7)>::value, "");
+      not can_call_assign_with<decltype(const_col), decltype(std::optional{7})>);
   static_assert(
-      not can_call_assign_with<decltype(const_col),
-                               decltype(std::optional{7})>::value,
-      "");
+      not can_call_assign_with<decltype(const_col), decltype(std::nullopt)>);
   static_assert(not can_call_assign_with<decltype(const_col),
-                                         decltype(std::nullopt)>::value,
-                "");
-  static_assert(not can_call_assign_with<decltype(const_col),
-                                         decltype(sqlpp::default_value)>::value,
-                "");
+                                         decltype(sqlpp::default_value)>);
 }
