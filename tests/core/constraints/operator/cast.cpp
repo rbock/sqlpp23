@@ -39,42 +39,21 @@ concept cannot_call_cast_as_with =
 int main() {
   const auto bar = test::tab_bar{};
 
-  cast(7, as(sqlpp::integral{}));
+  // Can call basics
+  static_assert(can_call_cast_as_with<decltype(7), decltype(sqlpp::as<int>())>);
+  static_assert(can_call_cast_as_with<decltype(bar.id), decltype(sqlpp::as<int>())>);
+
+  // Can call with interesting type combinations.
+  static_assert(can_call_cast_as_with<decltype(bar.id), decltype(sqlpp::as<std::string_view>())>);
+
+  // Cannot all with just one argument
   static_assert(cannot_call_cast_as_with<decltype(7)>);
   static_assert(cannot_call_cast_as_with<decltype(bar)>);
   static_assert(cannot_call_cast_as_with<decltype(bar.id)>);
 
-  // Prepare-consistency is not required, e.g. missing tables can be provided by
-  // the enclosing statement.
-  {
-    auto incomplete_select = sqlpp::select(bar.id);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(incomplete_select)),
-                     sqlpp::consistent_t>::value);
-    static_assert(
-        std::is_same<
-            decltype(check_prepare_consistency(incomplete_select)),
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+  // Cannot call cast on things without a data type
+  static_assert(cannot_call_cast_as_with<decltype(bar), decltype(sqlpp::as<int>())>);
 
-    static_assert(can_call_cast_as_with<decltype(incomplete_select), sqlpp::cast_as_t<sqlpp::integral>>);
-  }
-
-  // Basic consistency is required for a statement to be considered for `cast`
-  {
-    auto inconsistent_select = sqlpp::select(bar.id).having(bar.int_n > 7);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(inconsistent_select)),
-                     sqlpp::assert_having_all_aggregates_t>::value);
-    static_assert(cannot_call_cast_as_with<decltype(inconsistent_select)>);
-  }
-
-  // Multi-column selects cannot be used for `cast`
-  {
-    auto bad_select = sqlpp::select(bar.id, bar.text_n);
-    static_assert(std::is_same<decltype(check_basic_consistency(bad_select)),
-                               sqlpp::consistent_t>::value);
-    static_assert(not sqlpp::has_data_type<decltype(bad_select)>::value);
-    static_assert(cannot_call_cast_as_with<decltype(bad_select), sqlpp::cast_as_t<sqlpp::integral>>);
-    static_assert(cannot_call_cast_as_with<decltype(bad_select), sqlpp::cast_as_t<sqlpp::text>>);
-  }
+  // Cannot call cast directly with select
+  static_assert(cannot_call_cast_as_with<decltype(select(bar.id).from(bar)), decltype(sqlpp::as<int>())>);
 }
