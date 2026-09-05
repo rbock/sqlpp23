@@ -37,7 +37,7 @@ concept cannot_call_value_with =
 }  // namespace
 
 int main() {
-  const auto foo = test::tab_foo{};
+  constexpr auto foo = test::tab_foo{};
   auto s = select(foo.id).from(foo);
 
   // OK
@@ -48,6 +48,21 @@ int main() {
   static_assert(can_call_value_with<std::optional<int>>);
   static_assert(can_call_value_with<std::optional<std::string>>);
 
+  // Can call with incomplete select
+  value(sqlpp::select(foo.id));
+
+  // Can call with inconsistent select, but will fail with exception
+  {
+    constexpr auto inconsistent_select =
+        sqlpp::select(foo.id).having(foo.id > 7);
+    constexpr sqlpp::fixed_string expected =
+        "having expression not built out of aggregate expressions";
+    expect_basic_consistency_fails<decltype(inconsistent_select), expected>();
+
+    static_assert(can_call_value_with<decltype(inconsistent_select)>);
+    expect_throws<expected>([&] { value(inconsistent_select); });
+  }
+
   // Not OK
   static_assert(cannot_call_value_with<decltype(foo)>);
   static_assert(cannot_call_value_with<decltype(foo.id)>);
@@ -56,4 +71,7 @@ int main() {
   static_assert(cannot_call_value_with<decltype((foo.id + 7).as<"something">())>);
   static_assert(cannot_call_value_with<decltype(sqlpp::value(7))>);
   static_assert(cannot_call_value_with<decltype(std::optional{s})>);
+
+  static_assert(cannot_call_value_with<decltype(select(all_of(foo)))>);
+
 }

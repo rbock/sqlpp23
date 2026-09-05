@@ -59,12 +59,12 @@ int main() {
   {
     constexpr auto inconsistent_select =
         sqlpp::select(bar.id).having(bar.int_n > 7);
-      constexpr sqlpp::fixed_string expected =
-          "having expression not built out of aggregate expressions";
-      expect_basic_consistency_fails<decltype(inconsistent_select), expected>();
+    constexpr sqlpp::fixed_string expected =
+        "having expression not built out of aggregate expressions";
+    expect_basic_consistency_fails<decltype(inconsistent_select), expected>();
 
-      static_assert(can_call_any_with<decltype(inconsistent_select)>);
-      expect_throws<expected>([&] { any(inconsistent_select); });
+    static_assert(can_call_any_with<decltype(inconsistent_select)>);
+    expect_throws<expected>([&] { any(inconsistent_select); });
   }
 
   // Multi-column selects cannot be used as a value.

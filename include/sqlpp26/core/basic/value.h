@@ -78,9 +78,7 @@ constexpr auto value(T t) -> value_t<T> {
 template <typename Select>
   requires(has_statement_data_type_v<Select> and is_statement_v<Select>)
 constexpr auto value(Select t) -> value_t<Select> {
-  consteval {
-    Select::check_basic_consistency();
-  }
+  Select::check_basic_consistency();
   return {std::move(t)};
 }
 
