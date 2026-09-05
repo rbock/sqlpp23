@@ -143,7 +143,9 @@ struct select_result_methods_t {
   constexpr auto as(this Statement&& self) -> select_as<std::decay_t<Statement>, Name> {
     // This ensures that the sub select is free of table/CTE dependencies and
     // consistent.
-    std::decay_t<Statement>::check_prepare_consistency();
+    consteval {
+      std::decay_t<Statement>::check_prepare_consistency();
+    }
 
     using table =
         select_as<std::decay_t<Statement>, Name>;
@@ -213,7 +215,7 @@ struct prepare_check<
   static constexpr void verify() {
     using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
     if constexpr (not std::ranges::includes(
-                      provided_tables_of<Statement>::func(),
+                      Statement::get_provided_tables_of(),
                       required_tables_of<Clause>::func(),
                       detail::type_info_less{})) {
       throw std::domain_error(
@@ -221,12 +223,12 @@ struct prepare_check<
           "known in the statement");
     }
     if constexpr (not std::ranges::includes(
-                      provided_static_tables_of<Statement>::func(),
+                      Statement::get_provided_static_tables_of(),
                       required_static_tables_of<Clause>::func(),
                       detail::type_info_less{})) {
       throw std::domain_error(
           "at least one selected column statically requires a table which is "
-          "otherwise not known dynamically in the statement");
+          "only known dynamically in the statement");
     }
   }
 };

@@ -52,21 +52,9 @@ int main() {
 
   // Can call as on incomplete select statement, but will receive a compile time
   // exception
-  constexpr auto incomplete_select = sqlpp::select(bar.id);
+  auto incomplete_select = sqlpp::select(bar.id);
   static_assert(can_call_as_on<decltype(incomplete_select)>);
-  expect_throws<
-      "at least one selected column requires a table which is otherwise not "
-      "known in the statement">(
-      [incomplete_select] { incomplete_select.as<"something">(); });
-
-  // Can call as on inconsistent select statement, but will receive a compile time
-  // exception
-  constexpr auto inconsistent_select =
-      sqlpp::select(bar.id).having(bar.int_n > 7);
-  static_assert(can_call_as_on<decltype(inconsistent_select)>);
-  expect_throws<
-      "having expression not built out of aggregate expressions">(
-      [inconsistent_select] { inconsistent_select.as<"something">(); });
+  // TODO: Need to test the compile-time exception in a compile failure test
 
   // Cannot name non-select statements
   static_assert(not can_call_as_on<decltype(update(bar).set(bar.id = 7))>);

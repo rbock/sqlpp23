@@ -136,6 +136,9 @@ template <typename L, typename Select>
   requires(values_are_comparable<L, statement_data_type_of_t<Select>>::value)
 constexpr auto in(L lhs, Select arg)
     -> in_expression<L, operator_in, Select> {
+  consteval {
+    Select::check_basic_consistency();
+  }
   return {std::move(lhs), std::move(arg)};
 }
 
@@ -166,6 +169,9 @@ template <typename L, typename Select>
   requires(values_are_comparable<L, statement_data_type_of_t<Select>>::value)
 constexpr auto not_in(L lhs, Select arg)
     -> in_expression<L, operator_not_in, Select> {
+  consteval {
+    Select::check_basic_consistency();
+  }
   return {std::move(lhs), std::move(arg)};
 }
 

@@ -61,58 +61,37 @@ auto to_sql_string(Context& context, const group_by_t<Expressions...>& t)
                                             read.expressions(t));
 }
 
-class assert_no_unknown_tables_in_group_by_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one group-by expression requires a table "
-                        "which is otherwise not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_group_by_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "at least one group-by expression statically requires a table which is "
-        "only known dynamically in the statement");
-  }
-};
-
 template <typename... Expressions>
 struct is_clause<group_by_t<Expressions...>> : public std::true_type {};
 
 template <typename Statement, typename... Expressions>
 struct basic_consistency_check<Statement, group_by_t<Expressions...>> {
-  /*
-  using type = detail::expression_static_check_t<
-      Statement,
-      group_by_t<Expressions...>,
-      assert_no_unknown_static_tables_in_group_by_t>;
-      */
   static consteval void verify() {
   }
 };
 
-/*
 template <typename Statement, typename... Expressions>
 struct prepare_check<Statement, group_by_t<Expressions...>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<group_by_t<Expressions...>>,
-          assert_no_unknown_tables_in_group_by_t>,
-      static_check_t<Statement::template _no_unknown_static_tables<
-                         group_by_t<Expressions...>>,
-                     assert_no_unknown_static_tables_in_group_by_t>>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    using Clause = group_by_t<Expressions...>;
+    if constexpr (not std::ranges::includes(
+                      Statement::get_provided_tables_of(),
+                      required_tables_of<Clause>::func(),
+                      detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one group-by expression requires a table "
+          "which is otherwise not known in the statement");
+    }
+    if constexpr (not std::ranges::includes(
+                      Statement::get_provided_static_tables_of(),
+                      required_static_tables_of<Clause>::func(),
+                      detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one group-by expression statically requires a table which "
+          "is only known dynamically in the statement");
+    }
   }
 };
-*/
 
 template <typename... Expressions>
 struct known_aggregate_columns_of<group_by_t<Expressions...>> {

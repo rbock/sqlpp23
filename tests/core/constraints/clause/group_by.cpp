@@ -76,46 +76,36 @@ int main() {
   {
     auto s = sqlpp::statement_t<sqlpp::no_group_by_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
 
   // group_by must not require unknown tables for prepare/run
   {
     auto s = select(foo.id).from(foo).group_by(foo.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
   {
     auto s = select(foo.id).from(foo).group_by(foo.id, bar.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_group_by_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "at least one group-by expression requires a table which is otherwise "
+        "not known in the statement">();
   }
 
   // `group_by` using unknown table
   {
     auto s = select(max(foo.id).as<"something">()).from(foo).group_by(bar.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_group_by_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "at least one group-by expression requires a table which is otherwise "
+        "not known in the statement">();
   }
 
   // `group_by` statically using dynamic table
@@ -124,15 +114,10 @@ int main() {
                  .from(foo.cross_join(dynamic(maybe, bar)))
                  .group_by(bar.id);
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "at least one group-by expression statically requires a table which is "
+        "only known dynamically in the statement">();
   }
 }

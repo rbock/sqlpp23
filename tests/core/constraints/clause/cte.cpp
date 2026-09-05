@@ -32,25 +32,22 @@ concept can_call_cte_as_with = requires(Lhs lhs, Rhs rhs) { lhs.as(rhs); };
 
 // Returns true if `declval<Lhs>().UNION(declval<Rhs>)` is a valid function
 // call.
-#define MAKE_CAN_CALL_CTE_UNION_WITH(UNION) \
-  template <typename Lhs, typename Rhs>     \
-  concept can_call_cte_##UNION##_with =     \
-      requires(Lhs lhs, Rhs rhs) { lhs.UNION(rhs); };
+template <typename Lhs, typename Rhs>
+concept can_call_cte_union_all_with =
+    requires(Lhs lhs, Rhs rhs) { lhs.union_all(rhs); };
+template <typename Lhs, typename Rhs>
+concept can_call_cte_union_distinct_with =
+    requires(Lhs lhs, Rhs rhs) { lhs.union_distinct(rhs); };
 
-MAKE_CAN_CALL_CTE_UNION_WITH(union_all);
-MAKE_CAN_CALL_CTE_UNION_WITH(union_distinct);
+template <typename Lhs, typename Rhs>
+concept can_call_cte_all_unions_with =
+    can_call_cte_union_all_with<Lhs, Rhs> and
+    can_call_cte_union_distinct_with<Lhs, Rhs>;
 
-#define CAN_CALL_ALL_CTE_UNIONS_WITH(LHS, RHS)                             \
-  static_assert(can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>, \
-                "");                                                       \
-  static_assert(                                                           \
-      can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
-
-#define CANNOT_CALL_ANY_UNION_WITH(LHS, RHS)                                   \
-  static_assert(not can_call_cte_union_all_with<decltype(LHS), decltype(RHS)>, \
-                "");                                                           \
-  static_assert(                                                               \
-      not can_call_cte_union_distinct_with<decltype(LHS), decltype(RHS)>, "");
+template <typename Lhs, typename Rhs>
+concept can_call_cte_no_union_with =
+    not(can_call_cte_union_all_with<Lhs, Rhs> or
+        can_call_cte_union_distinct_with<Lhs, Rhs>);
 
 }  // namespace
 
@@ -69,62 +66,63 @@ int main() {
   const auto cte = ref.as(s1);
 
   // OK
-  static_assert(can_call_cte_as_with<decltype(ref), decltype(s1)>, "");
-  static_assert(can_call_cte_as_with<decltype(ref), decltype(s2)>, "");
+  static_assert(can_call_cte_as_with<decltype(ref), decltype(s1)>);
+  static_assert(can_call_cte_as_with<decltype(ref), decltype(s2)>);
 
   // No statement
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo)>, "");
-  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo.id)>, "");
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo)>);
+  static_assert(not can_call_cte_as_with<decltype(ref), decltype(foo.id)>);
   static_assert(not can_call_cte_as_with<decltype(ref), decltype(all_of(foo))>,
                 "");
 
   // No statement
   static_assert(
-      not can_call_cte_as_with<decltype(ref), decltype(insert_into(foo))>, "");
+      not can_call_cte_as_with<decltype(ref), decltype(insert_into(foo))>);
   static_assert(
-      not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>,
-      "");
+      not can_call_cte_as_with<decltype(ref), decltype(sqlpp::statement_t<>{})>);
 
   // common table expression must not use unknown tables
   static_assert(not can_call_cte_as_with<Ref, decltype(select(all_of(bar)))>);
   static_assert(not can_call_cte_as_with<Ref, decltype(select(
-                                                  all_of(bar.as(something))))>);
+                                                  all_of(bar.as<"something">())))>);
   static_assert(
       not can_call_cte_as_with<Ref, decltype(select(foo.id).from(bar))>);
 
   // Bad self-reference
   static_assert(not can_call_cte_as_with<Ref, decltype(select(cte.id).from(cte))>);
 
-  // common table expression must not use inconsistent selects
+  // common table expression must not use inconsistent selects.
+  // cte.as() can be called, but will throw a compile time exception
   {
     const auto inconsistent_select =
         select(all_of(bar)).from(bar).having(bar.id > 7);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(inconsistent_select)),
-                     sqlpp::assert_having_all_aggregates_t>::value);
-    static_assert(not can_call_cte_as_with<Ref, decltype(inconsistent_select)>);
+    constexpr sqlpp::fixed_string expected =
+        "having expression not built out of aggregate expressions";
+    expect_basic_consistency_fails<decltype(inconsistent_select), expected>();
+    static_assert(can_call_cte_as_with<Ref, decltype(inconsistent_select)>);
+    // TODO: Create compile time fail test
   }
 
   // OK
-  CAN_CALL_ALL_CTE_UNIONS_WITH(cte, s1);
-  CAN_CALL_ALL_CTE_UNIONS_WITH(cte, s2);
+  static_assert(can_call_cte_all_unions_with<decltype(cte), decltype(s1)>);
+  static_assert(can_call_cte_all_unions_with<decltype(cte), decltype(s2)>);
 
   // Cannot union with non-statement
-  CANNOT_CALL_ANY_UNION_WITH(cte, bar);
-  CANNOT_CALL_ANY_UNION_WITH(cte, bar.id);
-  CANNOT_CALL_ANY_UNION_WITH(cte, all_of(bar));
-  CANNOT_CALL_ANY_UNION_WITH(cte, cte);
+  static_assert(can_call_cte_no_union_with<decltype(cte), decltype(bar)>);
+  static_assert(can_call_cte_no_union_with<decltype(cte), decltype(bar.id)>);
+  static_assert(can_call_cte_no_union_with<decltype(cte), decltype(all_of(bar))>);
+  static_assert(can_call_cte_no_union_with<decltype(cte), decltype(cte)>);
 
   // CTE UNION requires statements with result row
   {
     const auto bad_rhs = sqlpp::statement_t<>{};
-    CANNOT_CALL_ANY_UNION_WITH(cte, bad_rhs);
+    static_assert(can_call_cte_no_union_with<decltype(cte), decltype(bad_rhs)>);
   }
 
   // CTE UNION requires no missing tables
   {
     auto bad_rhs = select(all_of(foo));
-    CANNOT_CALL_ANY_UNION_WITH(cte, bad_rhs);
+    static_assert(can_call_cte_no_union_with<decltype(cte), decltype(bad_rhs)>);
   }
 
   // CTE UNION requires statements with same result row
@@ -133,21 +131,20 @@ int main() {
         sqlpp::cte<"something">().as(select(foo.text_nn_d, foo.id).from(foo));
     auto s_foo_int_n = select(foo.text_nn_d, foo.int_n).from(foo);
     auto c_value_id = sqlpp::cte<"something">().as(
-        select(foo.text_nn_d, sqlpp::value(7).as(foo.id)).from(foo));
+        select(foo.text_nn_d, sqlpp::value(7).as<"id">()).from(foo));
     auto s_value_oid =
-        select(foo.text_nn_d, sqlpp::value(7).as(something)).from(foo);
+        select(foo.text_nn_d, sqlpp::value(7).as<"something">()).from(foo);
 
     static_assert(
         not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
-                         sqlpp::data_type_of_t<decltype(foo.int_n)>>::value,
-        "");
+                         sqlpp::data_type_of_t<decltype(foo.int_n)>>::value);
 
     // Different data types
-    CANNOT_CALL_ANY_UNION_WITH(c_foo_int, s_foo_int_n);
-    CANNOT_CALL_ANY_UNION_WITH(c_foo_int, dynamic(maybe, s_foo_int_n));
+    static_assert(can_call_cte_no_union_with<decltype(c_foo_int), decltype(s_foo_int_n)>);
+    static_assert(can_call_cte_no_union_with<decltype(c_foo_int), decltype(dynamic(maybe, s_foo_int_n))>);
 
     // Different name
-    CANNOT_CALL_ANY_UNION_WITH(c_value_id, s_value_oid);
-    CANNOT_CALL_ANY_UNION_WITH(c_value_id, dynamic(maybe, s_value_oid));
+    static_assert(can_call_cte_no_union_with<decltype(c_value_id), decltype(s_value_oid)>);
+    static_assert(can_call_cte_no_union_with<decltype(c_value_id), decltype(dynamic(maybe, s_value_oid))>);
   }
 }

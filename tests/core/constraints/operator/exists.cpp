@@ -46,35 +46,42 @@ int main() {
   // Prepare-consistency is not required, e.g. missing tables can be provided by
   // the enclosing statement.
   {
-    auto incomplete_select = sqlpp::select(bar.id);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(incomplete_select)),
-                     sqlpp::consistent_t>::value);
-    static_assert(
-        std::is_same<
-            decltype(check_prepare_consistency(incomplete_select)),
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+    auto incomplete = sqlpp::select(bar.id);
+    using Incomplete = decltype(incomplete);
+    expect_basic_consistency_succeeds<Incomplete>();
+    expect_prepare_consistency_fails<
+        Incomplete,
+        "at least one selected column requires a table which is otherwise not "
+        "known in the statement">();
 
-    static_assert(can_call_exists_with<decltype(incomplete_select)>);
+    static_assert(can_call_exists_with<Incomplete>);
+    exists(incomplete);
   }
 
   // Basic consistency is required for a statement to be considered for `exists`
+  // Calling exists is allowed but will throw a compile time exception.
   {
-    auto inconsistent_select = sqlpp::select(bar.id).having(bar.int_n > 7);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(inconsistent_select)),
-                     sqlpp::assert_having_all_aggregates_t>::value);
-    static_assert(cannot_call_exists_with<decltype(inconsistent_select)>);
+    constexpr auto inconsistent = sqlpp::select(bar.id).having(bar.int_n > 7);
+    using Inconsistent = decltype(inconsistent);
+    expect_basic_consistency_fails<
+        Inconsistent,
+        "having expression not built out of aggregate expressions">();
+
+    static_assert(can_call_exists_with<Inconsistent>);
+    // TODO: Need to test the thrown exception in a compile-failure test
   }
 
   // Multi-column selects can be used for `exists`
   {
-    auto bad_select = sqlpp::select(bar.id, bar.text_n);
-    static_assert(
-        std::is_same<decltype(check_basic_consistency(bad_select)),
-                     sqlpp::consistent_t>::value);
-    static_assert(not sqlpp::has_data_type<decltype(check_basic_consistency(
-                      bad_select))>::value);
-    static_assert(can_call_exists_with<decltype(bad_select)>);
+    auto multi_incomplete = sqlpp::select(bar.id, bar.text_n);
+    using MultiIncomplete = decltype(multi_incomplete);
+    expect_basic_consistency_succeeds<MultiIncomplete>();
+    expect_prepare_consistency_fails<
+        MultiIncomplete,
+        "at least one selected column requires a table which is otherwise not "
+        "known in the statement">();
+
+    static_assert(can_call_exists_with<MultiIncomplete>);
+    exists(multi_incomplete);
   }
 }

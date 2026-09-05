@@ -60,7 +60,7 @@ int main() {
     expect_basic_consistency_fails<decltype(inconsistent_select), expected>();
 
     static_assert(can_call_value_with<decltype(inconsistent_select)>);
-    expect_throws<expected>([&] { value(inconsistent_select); });
+    // TODO: Test in a compile failure test: expect_throws<expected>([&] { value(inconsistent_select); });
   }
 
   // Not OK

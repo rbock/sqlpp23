@@ -108,7 +108,7 @@ struct prepare_check<Statement, having_t<Expression>> {
   static constexpr void verify() {
     using Clause = having_t<Expression>;
     if constexpr (not std::ranges::includes(
-                      provided_tables_of<Statement>::func(),
+                      Statement::get_provided_tables_of(),
                       required_tables_of<Clause>::func(),
                       detail::type_info_less{})) {
       throw std::domain_error(
@@ -116,7 +116,7 @@ struct prepare_check<Statement, having_t<Expression>> {
           "not known in the statement");
     }
     if constexpr (not std::ranges::includes(
-                      provided_static_tables_of<Statement>::func(),
+                      Statement::get_provided_static_tables_of(),
                       required_static_tables_of<Clause>::func(),
                       detail::type_info_less{})) {
       throw std::domain_error(

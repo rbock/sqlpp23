@@ -63,14 +63,21 @@ struct is_clause<update_set_list_t<Assignments...>> : public std::true_type {};
 template <typename Statement, typename... Assignments>
 struct basic_consistency_check<Statement, update_set_list_t<Assignments...>> {
   static constexpr void verify() {
-    if constexpr (not std::ranges::includes(
-                      provided_tables_of<Statement>::func(),
-                      required_tables_of<
-                          update_set_list_t<Assignments...>>::func(),
-                      sqlpp::detail::type_info_less{})) {
+    using Clause = update_set_list_t<Assignments...>;
+    if constexpr (not std::ranges::includes(Statement::get_provided_tables_of(),
+                                            required_tables_of<Clause>::func(),
+                                            sqlpp::detail::type_info_less{})) {
       throw std::domain_error(
           "at least one update assignment requires a table "
           "which is otherwise not known in the statement");
+    }
+    if constexpr (not std::ranges::includes(
+                      Statement::get_static_provided_tables_of(),
+                      required_static_tables_of<Clause>::func(),
+                      sqlpp::detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one update assignment statically requires a table "
+          "which is only known dynamically in the statement");
     }
   }
 };

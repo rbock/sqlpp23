@@ -63,15 +63,13 @@ auto to_sql_string(Context& context, const exists_expression<Select>& t)
   return "EXISTS (" + to_sql_string(context, read.expression(t)) + ")";
 }
 
-template <typename... Clauses>
-  requires(is_statement<statement_t<Clauses...>>::value and
-           has_result_row<statement_t<Clauses...>>::value)
-constexpr auto exists(statement_t<Clauses...> expression)
-    -> exists_expression<statement_t<Clauses...>> {
+template <typename Select>
+  requires(is_statement<Select>::value and has_result_row<Select>::value)
+constexpr auto exists(Select expression) -> exists_expression<Select> {
   consteval {
-    statement_t<Clauses...>::check_basic_consistency();
+    Select::check_basic_consistency();
   }
-  return exists_expression<statement_t<Clauses...>>{std::move(expression)};
+  return exists_expression<Select>{std::move(expression)};
 }
 
 }  // namespace sqlpp
