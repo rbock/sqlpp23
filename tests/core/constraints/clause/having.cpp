@@ -84,110 +84,88 @@ int main() {
   // OK
   {
     using S = decltype(select_without_group_by.having(avg(bar.id) > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     using S = decltype(select_without_group_by.having(avg(bar.id) >
                                                       parameter(bar.id)));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     using S = decltype(select_with_group_by.having(avg(bar.id) > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     using S =
         decltype(select_with_group_by.having(avg(bar.id) > parameter(bar.id)));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     using S = decltype(select_with_group_by.having(bar.id > parameter(bar.id)));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
 
   // Try non aggregate
   {
     using S = decltype(select_without_group_by.having(bar.id > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
   {
     using S = decltype(select_without_group_by.having(count(bar.id) > 3 and
                                                       bar.id > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
   {
     using S = decltype(select_with_group_by.having(bar.text_n > "17"));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
   {
     using S = decltype(select_with_group_by.having(count(bar.text_n) > 3 and
                                                    bar.text_n > "17"));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
   {
     using S = decltype(select_with_group_by.having(
         count(bar.text_n) > 3 and dynamic(maybe, bar.text_n > "17")));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
 
   // Try foreign table
   {
     using S = decltype(select_without_group_by.having(foo.float_n > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
 
   {
     using S = decltype(select_with_group_by.having(foo.float_n > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_having_all_aggregates_t>::value,
-                  "");
+    expect_prepare_consistency_fails<
+        S, "having expression not built out of aggregate expressions">();
   }
 
   // Use in sub queries: Allow foreign expressions in aggregate functions
   {
     using S = decltype(select_without_group_by.having(avg(foo.float_n) > 17));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
 
   // Use dynamic group-by expressions
   // id is statically and text_n is dynamically grouped by.
   {
     using S = decltype(select_with_dynamic_group_by.having(bar.id > 3));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     using S = decltype(select_with_dynamic_group_by.having(bar.text_n !=
                                                            "cheesecake"));
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>,
-                     sqlpp::assert_having_all_static_aggregates_t>::value,
-        "");
+    expect_basic_consistency_fails<S,
+                                     "at least one static having expression is "
+                                     "provided dynamically only in group_by">();
   }
 
   // `having` using unknown table
@@ -197,45 +175,24 @@ int main() {
                  .having(max(bar.id) > 7)
                  .group_by(foo.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_having_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "at least one having-expression requires a table which is otherwise "
+        "not known in the statement">();
   }
 
   // `having` statically using dynamic table
   {
     auto s = select(max(foo.id).as<"something">())
                  .from(foo.cross_join(dynamic(maybe, bar)))
-                 .having(bar.id > 7)
-                 .group_by(bar.id);
+                 .having(max(bar.id) > 7);
     using S = decltype(s);
     // This runs into the group_by check, first.
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value,
-        "");
-
-    // So let's check consistency_check_t:
-    using Expression = decltype(bar.id > 7);
-    using H = sqlpp::having_t<Expression>;
-
-    static_assert(
-        std::is_same<sqlpp::consistency_check_t<S, H>,
-                     sqlpp::assert_no_unknown_static_tables_in_having_t>::value,
-        "");
-    static_assert(
-        std::is_same<sqlpp::prepare_check_t<S, H>,
-                     sqlpp::assert_no_unknown_static_tables_in_having_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "at least one having-expression statically requires a table which is "
+        "only known dynamically in the statement">();
   }
 }

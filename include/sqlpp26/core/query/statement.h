@@ -204,11 +204,47 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
         provided_optional_tables_of<Clauses>::func()...);
   }
 
-  static consteval auto get_known_aggregate_columns_of()
-      -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        known_aggregate_columns_of<Clauses>::func()...);
+  template<typename Clause, fixed_string Name>
+  static consteval void check_table_consistency() {
+    static constexpr auto static_tables =
+        std::define_static_array(required_tables_of<Clause>::func());
+    template for (constexpr auto& info : static_tables) {
+      // TODO: Use .contains() when it is supported in consteval
+      if (not std::ranges::contains(statement_t::get_provided_tables_of(), info)) {
+        using table = typename[:info:];
+        throw std::domain_error(std::format(
+            "The {}-clause requires table {} which is not known "
+            "in the statement",
+            std::string_view{Name}, std::string_view{name_of_v<table>}));
+      }
+    }
   }
+
+#warning: Need to use these across all clauses
+
+  template<typename Clause, fixed_string Name>
+  static consteval void check_static_table_consistency() {
+    static constexpr auto static_tables =
+        std::define_static_array(required_static_tables_of<Clause>::func());
+    template for (constexpr auto& info : static_tables) {
+      // TODO: Use .contains() when it is supported in consteval
+      if (std::ranges::contains(statement_t::get_provided_tables_of(), info) and
+          not std::ranges::contains(
+              statement_t::get_provided_static_tables_of(), info)) {
+        using table = typename[:info:];
+        throw std::domain_error(std::format(
+            "The {}-clause statically requires table {} which is "
+            "only known dynamically in the statement",
+            std::string_view{Name}, std::string_view{name_of_v<table>}));
+      }
+    }
+  }
+
+static consteval auto
+get_known_aggregate_columns_of() -> detail::type_info_set {
+  return detail::make_joined_type_info_set(
+      known_aggregate_columns_of<Clauses>::func()...);
+}
 
   static consteval auto get_known_static_aggregate_columns_of()
       -> detail::type_info_set {
