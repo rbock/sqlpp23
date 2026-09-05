@@ -140,10 +140,10 @@ struct result_row_of<
 template <typename... Columns>
 struct select_result_methods_t {
   template <fixed_string Name, typename Statement>
-  auto as(this Statement&& self) -> select_as<std::decay_t<Statement>, Name> {
+  constexpr auto as(this Statement&& self) -> select_as<std::decay_t<Statement>, Name> {
     // This ensures that the sub select is free of table/CTE dependencies and
     // consistent.
-    check_prepare_consistency(self);
+    std::decay_t<Statement>::check_prepare_consistency();
 
     using table =
         select_as<std::decay_t<Statement>, Name>;
@@ -228,7 +228,6 @@ struct prepare_check<
           "at least one selected column statically requires a table which is "
           "otherwise not known dynamically in the statement");
     }
-    // TODO
   }
 };
 

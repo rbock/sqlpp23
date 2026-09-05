@@ -105,15 +105,24 @@ struct basic_consistency_check<Statement, having_t<Expression>> {
 
 template <typename Statement, typename Expression>
 struct prepare_check<Statement, having_t<Expression>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<having_t<Expression>>,
-          assert_no_unknown_tables_in_having_t>,
-      static_check_t<
-          Statement::template _no_unknown_static_tables<having_t<Expression>>,
-          assert_no_unknown_static_tables_in_having_t>>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    using Clause = having_t<Expression>;
+    if constexpr (not std::ranges::includes(
+                      provided_tables_of<Statement>::func(),
+                      required_tables_of<Clause>::func(),
+                      detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one having-expression requires a table which is otherwise "
+          "not known in the statement");
+    }
+    if constexpr (not std::ranges::includes(
+                      provided_static_tables_of<Statement>::func(),
+                      required_static_tables_of<Clause>::func(),
+                      detail::type_info_less{})) {
+      throw std::domain_error(
+          "at least one having-expression statically requires a table which is "
+          "only known dynamically in the statement");
+    }
   }
 };
 

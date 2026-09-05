@@ -27,52 +27,59 @@
 #include <sqlpp26/tests/core/all.h>
 
 namespace {
-// Returns true if `declval<Expression>().as(declval<NameTagProvider>())` is a
-// valid function call.
-template <typename Expression, typename NameTagProvider, typename = void>
-struct can_call_as_with : public std::false_type {};
+template <typename Lhs>
+concept can_call_as_on = requires(const Lhs& lhs) { lhs.template as<"something">(); };
 
-template <typename Expression, typename NameTagProvider>
-struct can_call_as_with<Expression,
-                        NameTagProvider,
-                        std::void_t<decltype(std::declval<Expression>().as(
-                            std::declval<NameTagProvider>()))>>
-    : public std::true_type {};
+template <typename Lhs>
+concept can_call_as_with = requires(const Lhs& lhs) { sqlpp::as<"something">(lhs); };
+
 }  // namespace
 
 int main() {
   const auto maybe = true;
-  const auto bar = test::tab_bar{};
+  constexpr auto bar = test::tab_bar{};
 
   // OK
-  static_assert(can_call_as_with<decltype(bar.id), decltype(something)>::value,
-                "");
-  static_assert(can_call_as_with<decltype(bar.id), decltype(bar)>::value, "");
-  static_assert(can_call_as_with<decltype(bar), decltype(something)>::value,
-                "");
-  static_assert(can_call_as_with<decltype(select(bar.id).from(bar)),
-                                 decltype(something)>::value,
-                "");
+  static_assert(can_call_as_on<decltype(sqlpp::value(maybe))>);
+  static_assert(can_call_as_on<decltype(bar.id)>);
+  static_assert(can_call_as_on<decltype(bar)>);
+  static_assert(can_call_as_on<decltype(sqlpp::cte<"sample">().as(
+                    select(bar.id).from(bar)))>);
+  static_assert(can_call_as_on<decltype(select(bar.id).from(bar))>);
 
   // OK, functions can be named
-  static_assert(
-      can_call_as_with<decltype(max(bar.bool_nn)), decltype(something)>::value,
-      "");
+  static_assert(can_call_as_on<decltype(max(bar.bool_nn))>);
+
+  // Can call as on incomplete select statement, but will receive a compile time
+  // exception
+  constexpr auto incomplete_select = sqlpp::select(bar.id);
+  static_assert(can_call_as_on<decltype(incomplete_select)>);
+  expect_throws<
+      "at least one selected column requires a table which is otherwise not "
+      "known in the statement">(
+      [incomplete_select] { incomplete_select.as<"something">(); });
+
+  // Can call as on inconsistent select statement, but will receive a compile time
+  // exception
+  constexpr auto inconsistent_select =
+      sqlpp::select(bar.id).having(bar.int_n > 7);
+  static_assert(can_call_as_on<decltype(inconsistent_select)>);
+  expect_throws<
+      "having expression not built out of aggregate expressions">(
+      [inconsistent_select] { inconsistent_select.as<"something">(); });
+
+  // Cannot name non-select statements
+  static_assert(not can_call_as_on<decltype(update(bar).set(bar.id = 7))>);
 
   // dynamic cannot be named can be named
-  static_assert(not can_call_as_with<decltype(dynamic(maybe, bar.bool_nn)),
-                                     decltype(bar)>::value,
-                "");
+  static_assert(not can_call_as_on<decltype(dynamic(maybe, bar.bool_nn))>);
 
   // Renamed things cannot be renamed again.
-  static_assert(not can_call_as_with<decltype(bar.id.as<"something">()),
-                                     decltype(bar)>::value,
-                "");
+  static_assert(not can_call_as_on<decltype(bar.id.as<"something">())>);
 
-  // Things without a name cannot be used to rename something else.
-  static_assert(not can_call_as_with<decltype(bar.id), decltype(maybe)>::value,
-                "");
-  static_assert(
-      not can_call_as_with<decltype(bar.id), decltype(sqlpp::value(7))>::value,
-      "");
+  // Built-in types don't have an .as member function
+  static_assert(not can_call_as_on<bool>);
+
+  // However, it would be possible to call the stand-alone as() function
+  static_assert(can_call_as_with<bool>);
 }
