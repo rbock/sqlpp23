@@ -48,16 +48,23 @@ namespace sqlpp {
 namespace detail {
 
 template <typename Statement, typename... Columns>
-consteval bool have_all_required_columns(){
-  return std::ranges::includes(detail::make_type_info_set<Columns...>(),
-                               required_insert_columns_of<Statement>::func(),
-                               sqlpp::detail::type_info_less{});
-};
+consteval void have_all_required_columns() {
+  static constexpr auto required_columns =
+      std::define_static_array(required_insert_columns_of<Statement>::func());
+  template for (constexpr auto& info : required_columns) {
+    if (not std::ranges::contains(detail::make_type_info_set<Columns...>(),
+                                  info)) {
+      using Column = typename[:info:];
+      throw std::domain_error(
+          std::format("insert: required column '{}' is missing",
+                      std::string_view(name_of_v<Column>)));
+    }
+  }
+}
 
 template <typename Statement, typename... Assignments>
-consteval bool have_all_required_assignments() {
-  return
-      have_all_required_columns<Statement, lhs_t<Assignments>...>();
+consteval void have_all_required_assignments() {
+  have_all_required_columns<Statement, lhs_t<Assignments>...>();
 };
 
 // Used to serialize left hand side of assignment tuple that should ignore
@@ -181,11 +188,7 @@ struct basic_consistency_check<Statement, insert_set_t<Assignments...>> {
     Statement::template check_static_table_consistency<Clause, "insert-set">();
     Statement::template check_table_consistency<Clause, "insert-set">();
 
-    if constexpr (not detail::have_all_required_assignments<Statement,
-                                                            Assignments...>()) {
-      throw std::domain_error(
-          "at least one required column is missing in insert assignments");
-    }
+    detail::have_all_required_assignments<Statement, Assignments...>();
   }
 };
 
@@ -261,10 +264,7 @@ struct basic_consistency_check<Statement, column_list_t<Columns...>> {
     Statement::template check_static_table_consistency<Clause, "insert-columns">();
     Statement::template check_table_consistency<Clause, "insert-columns">();
 
-    if constexpr (not detail::have_all_required_columns<Statement,
-                                                        Columns...>()) {
-      throw std::domain_error("at least one required column is missing in columns()");
-    }
+    detail::have_all_required_columns<Statement, Columns...>();
   }
 };
 
@@ -295,12 +295,9 @@ struct no_insert_value_list_t {
 
   template <typename Statement, DynamicAssignment... Assignments>
     requires(
-        sizeof...(Assignments) > 0 /*and
-        detail::are_unique<lhs_t<remove_dynamic_t<Assignments>>...>::value and
-        detail::are_same<
-            table_of_t<lhs_t<remove_dynamic_t<Assignments>>>...>::value
-            */
-            )
+        sizeof...(Assignments) > 0 and
+        detail::are_unique_v<lhs_t<remove_dynamic_t<Assignments>>...> and
+        detail::are_same_v<table_of_t<lhs_t<remove_dynamic_t<Assignments>>>...>)
   constexpr auto set(this Statement&& self, Assignments... assignments) {
     return new_statement<no_insert_value_list_t>(
         std::forward<Statement>(self),

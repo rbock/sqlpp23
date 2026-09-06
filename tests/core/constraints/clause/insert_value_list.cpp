@@ -81,10 +81,9 @@ int main() {
   const auto bar = test::tab_bar{};
 
   // Confirming the required columns of tab_bar.
-  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::tab_bar>,
-                             sqlpp::detail::type_set<sqlpp::column_t<
-                                 test::tab_bar, test::tab_bar_::BoolNn>>>::value,
-                "");
+  static_assert(
+      sqlpp::required_insert_columns_of<test::tab_bar>::func() ==
+      sqlpp::detail::make_type_info_set<sqlpp::column<test::tab_bar, 2>>());
 
   // -------------------------
   // insert_into(tab).set(...)
@@ -101,7 +100,7 @@ int main() {
   static_assert(cannot_call_insert_set_with<decltype(bar.int_n = 7),
                                             decltype(bar.bool_nn)>);
 
-  // insert_into(table).set(<arguments including non-assignments>) is
+  // insert_into(table).set(<duplicate columns, including dynamic>) is
   // inconsistent and cannot be constructed.
   static_assert(cannot_call_insert_set_with<decltype(bar.bool_nn = true),
                                             decltype(bar.bool_nn = false)>);
@@ -120,16 +119,16 @@ int main() {
   {
     auto i = insert_into(bar).set(bar.int_n = sqlpp::default_value);
     using I = decltype(i);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_all_required_assignments_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        I,
+        "insert: required column 'bool_nn' is missing">();
   }
   {
     auto i = insert_into(bar).set(dynamic(true, bar.int_n = sqlpp::default_value));
     using I = decltype(i);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_all_required_assignments_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        I,
+        "insert: required column 'bool_nn' is missing">();
   }
 
   // insert_into(table).set(<dynamic required columns>) is also inconsistent but
@@ -137,9 +136,9 @@ int main() {
   {
     auto i = insert_into(bar).set(dynamic(true, bar.bool_nn = true));
     using I = decltype(i);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_all_required_assignments_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        I,
+        "insert: required column 'bool_nn' is missing">();
   }
 
   // -------------------------
@@ -180,9 +179,9 @@ int main() {
   {
     auto i = insert_into(bar).columns(bar.int_n);
     using I = decltype(i);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_all_required_columns_t>::value,
-                  "");
+      expect_basic_consistency_fails<
+        I,
+        "insert: required column 'bool_nn' is missing">();
   }
 
   // -------------------------
@@ -229,6 +228,43 @@ int main() {
         cannot_call_add_values_with<I,
                                     decltype(bar.int_n = sqlpp::default_value),
                                     decltype(bar.bool_nn = bar.bool_nn)>);
+  }
+
+  // In custom queries, it would be possible to have unknown tables, too.
+  {
+    auto i = insert_columns(bar.int_n);
+    using I = decltype(i);
+    expect_basic_consistency_fails<
+        I,
+        "The insert-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
+  }
+
+  {
+    auto i = from(dynamic(true, bar)) << insert_columns(bar.int_n);
+    using I = decltype(i);
+    expect_basic_consistency_fails<
+        I,
+        "The insert-columns-clause statically requires table tab_bar which is "
+        "only known dynamically in the statement">();
+  }
+
+  {
+    auto i = from(dynamic(true, bar)) << insert_set(bar.int_n = 7);
+    using I = decltype(i);
+    expect_basic_consistency_fails<
+        I,
+        "The insert-set-clause statically requires table tab_bar which is only "
+        "known dynamically in the statement">();
+  }
+
+  {
+    auto i = insert_set(bar.int_n = 7);
+    using I = decltype(i);
+    expect_basic_consistency_fails<
+        I,
+        "The insert-set-clause requires table tab_bar which is not known "
+        "in the statement">();
   }
 
 }

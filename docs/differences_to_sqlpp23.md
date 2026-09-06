@@ -32,6 +32,7 @@ Currently still waiting for
 error quality:
 at least one having-expression statically requires a table which is only known dynamically in the statement' != 'The having-clause statically requires table tab_bar which is only known dynamically in the statement'
 
+insert: required column 'bool_nn' is missing
 
 
 [**\< Index**](/docs/README.md)
