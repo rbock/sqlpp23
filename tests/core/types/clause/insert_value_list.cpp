@@ -94,7 +94,8 @@ void test_insert_set() {
     expect_basic_consistency_fails<
         decltype(insert_into(foo).set(bar.int_n = sqlpp::default_value,
                                       bar.bool_nn = true)),
-        "at least one insert assignment requires a table which is otherwise not known in the statement">();
+        "The insert-set-clause requires table tab_bar which is not known in "
+        "the statement">();
   }
 
   // insert_into(tableA).set(missing required assignments) not consistent
@@ -136,8 +137,8 @@ void test_insert_columns() {
   {
     expect_basic_consistency_fails<
         decltype(insert_into(foo).columns(bar.int_n, bar.bool_nn)),
-        "at least one column requires a table which is "
-        "otherwise not known in the statement">();
+        "The insert-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
   }
 
   // insert_into(tableA).columns(missing required static columns) is not

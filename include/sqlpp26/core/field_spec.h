@@ -83,8 +83,8 @@ using field_data_type_t = typename field_data_type<Statement, SelectColumn>::typ
 template <typename Statement, typename SelectColumn>
 requires(field_depends_on_optional_table<Statement, SelectColumn>::value)
 struct field_data_type<Statement, SelectColumn> {
-  using type =
-      sqlpp::force_optional_t<field_data_type_t<void, SelectColumn>>;
+  using type = sqlpp::force_optional_t<
+      result_data_type_of_t<select_column_data_type_of_t<SelectColumn>>>;
 };
 
 

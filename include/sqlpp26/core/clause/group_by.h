@@ -67,6 +67,8 @@ struct is_clause<group_by_t<Expressions...>> : public std::true_type {};
 template <typename Statement, typename... Expressions>
 struct basic_consistency_check<Statement, group_by_t<Expressions...>> {
   static consteval void verify() {
+    using Clause = group_by_t<Expressions...>;
+    Statement::template check_static_table_consistency<Clause, "group_by">();
   }
 };
 
@@ -74,22 +76,7 @@ template <typename Statement, typename... Expressions>
 struct prepare_check<Statement, group_by_t<Expressions...>> {
   static constexpr void verify() {
     using Clause = group_by_t<Expressions...>;
-    if constexpr (not std::ranges::includes(
-                      Statement::get_provided_tables_of(),
-                      required_tables_of<Clause>::func(),
-                      detail::type_info_less{})) {
-      throw std::domain_error(
-          "at least one group-by expression requires a table "
-          "which is otherwise not known in the statement");
-    }
-    if constexpr (not std::ranges::includes(
-                      Statement::get_provided_static_tables_of(),
-                      required_static_tables_of<Clause>::func(),
-                      detail::type_info_less{})) {
-      throw std::domain_error(
-          "at least one group-by expression statically requires a table which "
-          "is only known dynamically in the statement");
-    }
+    Statement::template check_table_consistency<Clause, "group_by">();
   }
 };
 

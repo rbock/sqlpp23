@@ -58,28 +58,6 @@ auto to_sql_string(Context& context, const having_t<Expression>& t)
   return dynamic_clause_to_sql_string(context, "HAVING", read.expression(t));
 }
 
-class assert_no_unknown_tables_in_having_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one having-expression requires a table "
-                        "which is otherwise not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_having_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one having-expression statically requires a "
-                        "table which is only "
-                        "known dynamically in the statement");
-  }
-};
-
 template <typename Expression>
 struct is_clause<having_t<Expression>> : public std::true_type {};
 
@@ -91,8 +69,8 @@ struct nodes_of<having_t<Expression>> {
 template <typename Statement, typename Expression>
 struct basic_consistency_check<Statement, having_t<Expression>> {
   static constexpr void verify() {
-    Statement::template check_static_table_consistency<having_t<Expression>,
-                                                       "having">();
+    using Clause = having_t<Expression>;
+    Statement::template check_static_table_consistency<Clause, "having">();
     if constexpr (not is_aggregate_expression<Statement, Expression>()) {
       throw std::domain_error(
           "having expression not built out of aggregate expressions");
@@ -108,8 +86,8 @@ struct basic_consistency_check<Statement, having_t<Expression>> {
 template <typename Statement, typename Expression>
 struct prepare_check<Statement, having_t<Expression>> {
   static constexpr void verify() {
-    Statement::template check_table_consistency<having_t<Expression>,
-                                                "having">();
+    using Clause = having_t<Expression>;
+    Statement::template check_table_consistency<Clause, "having">();
   }
 };
 

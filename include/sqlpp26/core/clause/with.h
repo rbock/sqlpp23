@@ -69,7 +69,8 @@ struct is_clause<with_t<Ctes...>> : public std::true_type {};
 template <typename Statement, typename... Ctes>
 struct basic_consistency_check<Statement, with_t<Ctes...>> {
   static constexpr void verify() {
-  // FIXME: Need real checks here
+  // TODO: Need real checks here
+  // e.g. would it be allowed for any CTE to depend on an external table?
   }
 };
 

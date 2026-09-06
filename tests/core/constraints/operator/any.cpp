@@ -50,8 +50,8 @@ int main() {
     expect_basic_consistency_succeeds<decltype(incomplete_select)>();
     expect_prepare_consistency_fails<
         decltype(incomplete_select),
-        "at least one selected column requires a table which is otherwise not "
-        "known in the statement">();
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
 
     static_assert(can_call_any_with<decltype(incomplete_select)>);
   }

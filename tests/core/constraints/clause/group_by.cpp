@@ -93,8 +93,8 @@ int main() {
     expect_basic_consistency_succeeds<S>();
     expect_prepare_consistency_fails<
         S,
-        "at least one group-by expression requires a table which is otherwise "
-        "not known in the statement">();
+        "The group_by-clause requires table tab_bar which is not known in the "
+        "statement">();
   }
 
   // `group_by` using unknown table
@@ -104,8 +104,8 @@ int main() {
     expect_basic_consistency_succeeds<S>();
     expect_prepare_consistency_fails<
         S,
-        "at least one group-by expression requires a table which is otherwise "
-        "not known in the statement">();
+        "The group_by-clause requires table tab_bar which is not known in the "
+        "statement">();
   }
 
   // `group_by` statically using dynamic table
@@ -114,10 +114,9 @@ int main() {
                  .from(foo.cross_join(dynamic(maybe, bar)))
                  .group_by(bar.id);
     using S = decltype(s);
-    expect_basic_consistency_succeeds<S>();
-    expect_prepare_consistency_fails<
+    expect_basic_consistency_fails<
         S,
-        "at least one group-by expression statically requires a table which is "
-        "only known dynamically in the statement">();
+        "The group_by-clause statically requires table tab_bar which is only "
+        "known dynamically in the statement">();
   }
 }

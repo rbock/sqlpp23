@@ -204,7 +204,8 @@ struct basic_consistency_check<
           assert_no_unknown_static_tables_in_selected_columns_t>...>;
           */
   static constexpr void verify() {
-    // TODO
+    using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
+    Statement::template check_static_table_consistency<Clause, "select-columns">();
   }
 };
 
@@ -214,22 +215,7 @@ struct prepare_check<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   static constexpr void verify() {
     using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
-    if constexpr (not std::ranges::includes(
-                      Statement::get_provided_tables_of(),
-                      required_tables_of<Clause>::func(),
-                      detail::type_info_less{})) {
-      throw std::domain_error(
-          "at least one selected column requires a table which is otherwise not "
-          "known in the statement");
-    }
-    if constexpr (not std::ranges::includes(
-                      Statement::get_provided_static_tables_of(),
-                      required_static_tables_of<Clause>::func(),
-                      detail::type_info_less{})) {
-      throw std::domain_error(
-          "at least one selected column statically requires a table which is "
-          "only known dynamically in the statement");
-    }
+    Statement::template check_table_consistency<Clause, "select-columns">();
   }
 };
 

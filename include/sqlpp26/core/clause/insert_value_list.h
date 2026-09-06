@@ -178,21 +178,9 @@ template <typename Statement, typename... Assignments>
 struct basic_consistency_check<Statement, insert_set_t<Assignments...>> {
   static constexpr void verify() {
     using Clause = insert_set_t<Assignments...>;
-    if constexpr (not std::ranges::includes(Statement::get_provided_tables_of(),
-                                            required_tables_of<Clause>::func(),
-                                            sqlpp::detail::type_info_less{})) {
-      throw std::domain_error(
-          "at least one insert assignment requires a table "
-          "which is otherwise not known in the statement");
-    }
-    if constexpr (not std::ranges::includes(
-                      Statement::get_provided_static_tables_of(),
-                      required_static_tables_of<Clause>::func(),
-                      sqlpp::detail::type_info_less{})) {
-      throw std::domain_error(
-          "at least one insert assignment statically requires a table "
-          "which only known dynamically in the statement");
-    }
+    Statement::template check_static_table_consistency<Clause, "insert-set">();
+    Statement::template check_table_consistency<Clause, "insert-set">();
+
     if constexpr (not detail::have_all_required_assignments<Statement,
                                                             Assignments...>()) {
       throw std::domain_error(
@@ -269,14 +257,12 @@ struct is_clause<column_list_t<Columns...>> : public std::true_type {};
 template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, column_list_t<Columns...>> {
   static constexpr void verify() {
-    if constexpr (not std::ranges::includes(
-                        provided_tables_of<Statement>::func(),
-                        required_tables_of<column_list_t<Columns...>>::func(),
-                        sqlpp::detail::type_info_less{})) {
-      throw std::domain_error("at least one column requires a table which is "
-                          "otherwise not known in the statement");
-    } else if constexpr (not detail::have_all_required_columns<
-                               Statement, Columns...>()) {
+    using Clause = column_list_t<Columns...>;
+    Statement::template check_static_table_consistency<Clause, "insert-columns">();
+    Statement::template check_table_consistency<Clause, "insert-columns">();
+
+    if constexpr (not detail::have_all_required_columns<Statement,
+                                                        Columns...>()) {
       throw std::domain_error("at least one required column is missing in columns()");
     }
   }

@@ -29,5 +29,10 @@ Currently still waiting for
 - structural std::string_view
 
 
+error quality:
+at least one having-expression statically requires a table which is only known dynamically in the statement' != 'The having-clause statically requires table tab_bar which is only known dynamically in the statement'
+
+
+
 [**\< Index**](/docs/README.md)
 

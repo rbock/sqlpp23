@@ -176,10 +176,9 @@ int main() {
                  .group_by(foo.id);
     using S = decltype(s);
     expect_basic_consistency_succeeds<S>();
-    expect_prepare_consistency_fails<
-        S,
-        "at least one having-expression requires a table which is otherwise "
-        "not known in the statement">();
+    expect_prepare_consistency_fails<S,
+                                     "The having-clause requires table tab_bar "
+                                     "which is not known in the statement">();
   }
 
   // `having` statically using dynamic table
@@ -189,10 +188,9 @@ int main() {
                  .having(max(bar.id) > 7);
     using S = decltype(s);
     // This runs into the group_by check, first.
-    expect_basic_consistency_succeeds<S>();
-    expect_prepare_consistency_fails<
+    expect_basic_consistency_fails<
         S,
-        "at least one having-expression statically requires a table which is "
-        "only known dynamically in the statement">();
+        "The having-clause statically requires table tab_bar which is only "
+        "known dynamically in the statement">();
   }
 }

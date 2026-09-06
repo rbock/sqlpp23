@@ -220,8 +220,6 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
-#warning: Need to use these across all clauses
-
   template<typename Clause, fixed_string Name>
   static consteval void check_static_table_consistency() {
     static constexpr auto static_tables =

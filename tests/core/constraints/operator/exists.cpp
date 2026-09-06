@@ -51,8 +51,8 @@ int main() {
     expect_basic_consistency_succeeds<Incomplete>();
     expect_prepare_consistency_fails<
         Incomplete,
-        "at least one selected column requires a table which is otherwise not "
-        "known in the statement">();
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
 
     static_assert(can_call_exists_with<Incomplete>);
     exists(incomplete);
@@ -78,8 +78,8 @@ int main() {
     expect_basic_consistency_succeeds<MultiIncomplete>();
     expect_prepare_consistency_fails<
         MultiIncomplete,
-        "at least one selected column requires a table which is otherwise not "
-        "known in the statement">();
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
 
     static_assert(can_call_exists_with<MultiIncomplete>);
     exists(multi_incomplete);
