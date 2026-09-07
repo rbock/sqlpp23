@@ -37,7 +37,7 @@ namespace sqlpp {
 
 template <typename... Columns>
 struct on_conflict_t {
-  on_conflict_t(std::tuple<Columns...> columns)
+  constexpr on_conflict_t(std::tuple<Columns...> columns)
       : _columns(std::move(columns)) {}
   on_conflict_t(const on_conflict_t&) = default;
   on_conflict_t(on_conflict_t&&) = default;
@@ -90,14 +90,17 @@ struct nodes_of<on_conflict_t<Columns...>> {
 
 template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, on_conflict_t<Columns...>> {
-  static consteval void verify() {
+  static constexpr void verify() {
+    using Clause = on_conflict_t<Columns...>;
+    Statement::template check_static_table_consistency<Clause, "on_conflict">();
+    Statement::template check_table_consistency<Clause, "on_conflict">();
     throw std::domain_error("either do_nothing() or do_update(...) is required with on_conflict");
   }
 };
 
 struct no_on_conflict_t {
   template <typename Statement, DynamicColumn... Columns>
-  auto on_conflict(this Statement&& self, Columns... columns) {
+  constexpr auto on_conflict(this Statement&& self, Columns... columns) {
     return new_statement<no_on_conflict_t>(
         std::forward<Statement>(self),
         on_conflict_t<Columns...>{std::make_tuple(std::move(columns)...)});
@@ -111,7 +114,7 @@ auto to_sql_string(Context&, const no_on_conflict_t&) -> std::string {
 
 template <typename Statement>
 struct basic_consistency_check<Statement, no_on_conflict_t> {
-  static consteval void verify() {}
+  static constexpr void verify() {}
 };
 
 template <typename Expression>
@@ -119,7 +122,7 @@ struct is_clause<on_conflict_t<Expression>>
     : public std::true_type {};
 
 template <DynamicColumn... Columns>
-auto on_conflict(Columns... columns) {
+constexpr auto on_conflict(Columns... columns) {
   return statement_t<no_on_conflict_t>().on_conflict(std::move(columns)...);
 }
 

@@ -134,16 +134,15 @@ struct is_clause<insert_default_values_t> : public std::true_type {};
 
 template <typename Statement>
 struct basic_consistency_check<Statement, insert_default_values_t> {
-  constexpr auto verify() {
-    /* TODO
-    if constexpr (not required_insert_columns_of_t<Statement>::empty())
-    {
+  static constexpr auto verify() {
+    static constexpr auto required_columns =
+        std::define_static_array(required_insert_columns_of<Statement>::func());
+    template for (constexpr auto& info : required_columns) {
+      using Column = typename[:info:];
       throw std::domain_error(
-          "at least one column does not have a default value "
-          "(explicit default, NULL, or auto-increment)");
+          std::format("insert: required column '{}' does not have a default value",
+                      std::string_view(name_of_v<Column>)));
     }
-    */
-      throw std::domain_error("check not implemented yet");
   }
 };
 
@@ -276,7 +275,7 @@ struct nodes_of<column_list_t<Columns...>> {
 // NO INSERT COLUMNS/VALUES YET
 struct no_insert_value_list_t {
   template <typename Statement>
-  auto default_values(this Statement&& self) {
+  constexpr auto default_values(this Statement&& self) {
     return new_statement<no_insert_value_list_t>(std::forward<Statement>(self),
                                                  insert_default_values_t{});
   }
@@ -319,7 +318,7 @@ struct basic_consistency_check<Statement, no_insert_value_list_t> {
 };
 
 template <typename... Assignments>
-auto insert_default_values() {
+constexpr auto insert_default_values() {
   return statement_t<no_insert_value_list_t>().default_values();
 }
 

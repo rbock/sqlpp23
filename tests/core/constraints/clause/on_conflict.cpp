@@ -115,12 +115,9 @@ int main() {
         "");
 
     using I = decltype(insert);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::assert_on_conflict_action_t>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<I>,
-                               sqlpp::assert_on_conflict_action_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        I,
+        "either do_nothing() or do_update(...) is required with on_conflict">();
   }
 
   // More do_update requirements
@@ -171,31 +168,32 @@ int main() {
   // bad table checks
   // -----------------------------------------
   {
+    auto insert = sqlpp::insert_into(foo).default_values() << on_conflict(bar.id);
+    using I = decltype(insert);
+    expect_basic_consistency_fails<
+        I,
+        "The on_conflict-clause requires table tab_bar which is not known in "
+        "the statement">();
+  }
+
+  {
     auto insert = sqlpp::insert_into(foo).default_values()
                   << on_conflict(bar.id).do_update(foo.int_n = 7);
     using I = decltype(insert);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<I>,
-            sqlpp::assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        I,
+        "The on_conflict.do_update-clause requires table tab_bar which is not "
+        "known in the statement">();
   }
 
   {
     auto insert = sqlpp::insert_into(foo).default_values()
                   << on_conflict(foo.id).do_update(bar.int_n = 7);
     using I = decltype(insert);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<I>,
-            sqlpp::assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        I,
+        "The on_conflict.do_update-clause requires table tab_bar which is not "
+        "known in the statement">();
   }
 
   {
@@ -203,14 +201,10 @@ int main() {
         sqlpp::insert_into(foo).default_values()
         << on_conflict(foo.id).do_update(foo.int_n = 7).where(bar.id > 8);
     using I = decltype(insert);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<I>,
-            sqlpp::assert_no_unknown_tables_in_on_conflict_do_update_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        I,
+        "The on_conflict.do_update.where-clause requires table tab_bar which "
+        "is not known in the statement">();
   }
 
   // Dynamically provided tables are not a thing in `insert_into`. Constructing
@@ -222,14 +216,9 @@ int main() {
         from(dynamic(maybe, foo))
         << on_conflict(foo.id).do_update(foo.int_n = 7).where(foo.id > 8);
     using I = decltype(nonsense);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<I>,
-            sqlpp::assert_no_unknown_static_tables_in_on_conflict_do_update_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        I,
+        "The on_conflict.do_update.where-clause statically requires table "
+        "tab_foo which is only known dynamically in the statement">();
   }
 }

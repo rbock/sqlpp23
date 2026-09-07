@@ -35,31 +35,6 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-class assert_no_unknown_tables_in_on_conflict_do_update_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in "
-                        "on_conflict().do_update().where() requires a "
-                        "table which is otherwise not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_on_conflict_do_update_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "at least one expression in on_conflict().do_update().where() "
-        "statically "
-        "requires a table which is only known dynamically in the statement");
-  }
-};
-
 // ON CONFLICT ... DO UPDATE ... WHERE ...
 template <typename OnConflictUpdate, typename Expression>
 struct on_conflict_do_update_where_t {
@@ -106,24 +81,10 @@ template <typename Statement, typename OnConflictUpdate, typename Expression>
 struct basic_consistency_check<
     Statement,
     on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
-  static consteval void verify() {}
-};
-
-template <typename Statement, typename OnConflictUpdate, typename Expression>
-struct prepare_check<
-    Statement,
-    on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<
-              on_conflict_do_update_where_t<OnConflictUpdate, Expression>>,
-          assert_no_unknown_tables_in_on_conflict_do_update_t>,
-      static_check_t<
-          Statement::template _no_unknown_static_tables<
-              on_conflict_do_update_where_t<OnConflictUpdate, Expression>>,
-          assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
-  constexpr auto operator()() {
-    return type{};
+  static consteval void verify() {
+    using Clause = on_conflict_do_update_where_t<OnConflictUpdate, Expression>;
+    Statement::template check_static_table_consistency<Clause, "on_conflict.do_update.where">();
+    Statement::template check_table_consistency<Clause, "on_conflict.do_update.where">();
   }
 };
 
@@ -180,22 +141,11 @@ template <typename Statement, typename OnConflict, typename... Assignments>
 struct basic_consistency_check<
     Statement,
     on_conflict_do_update_t<OnConflict, Assignments...>> {
-  static consteval void verify() {}
-};
-
-template <typename Statement, typename OnConflict, typename... Assignments>
-struct prepare_check<
-    Statement,
-    on_conflict_do_update_t<OnConflict, Assignments...>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<
-              on_conflict_do_update_t<OnConflict, Assignments...>>,
-          assert_no_unknown_tables_in_on_conflict_do_update_t>,
-      static_check_t<
-          Statement::template _no_unknown_static_tables<
-              on_conflict_do_update_t<OnConflict, Assignments...>>,
-              assert_no_unknown_static_tables_in_on_conflict_do_update_t>>;
+  static consteval void verify() {
+    using Clause = on_conflict_do_update_t<OnConflict, Assignments...>;
+    Statement::template check_static_table_consistency<Clause, "on_conflict.do_update">();
+    Statement::template check_table_consistency<Clause, "on_conflict.do_update">();
+  }
 };
 
 }  // namespace sqlpp

@@ -60,8 +60,8 @@ int main() {
   {
     auto s = sqlpp::insert();
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_into_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        S,
+        "into required for insert">();
   }
 }

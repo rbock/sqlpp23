@@ -230,6 +230,15 @@ int main() {
                                     decltype(bar.bool_nn = bar.bool_nn)>);
   }
 
+  // Default values fail is a column is required
+  {
+    auto i = insert_into(bar).default_values();
+    using I = decltype(i);
+    expect_basic_consistency_fails<
+        I,
+        "insert: required column 'bool_nn' does not have a default value">();
+  }
+
   // In custom queries, it would be possible to have unknown tables, too.
   {
     auto i = insert_columns(bar.int_n);
