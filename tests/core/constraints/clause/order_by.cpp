@@ -88,47 +88,40 @@ int main() {
   {
     auto s = sqlpp::statement_t<sqlpp::no_order_by_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
   // order_by must not require unknown tables for prepare/run
   {
     auto s = select(foo.id).from(foo).order_by(foo.id.asc());
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
   {
     auto s = select(foo.id).from(foo).order_by(foo.id.asc(), bar.id.asc());
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_order_by_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "The order_by-clause requires table tab_bar which is not known in the "
+        "statement">();
   }
 
-  // order_by must not require unknown tables for prepare/run
+  // if group_by is present,
+  //   order_by must consist exclusively of aggregates
+  // otherwise
+  //   order_by must consist exclusively of non-aggregates
   {
     // OK, foo.id and max(...) are both aggregates
     auto s = select(foo.id).from(foo).group_by(foo.id).order_by(
         foo.id.asc(), max(foo.int_n).desc());
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
   {
@@ -136,14 +129,10 @@ int main() {
     auto s =
         select(foo.id).from(foo).order_by(foo.id.asc(), max(foo.int_n).desc());
     using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>,
-                     sqlpp::assert_correct_order_by_aggregates_t>::value,
-        "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_correct_order_by_aggregates_t>::value,
-        "");
+
+    expect_basic_consistency_fails<
+        S,
+        "order_by (without group by) must not contain any aggregates">();
   }
 
   {
@@ -151,16 +140,9 @@ int main() {
     auto s = select(foo.id).from(foo).group_by(foo.id).order_by(
         foo.id.asc(), foo.int_n.desc());
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_correct_order_by_aggregates_with_group_by_t>::value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_correct_order_by_aggregates_with_group_by_t>::value,
-        "");
+
+    expect_basic_consistency_fails<
+        S, "order_by (with group by) must contain aggregates only">();
   }
 
   {
@@ -171,31 +153,23 @@ int main() {
                  .group_by(foo.id, dynamic(maybe, foo.int_n))
                  .order_by(foo.id.asc(), foo.int_n.desc());
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_correct_static_order_by_aggregates_with_group_by_t>::
-            value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_correct_static_order_by_aggregates_with_group_by_t>::
-            value,
-        "");
+
+    expect_basic_consistency_fails<
+        S,
+        "order_by statically contains aggregates that are only dynamically "
+        "defined in group_by">();
   }
 
   // `order_by` using unknown table
   {
     auto s = select(foo.id).from(foo).order_by(bar.id.desc());
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_order_by_t>::value,
-        "");
+
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "The order_by-clause requires table tab_bar which is not known in the "
+        "statement">();
   }
 
   // `order_by` statically using dynamic table
@@ -204,15 +178,9 @@ int main() {
                  .from(foo.cross_join(dynamic(maybe, bar)))
                  .order_by(bar.id.desc());
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_order_by_t>::value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_order_by_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "The order_by-clause statically requires table tab_bar which is only "
+        "known dynamically in the statement">();
   }
 }

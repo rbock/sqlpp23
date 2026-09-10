@@ -90,116 +90,51 @@ struct is_clause<order_by_t<Expressions...>> : public std::true_type {};
 template <typename... Expressions>
 struct contains_order_by<order_by_t<Expressions...>> : public std::true_type {};
 
-class assert_correct_order_by_aggregates_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "order_by (without group by) must not contain any aggregates");
-  }
-};
-
-class assert_correct_order_by_aggregates_with_group_by_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>, "order_by (with group by) must contain aggregates only");
-  }
-};
-
-class assert_correct_static_order_by_aggregates_with_group_by_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "order_by statically contains aggregates that are only "
-                        "dynamically defined "
-                        "in group_by");
-  }
-};
-
 namespace detail {
-template <typename ProvidedAggregates,
-          typename ProvidedStaticAggregates,
+template <typename Statement,
           typename... Expressions>
-struct check_order_by_aggregates;
-
-template <typename ProvidedAggregates,
-          typename ProvidedStaticAggregates,
-          typename... Expressions>
-using check_order_by_aggregates_t =
-    typename check_order_by_aggregates<ProvidedAggregates,
-                                       ProvidedStaticAggregates,
-                                       Expressions...>::type;
-
-// In case of provided aggregates all of the order by expressions have to be
-// aggregates.
-template <typename ProvidedAggregates,
-          typename ProvidedStaticAggregates,
-          typename... Expressions>
-struct check_order_by_aggregates {
-  /* TODO
-  using type = static_combined_check_t<
-      static_check_t<
-          logic::all<is_aggregate_expression<ProvidedAggregates,
-                                             Expressions>::value...>::value,
-          assert_correct_order_by_aggregates_with_group_by_t>,
-      static_check_t<
-          logic::all<static_part_is_aggregate_expression<
-              ProvidedStaticAggregates,
-              Expressions>::value...>::value,
-          assert_correct_static_order_by_aggregates_with_group_by_t>>;
-          */
+constexpr void check_order_by_aggregates() {
 };
 
-/*
-// In case of no provided aggregates all of the order by expressions have to be
-// non-aggregates.
-template <typename... Expressions>
-struct check_order_by_aggregates<detail::type_set<>,
-                                 detail::type_set<>,
-                                 Expressions...> {
-  using type = static_check_t<
-      logic::all<is_non_aggregate_expression<detail::type_set<>,
-                                             Expressions>::value...>::value,
-      assert_correct_order_by_aggregates_t>;
-};
-*/
 }  // namespace detail
 
 template <typename Statement, typename... Expressions>
 struct basic_consistency_check<Statement, order_by_t<Expressions...>> {
-  using PA = typename Statement::_all_provided_aggregates;
-  using PSA = typename Statement::_all_provided_static_aggregates;
+  static constexpr void verify() {
+    using Clause = order_by_t<Expressions...>;
+    Statement::template check_static_table_consistency<Clause, "order_by">();
 
-  using type = static_combined_check_t<
-      detail::check_order_by_aggregates_t<PA, PSA, Expressions...>,
-      detail::expression_static_check_t<
-          Statement,
-          Expressions,
-          assert_no_unknown_static_tables_in_order_by_t>...>;
-  constexpr auto operator()() {
-    return type{};
+    // In case of no known aggregate columns all of the order by expressions
+    // have to be non-aggregates.
+    if (Statement::get_known_aggregate_columns_of().empty()) {
+      if (not logic::all<
+              is_non_aggregate_expression<Statement, Expressions>()...>::value) {
+        // TODO: Make error messages more useful
+        throw std::domain_error(
+            "order_by (without group by) must not contain any aggregates");
+      }
+      return;
+    }
+    // In case of provided aggregates all of the order by expressions have to be
+    // aggregates.
+    if (not logic::all<is_aggregate_expression<Statement, Expressions>()...>::value) {
+      throw std::domain_error(
+          "order_by (with group by) must contain aggregates only");
+    }
+    if (not logic::all<
+            static_part_is_aggregate_expression<Statement, Expressions>()...>::value) {
+      throw std::domain_error(
+          "order_by statically contains aggregates that are only dynamically "
+          "defined in group_by");
+    }
   }
-  // TODO
-  static constexpr void verify() {}
 };
 
 template <typename Statement, typename... Expressions>
 struct prepare_check<Statement, order_by_t<Expressions...>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<order_by_t<Expressions...>>,
-          assert_no_unknown_tables_in_order_by_t>,
-      static_check_t<Statement::template _no_unknown_static_tables<
-                         order_by_t<Expressions...>>,
-                     assert_no_unknown_static_tables_in_order_by_t>>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    using Clause = order_by_t<Expressions...>;
+    Statement::template check_table_consistency<Clause, "order_by">();
   }
 };
 

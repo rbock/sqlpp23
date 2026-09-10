@@ -54,6 +54,9 @@ struct contains_aggregate_function
           is_aggregate_function<T>::value or
               contains_aggregate_function<nodes_of_t<T>>::value> {};
 
+template <typename T>
+inline constexpr bool contains_aggregate_function_v = contains_aggregate_function<T>::value;
+
 template <typename... T>
 struct contains_aggregate_function<detail::type_vector<T...>>
     : public std::integral_constant<
