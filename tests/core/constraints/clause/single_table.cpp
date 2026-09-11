@@ -51,7 +51,7 @@ int main() {
   const auto maybe = true;
   const auto bar = test::tab_bar{};
   const auto foo = test::tab_foo{};
-  const auto c = sqlpp::ccte<"something">().as(select(bar.id).from(bar));
+  const auto c = sqlpp::cte<"something">().as(select(bar.id).from(bar));
 
   // OK
   static_assert(can_call_single_table_with<decltype(bar)>);
@@ -72,7 +72,7 @@ int main() {
   static_assert(cannot_call_single_table_with<decltype(nullptr)>);
 
   // Cannot call with cte or table alias.
-  static_assert(cannot_call_single_table_with<decltype(bar.as(something))>);
+  static_assert(cannot_call_single_table_with<decltype(bar.as<"something">())>);
   static_assert(cannot_call_single_table_with<decltype(c)>);
   static_assert(cannot_call_single_table_with<decltype(foo.cross_join(bar))>);
 
@@ -80,7 +80,6 @@ int main() {
   {
     auto s = sqlpp::statement_t<sqlpp::no_single_table_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_single_table_provided_t>::value);
+    expect_basic_consistency_fails<S, "this statement requires a table">();
   }
 }

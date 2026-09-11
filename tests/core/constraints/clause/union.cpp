@@ -114,9 +114,8 @@ int main() {
         select(sqlpp::value(7).as<"something">()).from(foo);
     // Different value type
     static_assert(
-        not std::is_same<sqlpp::data_type_of_t<decltype(foo.id)>,
-                         sqlpp::data_type_of_t<decltype(foo.int_n)>>::value,
-        "");
+        not std::is_same_v<sqlpp::data_type_of_t<decltype(foo.id)>,
+                           sqlpp::data_type_of_t<decltype(foo.int_n)>>);
     CANNOT_CALL_ANY_UNION_WITH(s_foo_int, s_foo_int_n);
     // Different name
     CANNOT_CALL_ANY_UNION_WITH(s_value_id, s_value_oid);
@@ -265,37 +264,66 @@ int main() {
                                s_bar.offset(42));
   }
 
+  // UNION requires basic consistency in statements
+  {
+    auto v = sqlpp::value(std::optional<int>{});
+    auto good = select(foo.id, v.as<"something">());
+    auto bad = select(foo.id, max(v).as<"something">());
+    auto u = union_all(good, bad);
+    using U = decltype(u);
+    expect_basic_consistency_fails<
+        U,
+        "without group_by, selected columns must not be a mix of aggregate and "
+        "non-aggregate expressions">();
+  }
+  {
+    auto v = sqlpp::value(std::optional<int>{});
+    auto good = select(foo.id, v.as<"something">());
+    auto bad = select(foo.id, max(v).as<"something">());
+    auto u = union_all(bad, good);
+    using U = decltype(u);
+    expect_basic_consistency_fails<
+        U,
+        "without group_by, selected columns must not be a mix of aggregate and "
+        "non-aggregate expressions">();
+  }
   // UNION requires preparable statements
   {
     auto u = union_all(lhs, incomplete_rhs);
     using U = decltype(u);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
-                               sqlpp::consistent_t>::value);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<U>,
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+    expect_basic_consistency_succeeds<U>();
+    expect_prepare_consistency_fails<
+        U,
+        "The select-columns-clause requires table something which is not known "
+        "in the statement">();
   }
   {
     auto u = union_all(incomplete_lhs, rhs);
     using U = decltype(u);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
-                               sqlpp::consistent_t>::value);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<U>,
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+    expect_basic_consistency_succeeds<U>();
+    expect_prepare_consistency_fails<
+        U,
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
   }
 
   // union can be used as sub query referring to tables of the enclosing query
   {
+    auto u =
+        select(
+            value(union_all(select(foo.id), select(bar.id))).as<"something">())
+            .from(bar.cross_join(foo));
+    using U = decltype(u);
+    expect_basic_consistency_succeeds<U>();
+    expect_prepare_consistency_succeeds<U>();
+  }
+  {
     auto u = select(value(union_all(select(foo.id), select(bar.id))).as<"something">());
     using U = decltype(u);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
-                               sqlpp::consistent_t>::value);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<U>,
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+    expect_basic_consistency_succeeds<U>();
+    expect_prepare_consistency_fails<
+        U,
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
   }
 }

@@ -304,7 +304,6 @@ struct result_methods_of<statement_t<Clauses...>> {
 template <typename... Clauses>
 struct is_statement<statement_t<Clauses...>> : public std::true_type {};
 
-/*
 template <typename... Clauses>
 struct contains_order_by<statement_t<Clauses...>>
 {
@@ -328,7 +327,6 @@ struct contains_for_update<statement_t<Clauses...>>
 {
   static constexpr bool value = (false or ... or contains_for_update_v<Clauses>);
 };
-*/
 
 template <typename... Clauses>
 struct has_result_row<statement_t<Clauses...>>

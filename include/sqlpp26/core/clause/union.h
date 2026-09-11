@@ -95,7 +95,7 @@ template <typename Flag, typename Lhs, typename Rhs>
 struct is_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};
 
 template <typename Flag, typename Lhs, typename Rhs>
-struct data_type_of<union_t<Flag, Lhs, Rhs>> : data_type_of<Lhs> {};
+struct data_type_of<union_t<Flag, Lhs, Rhs>> : statement_data_type_of<Lhs> {};
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct nodes_of<union_t<Flag, Lhs, Rhs>> {
@@ -104,33 +104,27 @@ struct nodes_of<union_t<Flag, Lhs, Rhs>> {
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct basic_consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
-  /* TODO
-  using type = static_combined_check_t<
-      statement_consistency_check_t<Lhs>,
-      statement_consistency_check_t<remove_dynamic_t<Rhs>>>;
-      */
-  static constexpr void verify() {}
+  static constexpr void verify() {
+    Lhs::check_basic_consistency();
+    remove_dynamic_t<Rhs>::check_basic_consistency();
+  }
 };
 
-/* TODO
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct prepare_check<Statement, union_t<Flag, Lhs, Rhs>> {
-  using type = static_combined_check_t<statement_prepare_check_t<Lhs>,
-                                       statement_prepare_check_t<Rhs>>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    Lhs::check_prepare_consistency();
+    remove_dynamic_t<Rhs>::check_prepare_consistency();
   }
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct run_check<Statement, union_t<Flag, Lhs, Rhs>> {
-  using type = static_combined_check_t<statement_run_check_t<Lhs>,
-                                       statement_run_check_t<Rhs>>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    Lhs::check_run_consistency();
+    remove_dynamic_t<Rhs>::check_run_consistency();
   }
 };
-*/
 
 template <typename Flag, typename Lhs, typename Rhs>
 struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type {};

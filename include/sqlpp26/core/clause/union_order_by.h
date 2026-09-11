@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdexcept>
 #include <tuple>
 
 #include <sqlpp26/core/clause/expression_static_check.h>
@@ -151,52 +152,30 @@ struct is_clause<union_order_by_t<Expressions...>> : public std::true_type {};
 template <typename... Expressions>
 struct contains_order_by<union_order_by_t<Expressions...>> : public std::true_type {};
 
-class assert_no_unknown_columns_in_union_sort_order_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                  "at least one column in union order_by() does not match any "
-                  "of the selected columns of the union");
-  }
-};
-
 template <typename Lhs, typename RField>
 struct is_column_in_result {
   static constexpr auto value = false;
 };
 
-/* TODO
 template <typename... LFields, typename RField>
 struct is_column_in_result<result_row_t<LFields...>, RField> {
   static constexpr auto value =
       logic::any<is_field_compatible<LFields, RField>::value...>::value;
 };
-*/
 
 
 template <typename Statement, typename... Expressions>
 struct basic_consistency_check<Statement, union_order_by_t<Expressions...>> {
-  /*
-  using type = static_check_t<
-      logic::all<is_column_in_result<
-          get_result_row_t<Statement>,
-          make_field_spec_t<void, detail::simple_sort_order_base_t<Expressions>>>::value...>::value,
-      assert_no_unknown_columns_in_union_sort_order_t>;
-  constexpr auto operator()() {
-    return type{};
-  }
-  */
-  // TODO
-  static constexpr void verify() {}
-};
-
-template <typename Statement, typename... Expressions>
-struct prepare_check<Statement, union_order_by_t<Expressions...>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    if constexpr (not logic::all<is_column_in_result<
+                      get_result_row_t<Statement>,
+                      make_field_spec_t<Statement,
+                                        detail::simple_sort_order_base_t<
+                                            Expressions>>>::value...>::value) {
+      throw std::domain_error(
+          "at least one column in union order_by() does not match any "
+          "of the selected columns of the union");
+    }
   }
 };
 

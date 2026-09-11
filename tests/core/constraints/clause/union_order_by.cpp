@@ -93,9 +93,8 @@ int main() {
   {
     auto s = sqlpp::statement_t<sqlpp::no_union_order_by_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
   // union_order_by must not require unknown columns (name / value type)
@@ -104,16 +103,10 @@ int main() {
     auto s = select(foo.id).from(foo).union_all(select(foo.id).from(foo)).order_by(bar.int_n.asc());
     using S = decltype(s);
 
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_columns_in_union_sort_order_t>::value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_columns_in_union_sort_order_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "at least one column in union order_by() does not match any of the "
+        "selected columns of the union">();
   }
 
 }
