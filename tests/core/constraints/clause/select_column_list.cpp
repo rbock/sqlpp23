@@ -25,6 +25,7 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
+#include "sqlpp26/core/detail/type_set.h"
 
 namespace {
 template <typename... Expressions>
@@ -56,10 +57,9 @@ int main() {
   const auto bar = test::tab_bar{};
 
   // Confirming the required columns of tab_bar.
-  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::tab_bar>,
-                             sqlpp::detail::type_set<sqlpp::column_t<
-                                 test::tab_bar, test::tab_bar_::BoolNn>>>::value,
-                "");
+  static_assert(sqlpp::required_insert_columns_of<test::tab_bar>::func() ==
+                             sqlpp::detail::make_type_info_set<sqlpp::column<
+                                 test::tab_bar, 2>>());
 
   // -------------------------
   // select() can be constructed, but is inconsistent since not columns are
@@ -68,9 +68,9 @@ int main() {
   {
     auto s = sqlpp::select();
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::assert_columns_selected_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        S,
+        "selecting columns required">();
   }
 
   // -------------------------
@@ -142,27 +142,21 @@ int main() {
   {
     auto s = sqlpp::select_columns(bar.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
   }
 
   {
     auto s = sqlpp::select_columns(dynamic(true, bar.id));
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "The select-columns-clause requires table tab_bar which is not known "
+        "in the statement">();
   }
 
   // ----------------------------
@@ -173,40 +167,47 @@ int main() {
   {
     auto s = select(foo.id, max(foo.id).as<"test::max_id">()).from(foo);
     using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>,
-                     sqlpp::assert_select_columns_all_aggregates_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "without group_by, selected columns must not be a mix of aggregate and "
+        "non-aggregate expressions">();
+  }
+
+  {
+    auto s = select(foo.id, dynamic(false, max(foo.id).as<"test::max_id">())).from(foo);
+    using S = decltype(s);
+    expect_basic_consistency_fails<
+        S,
+        "without group_by, selected columns must not be a mix of aggregate and "
+        "non-aggregate expressions">();
   }
 
   {
     auto s = select(foo.id, (max(foo.id) + 7).as<"test::max_id">()).from(foo);
     using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>,
-                     sqlpp::assert_select_columns_all_aggregates_t>::value,
-        "");
+
+    expect_basic_consistency_fails<
+        S,
+        "without group_by, selected columns must not be a mix of aggregate and "
+        "non-aggregate expressions">();
   }
 
   {
     auto s = select(foo.id, foo.int_n).from(foo).group_by(foo.int_n);
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_select_columns_with_group_by_are_aggregates_t>::value,
-        "");
+
+    expect_basic_consistency_fails<
+        S,
+        "select (with group by) must select aggregates only">();
   }
 
   {
     auto s =
         select(foo.id, dynamic(true, foo.int_n)).from(foo).group_by(foo.int_n);
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_select_columns_with_group_by_are_aggregates_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "select (with group by) must select aggregates only">();
   }
 
   {
@@ -214,11 +215,9 @@ int main() {
                  .from(foo)
                  .group_by(foo.int_n);
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_select_columns_with_group_by_are_aggregates_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "select (with group by) must select aggregates only">();
   }
 
   // Dynamic group by column
@@ -227,35 +226,27 @@ int main() {
                  .from(foo)
                  .group_by(foo.id, dynamic(true, foo.int_n));
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     auto s = select(foo.id, foo.int_n)
                  .from(foo)
                  .group_by(foo.id, dynamic(true, foo.int_n));
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::
-                assert_select_columns_with_group_by_match_static_aggregates_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "select statically contains aggregates that are only dynamically "
+        "defined in group_by">();
   }
   {
     auto s = select(foo.id, (foo.int_n + 7).as<"test::max_id">())
                  .from(foo)
                  .group_by(foo.id, dynamic(true, foo.int_n));
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::
-                assert_select_columns_with_group_by_match_static_aggregates_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "select statically contains aggregates that are only dynamically "
+        "defined in group_by">();
   }
 
   // Non-column group by
@@ -265,9 +256,7 @@ int main() {
                  .from(foo)
                  .group_by(c);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
   }
   {
     const auto c = foo.id + foo.int_n;
@@ -275,9 +264,8 @@ int main() {
                  .from(foo)
                  .group_by(foo.float_n, c);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+
+    expect_basic_consistency_succeeds<S>();
   }
   {
     const auto c = foo.id + foo.int_n;
@@ -285,11 +273,9 @@ int main() {
                  .from(foo)
                  .group_by(foo.float_n, c);
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_select_columns_with_group_by_are_aggregates_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "select (with group by) must select aggregates only">();
   }
   // ----------------------------
   // ------- Join  --------------
@@ -297,80 +283,47 @@ int main() {
   {
     auto s = select(foo.id).from(bar.cross_join(foo));
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+
+    expect_basic_consistency_succeeds<S>();
   }
 
   {
     // Fail: Statically required table, but provided dynamically only
     auto s = select(foo.id).from(bar.cross_join(dynamic(true, foo)));
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "The select-columns-clause statically requires table tab_foo which is "
+        "only known dynamically in the statement">();
   }
   {
     // Fail: Statically required table, but provided dynamically only
     auto s = select(foo.id).from(dynamic(true, foo));
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "The select-columns-clause statically requires table tab_foo which is "
+        "only known dynamically in the statement">();
   }
   {
     // Fail: This is a sub select that statically requires `foo` but provides it
     // dynamically only.
     auto s = select(foo.id, bar.int_n).from(dynamic(true, foo));
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "The select-columns-clause statically requires table tab_foo which is "
+        "only known dynamically in the statement">();
   }
   {
     // Fail: foo is statically required in a selected expression, but provided
     // dynamically only.
     auto s = select((foo.id + bar.int_n).as<"something">()).from(dynamic(true, foo));
     using S = decltype(s);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::
-            value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "The select-columns-clause statically requires table tab_foo which is "
+        "only known dynamically in the statement">();
   }
   {
     // Fail: `bar` is required, but not provided. This can be used as a
@@ -378,13 +331,9 @@ int main() {
     // it could not be prepared or executed either.
     auto s = select(bar.id).from(foo);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<S>,
-            sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "The select-columns-clause requires table tab_bar which is not known in the statement">();
   }
 }

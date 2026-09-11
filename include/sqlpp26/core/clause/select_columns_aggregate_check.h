@@ -30,41 +30,6 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-  /* TODO: Use exceptions instead
-class assert_select_columns_with_group_by_are_aggregates_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "with group_by, selected columns must be aggregate expressions");
-  }
-};
-
-class assert_select_columns_with_group_by_match_static_aggregates_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "with group_by, static parts of selected columns must match static "
-        "group_by columns");
-  }
-};
-
-class assert_select_columns_all_aggregates_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "without group_by, selected columns must not be a "
-                        "mix of aggregate and non-aggregate expressions");
-  }
-};
-*/
-
 namespace detail {
 // Columns can be
 // - Column
@@ -91,55 +56,6 @@ template <typename Column>
 using remove_as_from_select_column_t =
     typename remove_as_from_select_column<Column>::type;
 
-// Select columns have different constraints, depending on whether a group by is
-// present or not.
-template <bool WithGroupBy, typename Statement, typename... Columns>
-struct select_columns_aggregate_check;
-
-// In the presence of group_by aggregates, all select columns have to be
-// aggregate expressions.
-template <typename Statement, typename... Columns>
-struct select_columns_aggregate_check<true, Statement, Columns...> {
-  using AC = typename Statement::_all_provided_aggregates;
-  using SAC = typename Statement::_all_provided_static_aggregates;
-
-  static constexpr bool all_aggregate =
-      logic::all<is_aggregate_expression<AC, Columns>::value...>::value;
-  static constexpr bool all_static_aggregate = logic::all<
-      static_part_is_aggregate_expression<SAC, Columns>::value...>::value;
-
-  using type = static_combined_check_t<
-      static_check_t<all_aggregate,
-                     assert_select_columns_with_group_by_are_aggregates_t>,
-      static_check_t<
-          all_static_aggregate,
-          assert_select_columns_with_group_by_match_static_aggregates_t>>;
-};
-
-// In the absence of group_by aggregates, either
-// - all select columns have to be non aggregate expression (or neutral)
-// - all select columns have to be aggregate expressions (or neutral)
-template <typename Statement, typename... Columns>
-struct select_columns_aggregate_check<false, Statement, Columns...> {
-  using AC = typename Statement::_all_provided_aggregates;
-  using SAC = typename Statement::_all_provided_static_aggregates;
-
-  static constexpr bool all_aggregate =
-      logic::all<is_aggregate_expression<AC, Columns>::value...>::value;
-  static constexpr bool no_aggregate =
-      logic::all<is_non_aggregate_expression<AC, Columns>::value...>::value;
-
-  using type = std::conditional_t<no_aggregate,
-                                  consistent_t,
-                                  static_combined_check_t<static_check_t<
-                                      all_aggregate,
-                                      assert_select_columns_all_aggregates_t>>>;
-};
-
-template <bool HasGroupBy, typename Statement, typename... Columns>
-using select_columns_aggregate_check_t =
-    typename select_columns_aggregate_check<HasGroupBy, Statement, Columns...>::
-        type;
 }  // namespace detail
 
 }  // namespace sqlpp

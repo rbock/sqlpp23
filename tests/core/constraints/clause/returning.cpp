@@ -87,12 +87,8 @@ int main() {
   {
     using I = sqlpp::statement_t<sqlpp::no_returning_t>;
 
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<I>();
+    expect_prepare_consistency_succeeds<I>();
   }
 
   // -------------------------
@@ -103,12 +99,8 @@ int main() {
         max(foo.id).as<"something">());
     using I = decltype(i);
 
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<I>,
-            sqlpp::
-                assert_returning_columns_contain_no_aggregates_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        I, "returning columns must not contain aggregate functions">();
   }
 
   // -------------------------
@@ -119,14 +111,9 @@ int main() {
         sqlpp::insert_into(foo).default_values() << returning(bar.id);
     using I = decltype(i);
 
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<
-            sqlpp::statement_prepare_check_t<I>,
-            sqlpp::
-                assert_no_unknown_tables_in_returning_columns_t>::value,
-        "");
+    expect_basic_consistency_succeeds<I>();
+    expect_prepare_consistency_fails<
+        I,
+        "The returning-clause requires table tab_bar which is not known in the statement">();
   }
 }

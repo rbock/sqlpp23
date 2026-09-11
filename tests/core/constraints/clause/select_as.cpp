@@ -30,10 +30,9 @@ int main() {
   const auto foo = test::tab_foo{};
 
   // Confirming the required columns of tab_bar.
-  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::tab_bar>,
-                             sqlpp::detail::type_set<sqlpp::column_t<
-                                 test::tab_bar, test::tab_bar_::BoolNn>>>::value,
-                "");
+  static_assert(sqlpp::required_insert_columns_of<test::tab_bar>::func() ==
+                    sqlpp::detail::make_type_info_set<
+                        sqlpp::column<test::tab_bar, 2>>());
 
   // -------------------------
   // OK: A consistent select can be used as table.

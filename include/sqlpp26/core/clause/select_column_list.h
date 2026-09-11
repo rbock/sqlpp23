@@ -72,18 +72,6 @@ constexpr size_t count_columns() {
 }
 }  // namespace detail
 
-class assert_no_unknown_static_tables_in_selected_columns_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "at least one selected column statically requires a table which is "
-        "otherwise not known dynamically in the statement");
-  }
-};
-
 // SELECTED COLUMNS
 template <typename FlagTuple, typename ColumnTuple>
 struct select_column_list_t;
@@ -189,23 +177,36 @@ template <typename Statement, typename... Flags, typename... Columns>
 struct basic_consistency_check<
     Statement,
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
-      /* TODO
-  using AC = typename Statement::_all_provided_aggregates;
-  static constexpr bool has_group_by = not AC::empty();
-
-  using type = static_combined_check_t<
-      detail::select_columns_aggregate_check_t<
-          has_group_by,
-          Statement,
-          detail::remove_as_from_select_column_t<Columns>...>,
-      detail::expression_static_check_t<
-          Statement,
-          detail::remove_as_from_select_column_t<Columns>,
-          assert_no_unknown_static_tables_in_selected_columns_t>...>;
-          */
   static constexpr void verify() {
     using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
     Statement::template check_static_table_consistency<Clause, "select-columns">();
+
+    // In case of no known aggregate columns either
+    // - all columns are aggregates
+    // - no columns contain aggregates
+    // have to be non-aggregates.
+    if (Statement::get_known_aggregate_columns_of().empty()) {
+      if (not logic::all<
+              is_non_aggregate_expression<Statement, Columns>()...>::value and 
+          not logic::all<is_aggregate_expression<Statement, Columns>()...>::value) {
+        // TODO: Make error messages more useful
+        throw std::domain_error(
+            "without group_by, selected columns must not be a mix of aggregate "
+            "and non-aggregate expressions");
+      }
+      return;
+    }
+    // In case of known aggregates all selected columns have to be aggregates.
+    if (not logic::all<is_aggregate_expression<Statement, Columns>()...>::value) {
+      throw std::domain_error(
+          "select (with group by) must select aggregates only");
+    }
+    if (not logic::all<
+            static_part_is_aggregate_expression<Statement, Columns>()...>::value) {
+      throw std::domain_error(
+          "select statically contains aggregates that are only dynamically "
+          "defined in group_by");
+    }
   }
 };
 

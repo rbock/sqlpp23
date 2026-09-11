@@ -143,7 +143,10 @@ struct is_clause<returning_t<Columns...>> : public std::true_type {};
 template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, returning_t<Columns...>> {
   static constexpr void verify() {
-    if constexpr (contains_aggregate_function<returning_t<Columns...>>::value) {
+    using Clause = returning_t<Columns...>;
+    Statement::template check_static_table_consistency<Clause, "returning">();
+
+    if constexpr (contains_aggregate_function<Clause>::value) {
       throw std::domain_error("returning columns must not contain aggregate functions");
     }
   }
@@ -151,11 +154,9 @@ struct basic_consistency_check<Statement, returning_t<Columns...>> {
 
 template <typename Statement, typename... Columns>
 struct prepare_check<Statement, returning_t<Columns...>> {
-  using type = static_check_t<
-      Statement::template _no_unknown_tables<returning_t<Columns...>>,
-      assert_no_unknown_tables_in_returning_columns_t>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    using Clause = returning_t<Columns...>;
+    Statement::template check_table_consistency<Clause, "returning">();
   }
 };
 
