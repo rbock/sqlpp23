@@ -50,7 +50,7 @@ int main() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
 
-  const auto c_ref = sqlpp::ccte<"something">();
+  const auto c_ref = sqlpp::cte<"something">();
   const auto c = c_ref.as(select(bar.id).from(bar));
 
   // OK
@@ -62,7 +62,7 @@ int main() {
   static_assert(cannot_call_with_with<decltype(c_ref)>, "");
 
   // Try cte alias
-  static_assert(cannot_call_with_with<decltype(c.as(cake))>, "");
+  static_assert(cannot_call_with_with<decltype(c.as<"cake">())>, "");
 
   // Try some other types as expressions
   static_assert(cannot_call_with_with<decltype(bar)>, "");
@@ -74,8 +74,8 @@ int main() {
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
   // the right)
   {
-    const auto a = sqlpp::ccte<"a">().as(select(bar.id).from(bar));
-    const auto b = sqlpp::ccte<"b">().as(select(a.id).from(a));
+    const auto a = sqlpp::cte<"a">().as(select(bar.id).from(bar));
+    const auto b = sqlpp::cte<"b">().as(select(a.id).from(a));
 
     std::ignore = with(a);                     // OK
     std::ignore = with(a, b);                  // OK
@@ -88,8 +88,8 @@ int main() {
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to
   // the right)
   {
-    const auto a1 = sqlpp::ccte<"a">().as(select(bar.id).from(bar));
-    const auto a2 = sqlpp::ccte<"a">().as(select(foo.id).from(foo));
+    const auto a1 = sqlpp::cte<"a">().as(select(bar.id).from(bar));
+    const auto a2 = sqlpp::cte<"a">().as(select(foo.id).from(foo));
 
     std::ignore = with(a1);  // OK
     std::ignore = with(a2);  // OK
@@ -100,8 +100,7 @@ int main() {
   {
     auto s = sqlpp::statement_t<sqlpp::no_with_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 }

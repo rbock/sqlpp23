@@ -77,26 +77,23 @@ int main() {
   static_assert(cannot_call_where_with<decltype(bar.bool_nn and count(bar.id) > 0)>);
   static_assert(cannot_call_where_with<decltype(bar.bool_nn and dynamic(maybe, (count(bar.id) > 0)))>);
 
-  // `where` isn't required if neither tables nor CTEs are required.
+  // `where` isn't required.
   {
     auto s = select(sqlpp::value(7).as<"something">());
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
   // `where` using unknown table
   {
     auto s = select(max(foo.id).as<"something">()).from(foo).where(bar.id > 7);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_tables_in_where_t>::value,
-        "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_fails<
+        S,
+        "The where-clause requires table tab_bar which is not known in the "
+        "statement">();
   }
 
   // `where` statically using dynamic table
@@ -105,13 +102,9 @@ int main() {
                  .from(foo.cross_join(dynamic(maybe, bar)))
                  .where(bar.id > 7);
     using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>,
-                     sqlpp::assert_no_unknown_static_tables_in_where_t>::value,
-        "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_unknown_static_tables_in_where_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S,
+        "The where-clause statically requires table tab_bar which is only "
+        "known dynamically in the statement">();
   }
 }

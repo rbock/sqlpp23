@@ -85,31 +85,19 @@ struct is_clause<where_t<Expression>> : public std::true_type {};
 
 template <typename Statement, typename Expression>
 struct basic_consistency_check<Statement, where_t<Expression>> {
-  /*
-  using type = detail::expression_static_check_t<
-      Statement,
-      Expression,
-      assert_no_unknown_static_tables_in_where_t>;
-      */
   static constexpr void verify() {
+    using Clause = where_t<Expression>;
+    Statement::template check_static_table_consistency<Clause, "where">();
   }
 };
 
-/*
 template <typename Statement, typename Expression>
 struct prepare_check<Statement, where_t<Expression>> {
-  using type = static_combined_check_t<
-      static_check_t<
-          Statement::template _no_unknown_tables<where_t<Expression>>,
-          assert_no_unknown_tables_in_where_t>,
-      static_check_t<
-          Statement::template _no_unknown_static_tables<where_t<Expression>>,
-          assert_no_unknown_static_tables_in_where_t>>;
-  constexpr auto operator()() {
-    return type{};
+  static constexpr void verify() {
+    using Clause = where_t<Expression>;
+    Statement::template check_table_consistency<Clause, "where">();
   }
 };
-*/
 
 template <typename Expression>
 struct nodes_of<where_t<Expression>> {
