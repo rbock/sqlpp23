@@ -25,7 +25,6 @@
  */
 
 #include <sqlpp26/tests/core/all.h>
-#include "sqlpp26/core/type_traits.h"
 
 int main(int, char*[]) {
   const auto foo = test::tab_foo{};

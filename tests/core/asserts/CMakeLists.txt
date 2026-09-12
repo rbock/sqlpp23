@@ -24,12 +24,12 @@
 
 create_tests_assert(
     # Clauses
-    bad_returning_as "at least one returning column requires a table"
-    bad_select_as "at least one selected column requires a table"
+    bad_returning_as "The returning-clause requires table tab_foo"
+    bad_select_as "The select-columns-clause requires table tab_bar"
 
     # Connection
     bad_execute "cannot execute statements with parameters directly"
-    bad_prepare "at least one selected column requires a table"
+    bad_prepare "The select-columns-clause requires table tab_bar"
 
     incompatible_execute "No support for using incompatible expression"
     incompatible_prepare "No support for using incompatible expression"

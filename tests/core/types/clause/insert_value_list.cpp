@@ -102,13 +102,13 @@ void test_insert_set() {
   {
     expect_basic_consistency_fails<
         decltype(insert_into(bar).set(bar.int_n = sqlpp::default_value)),
-        "at least one required column is missing in insert assignments">();
+        "insert: required column 'bool_nn' is missing">();
   }
   {
     expect_basic_consistency_fails<
         decltype(insert_into(bar).set(bar.int_n = sqlpp::default_value,
                                       dynamic(true, bar.bool_nn = true))),
-        "at least one required column is missing in insert assignments">();
+        "insert: required column 'bool_nn' is missing">();
   }
 }
 
@@ -146,7 +146,7 @@ void test_insert_columns() {
   {
     expect_basic_consistency_fails<
         decltype(insert_into(bar).columns(bar.int_n)),
-        "at least one required column is missing in columns()">();
+        "insert: required column 'bool_nn' is missing">();
   }
 }
 

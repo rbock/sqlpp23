@@ -65,14 +65,6 @@ struct basic_consistency_check<Statement, offset_t<Expression>> {
   static constexpr void verify() {}
 };
 
-template <typename Statement, typename Expression>
-struct prepare_check<Statement, offset_t<Expression>> {
-  using type = consistent_t;
-  constexpr auto operator()() {
-    return type{};
-  }
-};
-
 struct no_offset_t {
   template <typename Statement, typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
