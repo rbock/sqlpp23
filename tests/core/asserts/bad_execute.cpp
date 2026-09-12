@@ -28,23 +28,20 @@
 
 int main() {
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-
   const auto bar = test::tab_bar{};
 
   // Missing run-consistency
-  auto parameter_select = sqlpp::select(parameter(bar.id).as<"a">());
-  static_assert(
-      std::is_same<decltype(check_basic_consistency(parameter_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_prepare_consistency(parameter_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(std::is_same<decltype(check_run_consistency(parameter_select)),
-                             sqlpp::assert_no_parameters_t>::value);
-  std::ignore = db.prepare(parameter_select);
+  auto bad_statement = sqlpp::select(parameter(bar.id).as<"a">());
+  using S = decltype(bad_statement);
+  expect_basic_consistency_succeeds<S>();
+  expect_prepare_consistency_succeeds<S>();
+  expect_run_consistency_fails<S,
+                               "cannot execute statements with parameters "
+                               "directly, use prepare instead">();
+  std::ignore = db.prepare(bad_statement);
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  for (const auto& row : db(parameter_select))
+  for (const auto& row : db(bad_statement))
   {
     std::ignore = row.a;
   }

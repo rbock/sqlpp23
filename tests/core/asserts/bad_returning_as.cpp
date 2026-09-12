@@ -31,15 +31,15 @@ int main() {
   const auto foo = test::tab_foo{};
 
   // Table mismatch
-  auto bad_returning = insert_into(bar) << returning(foo.id);
-  static_assert(
-      std::is_same<decltype(check_basic_consistency(bad_returning)),
-                   sqlpp::consistent_t>::value);
-  static_assert(std::is_same<
-                decltype(check_prepare_consistency(bad_returning)),
-                sqlpp::assert_no_unknown_tables_in_returning_columns_t>::value);
+  auto bad_statement = insert_into(bar) << returning(foo.id);
+  using S = decltype(bad_statement);
+  expect_basic_consistency_succeeds<S>();
+  expect_prepare_consistency_fails<
+      S,
+      "The returning-clause requires table tab_foo which is not known in the "
+      "statement">();
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  std::ignore = bad_returning.as<"a">();
+  std::ignore = bad_statement.as<"a">();
 #endif
 }

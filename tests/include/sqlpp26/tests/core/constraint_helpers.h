@@ -117,27 +117,70 @@ consteval bool expect_prepare_consistency_succeeds() {
 }
 
 namespace detail {
-template <sqlpp::fixed_string Expected>
-consteval auto check_throws_message(auto&& callable) -> std::string_view {
+template <typename S, sqlpp::fixed_string Expected>
+consteval auto check_run_consistency_message() -> std::string_view {
+  std::string_view expected = Expected;
   try {
-    callable();
+    S::check_run_consistency();
     return std::define_static_string("missing expected exception");
   } catch (const std::domain_error& e) {
-    if (e.what() == std::string_view(Expected)) {
-      return {};
+    if (e.what() != expected) {
+      return std::define_static_string(std::format(
+          "wrong exception message: '{}' != '{}'", expected, e.what()));
     }
-    return std::define_static_string(std::format(
-        "wrong exception message: '{}' != '{}'", std::string_view(Expected), e.what()));
+    return {};
   }
 }
-}  // namespace detail
 
-template <sqlpp::fixed_string Expected>
-consteval bool expect_throws(auto&& callable) {
-  constexpr auto message = detail::check_throws_message<Expected>(callable);
+template <typename S>
+consteval auto check_no_run_consistency_message() -> std::string_view {
+  try {
+    S::check_run_consistency();
+    return {};
+  } catch (const std::domain_error& e) {
+      return std::define_static_string(std::format(
+          "unexpected exception: '{}'", e.what()));
+  }
+}
+}
+
+template <typename S, sqlpp::fixed_string Expected>
+consteval bool expect_run_consistency_fails() {
+  constexpr auto message = detail::check_run_consistency_message<S, Expected>();
   static_assert(message.empty(), message);
   return true;
 }
 
+template <typename S>
+consteval bool expect_run_consistency_succeeds() {
+  constexpr auto message = detail::check_no_run_consistency_message<S>();
+  static_assert(message.empty(), message);
+  return true;
+}
+
+namespace detail {
+template <typename Context, typename S, sqlpp::fixed_string Expected>
+consteval auto check_compatibility_message() -> std::string_view {
+  std::string_view expected = Expected;
+  try {
+    sqlpp::compatibility_check<Context, S>::verify();
+    return std::define_static_string("missing expected exception");
+  } catch (const std::domain_error& e) {
+    if (e.what() != expected) {
+      return std::define_static_string(std::format(
+          "wrong exception message: '{}' != '{}'", expected, e.what()));
+    }
+    return {};
+  }
+}
+
+}
+
+template <typename Context, typename S, sqlpp::fixed_string Expected>
+consteval bool expect_compatibility_fails() {
+  constexpr auto message = detail::check_compatibility_message<Context, S, Expected>();
+  static_assert(message.empty(), message);
+  return true;
+}
 
 

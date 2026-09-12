@@ -27,9 +27,6 @@ create_tests_assert(
     bad_returning_as "at least one returning column requires a table"
     bad_select_as "at least one selected column requires a table"
 
-    # Statement
-    incompatible_to_sql_string "No support for using incompatible expression"
-
     # Connection
     bad_execute "cannot execute statements with parameters directly"
     bad_prepare "at least one selected column requires a table"

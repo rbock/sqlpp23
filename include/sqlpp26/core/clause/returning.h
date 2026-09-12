@@ -84,7 +84,12 @@ struct returning_column_list_result_methods_t {
   auto as(this Statement&& self)
       -> select_as<std::decay_t<Statement>,
                      Name> {
-    check_prepare_consistency(self).verify();
+    // This ensures that the sub select is free of table/CTE dependencies and
+    // consistent.
+    consteval {
+      std::decay_t<Statement>::check_prepare_consistency();
+    }
+
     using table =
         select_as<std::decay_t<Statement>, Name>;
     return table(std::forward<Statement>(self));

@@ -30,24 +30,19 @@ int main() {
   using CTX = sqlpp::mock_db::context_t;
 
   // Incompatible expression
-  auto incompatible_select =
-      sqlpp::select(sqlpp::test::incompatible(7).as<"a">());
-  static_assert(
-      std::is_same<decltype(check_basic_consistency(incompatible_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_prepare_consistency(incompatible_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_run_consistency(incompatible_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(
-      std::is_same<decltype(check_compatibility<CTX>(incompatible_select)),
-                   sqlpp::test::assert_no_incompatible_t>::value);
+  auto bad_statement = sqlpp::select(sqlpp::test::incompatible(7).as<"a">());
+  using S = decltype(bad_statement);
+
+  expect_basic_consistency_succeeds<S>();
+  expect_prepare_consistency_succeeds<S>();
+  expect_run_consistency_succeeds<S>();
+  expect_compatibility_fails<CTX, S,
+                             "No support for using incompatible expression">();
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-  for (const auto& row : db(incompatible_select)) {
+  for (const auto& row : db(bad_statement))
+  {
     std::ignore = row.a;
   }
 #endif

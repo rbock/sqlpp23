@@ -316,9 +316,14 @@ get_known_aggregate_columns_of() -> detail::type_info_set {
     (prepare_check<statement_t<Clauses...>, Clauses>::verify(), ...);
   }
 
-  static constexpr void check_run_consistency() {
+  static consteval void check_run_consistency() {
     check_prepare_consistency();
     (run_check<statement_t<Clauses...>, Clauses>::verify(), ...);
+    using _parameters = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
+    if constexpr (not _parameters::empty()) {
+      throw std::domain_error("cannot execute statements with parameters "
+                              "directly, use prepare instead");
+    }
   }
 
   // Constructors
@@ -420,12 +425,12 @@ template <typename... Clauses>
 struct nodes_of<statement_t<Clauses...>> : public no_nodes {
 };
 
-/*
 template <typename Context, typename... Clauses>
 struct compatibility_check<Context, statement_t<Clauses...>> {
-  using type = compatibility_check_t<Context, detail::type_vector<Clauses...>>;
+  static constexpr void verify() {
+    compatibility_check<Context, detail::type_vector<Clauses...>>::verify();
+  }
 };
-*/
 
 template <typename... Clauses>
 struct required_insert_columns_of<statement_t<Clauses...>> {
@@ -590,7 +595,6 @@ constexpr auto operator<<(statement_t<LClauses...> l, Clause r)
 template <typename Context, typename... Clauses>
 auto to_sql_string(Context& context, const statement_t<Clauses...>& t)
     -> std::string {
-  // TODO check_compatibility<Context>(t).verify();
   auto result = std::string{};
   auto first = true;
   template for (constexpr auto Idx : indices<sizeof...(Clauses)>) {

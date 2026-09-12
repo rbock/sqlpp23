@@ -30,15 +30,15 @@ int main() {
   const auto bar = test::tab_bar{};
 
   // Missing from
-  auto incomplete_select = sqlpp::select(bar.id);
-  static_assert(
-      std::is_same<decltype(check_basic_consistency(incomplete_select)),
-                   sqlpp::consistent_t>::value);
-  static_assert(std::is_same<
-                decltype(check_prepare_consistency(incomplete_select)),
-                sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value);
+  auto bad_statement = sqlpp::select(bar.id);
+  using S = decltype(bad_statement);
+  expect_basic_consistency_succeeds<S>();
+  expect_prepare_consistency_fails<
+      S,
+      "The select-columns-clause requires table tab_bar which is not known in "
+      "the statement">();
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
-  std::ignore = incomplete_select.as<"a">();
+  std::ignore = bad_statement.as<"a">();
 #endif
 }
