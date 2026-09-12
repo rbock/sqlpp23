@@ -104,20 +104,37 @@ int main() {
                                   decltype(dynamic(maybe, foo.float_n = 7))>);
 
   {
+    auto u = sqlpp::blank_update_t{};
+    using U = decltype(u);
+    expect_basic_consistency_fails<
+        U,
+        "this statement requires a table">();
+  }
+
+  {
     auto u = update(bar);
     using U = decltype(u);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<U>,
-                               sqlpp::assert_update_assignments_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        U,
+        "update assignments required, i.e. set(...)">();
   }
 
   {
     auto u = update(bar).set(foo.int_n = 7);
     using U = decltype(u);
-    static_assert(
-        std::is_same<
-            sqlpp::statement_consistency_check_t<U>,
-            sqlpp::assert_no_unknown_tables_in_update_assignments_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        U,
+        "The update_set-clause requires table tab_foo which is not known in "
+        "the statement">();
+  }
+
+  {
+    // Just for testing, don't  do this at home.
+    auto u = sqlpp::blank_update_t{}.set(foo.int_n = 7) << from(dynamic(true, foo));
+    using U = decltype(u);
+    expect_basic_consistency_fails<
+        U,
+        "The update_set-clause statically requires table tab_foo which is only "
+        "known dynamically in the statement">();
   }
 }

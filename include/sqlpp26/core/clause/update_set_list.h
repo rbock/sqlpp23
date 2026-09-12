@@ -64,8 +64,8 @@ template <typename Statement, typename... Assignments>
 struct basic_consistency_check<Statement, update_set_list_t<Assignments...>> {
   static constexpr void verify() {
     using Clause = update_set_list_t<Assignments...>;
-    Statement::template check_static_table_consistency<Clause, "update-set">();
-    Statement::template check_table_consistency<Clause, "update-set">();
+    Statement::template check_static_table_consistency<Clause, "update_set">();
+    Statement::template check_table_consistency<Clause, "update_set">();
   }
 };
 

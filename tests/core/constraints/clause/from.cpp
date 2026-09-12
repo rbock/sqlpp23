@@ -48,6 +48,7 @@ concept cannot_call_from_with =
 int main() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
+  const auto c = sqlpp::cte<"something">().as(select(foo.id).from(foo));
 
   from(foo);  // this is OK since cross_joins are condition-free.
   from(
@@ -60,4 +61,38 @@ int main() {
                 "missing condition for join");
   static_assert(cannot_call_from_with<decltype(7)>, "not a table");
   static_assert(cannot_call_from_with<decltype(foo.id)>, "not a table");
+
+  // from is not required
+  {
+    auto s = sqlpp::statement_t<sqlpp::no_from_t>{};
+    using S = decltype(s);
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
+  }
+
+  // from must not require unknown ctes
+  {
+    auto s = with(dynamic(true, c)) << from(c);
+    using S = decltype(s);
+    expect_basic_consistency_fails<
+        S,
+        "The from-clause statically requires cte something which is only known "
+        "dynamically in the statement">();
+  }
+
+  {
+    auto s = from(c);
+    using S = decltype(s);
+    expect_prepare_consistency_fails<S,
+                                     "The from-clause requires cte something "
+                                     "which is not known in the statement">();
+  }
+
+  // Table names must not be duplicated
+  {
+    auto s = delete_from(foo) << from(bar.as<"tab_foo">());
+    using S = decltype(s);
+    expect_basic_consistency_fails<
+        S, "Table(s) of name tab_foo provided twice in the statement">();
+  }
 }

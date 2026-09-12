@@ -63,6 +63,16 @@ struct is_clause<from_t<_Table>> : public std::true_type {};
 template <typename Statement, typename _Table>
 struct basic_consistency_check<Statement, from_t<_Table>> {
   static consteval auto verify() {
+    using Clause = from_t<_Table>;
+    Statement::template check_static_cte_consistency<Clause, "from">();
+  }
+};
+
+template <typename Statement, typename _Table>
+struct prepare_check<Statement, from_t<_Table>> {
+  static consteval auto verify() {
+    using Clause = from_t<_Table>;
+    Statement::template check_cte_consistency<Clause, "from">();
   }
 };
 

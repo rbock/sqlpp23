@@ -72,13 +72,11 @@ struct result_methods_of<update_t> {
   using type = update_result_methods_t;
 };
 
-/*
 template <typename Statement>
 struct basic_consistency_check<Statement, update_t> {
   static constexpr void verify() {
   }
 };
-*/
 
 template <>
 struct is_result_clause<update_t> : public std::true_type {};

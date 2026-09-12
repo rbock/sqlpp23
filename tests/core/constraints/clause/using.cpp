@@ -50,7 +50,7 @@ int main() {
   const auto maybe = true;
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
-  const auto c = sqlpp::ccte<"something">().as(select(foo.id).from(foo));
+  const auto c = sqlpp::cte<"something">().as(select(foo.id).from(foo));
 
   // using_(<non arguments>) is inconsistent and cannot be constructed.
   static_assert(cannot_call_using_with<>, "");
@@ -74,33 +74,45 @@ int main() {
   {
     auto s = sqlpp::statement_t<sqlpp::no_using_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
+    expect_basic_consistency_succeeds<S>();
+    expect_prepare_consistency_succeeds<S>();
   }
 
-  // using_ must not require unknown ctes for prepare/run
+  // using_ must not require unknown ctes
   {
-    auto s = delete_from(foo) << using_(c) << sqlpp::where(true);
+    auto s = with(dynamic(true, c)) << using_(c);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
-                               sqlpp::assert_no_unknown_ctes_t>::value,
-                  "");
+    expect_basic_consistency_fails<
+        S,
+        "The using-clause statically requires cte something which is only "
+        "known dynamically in the statement">();
   }
 
-  // using_ must not repeat a table from from
+  {
+    auto s = using_(c);
+    using S = decltype(s);
+    expect_basic_consistency_fails<S,
+                                   "The using-clause requires cte something "
+                                   "which is not known in the statement">();
+  }
+
+  // using_ must not repeat a table from another clause
   {
     auto s = delete_from(foo) << using_(foo);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
-                               sqlpp::consistent_t>::value,
-                  "");
-    static_assert(
-        std::is_same<sqlpp::statement_prepare_check_t<S>,
-                     sqlpp::assert_no_duplicate_table_providers_t>::value,
-        "");
+    expect_basic_consistency_fails<
+        S, "Table(s) of name tab_foo provided twice in the statement">();
+  }
+  {
+    auto s = delete_from(foo) << using_(dynamic(true, foo));
+    using S = decltype(s);
+    expect_basic_consistency_fails<
+        S, "Table(s) of name tab_foo provided twice in the statement">();
+  }
+  {
+    auto s = delete_from(foo) << using_(bar.as<"tab_foo">());
+    using S = decltype(s);
+    expect_basic_consistency_fails<
+        S, "Table(s) of name tab_foo provided twice in the statement">();
   }
 }
