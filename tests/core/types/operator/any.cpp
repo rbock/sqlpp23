@@ -83,8 +83,8 @@ void test_any_sub_select() {
   using S = decltype(s);
   using A = decltype(a);
 
-  static_assert(sqlpp::required_tables_of<A>::func() ==
-                sqlpp::required_tables_of<S>::func());
+  static_assert(sqlpp::get_required_tables_of(sqlpp::type_v<A>{}) ==
+                sqlpp::get_required_tables_of(sqlpp::type_v<S>{}));
 }
 
 int main() {

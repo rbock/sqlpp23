@@ -34,10 +34,10 @@ int main() {
 
   static_assert(sqlpp::is_table<Verb>::value, "");
   static_assert(std::string_view(sqlpp::name_of_v<Verb>) == "verb");
-  static_assert(sqlpp::provided_tables_of<Verb>::func() ==
+  static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<Verb>{}) ==
                 sqlpp::detail::make_type_info_set<Verb>());
-  static_assert(sqlpp::provided_static_tables_of<Verb>::func() ==
-                sqlpp::provided_tables_of<Verb>::func());
-  static_assert(sqlpp::provided_optional_tables_of<Verb>::func() ==
+  static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<Verb>{}) ==
+                sqlpp::get_provided_tables_of(sqlpp::type_v<Verb>{}));
+  static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<Verb>{}) ==
                 sqlpp::detail::make_type_info_set<>());
 }

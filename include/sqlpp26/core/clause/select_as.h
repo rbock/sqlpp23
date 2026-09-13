@@ -120,10 +120,8 @@ template <typename Select, fixed_string Name>
 struct is_table<select_as<Select, Name>> : public std::true_type {};
 
 template <typename Select, fixed_string Name>
-struct provided_tables_of<select_as<Select, Name>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set<select_ref_t<Name>>();
-  }
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<select_as<Select, Name>>) {
+  return detail::make_type_info_set<select_ref_t<Name>>();
+}
 
 }  // namespace sqlpp

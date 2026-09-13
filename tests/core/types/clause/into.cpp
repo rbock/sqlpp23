@@ -34,13 +34,13 @@ void test_into() {
   {
     using S = decltype(sqlpp::into(foo));
     using I = extract_clause_t<S>;
-    static_assert(sqlpp::provided_tables_of<I>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<I>{}) ==
                                sqlpp::detail::make_type_info_set<Foo>(),
                   "");
-    static_assert(sqlpp::provided_static_tables_of<I>::func() ==
-                               sqlpp::provided_tables_of<I>::func(),
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<I>{}) ==
+                               sqlpp::get_provided_tables_of(sqlpp::type_v<I>{}),
                   "");
-    static_assert(sqlpp::provided_optional_tables_of<I>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<I>{}) ==
                                sqlpp::detail::make_type_info_set<>(),
                   "");
   }

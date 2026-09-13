@@ -57,36 +57,33 @@ struct nodes_of<join_t<Lhs, JoinType, Rhs, Condition>> {
 };
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
-struct provided_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(provided_tables_of<Lhs>::func(),
-                                             provided_tables_of<Rhs>::func());
-  }
-};
+consteval detail::type_info_set get_provided_tables_of(
+    type_v<join_t<Lhs, JoinType, Rhs, Condition>>) {
+  return detail::make_joined_type_info_set(get_provided_tables_of(type_v<Lhs>{}),
+                                           get_provided_tables_of(type_v<Rhs>{}));
+}
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
-struct provided_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        provided_static_tables_of<Lhs>::func(),
-        provided_static_tables_of<Rhs>::func());
-  }
-};
+consteval detail::type_info_set get_provided_static_tables_of(
+    type_v<join_t<Lhs, JoinType, Rhs, Condition>>) {
+  return detail::make_joined_type_info_set(
+      get_provided_static_tables_of(type_v<Lhs>{}),
+      get_provided_static_tables_of(type_v<Rhs>{}));
+}
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
-struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>> {
-  static consteval auto func() -> detail::type_info_set {
-    return make_joined_type_info_set(
-        detail::type_vector<right_outer_join_t,
-                            full_outer_join_t>::contains<JoinType>::value
-            ? provided_tables_of<Lhs>::func()
-            : provided_optional_tables_of<Lhs>::func(),
-        detail::type_vector<left_outer_join_t,
-                            full_outer_join_t>::contains<JoinType>::value
-            ? provided_tables_of<Rhs>::func()
-            : provided_optional_tables_of<Rhs>::func());
-  }
-};
+consteval detail::type_info_set get_provided_optional_tables_of(
+    type_v<join_t<Lhs, JoinType, Rhs, Condition>>) {
+  return make_joined_type_info_set(
+      detail::type_vector<right_outer_join_t,
+                          full_outer_join_t>::contains<JoinType>::value
+          ? get_provided_tables_of(type_v<Lhs>{})
+          : get_provided_optional_tables_of(type_v<Lhs>{}),
+      detail::type_vector<left_outer_join_t,
+                          full_outer_join_t>::contains<JoinType>::value
+          ? get_provided_tables_of(type_v<Rhs>{})
+          : get_provided_optional_tables_of(type_v<Rhs>{}));
+}
 
 template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
 consteval detail::type_info_set get_required_tables_of(
@@ -191,11 +188,11 @@ class pre_join_t {
   //   joining cheese `statically`.
   template <StaticBoolean Expr>
     requires(
-        std::ranges::includes(provided_tables_of<pre_join_t>::func(),
+        std::ranges::includes(get_provided_tables_of(type_v<pre_join_t>{}),
                               get_required_tables_of(type_v<Expr>{}),
                               sqlpp::detail::type_info_less{}) and
         (is_dynamic<Rhs>::value or
-         std::ranges::includes(provided_static_tables_of<pre_join_t>::func(),
+         std::ranges::includes(get_provided_static_tables_of(type_v<pre_join_t>{}),
                                get_required_static_tables_of(type_v<Expr>{}),
                                sqlpp::detail::type_info_less{})))
   auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr> {
@@ -208,12 +205,14 @@ class pre_join_t {
 };
 
 template <typename Lhs, typename JoinType, typename Rhs>
-struct provided_tables_of<pre_join_t<Lhs, JoinType, Rhs>>
-    : public provided_tables_of<join_t<Lhs, JoinType, Rhs, bool>> {};
+consteval detail::type_info_set get_provided_tables_of(type_v<pre_join_t<Lhs, JoinType, Rhs>>) {
+  return get_provided_tables_of(type_v<join_t<Lhs, JoinType, Rhs, bool>>{});
+}
 
 template <typename Lhs, typename JoinType, typename Rhs>
-struct provided_static_tables_of<pre_join_t<Lhs, JoinType, Rhs>>
-    : public provided_static_tables_of<join_t<Lhs, JoinType, Rhs, bool>> {};
+consteval detail::type_info_set get_provided_static_tables_of(type_v<pre_join_t<Lhs, JoinType, Rhs>>) {
+  return get_provided_static_tables_of(type_v<join_t<Lhs, JoinType, Rhs, bool>>{});
+}
 
 template <typename Lhs, typename JoinType, typename Rhs>
 struct is_pre_join<pre_join_t<Lhs, JoinType, Rhs>> : public std::true_type {};

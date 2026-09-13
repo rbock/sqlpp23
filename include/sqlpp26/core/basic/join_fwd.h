@@ -66,12 +66,12 @@ template<typename Lhs, typename Rhs>
 consteval bool are_table_names_disjoint() {
   std::flat_set<std::string_view> lhs_names;
 
-  static constexpr auto lhs = std::define_static_array(provided_tables_of<Lhs>::func());
+  static constexpr auto lhs = std::define_static_array(get_provided_tables_of(type_v<Lhs>{}));
   template for (constexpr auto& info : lhs) {
     lhs_names.insert(name_of_v<typename [:info:]>);
   }
 
-  static constexpr auto rhs = std::define_static_array(provided_tables_of<Rhs>::func());
+  static constexpr auto rhs = std::define_static_array(get_provided_tables_of(type_v<Rhs>{}));
   template for (constexpr auto& info : rhs) {
     if (lhs_names.contains(name_of_v<typename [:info:]>)) {
       return false;

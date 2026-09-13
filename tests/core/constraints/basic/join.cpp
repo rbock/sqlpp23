@@ -145,12 +145,10 @@ struct weird_table : public sqlpp::enable_join {};
 namespace sqlpp {
 template <>
 struct is_table<weird_table> : public std::true_type {};
-template <>
-struct required_tables_of<weird_table> {
-  static consteval auto func() -> sqlpp::detail::type_info_set {
+
+inline consteval sqlpp::detail::type_info_set get_required_tables_of(type_v<weird_table>) {
   return sqlpp::detail::make_type_info_set<::test::tab_bar>();
-  }
-};
+}
 }  // namespace sqlpp
 
 int main() {

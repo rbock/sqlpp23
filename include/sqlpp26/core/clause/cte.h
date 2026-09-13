@@ -170,11 +170,10 @@ struct name_of<cte_as_t<Name, Statement, Alias>> {
 };
 
 template <fixed_string Name, typename Statement, fixed_string Alias>
-struct provided_tables_of<cte_as_t<Name, Statement, Alias>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_type_info_set<cte_ref_t<Alias>>();
-  }
-};
+consteval detail::type_info_set get_provided_tables_of(
+    type_v<cte_as_t<Name, Statement, Alias>>) {
+  return detail::make_type_info_set<cte_ref_t<Alias>>();
+}
 
 template <fixed_string Name, typename Statement, fixed_string Alias>
 struct required_ctes_of<cte_as_t<Name, Statement, Alias>> {
@@ -332,11 +331,9 @@ struct name_of<cte_ref_t<Name>> {
 };
 
 template <fixed_string Name>
-struct provided_tables_of<cte_ref_t<Name>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_type_info_set<cte_ref_t<Name>>();
-  }
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<cte_ref_t<Name>>) {
+  return detail::make_type_info_set<cte_ref_t<Name>>();
+}
 
 template <fixed_string Name>
 struct required_ctes_of<cte_ref_t<Name>> {

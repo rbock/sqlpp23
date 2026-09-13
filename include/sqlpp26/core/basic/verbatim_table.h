@@ -56,11 +56,9 @@ struct name_of<verbatim_table_as_t<Name>> {
 };
 
 template <fixed_string Name>
-struct provided_tables_of<verbatim_table_as_t<Name>> {
-  static consteval detail::type_info_set func() { 
-    return detail::make_type_info_set<verbatim_table_as_t<Name>>();
-  }
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<verbatim_table_as_t<Name>>) {
+  return detail::make_type_info_set<verbatim_table_as_t<Name>>();
+}
 
 template <typename Context, fixed_string Name>
 auto to_sql_string(Context& context, const verbatim_table_as_t<Name>& t)

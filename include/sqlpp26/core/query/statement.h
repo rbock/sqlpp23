@@ -46,6 +46,26 @@
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp {
+  template <typename... Clauses>
+  consteval auto get_provided_tables_of_statement(type_v<statement_t<Clauses...>>) -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_provided_tables_of(type_v<Clauses>{})...);
+  }
+
+  template <typename... Clauses>
+  consteval auto get_provided_static_tables_of_statement(type_v<statement_t<Clauses...>>)
+      -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_provided_static_tables_of(type_v<Clauses>{})...);
+  }
+
+  template <typename... Clauses>
+  consteval auto get_provided_optional_tables_of_statement(type_v<statement_t<Clauses...>>)
+      -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_provided_optional_tables_of(type_v<Clauses>{})...);
+  }
+
 template <typename... Clauses>
 using result_methods_t =
     result_methods_of_t<result_type_provider_t<Clauses...>>;
@@ -61,23 +81,6 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   static consteval auto get_provided_static_ctes_of() -> detail::type_info_set {
     return detail::make_joined_type_info_set(
         provided_static_ctes_of<Clauses>::func()...);
-  }
-
-  static consteval auto get_provided_tables_of() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        provided_tables_of<Clauses>::func()...);
-  }
-
-  static consteval auto get_provided_static_tables_of()
-      -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        provided_static_tables_of<Clauses>::func()...);
-  }
-
-  static consteval auto get_provided_optional_tables_of()
-      -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        provided_optional_tables_of<Clauses>::func()...);
   }
 
   template <typename Clause, fixed_string Name>
@@ -121,8 +124,8 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
         std::define_static_array(get_required_tables_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_tables) {
       // TODO: Use .contains() when it is supported in consteval
-      if (not std::ranges::contains(statement_t::get_provided_tables_of(),
-                                    info)) {
+      if (not std::ranges::contains(
+              get_provided_tables_of_statement(type_v<statement_t>{}), info)) {
         using table = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause requires table {} which is not known "
@@ -138,9 +141,11 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
         std::define_static_array(get_required_static_tables_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_static_tables) {
       // TODO: Use .contains() when it is supported in consteval
-      if (std::ranges::contains(statement_t::get_provided_tables_of(), info) and
+      if (std::ranges::contains(
+              get_provided_tables_of_statement(type_v<statement_t>{}), info) and
           not std::ranges::contains(
-              statement_t::get_provided_static_tables_of(), info)) {
+              get_provided_static_tables_of_statement(type_v<statement_t>{}),
+              info)) {
         using table = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause statically requires table {} which is "
@@ -168,7 +173,7 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     template for (constexpr auto index :
                   std::views::iota(size_t{}, sizeof...(Clauses))) {
       static constexpr auto provided_tables = std::define_static_array(
-          provided_tables_of<Clauses...[index]>::func());
+          get_provided_tables_of(type_v<Clauses...[index]>{}));
       template for (constexpr auto& info : provided_tables) {
         using Table = typename[:info:];
         const auto [_, unique] = all.insert(std::string_view{name_of_v<Table>});
@@ -306,7 +311,7 @@ consteval detail::type_info_set get_required_tables_of(type_v<statement_t<Clause
       detail::make_joined_type_info_set(
           get_required_tables_of(type_v<Clauses>{})...),
       detail::make_joined_type_info_set(
-          provided_tables_of<Clauses>::func()...));
+          get_provided_tables_of(type_v<Clauses>{})...));
 }
 
 template<typename... Clauses>
@@ -315,7 +320,7 @@ consteval detail::type_info_set get_required_static_tables_of(type_v<statement_t
       detail::make_joined_type_info_set(
           get_required_static_tables_of(type_v<Clauses>{})...),
       detail::make_joined_type_info_set(
-          provided_static_tables_of<Clauses>::func()...));
+          get_provided_static_tables_of(type_v<Clauses>{})...));
 }
 
 template <typename... Clauses>

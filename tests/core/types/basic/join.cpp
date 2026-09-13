@@ -53,66 +53,66 @@ void test_join() {
   {
     using J = decltype(foo.join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
   {
     using J = decltype(foo.cross_join(bar));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
   {
     using J = decltype(foo.inner_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
   {
     using J = decltype(foo.left_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Bar>());
   }
 
   {
     using J = decltype(foo.right_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo>());
   }
 
   {
     using J = decltype(foo.full_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
   }
 
@@ -120,11 +120,11 @@ void test_join() {
   {
     using J = decltype(foo.join(cheese).on(foo.id == cheese.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Cheese>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -132,11 +132,11 @@ void test_join() {
   {
     using J = decltype(foo.join(dynamic(true, cheese)).on(foo.id == cheese.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Cheese>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo>());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -144,11 +144,11 @@ void test_join() {
   {
     using J = decltype(cheese.join(cake).on(cheese.id == cake.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Cheese, Cake>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -157,11 +157,11 @@ void test_join() {
     using J = decltype(verb.join(cake).on(
         sqlpp::verbatim<sqlpp::integral>("verb.id") == cake.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Verb, Cake>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -169,11 +169,11 @@ void test_join() {
   {
     using J = decltype(sel_as.join(foo).on(sel_as.id == foo.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<SelAsRef, Foo>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -182,11 +182,11 @@ void test_join() {
     using J = decltype(sel_as.join(foo).on(
         sel_as.id == foo.id + sqlpp::parameter<"a", int64_t>()));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<SelAsRef, Foo>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
 
     // parameters from sub select and condition are being exposed
@@ -201,11 +201,11 @@ void test_join() {
   {
     using J = decltype(cte.join(cake).on(cte.id == cake.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<CteRef, Cake>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
-                  sqlpp::provided_tables_of<J>::func());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
+                  sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::required_ctes_of<J>::func() ==
                   sqlpp::detail::make_type_info_set<CteRef>());
@@ -215,11 +215,11 @@ void test_join() {
   {
     using J = decltype(foo.join(dynamic(true, bar)).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo>());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -230,11 +230,11 @@ void test_join() {
                            .on(foo.id == cheese.id and
                                dynamic(true, bar.id == cheese.id)));
     static_assert(sqlpp::is_table<J>::value, "");
-    static_assert(sqlpp::provided_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Bar, Cheese>());
-    static_assert(sqlpp::provided_static_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<Foo, Cheese>());
-    static_assert(sqlpp::provided_optional_tables_of<J>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 }

@@ -82,16 +82,19 @@ struct nodes_of<from_t<_Table>> {
 };
 
 template <typename _Table>
-struct provided_tables_of<from_t<_Table>> : public provided_tables_of<_Table> {
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<from_t<_Table>>) {
+  return get_provided_tables_of(type_v<_Table>{});
+}
 
 template <typename _Table>
-struct provided_static_tables_of<from_t<_Table>>
-    : public provided_static_tables_of<_Table> {};
+consteval detail::type_info_set get_provided_static_tables_of(type_v<from_t<_Table>>) {
+  return get_provided_static_tables_of(type_v<_Table>{});
+}
 
 template <typename _Table>
-struct provided_optional_tables_of<from_t<_Table>>
-    : public provided_optional_tables_of<remove_dynamic_t<_Table>> {};
+consteval detail::type_info_set get_provided_optional_tables_of(type_v<from_t<_Table>>) {
+  return get_provided_optional_tables_of(type_v<_Table>{});
+}
 
 struct no_from_t {
   template <typename Statement, DynamicTable _Table>

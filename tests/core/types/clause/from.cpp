@@ -39,11 +39,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<>());
@@ -57,11 +57,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<>());
@@ -76,11 +76,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F, B>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F, B>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<>());
@@ -95,11 +95,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F, B>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<>());
@@ -114,11 +114,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F, B>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F, B>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<B>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<>());
@@ -134,11 +134,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F, B>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<>());
@@ -153,11 +153,11 @@ void test_from() {
     using S = decltype(statement);
     using FROM = extract_clause_t<S>;
 
-    static_assert(sqlpp::provided_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<R>());
-    static_assert(sqlpp::provided_static_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<R>());
-    static_assert(sqlpp::provided_optional_tables_of<FROM>::func() ==
+    static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::required_ctes_of<FROM>::func() ==
                   sqlpp::detail::make_type_info_set<R>());

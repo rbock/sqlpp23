@@ -36,29 +36,29 @@ void test_table() {
   static_assert(sqlpp::is_table<FooBar>::value, "");
   static_assert(not sqlpp::is_raw_table<FooBar>::value, "");
   static_assert(std::string_view(sqlpp::name_of_v<FooBar>) == "bar");
-  static_assert(sqlpp::provided_tables_of<FooBar>::func() ==
+  static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<FooBar>{}) ==
                 sqlpp::detail::make_type_info_set<FooBar>());
-  static_assert(sqlpp::provided_static_tables_of<FooBar>::func() ==
-                sqlpp::provided_tables_of<FooBar>::func());
-  static_assert(sqlpp::provided_optional_tables_of<FooBar>::func() ==
+  static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<FooBar>{}) ==
+                sqlpp::get_provided_tables_of(sqlpp::type_v<FooBar>{}));
+  static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FooBar>{}) ==
                 sqlpp::detail::make_type_info_set<>());
-  static_assert(sqlpp::required_tables_of<FooBar>::func() ==
+  static_assert(sqlpp::get_required_tables_of(sqlpp::type_v<FooBar>{}) ==
                 sqlpp::detail::make_type_info_set<>());
-  static_assert(sqlpp::required_static_tables_of<FooBar>::func() ==
-                sqlpp::required_tables_of<FooBar>::func());
+  static_assert(sqlpp::get_required_static_tables_of(sqlpp::type_v<FooBar>{}) ==
+                sqlpp::get_required_tables_of(sqlpp::type_v<FooBar>{}));
 
   static_assert(not sqlpp::is_table<Id>::value);
   static_assert(std::string_view(sqlpp::name_of_v<Id>) == "id");
-  static_assert(sqlpp::provided_tables_of<Id>::func() ==
+  static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<Id>{}) ==
                 sqlpp::detail::make_type_info_set<>());
-  static_assert(sqlpp::provided_static_tables_of<Id>::func() ==
-                sqlpp::provided_tables_of<Id>::func());
-  static_assert(sqlpp::provided_optional_tables_of<Id>::func() ==
-                sqlpp::provided_tables_of<Id>::func());
-  static_assert(sqlpp::required_tables_of<Id>::func() ==
+  static_assert(sqlpp::get_provided_static_tables_of(sqlpp::type_v<Id>{}) ==
+                sqlpp::get_provided_tables_of(sqlpp::type_v<Id>{}));
+  static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<Id>{}) ==
+                sqlpp::get_provided_tables_of(sqlpp::type_v<Id>{}));
+  static_assert(sqlpp::get_required_tables_of(sqlpp::type_v<Id>{}) ==
                 sqlpp::detail::make_type_info_set<FooBar>());
-  static_assert(sqlpp::required_static_tables_of<Id>::func() ==
-                sqlpp::required_tables_of<Id>::func());
+  static_assert(sqlpp::get_required_static_tables_of(sqlpp::type_v<Id>{}) ==
+                sqlpp::get_required_tables_of(sqlpp::type_v<Id>{}));
 }
 
 int main() {

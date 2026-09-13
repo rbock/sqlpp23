@@ -73,8 +73,9 @@ struct nodes_of<single_table_t<_Table>> {
 };
 
 template <typename _Table>
-struct provided_tables_of<single_table_t<_Table>>
-    : public provided_tables_of<_Table> {};
+consteval detail::type_info_set get_provided_tables_of(type_v<single_table_t<_Table>>){
+  return detail::make_type_info_set<_Table>();
+}
 
 // NO TABLE YET
 struct no_single_table_t {

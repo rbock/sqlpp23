@@ -107,11 +107,9 @@ template <typename TableSpec>
 struct is_raw_table<table<TableSpec>> : public std::true_type {};
 
 template <typename TableSpec>
-struct provided_tables_of<table<TableSpec>> {
-  static consteval detail::type_info_set func() { 
-    return detail::make_type_info_set<table<TableSpec>>();
-  }
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<table<TableSpec>>) {
+  return detail::make_type_info_set<table<TableSpec>>();
+}
 
 template <typename TableSpec>
 struct name_of<table<TableSpec>> {

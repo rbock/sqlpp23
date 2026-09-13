@@ -80,12 +80,19 @@ struct basic_consistency_check<Statement, using_t<_Table>> {
 };
 
 template <typename _Table>
-struct provided_tables_of<using_t<_Table>> : public provided_tables_of<_Table> {
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<using_t<_Table>>) {
+  return get_provided_tables_of(type_v<_Table>{});
+}
 
 template <typename _Table>
-struct provided_optional_tables_of<using_t<_Table>>
-    : public provided_optional_tables_of<_Table> {};
+consteval detail::type_info_set get_provided_static_tables_of(type_v<using_t<_Table>>) {
+  return get_provided_static_tables_of(type_v<_Table>{});
+}
+
+template <typename _Table>
+consteval detail::type_info_set get_provided_optional_tables_of(type_v<using_t<_Table>>) {
+  return get_provided_optional_tables_of(type_v<_Table>{});
+}
 
 // NO USING YET
 struct no_using_t {

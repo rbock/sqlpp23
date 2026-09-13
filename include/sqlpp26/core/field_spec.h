@@ -67,10 +67,11 @@ template <typename Statement, typename SelectColumn>
 struct field_depends_on_optional_table {
   static constexpr bool value =
       detail::make_joined_type_info_set(
-          Statement::get_provided_optional_tables_of(),
+          get_provided_optional_tables_of_statement(type_v<Statement>{}),
           get_required_tables_of(type_v<SelectColumn>{}))
-          .size() < Statement::get_provided_optional_tables_of().size() +
-                        get_required_tables_of(type_v<SelectColumn>{}).size();
+          .size() <
+      get_provided_optional_tables_of_statement(type_v<Statement>{}).size() +
+          get_required_tables_of(type_v<SelectColumn>{}).size();
 };
 
 template <typename Statement, typename SelectColumn>

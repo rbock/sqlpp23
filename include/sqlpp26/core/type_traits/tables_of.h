@@ -31,9 +31,9 @@
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
 #include <sqlpp26/core/type_traits/nodes_of.h>
+#include <sqlpp26/core/type_v.h>
 
 namespace sqlpp {
-  template<typename T> struct type_v{};
 // `required_tables_of` recursively determines the type_set of tables referenced
 // by columns within `T`. `column_t` or other structs that might reference a
 // table shall specialize this template to indicate their table requirement.
@@ -84,28 +84,33 @@ consteval detail::type_info_set get_required_static_tables_of(detail::type_vecto
 // non-recursive. This is important for instance to prevent `SELECT...AS` to
 // leak from `select_column_list`.
 template <typename T>
-struct provided_tables_of {
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<T>) {
+  return {};
+}
 
 template <typename T>
-struct provided_tables_of<dynamic_t<T>> : public provided_tables_of<T> {};
+consteval detail::type_info_set get_provided_tables_of(type_v<dynamic_t<T>>) {
+  return get_provided_tables_of(type_v<T>{});
+}
 
 // `provided_static_tables_of` determines the type_set of non-dynamic tables
 // provided by a clause, e.g. by FROM.
 template <typename T>
-struct provided_static_tables_of : public provided_tables_of<T> {};
+consteval detail::type_info_set get_provided_static_tables_of(type_v<T>) {
+  return get_provided_tables_of(type_v<T>{});
+}
 
 template <typename T>
-struct provided_static_tables_of<dynamic_t<T>> {
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_provided_static_tables_of(
+    type_v<dynamic_t<T>>) {
+  return {};
+}
 
 // `provided_optional_tables_of` determines the type_set of outer join tables
 // provided by a clause, e.g. the right hand side table in a `left_outer_join`.
 template <typename T>
-struct provided_optional_tables_of {
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_provided_optional_tables_of(type_v<T>) {
+  return {};
+}
 
 }  // namespace sqlpp

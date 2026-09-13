@@ -74,8 +74,9 @@ struct required_insert_columns_of<into_t<Table>>
     : public required_insert_columns_of<Table> {};
 
 template <typename Table>
-struct provided_tables_of<into_t<Table>> : public provided_tables_of<Table> {
-};
+consteval detail::type_info_set get_provided_tables_of(type_v<into_t<Table>>) {
+  return get_provided_tables_of(type_v<Table>{});
+}
 
 // NO INTO YET
 struct no_into_t {
