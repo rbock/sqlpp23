@@ -58,8 +58,7 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
         provided_ctes_of<Clauses>::func()...);
   }
 
-  static consteval auto get_provided_static_ctes_of()
-      -> detail::type_info_set {
+  static consteval auto get_provided_static_ctes_of() -> detail::type_info_set {
     return detail::make_joined_type_info_set(
         provided_static_ctes_of<Clauses>::func()...);
   }
@@ -81,13 +80,14 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
         provided_optional_tables_of<Clauses>::func()...);
   }
 
-  template<typename Clause, fixed_string Name>
+  template <typename Clause, fixed_string Name>
   static consteval void check_cte_consistency() {
     static constexpr auto required_ctes =
         std::define_static_array(required_ctes_of<Clause>::func());
     template for (constexpr auto& info : required_ctes) {
       // TODO: Use .contains() when it is supported in consteval
-      if (not std::ranges::contains(statement_t::get_provided_ctes_of(), info)) {
+      if (not std::ranges::contains(statement_t::get_provided_ctes_of(),
+                                    info)) {
         using cte = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause requires cte {} which is not known "
@@ -97,15 +97,15 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
-  template<typename Clause, fixed_string Name>
+  template <typename Clause, fixed_string Name>
   static consteval void check_static_cte_consistency() {
     static constexpr auto required_static_ctes =
         std::define_static_array(required_static_ctes_of<Clause>::func());
     template for (constexpr auto& info : required_static_ctes) {
       // TODO: Use .contains() when it is supported in consteval
       if (std::ranges::contains(statement_t::get_provided_ctes_of(), info) and
-          not std::ranges::contains(
-              statement_t::get_provided_static_ctes_of(), info)) {
+          not std::ranges::contains(statement_t::get_provided_static_ctes_of(),
+                                    info)) {
         using cte = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause statically requires cte {} which is "
@@ -115,13 +115,14 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
-  template<typename Clause, fixed_string Name>
+  template <typename Clause, fixed_string Name>
   static consteval void check_table_consistency() {
     static constexpr auto required_tables =
-        std::define_static_array(required_tables_of<Clause>::func());
+        std::define_static_array(get_required_tables_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_tables) {
       // TODO: Use .contains() when it is supported in consteval
-      if (not std::ranges::contains(statement_t::get_provided_tables_of(), info)) {
+      if (not std::ranges::contains(statement_t::get_provided_tables_of(),
+                                    info)) {
         using table = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause requires table {} which is not known "
@@ -131,10 +132,10 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
-  template<typename Clause, fixed_string Name>
+  template <typename Clause, fixed_string Name>
   static consteval void check_static_table_consistency() {
     static constexpr auto required_static_tables =
-        std::define_static_array(required_static_tables_of<Clause>::func());
+        std::define_static_array(get_required_static_tables_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_static_tables) {
       // TODO: Use .contains() when it is supported in consteval
       if (std::ranges::contains(statement_t::get_provided_tables_of(), info) and
@@ -149,11 +150,11 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
-static consteval auto
-get_known_aggregate_columns_of() -> detail::type_info_set {
-  return detail::make_joined_type_info_set(
-      known_aggregate_columns_of<Clauses>::func()...);
-}
+  static consteval auto get_known_aggregate_columns_of()
+      -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        known_aggregate_columns_of<Clauses>::func()...);
+  }
 
   static consteval auto get_known_static_aggregate_columns_of()
       -> detail::type_info_set {
@@ -164,14 +165,17 @@ get_known_aggregate_columns_of() -> detail::type_info_set {
   static consteval void check_basic_consistency() {
     (basic_consistency_check<statement_t<Clauses...>, Clauses>::verify(), ...);
     std::flat_set<std::string_view> all;
-    template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(Clauses))) {
-      static constexpr auto provided_tables =
-          std::define_static_array(provided_tables_of<Clauses...[index]>::func());
+    template for (constexpr auto index :
+                  std::views::iota(size_t{}, sizeof...(Clauses))) {
+      static constexpr auto provided_tables = std::define_static_array(
+          provided_tables_of<Clauses...[index]>::func());
       template for (constexpr auto& info : provided_tables) {
-        using Table = typename [:info:];
+        using Table = typename[:info:];
         const auto [_, unique] = all.insert(std::string_view{name_of_v<Table>});
         if (not unique) {
-          throw std::domain_error(std::format("Table(s) of name {} provided twice in the statement", std::string_view{name_of_v<Table>}));
+          throw std::domain_error(
+              std::format("Table(s) of name {} provided twice in the statement",
+                          std::string_view{name_of_v<Table>}));
         }
       }
     }
@@ -196,28 +200,14 @@ get_known_aggregate_columns_of() -> detail::type_info_set {
   statement_t() = default;
 
   template <typename... Fragments>
-  constexpr statement_t(statement_constructor_arg<Fragments...> arg) : Clauses{arg}... {}
+  constexpr statement_t(statement_constructor_arg<Fragments...> arg)
+      : Clauses{arg}... {}
 
   statement_t(const statement_t& r) = default;
   statement_t(statement_t&& r) = default;
   statement_t& operator=(const statement_t& r) = default;
   statement_t& operator=(statement_t&& r) = default;
   ~statement_t() = default;
-};
-
-
-
-
-template <typename... Clauses>
-struct can_be_used_as_table<statement_t<Clauses...>> {
-  // A select can be used as a pseudo table if
-  //   - at least one column is selected
-  //   - the select is complete (leaks no table requirements or cte
-  //   requirements)
-  using _S = statement_t<Clauses...>;
-  static constexpr bool value = has_result_row<_S>::value /* TODO and
-                                _S::_unknown_required_tables_of::empty() and
-                                _S::_unknown_required_ctes_of::empty()*/;
 };
 
 template <typename... Clauses>
@@ -310,27 +300,23 @@ struct parameters_of<statement_t<Clauses...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
 };
 
-template <typename... Clauses>
-struct required_tables_of<statement_t<Clauses...>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set_difference(
-        detail::make_joined_type_info_set(
-            required_tables_of<Clauses>::func()...),
-        detail::make_joined_type_info_set(
-            provided_tables_of<Clauses>::func()...));
-  }
-};
+template<typename... Clauses>
+consteval detail::type_info_set get_required_tables_of(type_v<statement_t<Clauses...>>) {
+  return detail::make_type_info_set_difference(
+      detail::make_joined_type_info_set(
+          get_required_tables_of(type_v<Clauses>{})...),
+      detail::make_joined_type_info_set(
+          provided_tables_of<Clauses>::func()...));
+}
 
-template <typename... Clauses>
-struct required_static_tables_of<statement_t<Clauses...>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set_difference(
-        detail::make_joined_type_info_set(
-            required_static_tables_of<Clauses>::func()...),
-        detail::make_joined_type_info_set(
-            provided_static_tables_of<Clauses>::func()...));
-  }
-};
+template<typename... Clauses>
+consteval detail::type_info_set get_required_static_tables_of(type_v<statement_t<Clauses...>>) {
+  return detail::make_type_info_set_difference(
+      detail::make_joined_type_info_set(
+          get_required_static_tables_of(type_v<Clauses>{})...),
+      detail::make_joined_type_info_set(
+          provided_static_tables_of<Clauses>::func()...));
+}
 
 template <typename... Clauses>
 struct required_ctes_of<statement_t<Clauses...>> {

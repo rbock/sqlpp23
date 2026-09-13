@@ -58,7 +58,8 @@ struct on_conflict_t {
     requires(sizeof...(Columns) > 0 and sizeof...(Assignments) > 0 and
              sqlpp::detail::are_unique_v<typename lhs<Assignments>::type...> and
              sqlpp::detail::make_joined_type_info_set(
-                 required_tables_of<typename lhs<Assignments>::type>::func()...)
+                 get_required_tables_of(
+                     type_v<typename lhs<Assignments>::type>{})...)
                      .size() == 1)
   auto do_update(this Statement&& self, Assignments... assignments) {
     auto new_clause = on_conflict_do_update_t<on_conflict_t, Assignments...>{

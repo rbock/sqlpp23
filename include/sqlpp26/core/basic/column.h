@@ -89,15 +89,16 @@ struct sql_name_of<column<Table, index>> {
 };
 
 template <typename Table, size_t index>
-struct required_tables_of<column<Table, index>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set<Table>();
-  }
-};
+consteval detail::type_info_set get_required_tables_of(
+    type_v<column<Table, index>>) {
+  return detail::make_type_info_set<Table>();
+}
 
 template <typename Table, size_t index>
-struct required_static_tables_of<column<Table, index>>
-    : public required_tables_of<column<Table, index>> {};
+consteval detail::type_info_set get_required_static_tables_of(
+    type_v<column<Table, index>>) {
+  return detail::make_type_info_set<Table>();
+}
 
 template <typename Table, size_t index>
 struct required_insert_columns_of<column<Table, index>> {

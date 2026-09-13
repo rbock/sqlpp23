@@ -191,8 +191,8 @@ struct required_static_ctes_of<cte_as_t<Name, Statement, Alias>>
 template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_cte_union_args =
     (is_statement<Lhs>::value and is_statement<Rhs>::value and
-     required_tables_of<Lhs>::func().empty() and
-     required_tables_of<Rhs>::func().empty() and
+     get_required_tables_of(type_v<Lhs>{}).empty() and
+     get_required_tables_of(type_v<Rhs>{}).empty() and
      has_result_row<Lhs>::value and has_result_row<Rhs>::value and
      is_result_compatible<get_result_row_t<Lhs>, get_result_row_t<Rhs>>::value);
 
@@ -309,7 +309,7 @@ struct cte_ref_t {
   template <typename Statement>
     requires(is_statement<Statement>::value and
              has_result_row<Statement>::value and
-             required_tables_of<Statement>::func().empty() and
+             get_required_tables_of(type_v<Statement>{}).empty() and
              not required_ctes_of<Statement>::func().contains(
                  ^^cte_ref_t<Name>))
   auto as(Statement statement) const -> cte_t<Name, Statement> {

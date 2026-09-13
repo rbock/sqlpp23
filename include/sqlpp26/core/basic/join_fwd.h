@@ -81,7 +81,8 @@ consteval bool are_table_names_disjoint() {
 }
 template <StaticTable Lhs, DynamicTable Rhs>
 inline constexpr bool can_be_joined_v =
-    required_tables_of<Lhs>::func().empty() and required_tables_of<Rhs>::func().empty() and
+    get_required_tables_of(type_v<Lhs>{}).empty() and
+    get_required_tables_of(type_v<Rhs>{}).empty() and
     are_table_names_disjoint<Lhs, Rhs>();
 
 template <StaticTable Lhs, DynamicTable Rhs>

@@ -68,7 +68,7 @@ struct no_offset_t {
   template <typename Statement, typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
               is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
-             required_tables_of<Arg>::func().empty())
+             get_required_tables_of(type_v<Arg>{}).empty())
   constexpr auto offset(this Statement&& self, Arg arg) {
     return new_statement<no_offset_t>(std::forward<Statement>(self),
                                       offset_t<Arg>{std::move(arg)});
@@ -88,7 +88,7 @@ struct basic_consistency_check<Statement, no_offset_t> {
 template <typename Arg>
     requires((is_integral<remove_dynamic_t<Arg>>::value or
               is_unsigned_integral<remove_dynamic_t<Arg>>::value) and
-             required_tables_of<Arg>::func().empty())
+             get_required_tables_of(type_v<Arg>{}).empty())
 constexpr auto offset(Arg arg) {
   return statement_t<no_offset_t>().offset(std::move(arg));
 }

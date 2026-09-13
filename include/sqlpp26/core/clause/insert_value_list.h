@@ -326,7 +326,8 @@ template <DynamicAssignment... Assignments>
            detail::are_unique_v<lhs_t<remove_dynamic_t<Assignments>>...> and
            // assignment columns from exactly one table
            detail::make_joined_type_info_set(
-               required_tables_of<lhs_t<remove_dynamic_t<Assignments>>>::func()...)
+               get_required_tables_of(
+                   type_v<lhs_t<remove_dynamic_t<Assignments>>>{})...)
                    .size() == 1)
 constexpr auto insert_set(Assignments... assignments) {
   return statement_t<no_insert_value_list_t>().set(std::move(assignments)...);

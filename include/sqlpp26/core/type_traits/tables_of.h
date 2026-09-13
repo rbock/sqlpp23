@@ -33,22 +33,23 @@
 #include <sqlpp26/core/type_traits/nodes_of.h>
 
 namespace sqlpp {
+  template<typename T> struct type_v{};
 // `required_tables_of` recursively determines the type_set of tables referenced
 // by columns within `T`. `column_t` or other structs that might reference a
 // table shall specialize this template to indicate their table requirement.
+template <typename... T>
+consteval detail::type_info_set get_required_tables_of(detail::type_vector<T...>);
+
 template <typename T>
-struct required_tables_of {
-  static consteval auto func() -> detail::type_info_set {
-    return required_tables_of<nodes_of_t<T>>::func();
-  }
-};
+consteval detail::type_info_set get_required_tables_of(type_v<T>) {
+  return get_required_tables_of(nodes_of_t<T>{});
+}
 
 template <typename... T>
-struct required_tables_of<detail::type_vector<T...>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(required_tables_of<T>::func()...);
-  }
-};
+consteval detail::type_info_set get_required_tables_of(detail::type_vector<T...>) {
+  return detail::make_joined_type_info_set(
+      get_required_tables_of(type_v<T>{})...);
+}
 
 // `required_static_tables_of` recursively determines the type_set of tables
 // statically referenced by columns within `T`. `column_t` or other structs that
@@ -56,25 +57,24 @@ struct required_tables_of<detail::type_vector<T...>> {
 // table requirement.
 //
 // Dynamic query parts are ignored.
-template <typename T>
-struct required_static_tables_of {
-  static consteval auto func() -> detail::type_info_set {
-    return required_static_tables_of<nodes_of_t<T>>::func();
-  }
-};
+template <typename... T>
+consteval detail::type_info_set get_required_static_tables_of(detail::type_vector<T...>);
 
 template <typename T>
-struct required_static_tables_of<dynamic_t<T>> {
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_required_static_tables_of(type_v<T>) {
+  return get_required_static_tables_of(nodes_of_t<T>{});
+}
+
+template <typename T>
+consteval detail::type_info_set get_required_static_tables_of(type_v<dynamic_t<T>>) {
+  return {};
+}
 
 template <typename... T>
-struct required_static_tables_of<detail::type_vector<T...>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        required_static_tables_of<T>::func()...);
-  }
-};
+consteval detail::type_info_set get_required_static_tables_of(detail::type_vector<T...>) {
+  return detail::make_joined_type_info_set(
+      get_required_static_tables_of(type_v<T>{})...);
+}
 
 // `provided_tables_of` determines the type_set of tables provided by a clause,
 // e.g. by FROM. `table_t`, `cte_ref_t`, or other structs that might provide a

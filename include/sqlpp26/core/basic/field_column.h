@@ -65,15 +65,16 @@ struct name_of<field_column<Table, ColumnSpec>> {
 };
 
 template <typename Table, typename ColumnSpec>
-struct required_tables_of<field_column<Table, ColumnSpec>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set<Table>();
-  }
-};
+consteval detail::type_info_set get_required_tables_of(
+    type_v<field_column<Table, ColumnSpec>>) {
+  return detail::make_type_info_set<Table>();
+}
 
 template <typename Table, typename ColumnSpec>
-struct required_static_tables_of<field_column<Table, ColumnSpec>>
-    : public required_tables_of<field_column<Table, ColumnSpec>> {};
+consteval detail::type_info_set get_required_static_tables_of(
+    type_v<field_column<Table, ColumnSpec>>) {
+  return detail::make_type_info_set<Table>();
+}
 
 template <typename _Table, typename ColumnSpec>
 struct is_column<field_column<_Table, ColumnSpec>> : public std::true_type {};

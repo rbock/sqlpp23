@@ -68,43 +68,6 @@ struct is_raw_table : public std::false_type {};
 template <typename T>
 inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 
-#if 0
-#include <span>
-#include <string_view>
-#include <tuple>
-#include <type_traits>
-#include <vector>
-
-#include <sqlpp26/core/detail/get_first.h>
-#include <sqlpp26/core/detail/type_set.h>
-#include <sqlpp26/core/detail/type_vector.h>
-#include <sqlpp26/core/query/dynamic_fwd.h>
-
-namespace sqlpp {
-template <typename T>
-const T& get_value(const T& t) {
-  return t;
-}
-
-template <typename T>
-const T& get_value(const std::optional<T>& t) {
-  return t.value();
-}
-
-template <typename T>
-auto has_value(const T&) -> bool {
-  return true;
-}
-
-template <typename T>
-auto has_value(const std::optional<T>& t) -> bool {
-  return t.has_value();
-}
-
-template <typename T>
-struct has_default : public std::false_type {};
-
-#endif
 template <typename T>
 struct can_be_null : public is_optional<data_type_of_t<T>> {};
 
@@ -522,9 +485,6 @@ template <typename... T>
 struct is_select_column<std::tuple<T...>> {
   static constexpr bool value = (true and ... and is_select_column_v<T>);
 };
-
-template <typename Statement>
-struct can_be_used_as_table : public std::false_type {};
 
 template <typename StatementOrClause>
 struct no_of_result_columns {
