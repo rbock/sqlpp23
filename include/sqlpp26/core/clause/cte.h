@@ -176,16 +176,15 @@ consteval detail::type_info_set get_provided_tables_of(
 }
 
 template <fixed_string Name, typename Statement, fixed_string Alias>
-struct required_ctes_of<cte_as_t<Name, Statement, Alias>> {
+consteval detail::type_info_set get_required_ctes_of(type_v<cte_as_t<Name, Statement, Alias>>) {
   // An aliased CTE requires the original CTE from the WITH clause.
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_type_info_set<cte_ref_t<Name>>();
-  }
-};
+  return detail::make_type_info_set<cte_ref_t<Name>>();
+}
 
 template <fixed_string Name, typename Statement, fixed_string Alias>
-struct required_static_ctes_of<cte_as_t<Name, Statement, Alias>>
-    : public required_ctes_of<cte_as_t<Name, Statement, Alias>> {};
+consteval detail::type_info_set get_required_static_ctes_of(type_v<cte_as_t<Name, Statement, Alias>>) {
+  return get_required_ctes_of(type_v<cte_as_t<Name, Statement, Alias>>{});
+}
 
 template <typename Lhs, typename Rhs>
 inline constexpr bool are_valid_cte_union_args =
@@ -269,8 +268,8 @@ struct is_cte<cte_t<Name, Statement>>
 template <fixed_string Name, typename Statement>
 struct is_recursive_cte<cte_t<Name, Statement>>
     {
-  constexpr static bool value = required_ctes_of<
-      Statement>::func().contains(^^cte_ref_t<Name>);
+  constexpr static bool value =
+      get_required_ctes_of(type_v<Statement>()).contains(^^cte_ref_t<Name>);
 };
 
 template <fixed_string Name, typename Statement>
@@ -288,18 +287,14 @@ struct nodes_of<cte_t<Name, Statement>> {
 };
 
 template <fixed_string Name, typename Statement>
-struct provided_ctes_of<cte_t<Name, Statement>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_type_info_set<cte_ref_t<Name>>();
-  }
-};
+consteval detail::type_info_set get_provided_ctes_of(type_v<cte_t<Name, Statement>>) {
+  return detail::make_type_info_set<cte_ref_t<Name>>();
+}
 
 template <fixed_string Name, typename Statement>
-struct required_ctes_of<cte_t<Name, Statement>> {
-  static consteval auto func() -> detail::type_info_set {
-    return required_ctes_of<Statement>::func();
-  }
-};
+consteval detail::type_info_set get_required_ctes_of(type_v<cte_t<Name, Statement>>) {
+  return get_required_ctes_of(type_v<Statement>{});
+}
 
 // The cte_ref_t represents the cte as table in FROM.
 // The cte_t needs to be provided by WITH.
@@ -309,7 +304,7 @@ struct cte_ref_t {
     requires(is_statement<Statement>::value and
              has_result_row<Statement>::value and
              get_required_tables_of(type_v<Statement>{}).empty() and
-             not required_ctes_of<Statement>::func().contains(
+             not get_required_ctes_of(type_v<Statement>{}).contains(
                  ^^cte_ref_t<Name>))
   auto as(Statement statement) const -> cte_t<Name, Statement> {
     consteval {
@@ -336,15 +331,14 @@ consteval detail::type_info_set get_provided_tables_of(type_v<cte_ref_t<Name>>) 
 }
 
 template <fixed_string Name>
-struct required_ctes_of<cte_ref_t<Name>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_type_info_set<cte_ref_t<Name>>();
-  }
-};
+consteval detail::type_info_set get_required_ctes_of(type_v<cte_ref_t<Name>>) {
+  return detail::make_type_info_set<cte_ref_t<Name>>();
+}
 
 template <fixed_string Name>
-struct required_static_ctes_of<cte_ref_t<Name>>
-    : public required_ctes_of<cte_ref_t<Name>> {};
+consteval detail::type_info_set get_required_static_ctes_of(type_v<cte_ref_t<Name>>) {
+  return get_required_ctes_of(type_v<cte_ref_t<Name>>{});
+}
 
 template <fixed_string Name>
 auto cte() -> cte_ref_t<Name> {

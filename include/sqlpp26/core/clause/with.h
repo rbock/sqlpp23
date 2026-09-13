@@ -81,18 +81,15 @@ template <typename... Ctes>
 struct nodes_of<with_t<Ctes...>> : public no_nodes {};
 
 template <typename... Ctes>
-struct provided_ctes_of<with_t<Ctes...>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(provided_ctes_of<Ctes>::func()...);
-  }
-};
+consteval detail::type_info_set get_provided_ctes_of(type_v<with_t<Ctes...>>) {
+  return detail::make_joined_type_info_set(get_provided_ctes_of(type_v<Ctes>{})...);
+}
 
 template <typename... Ctes>
-struct provided_static_ctes_of<with_t<Ctes...>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(provided_static_ctes_of<Ctes>::func()...);
-  }
-};
+consteval detail::type_info_set get_provided_static_ctes_of(type_v<with_t<Ctes...>>) {
+  return detail::make_joined_type_info_set(
+      get_provided_static_ctes_of(type_v<Ctes>{})...);
+}
 
 template <typename... Ctes>
 struct parameters_of<with_t<Ctes...>> {
@@ -114,8 +111,8 @@ consteval auto have_correct_cte_dependencies() -> bool{
   detail::type_info_set allowed;
   template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
     using CTE = CTEs...[index];
-    detail::insert_type_info_set(allowed, provided_ctes_of<CTE>::func());
-    auto required = required_ctes_of<CTE>::func();
+    detail::insert_type_info_set(allowed, get_provided_ctes_of(type_v<CTE>{}));
+    auto required = get_required_ctes_of(type_v<CTE>{});
     if (not std::ranges::includes(allowed, required, sqlpp::detail::type_info_less{})) {
       // Maybe turn this into exception?
       return false;
@@ -129,8 +126,8 @@ consteval auto have_correct_static_cte_dependencies() -> bool{
   detail::type_info_set allowed;
   template for (constexpr auto index : std::views::iota(size_t{}, sizeof...(CTEs))) {
     using CTE = CTEs...[index];
-    detail::insert_type_info_set(allowed, provided_static_ctes_of<CTE>::func());
-    auto required = required_static_ctes_of<CTE>::func();
+    detail::insert_type_info_set(allowed, get_provided_static_ctes_of(type_v<CTE>{}));
+    auto required = get_required_static_ctes_of(type_v<CTE>{});
     if (not std::ranges::includes(allowed, required, sqlpp::detail::type_info_less{})) {
       // Maybe turn this into exception?
       return false;

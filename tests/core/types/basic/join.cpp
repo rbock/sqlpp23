@@ -207,7 +207,7 @@ void test_join() {
                   sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}));
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_ctes_of<J>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<CteRef>());
   }
 

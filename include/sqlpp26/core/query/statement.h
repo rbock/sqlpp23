@@ -46,6 +46,19 @@
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp {
+  // TODO: Need to write a type test!
+  template <typename... Clauses>
+  consteval auto get_provided_ctes_of_statement(type_v<statement_t<Clauses...>>) -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_provided_ctes_of(type_v<Clauses>{})...);
+  }
+
+  template <typename... Clauses>
+  consteval auto get_provided_static_ctes_of_statement(type_v<statement_t<Clauses...>>) -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_provided_static_ctes_of(type_v<Clauses>{})...);
+  }
+
   template <typename... Clauses>
   consteval auto get_provided_tables_of_statement(type_v<statement_t<Clauses...>>) -> detail::type_info_set {
     return detail::make_joined_type_info_set(
@@ -72,25 +85,14 @@ using result_methods_t =
 
 template <typename... Clauses>
 struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
-  // TODO: Need to write a type test!
-  static consteval auto get_provided_ctes_of() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        provided_ctes_of<Clauses>::func()...);
-  }
-
-  static consteval auto get_provided_static_ctes_of() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        provided_static_ctes_of<Clauses>::func()...);
-  }
-
   template <typename Clause, fixed_string Name>
   static consteval void check_cte_consistency() {
     static constexpr auto required_ctes =
-        std::define_static_array(required_ctes_of<Clause>::func());
+        std::define_static_array(get_required_ctes_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_ctes) {
       // TODO: Use .contains() when it is supported in consteval
-      if (not std::ranges::contains(statement_t::get_provided_ctes_of(),
-                                    info)) {
+      if (not std::ranges::contains(
+              get_provided_ctes_of_statement(type_v<statement_t>{}), info)) {
         using cte = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause requires cte {} which is not known "
@@ -103,11 +105,11 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   template <typename Clause, fixed_string Name>
   static consteval void check_static_cte_consistency() {
     static constexpr auto required_static_ctes =
-        std::define_static_array(required_static_ctes_of<Clause>::func());
+        std::define_static_array(get_required_static_ctes_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_static_ctes) {
       // TODO: Use .contains() when it is supported in consteval
-      if (std::ranges::contains(statement_t::get_provided_ctes_of(), info) and
-          not std::ranges::contains(statement_t::get_provided_static_ctes_of(),
+      if (std::ranges::contains(get_provided_ctes_of_statement(type_v<statement_t>{}), info) and
+          not std::ranges::contains(get_provided_static_ctes_of_statement(type_v<statement_t>{}),
                                     info)) {
         using cte = typename[:info:];
         throw std::domain_error(std::format(
@@ -324,26 +326,20 @@ consteval detail::type_info_set get_required_static_tables_of(type_v<statement_t
 }
 
 template <typename... Clauses>
-struct required_ctes_of<statement_t<Clauses...>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set_difference(
-        detail::make_joined_type_info_set(
-            required_ctes_of<Clauses>::func()...),
-        detail::make_joined_type_info_set(
-            provided_ctes_of<Clauses>::func()...));
-  }
-};
+consteval detail::type_info_set get_required_ctes_of(type_v<statement_t<Clauses...>>) {
+  return detail::make_type_info_set_difference(
+      detail::make_joined_type_info_set(get_required_ctes_of(type_v<Clauses>{})...),
+      detail::make_joined_type_info_set(get_provided_static_ctes_of(type_v<Clauses>{})...));
+}
 
 template <typename... Clauses>
-struct required_static_ctes_of<statement_t<Clauses...>> {
-  static consteval detail::type_info_set func() {
-    return detail::make_type_info_set_difference(
-        detail::make_joined_type_info_set(
-            required_static_ctes_of<Clauses>::func()...),
-        detail::make_joined_type_info_set(
-            provided_static_ctes_of<Clauses>::func()...));
-  }
-};
+consteval detail::type_info_set get_required_static_ctes_of(type_v<statement_t<Clauses...>>) {
+  return detail::make_type_info_set_difference(
+      detail::make_joined_type_info_set(
+          get_required_static_ctes_of(type_v<Clauses>{})...),
+      detail::make_joined_type_info_set(
+          get_provided_static_ctes_of(type_v<Clauses>{})...));
+}
 
 template <typename... Clauses>
 struct requires_parentheses<statement_t<Clauses...>> : public std::true_type {};

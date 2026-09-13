@@ -43,9 +43,9 @@ void test_required_ctes_of() {
   // Incomplete ctes are represented as cte_ref_t which require themselves.
   {
     using T = decltype(sqlpp::cte<"incomplete">());
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<T>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<T>());
   }
 
@@ -56,14 +56,14 @@ void test_required_ctes_of() {
     using T = decltype(basic);
     using TRef = decltype(make_table_ref(basic));
 
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<>());
 
-    static_assert(sqlpp::required_ctes_of<TRef>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<TRef>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
-    static_assert(sqlpp::required_static_ctes_of<TRef>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<TRef>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
   }
 
@@ -79,21 +79,21 @@ void test_required_ctes_of() {
     using T = decltype(referencing);
     using TRef = decltype(make_table_ref(referencing));
 
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
 
-    static_assert(sqlpp::required_ctes_of<TRef>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<TRef>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
-    static_assert(sqlpp::required_static_ctes_of<TRef>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<TRef>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
 
     // Note: cte requirements of ctes are evaluated in `with`, which does not
     // expose those requirements.
     using W = extract_with_t<decltype(with(basic, referencing))>;
-    static_assert(sqlpp::required_ctes_of<W>::func().empty());
-    static_assert(sqlpp::required_static_ctes_of<W>::func().empty());
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<W>{}).empty());
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<W>{}).empty());
   }
 
   // Recursive CTEs require references to themselves. A reference to them
@@ -111,21 +111,21 @@ void test_required_ctes_of() {
 
     static_assert(std::is_same<BRef, TRef>::value);
 
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
 
-    static_assert(sqlpp::required_ctes_of<TRef>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<TRef>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
-    static_assert(sqlpp::required_static_ctes_of<TRef>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<TRef>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
 
     // Note: cte requirements of ctes are evaluated in `with`, which does not
     // expose those requirements.
     using W = extract_with_t<decltype(with(recursive))>;
-    static_assert(sqlpp::required_ctes_of<W>::func().empty());
-    static_assert(sqlpp::required_static_ctes_of<W>::func().empty());
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<W>{}).empty());
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<W>{}).empty());
   }
 
   // Aliased ctes require the references to the underlying CTE.
@@ -135,9 +135,9 @@ void test_required_ctes_of() {
 
     using T = decltype(basic.as<"alias">());
 
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
   }
 
@@ -150,9 +150,9 @@ void test_required_ctes_of() {
 
     using T = decltype(a.join(b).on(a.id == b.id));
 
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<ARef, BRef>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<ARef, BRef>());
   }
 
@@ -167,9 +167,9 @@ void test_required_ctes_of() {
         sqlpp::is_dynamic_v<
             sqlpp::dynamic_t<sqlpp::cte_ref_t<sqlpp::fixed_string<2>{"b"}>>>);
     using T = decltype(a.join(dynamic(true, b)).on(a.id == b.id));
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<ARef, BRef>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<ARef>());
   }
 
@@ -180,9 +180,9 @@ void test_required_ctes_of() {
 
     using T = decltype(from(basic));
 
-    static_assert(sqlpp::required_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
-    static_assert(sqlpp::required_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_required_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
   }
 }
@@ -193,8 +193,8 @@ void test_provided_ctes_of() {
   // Incomplete ctes are represented as cte_ref_t which provide no ctes.
   {
     using T = decltype(sqlpp::cte<"incomplete">());
-    static_assert(sqlpp::provided_ctes_of<T>::func().empty());
-    static_assert(sqlpp::provided_static_ctes_of<T>::func().empty());
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<T>{}).empty());
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<T>{}).empty());
   }
 
   // Basic (complete) ctes provide ctes, but their references don't.
@@ -203,13 +203,13 @@ void test_provided_ctes_of() {
     using T = decltype(basic);
     using TRef = decltype(make_table_ref(basic));
 
-    static_assert(sqlpp::provided_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
-    static_assert(sqlpp::provided_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
 
-    static_assert(sqlpp::provided_ctes_of<TRef>::func().empty());
-    static_assert(sqlpp::provided_static_ctes_of<TRef>::func().empty());
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<TRef>{}).empty());
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<TRef>{}).empty());
   }
 
   // ctes referencing other CTEs provide themselves, not the CTEs they are
@@ -224,27 +224,27 @@ void test_provided_ctes_of() {
     using T = decltype(referencing);
     using TRef = decltype(make_table_ref(referencing));
 
-    static_assert(sqlpp::provided_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
-    static_assert(sqlpp::provided_static_ctes_of<T>::func() ==
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<T>{}) ==
                   sqlpp::detail::make_type_info_set<TRef>());
 
-    static_assert(sqlpp::provided_ctes_of<TRef>::func().empty());
-    static_assert(sqlpp::provided_static_ctes_of<TRef>::func().empty());
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<TRef>{}).empty());
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<TRef>{}).empty());
 
     // Note: ctes are provided by `with`.
     using W = extract_with_t<decltype(with(basic, referencing))>;
-    static_assert(sqlpp::provided_ctes_of<W>::func() ==
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<W>{}) ==
                   sqlpp::detail::make_type_info_set<BRef, TRef>());
-    static_assert(sqlpp::provided_static_ctes_of<W>::func() ==
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<W>{}) ==
                   sqlpp::detail::make_type_info_set<BRef, TRef>());
 
     // Note: ctes are provided by `with` and might be dynamic.
     using WDyn =
         extract_with_t<decltype(with(basic, dynamic(true, referencing)))>;
-    static_assert(sqlpp::provided_ctes_of<WDyn>::func() ==
+    static_assert(sqlpp::get_provided_ctes_of(sqlpp::type_v<WDyn>{}) ==
                   sqlpp::detail::make_type_info_set<BRef, TRef>());
-    static_assert(sqlpp::provided_static_ctes_of<WDyn>::func() ==
+    static_assert(sqlpp::get_provided_static_ctes_of(sqlpp::type_v<WDyn>{}) ==
                   sqlpp::detail::make_type_info_set<BRef>());
   }
 }

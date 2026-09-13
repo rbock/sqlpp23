@@ -45,7 +45,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<F>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -63,7 +63,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -82,7 +82,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<F, B>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -101,7 +101,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<F>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -120,7 +120,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<F, B>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<B>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -140,7 +140,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<F>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<F>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 
@@ -159,7 +159,7 @@ void test_from() {
                   sqlpp::detail::make_type_info_set<R>());
     static_assert(sqlpp::get_provided_optional_tables_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<>());
-    static_assert(sqlpp::required_ctes_of<FROM>::func() ==
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<FROM>{}) ==
                   sqlpp::detail::make_type_info_set<R>());
   }
 }

@@ -102,7 +102,7 @@ int main(int, char*[]) {
 
     using X = std::decay_t<decltype(x)>;
     using Y = std::decay_t<decltype(y)>;
-    static_assert(sqlpp::required_ctes_of<Y>::func().size() == 1);
+    static_assert(sqlpp::get_required_ctes_of(sqlpp::type_v<Y>{}).size() == 1);
     static_assert(sqlpp::have_correct_cte_dependencies<X, Y>());
 
     SQLPP_COMPARE(with(x, y),

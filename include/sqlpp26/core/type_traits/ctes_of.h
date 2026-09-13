@@ -31,74 +31,78 @@
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
 #include <sqlpp26/core/type_traits/nodes_of.h>
+#include <sqlpp26/core/type_v.h>
 
 namespace sqlpp {
-// `required_ctes_of` recursively determines the type_set of ctes referenced
+// `get_required_ctes_of` recursively determines the type_set of ctes referenced
 // within `T`. `cte_ref_t` and other structs that might reference a cte shall
 // specialize this template to indicate their cte requirement.
+template <typename... T>
+consteval detail::type_info_set get_required_ctes_of(detail::type_vector<T...>);
+
 template <typename T>
-struct required_ctes_of {
-  static consteval auto func() -> detail::type_info_set {
-    return required_ctes_of<nodes_of_t<T>>::func();
-  }
-};
+consteval detail::type_info_set get_required_ctes_of(type_v<T>) {
+  return get_required_ctes_of(nodes_of_t<T>{});
+}
 
 template <typename... T>
-struct required_ctes_of<detail::type_vector<T...>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(required_ctes_of<T>::func()...);
-  }
-};
+consteval detail::type_info_set get_required_ctes_of(detail::type_vector<T...>) {
+  return detail::make_joined_type_info_set(
+      get_required_ctes_of(type_v<T>{})...);
+}
 
-// `required_static_ctes_of` recursively determines the type_set of ctes
+// `get_required_static_ctes_of` recursively determines the type_set of ctes
 // statically referenced within `T`. `cte_ref_t` and other structs that might
 // reference a cte shall specialize this template to indicate their cte
 // requirement.
 //
 // Dynamic query parts are ignored.
-template <typename T>
-struct required_static_ctes_of {
-  static consteval auto func() -> detail::type_info_set {
-    return required_static_ctes_of<nodes_of_t<T>>::func();
-  }
-};
+template <typename... T>
+consteval detail::type_info_set get_required_static_ctes_of(detail::type_vector<T...>);
 
 template <typename T>
-struct required_static_ctes_of<dynamic_t<T>> {
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_required_static_ctes_of(type_v<T>) {
+  return get_required_static_ctes_of(nodes_of_t<T>{});
+}
+
+template <typename T>
+consteval detail::type_info_set get_required_static_ctes_of(type_v<dynamic_t<T>>) {
+  return {};
+}
 
 template <typename... T>
-struct required_static_ctes_of<detail::type_vector<T...>> {
-  static consteval auto func() -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        required_static_ctes_of<T>::func()...);
-  }
-};
+consteval detail::type_info_set get_required_static_ctes_of(detail::type_vector<T...>) {
+  return detail::make_joined_type_info_set(
+      get_required_static_ctes_of(type_v<T>{})...);
+}
 
-// `provided_ctes_of` determines the type_set of ctes provided by a clause, e.g.
+// `get_provided_ctes_of` determines the type_set of ctes provided by a clause, e.g.
 // by WITH. `cte_t` or other structs that might provide a cte in a query need to
 // specialize this template.
 //
-// Note: In contrast to `required_ctes_of` above, `provided_ctes_of` is
+// Note: In contrast to `get_required_ctes_of` above, `get_provided_ctes_of` is
 // non-recursive.
 template <typename T>
-struct provided_ctes_of {
-  // This needs to the specialized by `cte_ref_t`.
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_provided_ctes_of(type_v<T>) {
+  return {};
+}
 
 template <typename T>
-struct provided_ctes_of<dynamic_t<T>> : public provided_ctes_of<T> {};
+consteval detail::type_info_set get_provided_ctes_of(type_v<dynamic_t<T>>) {
+  return get_provided_ctes_of(type_v<T>{});
+}
 
-// `provided_static_ctes_of` determines the type_vector of non-dynamic ctes
+// `get_provided_static_ctes_of` determines the type_vector of non-dynamic ctes
 // provided by a clause, e.g. by WITH.
 template <typename T>
-struct provided_static_ctes_of : public provided_ctes_of<T> {};
+consteval detail::type_info_set get_provided_static_ctes_of(type_v<T>) {
+  return get_provided_ctes_of(type_v<T>{});
+}
 
 template <typename T>
-struct provided_static_ctes_of<dynamic_t<T>> {
-  static consteval auto func() -> detail::type_info_set { return {}; }
-};
+consteval detail::type_info_set get_provided_static_ctes_of(
+    type_v<dynamic_t<T>>) {
+  return {};
+}
 
 }  // namespace sqlpp
