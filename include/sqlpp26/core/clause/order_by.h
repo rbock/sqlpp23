@@ -29,7 +29,6 @@
 
 #include <tuple>
 
-#include <sqlpp26/core/clause/expression_static_check.h>
 #include <sqlpp26/core/concepts.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/logic.h>
@@ -39,28 +38,6 @@
 #include <sqlpp26/core/type_traits.h>
 
 namespace sqlpp {
-class assert_no_unknown_tables_in_order_by_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one order-by expression requires a table "
-                        "which is otherwise not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_order_by_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "at least one order-by expression statically requires a table which is "
-        "only known dynamically in the statement");
-  }
-};
-
 template <typename... Expressions>
 struct order_by_t {
   constexpr order_by_t(Expressions... expressions)

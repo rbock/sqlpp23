@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp26/core/basic/value.h>
-#include <sqlpp26/core/clause/expression_static_check.h>
 #include <sqlpp26/core/logic.h>
 #include <sqlpp26/core/query/dynamic.h>
 #include <sqlpp26/core/query/statement.h>
@@ -56,29 +55,6 @@ auto to_sql_string(Context& context, const where_t<Expression>& t)
     -> std::string {
   return dynamic_clause_to_sql_string(context, "WHERE", read.expression(t));
 }
-
-class assert_no_unknown_tables_in_where_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in where() requires a table "
-                        "which is otherwise "
-                        "not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_in_where_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one expression in where() statically "
-                        "requires a table which is "
-                        "only known dynamically in the statement");
-  }
-};
 
 template <typename Expression>
 struct is_clause<where_t<Expression>> : public std::true_type {};

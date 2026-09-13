@@ -30,7 +30,6 @@
 #include <stdexcept>
 #include <tuple>
 
-#include <sqlpp26/core/clause/expression_static_check.h>
 #include <sqlpp26/core/clause/simple_column.h>
 #include <sqlpp26/core/concepts.h>
 #include <sqlpp26/core/detail/type_set.h>

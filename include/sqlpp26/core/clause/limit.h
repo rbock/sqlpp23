@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/core/clause/expression_static_check.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/reader.h>

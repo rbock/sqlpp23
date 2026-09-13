@@ -75,12 +75,10 @@ inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 #include <type_traits>
 #include <vector>
 
-#include <sqlpp26/core/consistent.h>
 #include <sqlpp26/core/detail/get_first.h>
 #include <sqlpp26/core/detail/type_set.h>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
-#include <sqlpp26/core/wrapped_static_assert.h>
 
 namespace sqlpp {
 template <typename T>
@@ -437,7 +435,7 @@ template <typename Statement, typename Clause>
 struct basic_consistency_check;
 
 // Check if a clause within a statement is ready to be used in a prepared
-// statement. This used in addition to the `consistency_check`.
+// statement. This used in addition to the `basic_consistency_check`.
 //
 // Implementation is optional for clauses, but it might be useful to check for
 // missing tables.
@@ -447,7 +445,7 @@ struct prepare_check {
 };
 
 // Check if a clause within a statement is ready to be run by the connection.
-// This used in addition to the `consistency_check`.
+// This used in addition to the `prepare_consistency_check`.
 //
 // Implementation is optional for clauses, but it might be useful to check for
 // missing tables.

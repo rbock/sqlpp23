@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp26/core/basic/value.h>
-#include <sqlpp26/core/clause/expression_static_check.h>
 #include <sqlpp26/core/concepts.h>
 #include <sqlpp26/core/logic.h>
 #include <sqlpp26/core/query/statement.h>

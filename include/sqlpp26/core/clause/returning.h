@@ -44,18 +44,6 @@ namespace sqlpp {
 // RETURNING is used in DELETE, INSERT, and UPDATE statements in
 // * PostgreSQL
 // * sqlite3
-
-class assert_no_unknown_tables_in_returning_columns_t
-    : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "at least one returning column requires a table "
-                        "which is otherwise not known in the statement");
-  }
-};
-
 template <typename... Columns>
 struct returning_t {
   constexpr returning_t(std::tuple<Columns...> columns)

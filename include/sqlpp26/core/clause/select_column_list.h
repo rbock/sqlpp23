@@ -29,11 +29,9 @@
 
 #include <stdexcept>
 #include <tuple>
-#include "sqlpp26/core/detail/type_info_set.h"
 
 #include <sqlpp26/core/basic/table.h>
 #include <sqlpp26/core/field_spec.h>
-//#include <sqlpp26/core/clause/expression_static_check.h>
 //#include <sqlpp26/core/clause/select_as.h>
 #include <sqlpp26/core/clause/select_column_traits.h>
 //#include <sqlpp26/core/clause/select_columns_aggregate_check.h>

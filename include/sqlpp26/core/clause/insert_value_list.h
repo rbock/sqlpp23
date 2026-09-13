@@ -40,9 +40,7 @@
 #include <sqlpp26/core/reader.h>
 #include <sqlpp26/core/tuple_to_sql_string.h>
 #include <sqlpp26/core/type_traits.h>
-#include <sqlpp26/core/wrapped_static_assert.h>
 #include <stdexcept>
-#include "sqlpp26/core/detail/type_set.h"
 
 namespace sqlpp {
 namespace detail {

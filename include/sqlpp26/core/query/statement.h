@@ -41,151 +41,17 @@
 #include <sqlpp26/core/result.h>
 #include <sqlpp26/core/result_type_provider.h>
 #include <sqlpp26/core/to_sql_string.h>
-#include <sqlpp26/core/wrapped_static_assert.h>
 #include <type_traits>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/indices.h>
 
 namespace sqlpp {
-class assert_no_unknown_ctes_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "one clause requires common table expressions "
-                        "which are otherwise not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_ctes_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "one clause statically requires common table "
-                        "expressions which are only "
-                        "known dynamically in the statement");
-  }
-};
-
-class assert_no_unknown_tables_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "one clause requires tables which are otherwise "
-                        "not known in the statement");
-  }
-};
-
-class assert_no_unknown_static_tables_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                        "one clause statically requires tables which are "
-                        "only known dynamically in the statement");
-  }
-};
-
-class assert_no_duplicate_table_providers_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(
-        wrong<T...>,
-        "at least one table is provided by two clauses, e.g. FROM and USING");
-  }
-};
-
-class assert_no_parameters_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>,
-                  "cannot execute statements with parameters directly, use "
-                  "prepare instead");
-  }
-};
-
 template <typename... Clauses>
 using result_methods_t =
     result_methods_of_t<result_type_provider_t<Clauses...>>;
 
 template <typename... Clauses>
 struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
-  // Calculate provided/required CTEs and tables across all clauses
-  /*
-  using _all_provided_tables =
-      detail::make_joined_set_t<provided_tables_of_t<Clauses>...>;
-  using _all_provided_static_tables =
-      detail::make_joined_set_t<provided_static_tables_of_t<Clauses>...>;
-
-  using _all_required_tables =
-      detail::make_joined_set_t<required_tables_of_t<Clauses>...>;
-  using _all_required_static_tables =
-      detail::make_joined_set_t<required_static_tables_of_t<Clauses>...>;
-
-  using _all_provided_ctes =
-      detail::make_joined_set_t<provided_ctes_of_t<Clauses>...>;
-  using _all_provided_static_ctes =
-      detail::make_joined_set_t<provided_static_ctes_of_t<Clauses>...>;
-
-  using _all_required_ctes =
-      detail::make_joined_set_t<required_ctes_of_t<Clauses>...>;
-  using _all_required_static_ctes =
-      detail::make_joined_set_t<required_static_ctes_of_t<Clauses>...>;
-
-  using _all_provided_static_aggregates = detail::make_joined_set_t<
-      known_static_aggregate_columns_of_t<Clauses>...>;
-  using _all_provided_aggregates =
-      detail::make_joined_set_t<known_aggregate_columns_of_t<Clauses>...>;
-
-  // Calculate the unknown (i.e. required but not provided) tables and CTEs
-  using _unknown_required_tables_of =
-      detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
-  using _unknown_required_static_tables_of =
-      detail::make_difference_set_t<_all_required_static_tables,
-                                    _all_provided_static_tables>;
-  using _unknown_required_ctes_of =
-      detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
-  using _unknown_required_static_ctes_of =
-      detail::make_difference_set_t<_all_required_static_ctes,
-                                    _all_provided_static_ctes>;
-
-  template <typename Expression>
-  static constexpr bool _no_unknown_tables =
-      _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
-
-  template <typename Expression>
-  static constexpr bool _no_unknown_static_tables =
-      _all_provided_static_tables::contains_all(
-          required_static_tables_of_t<Expression>{});
-
-  using _result_type_provider =
-      detail::get_last_if_t<is_result_clause, noop, Clauses...>;
-
-  using _table_check = static_combined_check_t<
-      static_check_t<_unknown_required_tables_of::empty(),
-                     assert_no_unknown_tables_t>,
-      static_check_t<_unknown_required_static_tables_of::empty(),
-                     assert_no_unknown_static_tables_t>,
-      static_check_t<
-          detail::are_disjoint<provided_tables_of_t<Clauses>...>::value,
-          assert_no_duplicate_table_providers_t>>;
-  using _cte_check = static_combined_check_t<
-      static_check_t<_unknown_required_ctes_of::empty(),
-                     assert_no_unknown_ctes_t>,
-      static_check_t<_unknown_required_static_ctes_of::empty(),
-                     assert_no_unknown_static_ctes_t>>;
-                     */
-
-  /*
-  using _parameters = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
-
-  using _parameter_check =
-      static_check_t<_parameters::empty(), assert_no_parameters_t>;
-      */
   // TODO: Need to write a type test!
   static consteval auto get_provided_ctes_of() -> detail::type_info_set {
     return detail::make_joined_type_info_set(
