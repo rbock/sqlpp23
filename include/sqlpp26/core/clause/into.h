@@ -70,8 +70,9 @@ struct nodes_of<into_t<Table>> {
 };
 
 template <typename Table>
-struct required_insert_columns_of<into_t<Table>>
-    : public required_insert_columns_of<Table> {};
+consteval detail::type_info_set get_required_insert_columns_of(type_v<into_t<Table>>) {
+  return get_required_insert_columns_of(type_v<Table>{});
+}
 
 template <typename Table>
 consteval detail::type_info_set get_provided_tables_of(type_v<into_t<Table>>) {

@@ -37,21 +37,21 @@ void test_required_insert_columns_of() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
 
-  static_assert(sqlpp::required_insert_columns_of<test::tab_foo>::func().empty(), "");
-  static_assert(not sqlpp::required_insert_columns_of<test::tab_bar>::func().empty(), "");
+  static_assert(sqlpp::get_required_insert_columns_of(sqlpp::type_v<test::tab_foo>{}).empty(), "");
+  static_assert(not sqlpp::get_required_insert_columns_of(sqlpp::type_v<test::tab_bar>{}).empty(), "");
 
   {
     using I = decltype(insert_into(foo));
 
-    static_assert(sqlpp::required_insert_columns_of<I>::func() ==
-                  sqlpp::required_insert_columns_of<test::tab_foo>::func());
+    static_assert(sqlpp::get_required_insert_columns_of(sqlpp::type_v<I>{}) ==
+                  sqlpp::get_required_insert_columns_of(sqlpp::type_v<test::tab_foo>{}));
   }
 
   {
     using I = decltype(insert_into(bar));
 
-    static_assert(sqlpp::required_insert_columns_of<I>::func() ==
-                  sqlpp::required_insert_columns_of<test::tab_bar>::func());
+    static_assert(sqlpp::get_required_insert_columns_of(sqlpp::type_v<I>{}) ==
+                  sqlpp::get_required_insert_columns_of(sqlpp::type_v<test::tab_bar>{}));
   }
 }
 
@@ -60,7 +60,7 @@ void test_insert_set() {
   const auto bar = test::tab_bar{};
 
   // Confirming the required columns of tab_bar.
-  static_assert(sqlpp::required_insert_columns_of<test::tab_bar>::func() == 
+  static_assert(sqlpp::get_required_insert_columns_of(sqlpp::type_v<test::tab_bar>{}) == 
                              sqlpp::detail::make_type_info_set<decltype(bar.bool_nn)>());
 
   // Test nodes_of

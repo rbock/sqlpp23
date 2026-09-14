@@ -377,9 +377,9 @@ template <typename T>
 struct is_pre_join : public std::false_type {};
 
 template <typename T>
-struct required_insert_columns_of {
-  static consteval detail::type_info_set func() { return {}; }
-};
+consteval detail::type_info_set get_required_insert_columns_of(type_v<T>) {
+  return {};
+}
 
 template <typename T>
 struct is_clause : public std::false_type {};

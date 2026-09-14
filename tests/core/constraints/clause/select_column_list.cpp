@@ -56,11 +56,6 @@ int main() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
 
-  // Confirming the required columns of tab_bar.
-  static_assert(sqlpp::required_insert_columns_of<test::tab_bar>::func() ==
-                             sqlpp::detail::make_type_info_set<sqlpp::column<
-                                 test::tab_bar, 2>>());
-
   // -------------------------
   // select() can be constructed, but is inconsistent since not columns are
   // selected.

@@ -48,7 +48,7 @@ namespace detail {
 template <typename Statement, typename... Columns>
 consteval void have_all_required_columns() {
   static constexpr auto required_columns =
-      std::define_static_array(required_insert_columns_of<Statement>::func());
+      std::define_static_array(get_required_insert_columns_of(type_v<Statement>{}));
   template for (constexpr auto& info : required_columns) {
     if (not std::ranges::contains(detail::make_type_info_set<Columns...>(),
                                   info)) {
@@ -134,7 +134,7 @@ template <typename Statement>
 struct basic_consistency_check<Statement, insert_default_values_t> {
   static constexpr auto verify() {
     static constexpr auto required_columns =
-        std::define_static_array(required_insert_columns_of<Statement>::func());
+        std::define_static_array(get_required_insert_columns_of(type_v<Statement>{}));
     template for (constexpr auto& info : required_columns) {
       using Column = typename[:info:];
       throw std::domain_error(

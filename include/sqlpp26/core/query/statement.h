@@ -298,11 +298,10 @@ struct compatibility_check<Context, statement_t<Clauses...>> {
 };
 
 template <typename... Clauses>
-struct required_insert_columns_of<statement_t<Clauses...>> {
-  static consteval detail::type_info_set func() {
-      return detail::make_joined_type_info_set(required_insert_columns_of<Clauses>::func()...);
-  }
-};
+consteval detail::type_info_set get_required_insert_columns_of(type_v<statement_t<Clauses...>>) {
+  return detail::make_joined_type_info_set(
+      get_required_insert_columns_of(type_v<Clauses>{})...);
+}
 
 template <typename... Clauses>
 struct parameters_of<statement_t<Clauses...>> {

@@ -82,7 +82,7 @@ int main() {
 
   // Confirming the required columns of tab_bar.
   static_assert(
-      sqlpp::required_insert_columns_of<test::tab_bar>::func() ==
+      sqlpp::get_required_insert_columns_of(sqlpp::type_v<test::tab_bar>{}) ==
       sqlpp::detail::make_type_info_set<sqlpp::column<test::tab_bar, 2>>());
 
   // -------------------------
