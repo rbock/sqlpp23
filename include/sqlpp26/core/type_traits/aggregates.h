@@ -27,11 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp26/core/detail/type_info_set.h>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/logic.h>
 #include <sqlpp26/core/query/dynamic_fwd.h>
 #include <sqlpp26/core/type_traits/nodes_of.h>
-#include "sqlpp26/core/detail/type_info_set.h"
+#include <sqlpp26/core/type_v.h>
 
 namespace sqlpp {
 // We don't want to mix aggregate and non-aggregate expressions as the results
@@ -66,13 +67,13 @@ struct contains_aggregate_function<detail::type_vector<T...>>
 
 // Obtain known aggregate columns, i.e. GROUP BY columns.
 template <typename T>
-struct known_aggregate_columns_of {
-  static consteval detail::type_info_set func() { return {}; }
+consteval detail::type_info_set get_known_aggregate_columns_of(type_v<T>) {
+  return {};
 };
 
 template <typename T>
-struct known_static_aggregate_columns_of {
-  static consteval detail::type_info_set func() { return {}; }
+consteval detail::type_info_set get_known_static_aggregate_columns_of(type_v<T>) {
+  return {};
 };
 
 template <typename T>
@@ -84,7 +85,7 @@ struct is_aggregate_neutral : public std::true_type {};
 //  - T is aggregate-neutral, or
 //  - T exclusively exists of aggregate expressions.
 // @KnownAggregateColumns: type_set as obtained through
-// known_aggregate_columns_of
+// get_known_aggregate_columns_of
 template <typename Statement, typename... T>
 consteval auto is_aggregate_expression(const detail::type_vector<T...>&) -> bool;
 
@@ -92,7 +93,7 @@ template <typename Statement, typename T>
 consteval auto is_aggregate_expression() -> bool {
   if (is_aggregate_function_v<T>) {
     return true;
-  } else if (std::ranges::contains(Statement::get_known_aggregate_columns_of(), ^^T)) {
+  } else if (std::ranges::contains(get_known_aggregate_columns_of_statement(type_v<Statement>{}), ^^T)) {
     return true;
   } else if (not nodes_of_t<T>::empty()) {
     return is_aggregate_expression<Statement>(nodes_of_t<T>{});
@@ -107,7 +108,7 @@ consteval auto is_aggregate_expression(const detail::type_vector<T...>&) -> bool
 
 // Checks if the static part of T is an aggregate expression, see above.
 // @KnownStaticAggregateColumns: type_set as obtained through
-// known_static_aggregate_columns_of_t
+// get_known_static_aggregate_columns_of
 template <typename Statement, typename... T>
 consteval auto static_part_is_aggregate_expression(const detail::type_vector<T...>&) -> bool;
 
@@ -117,7 +118,7 @@ consteval auto static_part_is_aggregate_expression() -> bool {
     return true;
   } else if (is_aggregate_function_v<T>) {
     return true;
-  } else if (std::ranges::contains(Statement::get_known_static_aggregate_columns_of(), ^^T)) {
+  } else if (std::ranges::contains(get_known_static_aggregate_columns_of_statement(type_v<Statement>{}), ^^T)) {
     return true;
   } else if (not nodes_of_t<T>::empty()) {
     return static_part_is_aggregate_expression<Statement>(nodes_of_t<T>{});
@@ -136,7 +137,7 @@ consteval auto static_part_is_aggregate_expression(const detail::type_vector<T..
 //  - T exclusively exists of non-aggregate expressions, or
 //  - T is aggregate-neutral
 // @KnownAggregateColumns: type_set as obtained through
-// known_aggregate_columns_of
+// get_known_aggregate_columns_of
 template <typename Statement, typename... T>
 consteval auto is_non_aggregate_expression(const detail::type_vector<T...>&) -> bool;
 
@@ -144,7 +145,7 @@ template <typename Statement, typename T>
 consteval auto is_non_aggregate_expression() -> bool {
 if (is_aggregate_function_v<T>) {
     return false;
-  } else if (std::ranges::contains(Statement::get_known_aggregate_columns_of(), ^^T)) {
+  } else if (std::ranges::contains(get_known_aggregate_columns_of_statement(type_v<Statement>{}), ^^T)) {
     return false;
   } else if (is_non_aggregate_expression<Statement>(nodes_of_t<T>{})) {
     return true;

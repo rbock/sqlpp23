@@ -79,6 +79,20 @@ namespace sqlpp {
         get_provided_optional_tables_of(type_v<Clauses>{})...);
   }
 
+  template <typename... Clauses>
+  static consteval auto get_known_aggregate_columns_of_statement(type_v<statement_t<Clauses...>>)
+      -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_known_aggregate_columns_of(type_v<Clauses>{})...);
+  }
+
+  template <typename... Clauses>
+  static consteval auto get_known_static_aggregate_columns_of_statement(type_v<statement_t<Clauses...>>)
+      -> detail::type_info_set {
+    return detail::make_joined_type_info_set(
+        get_known_static_aggregate_columns_of(type_v<Clauses>{})...);
+  }
+
 template <typename... Clauses>
 using result_methods_t =
     result_methods_of_t<result_type_provider_t<Clauses...>>;
@@ -155,18 +169,6 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
             std::string_view{Name}, std::string_view{name_of_v<table>}));
       }
     }
-  }
-
-  static consteval auto get_known_aggregate_columns_of()
-      -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        known_aggregate_columns_of<Clauses>::func()...);
-  }
-
-  static consteval auto get_known_static_aggregate_columns_of()
-      -> detail::type_info_set {
-    return detail::make_joined_type_info_set(
-        known_static_aggregate_columns_of<Clauses>::func()...);
   }
 
   static consteval void check_basic_consistency() {

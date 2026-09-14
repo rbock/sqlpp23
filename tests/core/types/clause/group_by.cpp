@@ -38,49 +38,49 @@ void test_group_by() {
   // Static columns are listed as such in known_aggregate_columns_of_t.
   {
     using G = extract_clause_t<decltype(group_by(id))>;
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func().size() == 1);
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}).size() == 1);
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id>());
-    static_assert(sqlpp::known_static_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_static_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id>());
   }
   {
     using G = extract_clause_t<decltype(group_by(id, text_nn_d))>;
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id, TextNnD>());
-    static_assert(sqlpp::known_static_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_static_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id, TextNnD>());
   }
 
   // Dynamic columns are are not listed in known_static_aggregate_columns_of_t.
   {
     using G = extract_clause_t<decltype(group_by(dynamic(true, id)))>;
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id>());
-    static_assert(sqlpp::known_static_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_static_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
   {
     using G = extract_clause_t<decltype(group_by(id, dynamic(true, text_nn_d)))>;
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id, TextNnD>());
-    static_assert(sqlpp::known_static_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_static_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<Id>());
   }
 
   // Declared columns are listed similar to regular columns.
   {
     using G = extract_clause_t<decltype(group_by(v))>;
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<V>());
-    static_assert(sqlpp::known_static_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_static_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<V>());
   }
   {
     using G = extract_clause_t<decltype(group_by(dynamic(true, v)))>;
-    static_assert(sqlpp::known_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<V>());
-    static_assert(sqlpp::known_static_aggregate_columns_of<G>::func() ==
+    static_assert(sqlpp::get_known_static_aggregate_columns_of(sqlpp::type_v<G>{}) ==
                   sqlpp::detail::make_type_info_set<>());
   }
 }

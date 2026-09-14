@@ -83,7 +83,7 @@ struct basic_consistency_check<Statement, order_by_t<Expressions...>> {
 
     // In case of no known aggregate columns all of the order by expressions
     // have to be non-aggregates.
-    if (Statement::get_known_aggregate_columns_of().empty()) {
+    if (get_known_aggregate_columns_of_statement(type_v<Statement>{}).empty()) {
       if (not logic::all<
               is_non_aggregate_expression<Statement, Expressions>()...>::value) {
         // TODO: Make error messages more useful

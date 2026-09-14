@@ -183,7 +183,7 @@ struct basic_consistency_check<
     // - all columns are aggregates
     // - no columns contain aggregates
     // have to be non-aggregates.
-    if (Statement::get_known_aggregate_columns_of().empty()) {
+    if (get_known_aggregate_columns_of_statement(type_v<Statement>{}).empty()) {
       if (not logic::all<
               is_non_aggregate_expression<Statement, Columns>()...>::value and 
           not logic::all<is_aggregate_expression<Statement, Columns>()...>::value) {
