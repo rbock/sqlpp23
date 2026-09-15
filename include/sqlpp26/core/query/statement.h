@@ -93,20 +93,15 @@ namespace sqlpp {
         get_known_static_aggregate_columns_of(type_v<Clauses>{})...);
   }
 
-template <typename... Clauses>
-using result_methods_t =
-    result_methods_of_t<result_type_provider_t<Clauses...>>;
-
-template <typename... Clauses>
-struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
-  template <typename Clause, fixed_string Name>
-  static consteval void check_cte_consistency() {
+  template <typename Clause, fixed_string Name, typename... Clauses>
+  static consteval void check_cte_consistency(type_v<statement_t<Clauses...>>) {
+    using Statement = statement_t<Clauses...>;
     static constexpr auto required_ctes =
         std::define_static_array(get_required_ctes_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_ctes) {
       // TODO: Use .contains() when it is supported in consteval
       if (not std::ranges::contains(
-              get_provided_ctes_of_statement(type_v<statement_t>{}), info)) {
+              get_provided_ctes_of_statement(type_v<Statement>{}), info)) {
         using cte = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause requires cte {} which is not known "
@@ -116,15 +111,18 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
-  template <typename Clause, fixed_string Name>
-  static consteval void check_static_cte_consistency() {
+  template <typename Clause, fixed_string Name, typename... Clauses>
+  static consteval void check_static_cte_consistency(type_v<statement_t<Clauses...>>) {
+    using Statement = statement_t<Clauses...>;
     static constexpr auto required_static_ctes =
         std::define_static_array(get_required_static_ctes_of(type_v<Clause>{}));
     template for (constexpr auto& info : required_static_ctes) {
       // TODO: Use .contains() when it is supported in consteval
-      if (std::ranges::contains(get_provided_ctes_of_statement(type_v<statement_t>{}), info) and
-          not std::ranges::contains(get_provided_static_ctes_of_statement(type_v<statement_t>{}),
-                                    info)) {
+      if (std::ranges::contains(
+              get_provided_ctes_of_statement(type_v<Statement>{}), info) and
+          not std::ranges::contains(
+              get_provided_static_ctes_of_statement(type_v<Statement>{}),
+              info)) {
         using cte = typename[:info:];
         throw std::domain_error(std::format(
             "The {}-clause statically requires cte {} which is "
@@ -134,6 +132,12 @@ struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
     }
   }
 
+template <typename... Clauses>
+using result_methods_t =
+    result_methods_of_t<result_type_provider_t<Clauses...>>;
+
+template <typename... Clauses>
+struct statement_t : public Clauses..., public result_methods_t<Clauses...> {
   template <typename Clause, fixed_string Name>
   static consteval void check_table_consistency() {
     static constexpr auto required_tables =

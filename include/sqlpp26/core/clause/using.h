@@ -74,8 +74,8 @@ template <typename Statement, typename _Table>
 struct basic_consistency_check<Statement, using_t<_Table>> {
   static consteval void verify() {
     using Clause = using_t<_Table>;
-    Statement::template check_static_cte_consistency<Clause, "using">();
-    Statement::template check_cte_consistency<Clause, "using">();
+    check_static_cte_consistency<Clause, "using">(type_v<Statement>{});
+    check_cte_consistency<Clause, "using">(type_v<Statement>{});
   }
 };
 
