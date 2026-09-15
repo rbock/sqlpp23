@@ -67,7 +67,8 @@ template <typename Select>
   requires(is_statement<Select>::value and has_result_row<Select>::value)
 constexpr auto exists(Select expression) -> exists_expression<Select> {
   consteval {
-    Select::check_basic_consistency();
+    // TODO Require compile fail test
+    check_basic_consistency(type_v<Select>{});
   }
   return exists_expression<Select>{std::move(expression)};
 }

@@ -83,8 +83,8 @@ struct basic_consistency_check<
     on_conflict_do_update_where_t<OnConflictUpdate, Expression>> {
   static consteval void verify() {
     using Clause = on_conflict_do_update_where_t<OnConflictUpdate, Expression>;
-    Statement::template check_static_table_consistency<Clause, "on_conflict.do_update.where">();
-    Statement::template check_table_consistency<Clause, "on_conflict.do_update.where">();
+    check_static_table_consistency<Clause, "on_conflict.do_update.where">(type_v<Statement>{});
+    check_table_consistency<Clause, "on_conflict.do_update.where">(type_v<Statement>{});
   }
 };
 
@@ -143,8 +143,8 @@ struct basic_consistency_check<
     on_conflict_do_update_t<OnConflict, Assignments...>> {
   static consteval void verify() {
     using Clause = on_conflict_do_update_t<OnConflict, Assignments...>;
-    Statement::template check_static_table_consistency<Clause, "on_conflict.do_update">();
-    Statement::template check_table_consistency<Clause, "on_conflict.do_update">();
+    check_static_table_consistency<Clause, "on_conflict.do_update">(type_v<Statement>{});
+    check_table_consistency<Clause, "on_conflict.do_update">(type_v<Statement>{});
   }
 };
 

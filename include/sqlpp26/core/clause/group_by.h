@@ -66,7 +66,7 @@ template <typename Statement, typename... Expressions>
 struct basic_consistency_check<Statement, group_by_t<Expressions...>> {
   static consteval void verify() {
     using Clause = group_by_t<Expressions...>;
-    Statement::template check_static_table_consistency<Clause, "group_by">();
+    check_static_table_consistency<Clause, "group_by">(type_v<Statement>{});
   }
 };
 
@@ -74,7 +74,7 @@ template <typename Statement, typename... Expressions>
 struct prepare_check<Statement, group_by_t<Expressions...>> {
   static constexpr void verify() {
     using Clause = group_by_t<Expressions...>;
-    Statement::template check_table_consistency<Clause, "group_by">();
+    check_table_consistency<Clause, "group_by">(type_v<Statement>{});
   }
 };
 

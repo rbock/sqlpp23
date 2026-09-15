@@ -63,7 +63,7 @@ template <typename Statement, typename Expression>
 struct basic_consistency_check<Statement, where_t<Expression>> {
   static constexpr void verify() {
     using Clause = where_t<Expression>;
-    Statement::template check_static_table_consistency<Clause, "where">();
+    check_static_table_consistency<Clause, "where">(type_v<Statement>{});
   }
 };
 
@@ -71,7 +71,7 @@ template <typename Statement, typename Expression>
 struct prepare_check<Statement, where_t<Expression>> {
   static constexpr void verify() {
     using Clause = where_t<Expression>;
-    Statement::template check_table_consistency<Clause, "where">();
+    check_table_consistency<Clause, "where">(type_v<Statement>{});
   }
 };
 

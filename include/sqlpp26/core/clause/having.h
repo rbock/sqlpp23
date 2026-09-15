@@ -69,7 +69,7 @@ template <typename Statement, typename Expression>
 struct basic_consistency_check<Statement, having_t<Expression>> {
   static constexpr void verify() {
     using Clause = having_t<Expression>;
-    Statement::template check_static_table_consistency<Clause, "having">();
+    check_static_table_consistency<Clause, "having">(type_v<Statement>{});
     if constexpr (not is_aggregate_expression<Statement, Expression>()) {
       throw std::domain_error(
           "having expression not built out of aggregate expressions");
@@ -86,7 +86,7 @@ template <typename Statement, typename Expression>
 struct prepare_check<Statement, having_t<Expression>> {
   static constexpr void verify() {
     using Clause = having_t<Expression>;
-    Statement::template check_table_consistency<Clause, "having">();
+    check_table_consistency<Clause, "having">(type_v<Statement>{});
   }
 };
 

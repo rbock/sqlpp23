@@ -75,7 +75,8 @@ struct returning_column_list_result_methods_t {
     // This ensures that the sub select is free of table/CTE dependencies and
     // consistent.
     consteval {
-      std::decay_t<Statement>::check_prepare_consistency();
+      // TODO Require compile fail test
+      check_prepare_consistency(type_v<std::decay_t<Statement>>{});
     }
 
     using table =
@@ -137,7 +138,7 @@ template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, returning_t<Columns...>> {
   static constexpr void verify() {
     using Clause = returning_t<Columns...>;
-    Statement::template check_static_table_consistency<Clause, "returning">();
+    check_static_table_consistency<Clause, "returning">(type_v<Statement>{});
 
     if constexpr (contains_aggregate_function<Clause>::value) {
       throw std::domain_error("returning columns must not contain aggregate functions");
@@ -149,7 +150,7 @@ template <typename Statement, typename... Columns>
 struct prepare_check<Statement, returning_t<Columns...>> {
   static constexpr void verify() {
     using Clause = returning_t<Columns...>;
-    Statement::template check_table_consistency<Clause, "returning">();
+    check_table_consistency<Clause, "returning">(type_v<Statement>{});
   }
 };
 

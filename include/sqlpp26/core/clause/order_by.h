@@ -79,7 +79,7 @@ template <typename Statement, typename... Expressions>
 struct basic_consistency_check<Statement, order_by_t<Expressions...>> {
   static constexpr void verify() {
     using Clause = order_by_t<Expressions...>;
-    Statement::template check_static_table_consistency<Clause, "order_by">();
+    check_static_table_consistency<Clause, "order_by">(type_v<Statement>{});
 
     // In case of no known aggregate columns all of the order by expressions
     // have to be non-aggregates.
@@ -111,7 +111,7 @@ template <typename Statement, typename... Expressions>
 struct prepare_check<Statement, order_by_t<Expressions...>> {
   static constexpr void verify() {
     using Clause = order_by_t<Expressions...>;
-    Statement::template check_table_consistency<Clause, "order_by">();
+    check_table_consistency<Clause, "order_by">(type_v<Statement>{});
   }
 };
 

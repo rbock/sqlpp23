@@ -308,7 +308,8 @@ struct cte_ref_t {
                  ^^cte_ref_t<Name>))
   auto as(Statement statement) const -> cte_t<Name, Statement> {
     consteval {
-      Statement::check_basic_consistency();
+      // TODO Require compile fail test
+      check_basic_consistency(type_v<Statement>{});
     }
     return {std::move(statement)};
   }

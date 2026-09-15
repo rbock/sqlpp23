@@ -57,7 +57,7 @@ void test_result_row(Value v) {
   auto s = select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null);
   using S = decltype(s);
   consteval {
-    S::check_run_consistency();
+    check_run_consistency(sqlpp::type_v<S>{});
   }
 
   // result_t::iterator is an input iterator

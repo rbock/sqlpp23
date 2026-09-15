@@ -76,7 +76,7 @@ void test_insert_set() {
   {
     using I = decltype(insert_into(bar).set(bar.bool_nn = true));
     consteval {
-      I::check_basic_consistency();
+      check_basic_consistency(sqlpp::type_v<I>{});
     }
   }
 
@@ -85,7 +85,7 @@ void test_insert_set() {
     using I = decltype(insert_into(bar).set(bar.int_n = sqlpp::default_value,
                                             bar.bool_nn = true));
     consteval {
-      I::check_basic_consistency();
+      check_basic_consistency(sqlpp::type_v<I>{});
     }
   }
 
@@ -129,7 +129,9 @@ void test_insert_columns() {
   // consistent
   {
     using I = decltype(insert_into(bar).columns(bar.int_n, bar.bool_nn));
-      I::check_basic_consistency();
+    consteval {
+      check_basic_consistency(sqlpp::type_v<I>{});
+    }
   }
 
   // insert_into(tableA).columns(decent set of columns from tableB) is not

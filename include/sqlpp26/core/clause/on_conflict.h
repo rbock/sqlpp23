@@ -93,8 +93,8 @@ template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, on_conflict_t<Columns...>> {
   static constexpr void verify() {
     using Clause = on_conflict_t<Columns...>;
-    Statement::template check_static_table_consistency<Clause, "on_conflict">();
-    Statement::template check_table_consistency<Clause, "on_conflict">();
+    check_static_table_consistency<Clause, "on_conflict">(type_v<Statement>{});
+    check_table_consistency<Clause, "on_conflict">(type_v<Statement>{});
     throw std::domain_error("either do_nothing() or do_update(...) is required with on_conflict");
   }
 };

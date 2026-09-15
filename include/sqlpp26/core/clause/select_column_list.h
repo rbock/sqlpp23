@@ -130,7 +130,8 @@ struct select_result_methods_t {
     // This ensures that the sub select is free of table/CTE dependencies and
     // consistent.
     consteval {
-      std::decay_t<Statement>::check_prepare_consistency();
+      // TODO Require compile fail test
+      check_prepare_consistency(type_v<std::decay_t<Statement>>{});
     }
 
     using table =
@@ -177,7 +178,7 @@ struct basic_consistency_check<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   static constexpr void verify() {
     using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
-    Statement::template check_static_table_consistency<Clause, "select-columns">();
+    check_static_table_consistency<Clause, "select-columns">(type_v<Statement>{});
 
     // In case of no known aggregate columns either
     // - all columns are aggregates
@@ -214,7 +215,7 @@ struct prepare_check<
     select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>> {
   static constexpr void verify() {
     using Clause = select_column_list_t<std::tuple<Flags...>, std::tuple<Columns...>>;
-    Statement::template check_table_consistency<Clause, "select-columns">();
+    check_table_consistency<Clause, "select-columns">(type_v<Statement>{});
   }
 };
 

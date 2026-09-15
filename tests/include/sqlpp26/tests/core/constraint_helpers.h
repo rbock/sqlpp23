@@ -37,7 +37,7 @@ template <typename S, sqlpp::fixed_string Expected>
 consteval auto check_basic_consistency_message() -> std::string_view {
   std::string_view expected = Expected;
   try {
-    S::check_basic_consistency();
+    sqlpp::check_basic_consistency(sqlpp::type_v<std::decay_t<S>>{});
     return std::define_static_string("missing expected exception");
   } catch (const std::domain_error& e) {
     if (e.what() != expected) {
@@ -51,7 +51,7 @@ consteval auto check_basic_consistency_message() -> std::string_view {
 template <typename S>
 consteval auto check_no_basic_consistency_message() -> std::string_view {
   try {
-    S::check_basic_consistency();
+    sqlpp::check_basic_consistency(sqlpp::type_v<std::decay_t<S>>{});
     return {};
   } catch (const std::domain_error& e) {
       return std::define_static_string(std::format(
@@ -79,7 +79,7 @@ template <typename S, sqlpp::fixed_string Expected>
 consteval auto check_prepare_consistency_message() -> std::string_view {
   std::string_view expected = Expected;
   try {
-    S::check_prepare_consistency();
+    sqlpp::check_prepare_consistency(sqlpp::type_v<std::decay_t<S>>{});
     return std::define_static_string("missing expected exception");
   } catch (const std::domain_error& e) {
     if (e.what() != expected) {
@@ -93,7 +93,7 @@ consteval auto check_prepare_consistency_message() -> std::string_view {
 template <typename S>
 consteval auto check_no_prepare_consistency_message() -> std::string_view {
   try {
-    S::check_prepare_consistency();
+    sqlpp::check_prepare_consistency(sqlpp::type_v<std::decay_t<S>>{});
     return {};
   } catch (const std::domain_error& e) {
       return std::define_static_string(std::format(
@@ -121,7 +121,7 @@ template <typename S, sqlpp::fixed_string Expected>
 consteval auto check_run_consistency_message() -> std::string_view {
   std::string_view expected = Expected;
   try {
-    S::check_run_consistency();
+    sqlpp::check_run_consistency(sqlpp::type_v<std::decay_t<S>>{});
     return std::define_static_string("missing expected exception");
   } catch (const std::domain_error& e) {
     if (e.what() != expected) {
@@ -135,7 +135,7 @@ consteval auto check_run_consistency_message() -> std::string_view {
 template <typename S>
 consteval auto check_no_run_consistency_message() -> std::string_view {
   try {
-    S::check_run_consistency();
+    sqlpp::check_run_consistency(sqlpp::type_v<std::decay_t<S>>{});
     return {};
   } catch (const std::domain_error& e) {
       return std::define_static_string(std::format(

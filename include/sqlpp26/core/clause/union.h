@@ -105,24 +105,24 @@ struct nodes_of<union_t<Flag, Lhs, Rhs>> {
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct basic_consistency_check<Statement, union_t<Flag, Lhs, Rhs>> {
   static constexpr void verify() {
-    Lhs::check_basic_consistency();
-    remove_dynamic_t<Rhs>::check_basic_consistency();
+    check_basic_consistency(type_v<Lhs>{});
+    check_basic_consistency(type_v<remove_dynamic_t<Rhs>>{});
   }
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct prepare_check<Statement, union_t<Flag, Lhs, Rhs>> {
   static constexpr void verify() {
-    Lhs::check_prepare_consistency();
-    remove_dynamic_t<Rhs>::check_prepare_consistency();
+    check_prepare_consistency(type_v<Lhs>{});
+    check_prepare_consistency(type_v<remove_dynamic_t<Rhs>>{});
   }
 };
 
 template <typename Statement, typename Flag, typename Lhs, typename Rhs>
 struct run_check<Statement, union_t<Flag, Lhs, Rhs>> {
   static constexpr void verify() {
-    Lhs::check_run_consistency();
-    remove_dynamic_t<Rhs>::check_run_consistency();
+    check_run_consistency(type_v<Lhs>{});
+    check_run_consistency(type_v<remove_dynamic_t<Rhs>>{});
   }
 };
 

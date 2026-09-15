@@ -77,7 +77,8 @@ template <typename Select>
   requires(has_statement_data_type_v<Select>)
 constexpr auto any(Select s) -> any_t<value_t<Select>> {
   {
-    Select::check_basic_consistency();
+    // TODO Require compile fail test
+    check_basic_consistency(type_v<Select>{});
   }
   return {std::move(s)};
 }

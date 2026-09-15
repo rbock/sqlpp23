@@ -182,8 +182,8 @@ template <typename Statement, typename... Assignments>
 struct basic_consistency_check<Statement, insert_set_t<Assignments...>> {
   static constexpr void verify() {
     using Clause = insert_set_t<Assignments...>;
-    Statement::template check_static_table_consistency<Clause, "insert-set">();
-    Statement::template check_table_consistency<Clause, "insert-set">();
+    check_static_table_consistency<Clause, "insert-set">(type_v<Statement>{});
+    check_table_consistency<Clause, "insert-set">(type_v<Statement>{});
 
     detail::have_all_required_assignments<Statement, Assignments...>();
   }
@@ -258,8 +258,8 @@ template <typename Statement, typename... Columns>
 struct basic_consistency_check<Statement, column_list_t<Columns...>> {
   static constexpr void verify() {
     using Clause = column_list_t<Columns...>;
-    Statement::template check_static_table_consistency<Clause, "insert-columns">();
-    Statement::template check_table_consistency<Clause, "insert-columns">();
+    check_static_table_consistency<Clause, "insert-columns">(type_v<Statement>{});
+    check_table_consistency<Clause, "insert-columns">(type_v<Statement>{});
 
     detail::have_all_required_columns<Statement, Columns...>();
   }

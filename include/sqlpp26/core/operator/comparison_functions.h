@@ -137,7 +137,8 @@ template <typename L, typename Select>
 constexpr auto in(L lhs, Select arg)
     -> in_expression<L, operator_in, Select> {
   consteval {
-    Select::check_basic_consistency();
+    // TODO Require compile fail test
+    check_basic_consistency(type_v<Select>{});
   }
   return {std::move(lhs), std::move(arg)};
 }
@@ -170,7 +171,8 @@ template <typename L, typename Select>
 constexpr auto not_in(L lhs, Select arg)
     -> in_expression<L, operator_not_in, Select> {
   consteval {
-    Select::check_basic_consistency();
+    // TODO Require compile fail test
+    check_basic_consistency(type_v<Select>{});
   }
   return {std::move(lhs), std::move(arg)};
 }
