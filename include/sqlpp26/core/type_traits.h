@@ -499,7 +499,7 @@ constexpr void check_compatibility(type_v<Context>, detail::type_vector<T...>);
 
 template <typename Context, typename T>
 constexpr void check_compatibility(type_v<Context>, type_v<T>) {
-  check_compatibility(type_v<Context>{}, type_v<nodes_of_t<T>>{});
+  check_compatibility(type_v<Context>{}, nodes_of_t<T>{});
 }
 
 template <typename Context, typename...T>

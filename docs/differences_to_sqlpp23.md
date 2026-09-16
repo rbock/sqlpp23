@@ -34,6 +34,11 @@ at least one having-expression statically requires a table which is only known d
 
 insert: required column 'bool_nn' is missing
 
+Other changes:
+Using C++ type instead of placeholders. This changes APIs a bit, e.g. 
+
+cast(sqlpp::integral) -> sqlpp::cast<int64_t>()
+
 
 [**\< Index**](/docs/README.md)
 

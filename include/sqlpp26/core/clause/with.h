@@ -98,7 +98,7 @@ struct parameters_of<with_t<Ctes...>> {
 
 template <typename Context, typename... Ctes>
 constexpr void check_compatibility(type_v<Context>, type_v<with_t<Ctes...>>) {
-  check_compatibility_check(type_v<Context>{}, detail::type_vector<Ctes...>{});
+  check_compatibility(type_v<Context>{}, detail::type_vector<Ctes...>{});
 }
 
 // CTEs can depend on CTEs defined before (in the same query).

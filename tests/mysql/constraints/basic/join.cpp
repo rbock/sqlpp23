@@ -42,19 +42,11 @@ int main() {
     auto j = foo.full_outer_join(bar).on(foo.id == bar.id);
     auto f = from(j);
     auto s = select(foo.id, bar.int_n) << f;
-    auto w = with(sqlpp::cte(sqlpp::alias::a).as(s));
+    auto w = with(sqlpp::cte<"a">().as(s));
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(j)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(f)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(s)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(w)),
-                     sqlpp::mysql::assert_no_full_outer_join_t>::value);
+    expect_compatibility_fails<CTX, decltype(j), "">();
+    expect_compatibility_fails<CTX, decltype(f), "MySQL: No support for full outer join">();
+    expect_compatibility_fails<CTX, decltype(s), "MySQL: No support for full outer join">();
+    expect_compatibility_fails<CTX, decltype(w), "MySQL: No support for full outer join">();
   }
 }

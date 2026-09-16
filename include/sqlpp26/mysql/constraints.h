@@ -31,51 +31,22 @@
 #include <sqlpp26/sqlpp26.h>
 
 namespace sqlpp {
-namespace mysql {
-class assert_no_full_outer_join_t : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "MySQL: No support for full outer join");
-  }
-};
-}  // namespace mysql
 
 template <typename Lhs, typename Rhs, typename Condition>
-struct compatibility_check<mysql::context_t,
-                           join_t<Lhs, full_outer_join_t, Rhs, Condition>> {
-  using type = mysql::assert_no_full_outer_join_t;
+constexpr void check_compatibility(type_v<mysql::context_t>,
+                           type_v<join_t<Lhs, full_outer_join_t, Rhs, Condition>>) {
+  throw std::domain_error("MySQL: No support for full outer join");
 };
-
-namespace mysql {
-class assert_no_bool_cast : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "MySQL: No support for bool cast");
-  }
-};
-}  // namespace mysql
 
 template <typename Expression, typename Type>
   requires(is_boolean<Expression>::value or std::is_same_v<Type, boolean>)
-struct compatibility_check<mysql::context_t, cast_t<Expression, Type>> {
-  using type = mysql::assert_no_bool_cast;
+constexpr void check_compatibility(type_v<mysql::context_t>, type_v<cast_t<Expression, Type>>) {
+  throw std::domain_error("MySQL: No support for bool cast");
 };
-
-namespace mysql {
-class assert_no_nulls_first_last : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "MySQL: No support for NULLS FIRST or NULLS LAST");
-  }
-};
-}  // namespace mysql
 
 template <typename L>
-struct compatibility_check<mysql::context_t, sort_order_expression<L, sort_order_null>> {
-  using type = mysql::assert_no_nulls_first_last;
+constexpr void check_compatibility(type_v<mysql::context_t>, type_v<sort_order_expression<L, sort_order_null>>) {
+  throw std::domain_error("MySQL: No support for NULLS FIRST or NULLS LAST");
 };
 
 }  // namespace sqlpp

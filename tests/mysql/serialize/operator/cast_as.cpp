@@ -28,12 +28,12 @@
 
 int main() {
   // Testing data type serialization
-  SQLPP_COMPARE(cast("7", as(sqlpp::integral{})), "CAST('7' AS SIGNED INTEGER)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::unsigned_integral{})), "CAST('7' AS UNSIGNED INTEGER)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::floating_point{})), "CAST('7' AS DOUBLE)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::text{})), "CAST('7' AS CHAR)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::blob{})), "CAST('7' AS BINARY)");
-  SQLPP_COMPARE(cast("7", as(sqlpp::timestamp{})), "CAST('7' AS DATETIME)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::integral>()), "CAST('7' AS SIGNED INTEGER)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::unsigned_integral>()), "CAST('7' AS UNSIGNED INTEGER)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::floating_point>()), "CAST('7' AS DOUBLE)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::text>()), "CAST('7' AS CHAR)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::blob>()), "CAST('7' AS BINARY)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::timestamp>()), "CAST('7' AS DATETIME)");
 
   return 0;
 }
