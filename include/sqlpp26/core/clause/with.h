@@ -96,11 +96,10 @@ struct parameters_of<with_t<Ctes...>> {
   using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
 };
 
-/* TODO
 template <typename Context, typename... Ctes>
-struct compatibility_check<Context, with_t<Ctes...>>
-    : public compatibility_check<Context, detail::type_vector<Ctes...>> {};
-    */
+constexpr void check_compatibility(type_v<Context>, type_v<with_t<Ctes...>>) {
+  check_compatibility_check(type_v<Context>{}, detail::type_vector<Ctes...>{});
+}
 
 // CTEs can depend on CTEs defined before (in the same query).
 // `have_correct_cte_dependencies` checks that by walking the CTEs from left to

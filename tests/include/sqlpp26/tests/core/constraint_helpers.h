@@ -163,7 +163,7 @@ template <typename Context, typename S, sqlpp::fixed_string Expected>
 consteval auto check_compatibility_message() -> std::string_view {
   std::string_view expected = Expected;
   try {
-    sqlpp::compatibility_check<Context, S>::verify();
+    sqlpp::check_compatibility(sqlpp::type_v<Context>{}, sqlpp::type_v<std::decay_t<S>>{});
     return std::define_static_string("missing expected exception");
   } catch (const std::domain_error& e) {
     if (e.what() != expected) {

@@ -57,11 +57,9 @@ struct incompatible_t : public enable_as, public enable_comparison {
 
 namespace sqlpp {
 template <typename Context, typename T>
-struct compatibility_check<Context, test::incompatible_t<T>> {
-  static constexpr void verify() {
-    throw std::domain_error("No support for using incompatible expression");
-  }
-};
+constexpr void check_compatibility(type_v<Context>, type_v<test::incompatible_t<T>>) {
+  throw std::domain_error("No support for using incompatible expression");
+}
 
 template <typename T>
 struct data_type_of<test::incompatible_t<T>> {

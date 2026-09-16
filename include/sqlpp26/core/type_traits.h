@@ -494,19 +494,18 @@ struct no_of_result_columns {
 template <typename Column>
 struct is_const : public std::false_type {};
 
-template <typename Context, typename T>
-struct compatibility_check{
-  static constexpr void verify() {
-    compatibility_check<Context, nodes_of_t<T>>::verify();
-  }
-};
+template <typename Context, typename...T>
+constexpr void check_compatibility(type_v<Context>, detail::type_vector<T...>);
 
-template <typename Context, typename... Nodes>
-struct compatibility_check<Context, detail::type_vector<Nodes...>> {
-  static constexpr void verify() {
-    (compatibility_check<Context, Nodes>::verify(), ...);
-  }
-};
+template <typename Context, typename T>
+constexpr void check_compatibility(type_v<Context>, type_v<T>) {
+  check_compatibility(type_v<Context>{}, type_v<nodes_of_t<T>>{});
+}
+
+template <typename Context, typename...T>
+constexpr void check_compatibility(type_v<Context>, detail::type_vector<T...>) {
+  (check_compatibility(type_v<Context>{}, type_v<T>{}), ...);
+}
 
 template <typename T>
 struct contains_order_by {

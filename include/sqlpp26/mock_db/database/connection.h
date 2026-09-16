@@ -77,7 +77,7 @@ class connection_base : public sqlpp::connection {
   auto operator()(const T& t) {
     consteval {
       check_run_consistency(type_v<T>{});
-      compatibility_check<context_t, T>::verify();
+      check_compatibility(type_v<context_t>{}, type_v<T>{});
     }
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
@@ -174,7 +174,7 @@ class connection_base : public sqlpp::connection {
   auto prepare(const T& t) {
     consteval {
       check_prepare_consistency(type_v<T>{});
-      compatibility_check<context_t, T>::verify();
+      check_compatibility(type_v<context_t>{}, type_v<T>{});
     }
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }

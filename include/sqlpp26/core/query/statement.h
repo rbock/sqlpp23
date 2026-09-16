@@ -305,11 +305,9 @@ struct nodes_of<statement_t<Clauses...>> : public no_nodes {
 };
 
 template <typename Context, typename... Clauses>
-struct compatibility_check<Context, statement_t<Clauses...>> {
-  static constexpr void verify() {
-    compatibility_check<Context, detail::type_vector<Clauses...>>::verify();
-  }
-};
+constexpr void check_compatibility(type_v<Context>, type_v<statement_t<Clauses...>>) {
+  (check_compatibility(type_v<Context>{}, detail::type_vector<Clauses...>{}));
+}
 
 template <typename... Clauses>
 consteval detail::type_info_set get_required_insert_columns_of(type_v<statement_t<Clauses...>>) {

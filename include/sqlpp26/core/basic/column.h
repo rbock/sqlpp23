@@ -31,16 +31,15 @@
 #include <sqlpp26/core/basic/column_spec.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/core/operator/assign_expression.h>
+#include <sqlpp26/core/operator/enable_as.h>
+#include <sqlpp26/core/operator/enable_comparison.h>
 /* TODO
 #include <sqlpp26/core/default_value.h>
 #include <sqlpp26/core/detail/type_vector.h>
 #include <sqlpp26/core/operator/as_expression.h>
-#include <sqlpp26/core/operator/enable_as.h>
-#include <sqlpp26/core/operator/enable_comparison.h>
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/core/wrong.h>
 #include <type_traits>
-#include "sqlpp11/core/detail/type_set.h"
 */
 
 namespace sqlpp {
