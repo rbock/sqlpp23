@@ -37,12 +37,9 @@ int main() {
     auto cb = sqlpp::value(7).asc().nulls_last();
     auto cc = sqlpp::value(7).asc();
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(ca)),
-                               sqlpp::mysql::assert_no_nulls_first_last>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(cb)),
-                               sqlpp::mysql::assert_no_nulls_first_last>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(cc)),
-                               sqlpp::consistent_t>::value);
+    expect_compatibility_fails<CTX, decltype(ca), "MySQL: No support for NULLS FIRST or NULLS LAST">();
+    expect_compatibility_fails<CTX, decltype(cb), "MySQL: No support for NULLS FIRST or NULLS LAST">();
+    expect_compatibility_succeeds<CTX, decltype(cc)>();
   }
 
 }

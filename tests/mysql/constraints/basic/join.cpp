@@ -44,7 +44,7 @@ int main() {
     auto s = select(foo.id, bar.int_n) << f;
     auto w = with(sqlpp::cte<"a">().as(s));
 
-    expect_compatibility_fails<CTX, decltype(j), "">();
+    expect_compatibility_fails<CTX, decltype(j), "MySQL: No support for full outer join">();
     expect_compatibility_fails<CTX, decltype(f), "MySQL: No support for full outer join">();
     expect_compatibility_fails<CTX, decltype(s), "MySQL: No support for full outer join">();
     expect_compatibility_fails<CTX, decltype(w), "MySQL: No support for full outer join">();

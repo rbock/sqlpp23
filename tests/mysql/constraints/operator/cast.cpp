@@ -33,16 +33,14 @@ int main() {
 
   // No support for cast to/from bool
   {
-    auto ca = cast(std::nullopt, as(sqlpp::boolean{}));
-    auto cb = cast(7, as(sqlpp::boolean{}));
-    auto cc = cast(true, as(sqlpp::integral{}));
+    auto ca = cast(std::nullopt, sqlpp::as<bool>());
+    auto cb = cast(7, sqlpp::as<bool>());
+    auto cc = cast(true, sqlpp::as<int>());
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(ca)),
-                               sqlpp::mysql::assert_no_bool_cast>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(cb)),
-                               sqlpp::mysql::assert_no_bool_cast>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(cc)),
-                               sqlpp::mysql::assert_no_bool_cast>::value);
+    expect_compatibility_fails<CTX, decltype(ca), "MySQL: No support for bool cast">();
+    expect_compatibility_fails<CTX, decltype(cb), "MySQL: No support for bool cast">();
+    expect_compatibility_fails<CTX, decltype(cc), "MySQL: No support for bool cast">();
+
   }
 
 }
