@@ -40,13 +40,6 @@ int main() {
 
 #ifdef SQLPP_CHECK_STATIC_ASSERT
   sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
-  for (const auto& row : db(bad_statement))
-  {
-    std::ignore = row.a;
-  }
-#endif
-#ifdef SQLPP_CHECK_STATIC_ASSERT
-  sqlpp::mock_db::connection db = sqlpp::mock_db::make_test_connection();
   std::ignore = db.prepare(incompatible_select);
 #endif
 }

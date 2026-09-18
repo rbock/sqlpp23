@@ -63,33 +63,45 @@ inline auto quoted_name_to_sql_string(mysql::context_t&,
   return '`' + std::string(name) + '`';
 }
 
-inline auto data_type_to_sql_string(mysql::context_t&,
-                          const sqlpp::integral&) -> std::string {
+template <typename T>
+  requires(is_integral_v<T>)
+auto data_type_to_sql_string(mysql::context_t&)
+    -> std::string {
   return "SIGNED INTEGER";
 }
 
-inline auto data_type_to_sql_string(mysql::context_t&,
-                          const sqlpp::unsigned_integral&) -> std::string {
+template <typename T>
+  requires(is_unsigned_integral_v<T>)
+auto data_type_to_sql_string(mysql::context_t&)
+    -> std::string {
   return "UNSIGNED INTEGER";
 }
 
-inline auto data_type_to_sql_string(mysql::context_t&,
-                          const sqlpp::floating_point&) -> std::string {
+template <typename T>
+  requires(is_floating_point_v<T>)
+auto data_type_to_sql_string(mysql::context_t&)
+    -> std::string {
   return "DOUBLE";
 }
 
-inline auto data_type_to_sql_string(mysql::context_t&,
-                          const sqlpp::text&) -> std::string {
+template <typename T>
+  requires(is_text_v<T>)
+auto data_type_to_sql_string(mysql::context_t&)
+    -> std::string {
   return "CHAR";
 }
 
-inline auto data_type_to_sql_string(mysql::context_t&,
-                          const sqlpp::blob&) -> std::string {
+template <typename T>
+  requires(is_blob_v<T>)
+auto data_type_to_sql_string(mysql::context_t&)
+    -> std::string {
   return "BINARY";
 }
 
-inline auto data_type_to_sql_string(mysql::context_t&,
-                          const sqlpp::timestamp&) -> std::string {
+template <typename T>
+  requires(is_timestamp_v<T>)
+auto data_type_to_sql_string(mysql::context_t&)
+    -> std::string {
   return "DATETIME";
 }
 

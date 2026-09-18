@@ -134,8 +134,8 @@ void test_basic(Pool& pool) {
   std::clog << __func__ << '\n';
   try {
     auto db = pool.get();
-    ::test::createTabDepartment(db);
-    ::test::TabDepartment tabDept = {};
+    ::test::create_tab_department(db);
+    ::test::tab_department tabDept = {};
     db(insert_into(tabDept).default_values());
   } catch (const std::exception& e) {
     std::cerr << "Exception in " << __func__ << "\n";
@@ -170,7 +170,7 @@ template <typename Pool>
 void test_multiple_connections(Pool& pool) {
   std::clog << __func__ << '\n';
   try {
-    ::test::TabDepartment tabDept = {};
+    ::test::tab_department tabDept = {};
     auto connections =
         std::vector<typename std::decay<decltype(pool.get())>::type>{};
     auto pointers = std::unordered_set<void*>{};
@@ -209,7 +209,7 @@ void test_multithreaded(Pool& pool) {
       auto func = __func__;
       auto call_count = uniform_dist(random_engine);
       threads.push_back(std::thread([call_count, &func, &pool]() {
-        constexpr ::test::TabDepartment tabDept = {};
+        constexpr ::test::tab_department tabDept = {};
         try {
           for (auto k = 0; k < call_count; ++k) {
             auto connection = pool.get();

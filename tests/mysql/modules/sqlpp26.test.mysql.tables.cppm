@@ -12,7 +12,7 @@ import sqlpp26.core;
 namespace test {
 export template<typename Db>
 void create_tab_foo(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db(R"+++(CREATE TABLE tab_foo
 (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
@@ -39,7 +39,7 @@ export using tab_foo = ::sqlpp::table<tab_foo_>;
 
 export template<typename Db>
 void create_tab_bar(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
   db(R"+++(CREATE TABLE tab_bar
 (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +60,7 @@ export using tab_bar = ::sqlpp::table<tab_bar_>;
 
 export template<typename Db>
 void create_tab_date_time(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db(R"+++(CREATE TABLE tab_date_time (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   date_n date,
@@ -82,7 +82,7 @@ export using tab_date_time = ::sqlpp::table<tab_date_time_>;
 
 export template<typename Db>
 void create_tab_json(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_json)+++");
   db(R"+++(CREATE TABLE tab_json (
   id bigint(20) AUTO_INCREMENT PRIMARY KEY,
   data JSON NOT NULL
@@ -98,7 +98,7 @@ export using tab_json = ::sqlpp::table<tab_json_>;
 
 export template<typename Db>
 void create_tab_department(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_department)+++");
   db(R"+++(CREATE TABLE tab_department (
   id INTEGER PRIMARY KEY AUTO_INCREMENT,
   name CHAR(100),

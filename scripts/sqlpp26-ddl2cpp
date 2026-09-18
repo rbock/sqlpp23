@@ -654,7 +654,7 @@ namespace {namespace} {{
     ), file=ostream, end='')
 
     def create_commands(self, table):
-        lines = ["""  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");"""]
+        lines = [f"""  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");"""]
         for command in table.commands:
             lines.append(f"""  db(R"+++({command})+++");""")
         return "\n".join(lines);

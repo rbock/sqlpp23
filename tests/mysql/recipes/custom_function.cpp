@@ -148,18 +148,14 @@ auto to_sql_string(Context& context,
 
 }  // namespace sqlpp
 
-namespace {
-SQLPP_CREATE_NAME_TAG(difference);
-}
-
 // Testing the whole thing
 int main(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
     auto ctx = sql::context_t{&db};
 
-    auto a = cast("2001-01-01T00:00:00", as(sqlpp::timestamp{}));
-    auto b = cast("2002-01-01T00:00:00", as(sqlpp::timestamp{}));
+    auto a = cast("2001-01-01T00:00:00", sqlpp::as<sqlpp::timestamp>());
+    auto b = cast("2002-01-01T00:00:00", sqlpp::as<sqlpp::timestamp>());
 
     for (const auto& [unit, expected_diff] : {
              std::pair{example::timestamp_unit::year, 1},
@@ -170,7 +166,7 @@ int main(int, char*[]) {
              std::pair{example::timestamp_unit::second, 365 * 24 * 60 * 60},
          }) {
       for (const auto& row :
-           db(select(example::timestampdiff(unit, a, b).as(difference)))) {
+           db(select(example::timestampdiff(unit, a, b).as<"difference">()))) {
         if (row.difference != expected_diff) {
           throw std::runtime_error(std::format(
               "Unexpected diff ({}) for unit ({})",

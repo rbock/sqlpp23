@@ -12,7 +12,7 @@ import sqlpp26.core;
 namespace test {
 export template<typename Db>
 void create_tab_foo(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db(R"+++(CREATE TABLE tab_foo
 (
   id bigserial PRIMARY KEY,
@@ -40,7 +40,7 @@ export using tab_foo = ::sqlpp::table<tab_foo_>;
 
 export template<typename Db>
 void create_tab_bar(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
   db(R"+++(CREATE TABLE tab_bar
 (
   id bigserial PRIMARY KEY,
@@ -61,7 +61,7 @@ export using tab_bar = ::sqlpp::table<tab_bar_>;
 
 export template<typename Db>
 void create_tab_date_time(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db(R"+++(CREATE TABLE tab_date_time
 (
   date_n date,
@@ -84,7 +84,7 @@ export using tab_date_time = ::sqlpp::table<tab_date_time_>;
 
 export template<typename Db>
 void create_blob_sample(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS blob_sample)+++");
   db(R"+++(CREATE TABLE blob_sample (
   id bigserial PRIMARY KEY,
   data bytea
@@ -100,7 +100,7 @@ export using blob_sample = ::sqlpp::table<blob_sample_>;
 
 export template<typename Db>
 void create_tab_except(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_except)+++");
   db(R"+++(CREATE TABLE tab_except (
   int_small_n_u smallint UNIQUE,
   text_short_n text CHECK( length(text_short_n) < 5 )
@@ -116,7 +116,7 @@ export using tab_except = ::sqlpp::table<tab_except_>;
 
 export template<typename Db>
 void create_tab_department(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_department)+++");
   db(R"+++(CREATE TABLE tab_department (
   id SERIAL PRIMARY KEY,
   name CHAR(100),

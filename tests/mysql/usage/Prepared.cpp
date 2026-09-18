@@ -32,8 +32,6 @@ const auto library_raii =
 
 namespace sql = sqlpp::mysql;
 const auto tab = test::tab_bar{};
-
-SQLPP_CREATE_NAME_TAG(something);
 }  // namespace
 
 void testPreparedStatementResult(sql::connection& db) {
@@ -49,7 +47,7 @@ void testPreparedStatementResult(sql::connection& db) {
   db(preparedInsert);
 
   auto preparedSelectAll =
-      db.prepare(sqlpp::select(count(tab.int_n).as(something)).from(tab));
+      db.prepare(sqlpp::select(count(tab.int_n).as<"something">()).from(tab));
   auto preparedUpdateAll =
       db.prepare(sqlpp::update(tab).set(tab.bool_nn = false));
 

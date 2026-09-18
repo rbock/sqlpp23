@@ -12,7 +12,7 @@ import sqlpp26.core;
 namespace test {
 template<typename Db>
 void create_tab_foo(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db(R"+++(CREATE TABLE tab_foo
 (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +39,7 @@ using tab_foo = ::sqlpp::table<tab_foo_>;
 
 template<typename Db>
 void create_tab_bar(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
   db(R"+++(CREATE TABLE tab_bar
 (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +60,7 @@ using tab_bar = ::sqlpp::table<tab_bar_>;
 
 template<typename Db>
 void create_tab_date_time(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db(R"+++(CREATE TABLE tab_date_time (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   date_n date,
@@ -82,7 +82,7 @@ using tab_date_time = ::sqlpp::table<tab_date_time_>;
 
 template<typename Db>
 void create_tab_department(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_department)+++");
   db(R"+++(CREATE TABLE tab_department (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name CHAR(100),

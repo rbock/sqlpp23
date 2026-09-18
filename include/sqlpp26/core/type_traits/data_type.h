@@ -304,11 +304,20 @@ inline constexpr bool is_raw_blob_v = is_raw_blob<T>::value;
 template<size_t N>
 struct is_raw_blob<std::array<std::uint8_t, N>>: public std::true_type {};
 
+template<size_t N>
+struct is_raw_blob<std::array<const std::uint8_t, N>>: public std::true_type {};
+
 template<>
 struct is_raw_blob<std::vector<uint8_t>>: public std::true_type {};
 
 template<>
+struct is_raw_blob<std::vector<const uint8_t>>: public std::true_type {};
+
+template<>
 struct is_raw_blob<std::span<uint8_t>>: public std::true_type {};
+
+template<>
+struct is_raw_blob<std::span<const uint8_t>>: public std::true_type {};
 
 using blob = std::vector<uint8_t>;
 

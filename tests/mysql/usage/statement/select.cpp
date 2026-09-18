@@ -26,8 +26,6 @@
 
 #include <sqlpp26/tests/mysql/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
   sql::global_library_init();
@@ -38,7 +36,7 @@ int main(int, char*[]) {
     const auto foo = test::tab_foo{};
 
     // select value
-    for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
+    for (const auto& row : db(select(sqlpp::value(23).as<"cheese">()))) {
       std::ignore = row.cheese;
     }
 

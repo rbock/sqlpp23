@@ -12,7 +12,7 @@
 namespace test {
 template<typename Db>
 void create_tab_foo(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_foo)+++");
   db(R"+++(CREATE TABLE tab_foo
 (
   id BIGSERIAL PRIMARY KEY,
@@ -42,7 +42,7 @@ using tab_foo = ::sqlpp::table<tab_foo_>;
 
 template<typename Db>
 void create_tab_bar(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_bar)+++");
   db(R"+++(CREATE TABLE tab_bar
 (
     id bigint AUTO_INCREMENT PRIMARY KEY,
@@ -63,7 +63,7 @@ using tab_bar = ::sqlpp::table<tab_bar_>;
 
 template<typename Db>
 void create_tab_date_time(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_date_time)+++");
   db(R"+++(CREATE TABLE tab_date_time
 (
     id bigint AUTO_INCREMENT PRIMARY KEY,

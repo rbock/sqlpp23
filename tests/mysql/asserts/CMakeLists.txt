@@ -25,7 +25,7 @@
 create_tests_assert(
     # Connection
     bad_execute "cannot execute statements with parameters directly"
-    bad_prepare "at least one selected column requires a table"
+    bad_prepare "The select-columns-clause requires table tab_bar which is not known in"
 
     incompatible_execute "No support for using incompatible expression"
     incompatible_prepare "No support for using incompatible expression"

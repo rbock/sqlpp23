@@ -12,7 +12,7 @@
 namespace test {
 template<typename Db>
 void create_tab_enums(Db& db) {
-  db(R"+++(DROP TABLE IF EXISTS {table.name})+++");
+  db(R"+++(DROP TABLE IF EXISTS tab_enums)+++");
   db(R"+++(CREATE TABLE tab_enums (
   -- cpp_type:animal
   animal bigint,
