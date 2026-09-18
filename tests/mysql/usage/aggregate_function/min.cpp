@@ -33,7 +33,7 @@ int main(int, char*[]) {
     const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // clear the table
     db(truncate(tab));
@@ -45,8 +45,8 @@ int main(int, char*[]) {
 
     // select min
     for (const auto& row : db(select(
-            min(tab.int_n).as(sqlpp::alias::min_),
-            min(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_min_)
+            min(tab.int_n).as<"min_">(),
+            min(sqlpp::distinct, tab.int_n).as<"distinct_min_">()
             ).from(tab))) {
       assert(row.min_ == 7);
       assert(row.distinct_min_ == 7);

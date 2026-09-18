@@ -36,7 +36,7 @@ int Truncated(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheese"));
     db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheesecake"));

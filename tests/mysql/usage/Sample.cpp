@@ -32,10 +32,10 @@ int Sample(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
 
-    test::createtab_bar(db);
-    test::createtab_foo(db);
+    test::create_tab_bar(db);
+    test::create_tab_foo(db);
 
-    assert(not db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a);
+    assert(not db(select(sqlpp::value(false).as<"a">())).front().a);
 
     const auto tab = test::tab_bar{};
     // clear the table
@@ -43,10 +43,10 @@ int Sample(int, char*[]) {
 
     // Several ways of ensuring that tab is empty
     assert(
-        not db(select(exists(select(tab.int_n).from(tab)).as(::sqlpp::alias::a)))
+        not db(select(exists(select(tab.int_n).from(tab)).as<"a">()))
                 .front()
                 .a);  // this is probably the fastest
-    assert(not db(select(count(tab.int_n).as(sqlpp::alias::a)).from(tab))
+    assert(not db(select(count(tab.int_n).as<"a">()).from(tab))
                    .front()
                    .a);
     assert(db(select(tab.int_n).from(tab)).empty());
@@ -106,8 +106,8 @@ int Sample(int, char*[]) {
       auto tx = start_transaction(db);
       auto result =
           db(select(all_of(tab),
-                    value(select(max(tab.int_n).as(sqlpp::alias::a)).from(tab))
-                        .as(sqlpp::alias::a))
+                    value(select(max(tab.int_n).as<"a">()).from(tab))
+                        .as<"a">())
                  .from(tab));
       if (const auto& row = *result.begin()) {
         const int64_t a = row.int_n.value_or(0);
@@ -176,8 +176,7 @@ int Sample(int, char*[]) {
     std::cerr << "Deleted lines: " << db(pr).affected_rows << std::endl;
 
     for (const auto& row :
-         db(select(case_when(tab.bool_nn).then(tab.int_n).else_(foo.int_n).as(
-                       tab.int_n))
+         db(select(case_when(tab.bool_nn).then(tab.int_n).else_(foo.int_n).as<"int_n">())
                 .from(tab.cross_join(foo)))) {
       std::cerr << row.int_n << std::endl;
     }

@@ -36,7 +36,7 @@ int DynamicSelect(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     const auto tab = test::tab_foo{};
     db(insert_into(tab).set(tab.bool_n = true));

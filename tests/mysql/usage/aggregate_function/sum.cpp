@@ -33,7 +33,7 @@ int main(int, char*[]) {
     const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // clear the table
     db(truncate(tab));
@@ -45,8 +45,8 @@ int main(int, char*[]) {
 
     // select sum
     for (const auto& row : db(select(
-            sum(tab.int_n).as(sqlpp::alias::sum_),
-            sum(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_sum_)
+            sum(tab.int_n).as<"sum_">(),
+            sum(sqlpp::distinct, tab.int_n).as<"distinct_sum_">()
             ).from(tab))) {
       assert(row.sum_ == 23);
       assert(row.distinct_sum_ == 16);

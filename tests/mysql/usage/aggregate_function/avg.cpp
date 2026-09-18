@@ -45,7 +45,7 @@ int main(int, char*[]) {
     const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // clear the table
     db(truncate(tab));
@@ -57,8 +57,8 @@ int main(int, char*[]) {
 
     // select avg
     for (const auto& row : db(select(
-            avg(tab.int_n).as(sqlpp::alias::avg_),
-            avg(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_avg_)
+            avg(tab.int_n).as<"avg_">(),
+            avg(sqlpp::distinct, tab.int_n).as<"distinct_avg_">()
             ).from(tab))) {
       assert(row.avg_.has_value());
       assert(row.distinct_avg_.has_value());

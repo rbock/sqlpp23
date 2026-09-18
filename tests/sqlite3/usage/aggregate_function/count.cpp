@@ -59,7 +59,7 @@ int main(int, char*[]) {
 
     // select count
     for (const auto& row : db(select(
-            count(tab.int_n).as(sqlpp::alias::count_),
+            count(tab.int_n).as<"count_">(),
             sqlpp::count(1).as(count_1),
             count(sqlpp::star).as(count_star)
             ).from(tab))) {
@@ -70,7 +70,7 @@ int main(int, char*[]) {
 
     // select distinct count
     for (const auto& row : db(select(
-            count(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_count_),
+            count(sqlpp::distinct, tab.int_n).as<"distinct_count_">(),
             count(sqlpp::distinct, 1).as(count_1)
             ).from(tab))) {
       assert(row.distinct_count_ == 2);

@@ -36,7 +36,6 @@
 #include <print>
 #include <unordered_set>
 
-#include <sqlpp26/core/name/create_name_tag.h>
 #include <sqlpp26/tests/core/assert_throw.h>
 #include <sqlpp26/tests/core/constraint_helpers.h>
 #include <sqlpp26/tests/core/result_helpers.h>

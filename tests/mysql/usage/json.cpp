@@ -44,24 +44,20 @@ int main(int, char*[]) {
 }
 #else
 
-namespace test {
-SQLPP_CREATE_NAME_TAG(value);
-}
-
 namespace sql = sqlpp::mysql;
 int main(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createTabJson(db);
+    test::create_tab_json(db);
 
-    const auto tab = test::TabJson{};
+    const auto tab = test::tab_json{};
     db(insert_into(tab).set(tab.data = R"--({"key" : "value"})--"));
 
     const auto query =
         select(sqlpp::verbatim<sqlpp::text>(
                    R"--(JSON_UNQUOTE(JSON_EXTRACT(data, "$.key")))--")
-                   .as(test::value))
+                   .as<"value">())
             .from(tab);
 
     auto result = db(query);

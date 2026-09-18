@@ -34,7 +34,7 @@ int DeleteFrom(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     db(insert_into(tab).set(tab.text_nn_d = "1", tab.bool_n = false));
     db(insert_into(tab).set(tab.text_nn_d = "2", tab.bool_n = false));

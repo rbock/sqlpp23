@@ -33,7 +33,7 @@ int main(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     const auto foo = test::tab_foo{};
 

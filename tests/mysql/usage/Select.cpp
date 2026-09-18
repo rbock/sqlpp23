@@ -35,32 +35,20 @@ const auto library_raii =
 namespace sql = sqlpp::mysql;
 const auto tab = test::tab_foo{};
 
-SQLPP_CREATE_NAME_TAG(something);
-SQLPP_CREATE_NAME_TAG(max_int_n);
 }  // namespace
-
-template <typename... Names, typename... Values, size_t... Idx>
-void printRowWithNamesImpl(const std::tuple<Names...>& names,
-                           const std::tuple<Values...>& values,
-                           std::index_sequence<Idx...>) {
-  ((std::cerr << std::get<Idx>(names) << ": " << std::get<Idx>(values) << " "),
-   ...);
-  std::cerr << "\n";
-}
-
-template <typename... Names, typename... Values>
-void printRowWithNames(const std::tuple<Names...>& names,
-                       const std::tuple<Values...>& values) {
-  printRowWithNamesImpl(names, values,
-                        std::make_index_sequence<sizeof...(Values)>());
-}
 
 void testSelectAll(sql::connection& db, int expectedRowCount) {
   std::cerr << "--------------------------------------" << std::endl;
   int i = 0;
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab))) {
     ++i;
-    printRowWithNames(get_sql_name_tuple(row), as_tuple(row));
+    using Row = std::decay_t<decltype(row)>;
+    static constexpr auto data_members = std::define_static_array(std::meta::nonstatic_data_members_of(^^Row, std::meta::access_context::current()));
+
+    template for (constexpr auto& info : data_members) {
+      std::cout << identifier_of(info) << ": " << row.[:info:] << ", ";
+    }
+    std::cout << '\n';
     std::cerr << ">>> row.id: " << row.id << ", >>> row.int_n: " << row.int_n
               << ", row.text_nn_d: " << row.text_nn_d << ", row.bool_n: " << row.bool_n
               << std::endl;
@@ -97,7 +85,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
 int Select(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     testSelectAll(db, 0);
     db(insert_into(tab).default_values());
@@ -107,7 +95,7 @@ int Select(int, char*[]) {
     db(insert_into(tab).set(tab.bool_n = true, tab.text_nn_d = "cheesecake"));
     testSelectAll(db, 3);
 
-    db(select(coalesce(tab.text_nn_d, "fallback").as(something)).from(tab));
+    db(select(coalesce(tab.text_nn_d, "fallback").as<"something">()).from(tab));
 
     // Test size functionality
     const auto test_size = db(select(all_of(tab)).from(tab));
@@ -124,12 +112,12 @@ int Select(int, char*[]) {
     db(select(all_of(tab))
            .from(tab)
            .where(tab.int_n.not_in(std::vector<int>{1, 2, 3, 4})));
-    db(select(count(tab.int_n).as(something)).from(tab));
-    db(select(avg(tab.int_n).as(something)).from(tab));
-    db(select(max(tab.int_n).as(something)).from(tab));
-    db(select(min(tab.int_n).as(something)).from(tab));
+    db(select(count(tab.int_n).as<"something">()).from(tab));
+    db(select(avg(tab.int_n).as<"something">()).from(tab));
+    db(select(max(tab.int_n).as<"something">()).from(tab));
+    db(select(min(tab.int_n).as<"something">()).from(tab));
     db(select(
-           exists(select(tab.int_n).from(tab).where(tab.int_n > 7)).as(something))
+           exists(select(tab.int_n).from(tab).where(tab.int_n > 7)).as<"something">())
            .from(tab));
     db(select(all_of(tab))
            .from(tab)
@@ -168,8 +156,8 @@ int Select(int, char*[]) {
       auto tx = start_transaction(db);
       auto result =
           db(select(all_of(tab),
-                    value(select(max(tab.int_n).as(max_int_n)).from(tab))
-                        .as(max_int_n))
+                    value(select(max(tab.int_n).as<"max_int_n">()).from(tab))
+                        .as<"max_int_n">())
                  .from(tab));
       if (const auto& row = *result.begin()) {
         std::optional<int64_t> a = row.int_n;

@@ -28,10 +28,6 @@
 
 namespace sql = sqlpp::mysql;
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int main() {
   sql::connection db = sql::make_test_connection();
   const auto now = std::chrono::system_clock::now();
@@ -41,36 +37,36 @@ int main() {
   // No such thing in mysql
 
   // cast to integer
-  db(select(cast(17.5, as(sqlpp::integral{})).as(something)));
-  db(select(cast("17", as(sqlpp::integral{})).as(something)));
+  db(select(cast(17.5, sqlpp::as<sqlpp::integral>()).as<"something">()));
+  db(select(cast("17", sqlpp::as<sqlpp::integral>()).as<"something">()));
 
   // cast to unsigned integer
-  db(select(cast(17.5, as(sqlpp::unsigned_integral{})).as(something)));
-  db(select(cast("y17", as(sqlpp::unsigned_integral{})).as(something)));
+  db(select(cast(17.5, sqlpp::as<sqlpp::unsigned_integral>()).as<"something">()));
+  db(select(cast("y17", sqlpp::as<sqlpp::unsigned_integral>()).as<"something">()));
 
   // cast to double precision
-  db(select(cast(17.5, as(sqlpp::floating_point{})).as(something)));
-  db(select(cast("17", as(sqlpp::floating_point{})).as(something)));
+  db(select(cast(17.5, sqlpp::as<sqlpp::floating_point>()).as<"something">()));
+  db(select(cast("17", sqlpp::as<sqlpp::floating_point>()).as<"something">()));
 
   // cast to text
-  db(select(cast(17.5, as(sqlpp::text{})).as(something)));
-  db(select(cast(now, as(sqlpp::text{})).as(something)));
-  db(select(cast(today, as(sqlpp::text{})).as(something)));
-  db(select(cast(std::vector<uint8_t>{1,2,3,4,5}, as(sqlpp::text{})).as(something)));
+  db(select(cast(17.5, sqlpp::as<sqlpp::text>()).as<"something">()));
+  db(select(cast(now, sqlpp::as<sqlpp::text>()).as<"something">()));
+  db(select(cast(today, sqlpp::as<sqlpp::text>()).as<"something">()));
+  db(select(cast(std::vector<uint8_t>{1,2,3,4,5}, sqlpp::as<sqlpp::text>()).as<"something">()));
 
   // cast to blob
-  db(select(cast("17", as(sqlpp::blob{})).as(something)));
+  db(select(cast("17", sqlpp::as<sqlpp::blob>()).as<"something">()));
 
   // cast to date
-  db(select(cast(now, as(sqlpp::date{})).as(something)));
-  db(select(cast("2025-05-31 08:29:44.196353786+00", as(sqlpp::date{})).as(something)));
-  db(select(cast("2025-05-31", as(sqlpp::date{})).as(something)));
+  db(select(cast(now, sqlpp::as<sqlpp::date>()).as<"something">()));
+  db(select(cast("2025-05-31 08:29:44.196353786+00", sqlpp::as<sqlpp::date>()).as<"something">()));
+  db(select(cast("2025-05-31", sqlpp::as<sqlpp::date>()).as<"something">()));
 
   // cast to timestamp
-  db(select(cast(today, as(sqlpp::timestamp{})).as(something)));
-  db(select(cast("2025-05-31 08:29:44.196353786+00", as(sqlpp::timestamp{})).as(something)));
-  db(select(cast("2025-05-31", as(sqlpp::timestamp{})).as(something)));
+  db(select(cast(today, sqlpp::as<sqlpp::timestamp>()).as<"something">()));
+  db(select(cast("2025-05-31 08:29:44.196353786+00", sqlpp::as<sqlpp::timestamp>()).as<"something">()));
+  db(select(cast("2025-05-31", sqlpp::as<sqlpp::timestamp>()).as<"something">()));
 
-  // cast to time
-  db(select(cast("08:29:44.196353786", as(sqlpp::time{})).as(something)));
+  // cast to time of day
+  db(select(cast("08:29:44.196353786", sqlpp::as<sqlpp::time_of_day>()).as<"something">()));
 }

@@ -43,13 +43,13 @@ int main(int, char*[]) {
     // select exists
     for (const auto& row :
          db(select(exists(select(tab.id).from(tab).where(tab.int_n == 7))
-                       .as(sqlpp::alias::exists_)))) {
+                       .as<"exists_">()))) {
       assert(row.exists_ == true);
     }
 
     // select exists
     for (const auto& row : db(select(exists(
-              select(tab.id).from(tab).where(tab.int_n == 8)).as(sqlpp::alias::exists_)))) {
+              select(tab.id).from(tab).where(tab.int_n == 8)).as<"exists_">()))) {
       assert(row.exists_ == false);
     }
   } catch (const std::exception& e) {

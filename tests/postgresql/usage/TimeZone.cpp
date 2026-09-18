@@ -64,17 +64,17 @@ void check_saved_values(sqlpp::postgresql::connection& db,
              // (1970-01-01 00:00:00 UTC)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from timestamp_n_tz)*1000000)::int8")
-                 .as(sqlpp::alias::a),
+                 .as<"a">(),
              // time_nTz as microseconds from the start of the day (00:00:00
              // UTC)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from time_n_tz)*1000000)::int8")
-                 .as(sqlpp::alias::b),
+                 .as<"b">(),
              // date_n as days from 1970-01-01 (timezone is not applicable to
              // date fields)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from date_n)/86400)::int8")
-                 .as(sqlpp::alias::c))
+                 .as<"c">())
              .from(tab));
   // Check if the internal values of our C++ time variables match the internal
   // values of the PostgreSQL date/time fields. This tests the conversion of

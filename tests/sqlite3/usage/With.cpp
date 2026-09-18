@@ -34,7 +34,7 @@ int With(int, char*[]) {
   auto db = sql::make_test_connection();
   test::createtab_foo(db);
 
-  auto a = sqlpp::cte(sqlpp::alias::a)
+  auto a = sqlpp::cte<"a">()
                .as(select(all_of(tab)).from(tab).where(tab.int_n > 3));
   for (const auto& row : db(with(a) << select(a.int_n).from(a))) {
     std::cout << row.int_n << std::endl;

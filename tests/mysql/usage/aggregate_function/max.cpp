@@ -33,7 +33,7 @@ int main(int, char*[]) {
     const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // clear the table
     db(truncate(tab));
@@ -45,8 +45,8 @@ int main(int, char*[]) {
 
     // select max
     for (const auto& row : db(select(
-            max(tab.int_n).as(sqlpp::alias::max_),
-            max(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_max_)
+            max(tab.int_n).as<"max_">(),
+            max(sqlpp::distinct, tab.int_n).as<"distinct_max_">()
             ).from(tab))) {
       assert(row.max_ == 9);
       assert(row.distinct_max_ == 9);

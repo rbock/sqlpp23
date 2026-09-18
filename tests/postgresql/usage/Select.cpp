@@ -59,11 +59,11 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
 
 void testParameter(sql::connection& db) {
   auto ps = db.prepare(select(
-        sqlpp::parameter(sqlpp::boolean{}, sqlpp::alias::b).as(sqlpp::alias::b),
-        sqlpp::parameter(sqlpp::integral{}, sqlpp::alias::i).as(sqlpp::alias::i),
-        sqlpp::parameter(sqlpp::floating_point{}, sqlpp::alias::f).as(sqlpp::alias::f),
-        sqlpp::parameter(sqlpp::text{}, sqlpp::alias::t).as(sqlpp::alias::t),
-        sqlpp::parameter(sqlpp::timestamp{}, sqlpp::alias::n).as(sqlpp::alias::n)
+        sqlpp::sqlpp::parameter<b, sqlpp::boolean>().as<"b">(),
+        sqlpp::sqlpp::parameter<i, sqlpp::integral>().as<"i">(),
+        sqlpp::sqlpp::parameter<f, sqlpp::floating_point>().as<"f">(),
+        sqlpp::sqlpp::parameter<t, sqlpp::text>().as<"t">(),
+        sqlpp::sqlpp::parameter<n, sqlpp::timestamp>().as<"n">()
         ));
   ps.parameters.b = true;
   ps.parameters.i = 17;
@@ -116,11 +116,11 @@ int Select(int, char*[]) {
   db(select(all_of(tab))
          .from(tab)
          .where(tab.id.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.id).as(something)).from(tab));
-  db(select(avg(tab.id).as(something)).from(tab));
-  db(select(max(tab.id).as(something)).from(tab));
-  db(select(min(tab.id).as(something)).from(tab));
-  db(select(exists(select(tab.id).from(tab).where(tab.id > 7)).as(something))
+  db(select(count(tab.id).as<"something">()).from(tab));
+  db(select(avg(tab.id).as<"something">()).from(tab));
+  db(select(max(tab.id).as<"something">()).from(tab));
+  db(select(min(tab.id).as<"something">()).from(tab));
+  db(select(exists(select(tab.id).from(tab).where(tab.id > 7)).as<"something">())
          .from(tab));
   db(select(all_of(tab))
          .from(tab)
@@ -130,13 +130,13 @@ int Select(int, char*[]) {
   db(select(all_of(tab))
          .from(tab)
          .where((tab.text_nn_d + tab.text_nn_d).like("%'\"%")));
-  db(select(coalesce(tab.text_nn_d, "fallback").as(something)).from(tab));
-  db(select(cast("17", as(sqlpp::integral{})).as(something)).from(tab));
-  db(select(cast(std::chrono::system_clock::now(), as(sqlpp::date{})).as(something)).from(tab));
+  db(select(coalesce(tab.text_nn_d, "fallback").as<"something">()).from(tab));
+  db(select(cast("17", sqlpp::as<"integral">()).as<"something">()).from(tab));
+  db(select(cast(std::chrono::system_clock::now(), as<"sqlpp::date{}">()).as<"something">()).from(tab));
   db(select(cast(std::chrono::sys_days(std::chrono::floor<std::chrono::days>(
                         std::chrono::system_clock::now())),
-                    as(sqlpp::timestamp{}))
-                .as(something))
+                    as<"sqlpp::timestamp{}">())
+                .as<"something">())
          .from(tab));
 
   // test boolean value
@@ -174,7 +174,7 @@ int Select(int, char*[]) {
   auto tx = start_transaction(db);
   auto result2 = db(
       select(all_of(tab),
-             value(select(max(tab.id).as(something)).from(tab)).as(something))
+             value(select(max(tab.id).as<"something">()).from(tab)).as<"something">())
           .from(tab));
   if (const auto& row = *result2.begin()) {
     auto a = row.id;

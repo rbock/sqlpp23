@@ -36,7 +36,7 @@ int Union(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     auto u =
         select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));

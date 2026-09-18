@@ -52,8 +52,8 @@ int main(int, char*[]) {
 
     // select sum
     for (const auto& row : db(select(
-            sum(tab.int_n).as(sqlpp::alias::sum_),
-            sum(sqlpp::distinct, tab.int_n).as(sqlpp::alias::distinct_sum_)
+            sum(tab.int_n).as<"sum_">(),
+            sum(sqlpp::distinct, tab.int_n).as<"distinct_sum_">()
             ).from(tab))) {
       assert(row.sum_ == 23);
       assert(row.distinct_sum_ == 16);

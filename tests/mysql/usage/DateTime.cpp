@@ -55,14 +55,14 @@ int DateTime(int, char*[]) {
     auto db = sql::make_test_connection();
     db(R"(SET time_zone = '+00:00')");  // To force MySQL's CURRENT_TIMESTAMP
                                         // into the right timezone
-    test::createtab_date_time(db);
+    test::create_tab_date_time(db);
 
     const auto tab = test::tab_date_time{};
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab))) {
       require_equal(__LINE__, row.date_n.has_value(), false);
       require_equal(__LINE__, row.timestamp_n.has_value(), false);
-      require_close(__LINE__, row.dateTimestampND.value(), now);
+      require_close(__LINE__, row.date_timestamp_n_d.value(), now);
       require_equal(__LINE__, row.time_n.has_value(), false);
     }
 
@@ -79,7 +79,7 @@ int DateTime(int, char*[]) {
 
     auto statement = db.prepare(select(all_of(tab)).from(tab).where(true));
     for (const auto& row : db(statement)) {
-      require_close(__LINE__, row.dateTimestampND.value(), now);
+      require_close(__LINE__, row.date_timestamp_n_d.value(), now);
       require_equal(__LINE__, row.date_n.value(), today);
       require_equal(__LINE__, row.timestamp_n.value(), now);
       require_close(__LINE__, row.time_n.value(), current);

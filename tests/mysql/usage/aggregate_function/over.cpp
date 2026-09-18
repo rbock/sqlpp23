@@ -45,7 +45,7 @@ int main(int, char*[]) {
     const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // clear the table
     db(truncate(tab));
@@ -57,11 +57,11 @@ int main(int, char*[]) {
 
     // select aggregates with over()
     for (const auto& row : db(select(
-            avg(tab.int_n).over().as(sqlpp::alias::avg_),
-            count(tab.int_n).over().as(sqlpp::alias::count_),
-            max(tab.int_n).over().as(sqlpp::alias::max_),
-            min(tab.int_n).over().as(sqlpp::alias::min_),
-            sum(tab.int_n).over().as(sqlpp::alias::sum_)
+            avg(tab.int_n).over().as<"avg_">(),
+            count(tab.int_n).over().as<"count_">(),
+            max(tab.int_n).over().as<"max_">(),
+            min(tab.int_n).over().as<"min_">(),
+            sum(tab.int_n).over().as<"sum_">()
             ).from(tab))) {
       require_close(__LINE__, row.avg_.value(), 7.666);
       assert(row.count_ == 3);

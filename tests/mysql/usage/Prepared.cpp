@@ -67,7 +67,7 @@ int Prepared(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_bar(db);
+    test::create_tab_bar(db);
 
     testPreparedStatementResult(db);
   } catch (const std::exception& e) {

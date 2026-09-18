@@ -37,7 +37,7 @@ int main() {
   {
     auto a = any(select(foo.id).from(foo));
     auto s = select(all_of(foo)).from(foo).where(foo.int_n == a);
-    auto c = sqlpp::cte(sqlpp::alias::a).as(s);
+    auto c = sqlpp::cte<"a">().as(s);
     auto w = with(c);
 
     static_assert(std::is_same<decltype(check_compatibility<CTX>(a)),

@@ -26,11 +26,6 @@
 
 #include <sqlpp26/tests/postgresql/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-SQLPP_CREATE_NAME_TAG(other);
-}  // namespace
-
 int main() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
@@ -38,43 +33,43 @@ int main() {
   SQLPP_COMPARE(parameter(foo.float_n), "$1");
   SQLPP_COMPARE(bar.id > parameter(foo.float_n), "tab_bar.id > $1");
 
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something), "$1");
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>(), "$1");
 
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something) >
-                    parameter(sqlpp::integral{}, other),
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() >
+                    sqlpp::parameter<other, sqlpp::integral>(),
                 "$1 > $2");
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something) +
-                    parameter(sqlpp::integral{}, other),
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() +
+                    sqlpp::parameter<other, sqlpp::integral>(),
                 "$1 + $2");
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something) |
-                    parameter(sqlpp::integral{}, other),
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() |
+                    sqlpp::parameter<other, sqlpp::integral>(),
                 "$1 | $2");
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something)
-                    .between(parameter(sqlpp::integral{}, other),
-                             parameter(sqlpp::integral{}, sqlpp::alias::a)),
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>()
+                    .between(sqlpp::parameter<other, sqlpp::integral>(),
+                             sqlpp::parameter<a, sqlpp::integral>()),
                 "$1 BETWEEN $2 AND $3");
 
-  SQLPP_COMPARE(parameter(sqlpp::integral{}, something) +
-                    parameter(sqlpp::integral{}, other) +
-                    parameter(sqlpp::integral{}, sqlpp::alias::a),
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() +
+                    sqlpp::parameter<other, sqlpp::integral>() +
+                    sqlpp::parameter<a, sqlpp::integral>(),
                 "($1 + $2) + $3");
-  SQLPP_COMPARE(parameter(sqlpp::boolean{}, something) and
-                    parameter(sqlpp::boolean{}, other) and
-                    parameter(sqlpp::boolean{}, sqlpp::alias::a),
+  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::boolean>() and
+                    sqlpp::parameter<other, sqlpp::boolean>() and
+                    sqlpp::parameter<a, sqlpp::boolean>(),
                 "$1 AND $2 AND $3");
 
   {
     auto s =
-        select(parameter(foo.id).as(something), parameter(bar.text_n).as(other),
-               parameter(foo.float_n).as(foo.float_n));
+        select(parameter(foo.id).as<"something">(), parameter(bar.text_n).as<"other">(),
+               parameter(foo.float_n).as<"double_n">());
 
     SQLPP_COMPARE(s, "SELECT $1 AS something, $2 AS other, $3 AS double_n");
   }
 
   {
-    auto left = select(parameter(foo.id).as(something)).as(sqlpp::alias::left);
+    auto left = select(parameter(foo.id).as<"something">()).as<"left">();
     auto right =
-        select(parameter(bar.text_n).as(something)).as(sqlpp::alias::right);
+        select(parameter(bar.text_n).as<"something">()).as<"right">();
 
     SQLPP_COMPARE(left.join(right).on(parameter(foo.float_n) > 7),
                   "(SELECT $1 AS something) AS left INNER JOIN (SELECT $2 AS "
@@ -85,8 +80,8 @@ int main() {
   }
 
   {
-    auto left = select(parameter(foo.id).as(something));
-    auto right = select(parameter(bar.id).as(something));
+    auto left = select(parameter(foo.id).as<"something">());
+    auto right = select(parameter(bar.id).as<"something">());
 
     SQLPP_COMPARE(left.union_all(right),
                   "SELECT $1 AS something UNION ALL SELECT $2 AS something");

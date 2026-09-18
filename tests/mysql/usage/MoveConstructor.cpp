@@ -34,7 +34,7 @@ int MoveConstructor(int, char*[]) {
     std::vector<sql::connection> connections;
     connections.emplace_back(sql::connection(config));
 
-    test::createtab_foo(connections.at(0));
+    test::create_tab_foo(connections.at(0));
 
     assert(connections.at(0).is_transaction_active() == false);
     connections.at(0).start_transaction();

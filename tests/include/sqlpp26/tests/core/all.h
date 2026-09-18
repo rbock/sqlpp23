@@ -32,7 +32,6 @@
 #include <chrono>
 #include <memory>
 
-#include <sqlpp26/core/name/create_name_tag.h>
 #include <sqlpp26/tests/core/incompatible.h>
 #include <sqlpp26/tests/core/make_test_connection.h>
 #include <sqlpp26/tests/core/result_helpers.h>

@@ -31,7 +31,7 @@ int main() {
   using CTX = sqlpp::mysql::context_t;
 
   // Incompatible expression
-  auto incompatible_select = sqlpp::select(sqlpp::test::incompatible(7).as(sqlpp::alias::a));
+  auto incompatible_select = sqlpp::select(sqlpp::test::incompatible(7).as<"a">());
   static_assert(
       std::is_same<decltype(check_basic_consistency(incompatible_select)),
                    sqlpp::consistent_t>::value);

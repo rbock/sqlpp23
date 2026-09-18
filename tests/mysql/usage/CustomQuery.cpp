@@ -57,7 +57,7 @@ int CustomQuery(int, char*[]) {
   sql::global_library_init();
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // Create a MYSQL style custom "insert on duplicate update"
     db(sqlpp::insert_into(tab).set(tab.text_nn_d = "sample", tab.bool_n = true)

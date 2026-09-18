@@ -37,7 +37,7 @@ int main() {
     }
 
     sql::connection db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     constexpr auto foo = test::tab_foo{};
 

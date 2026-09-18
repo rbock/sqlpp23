@@ -49,7 +49,7 @@ int Attach(int, char*[]) {
   auto left = test::tab_foo{};
   auto right =
       schema_qualified_table(other, test::tab_foo{})
-          .as(sqlpp::alias::right);  // this is a table in the attached database
+          .as<"right">();  // this is a table in the attached database
 
   // inserting in one tab_sample
   db(insert_into(left).default_values());
