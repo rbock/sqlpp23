@@ -27,18 +27,16 @@
 
 #include <sqlpp26/tests/postgresql/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 namespace sql = sqlpp::postgresql;
 int main(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     const auto foo = test::tab_foo{};
 
     // select value
-    for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
+    for (const auto& row : db(select(sqlpp::value(23).as<"cheese">()))) {
       std::ignore = row.cheese;
     }
 

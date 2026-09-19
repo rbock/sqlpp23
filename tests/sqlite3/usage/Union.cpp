@@ -31,7 +31,7 @@ const auto tab = test::tab_foo{};
 
 int Union(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   auto u =
       select(all_of(tab)).from(tab).union_all(select(all_of(tab)).from(tab));

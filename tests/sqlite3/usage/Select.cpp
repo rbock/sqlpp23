@@ -77,7 +77,7 @@ SQLPP_CREATE_NAME_TAG(something);
 
 int Select(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   testSelectAll(db, 0);
   db(insert_into(tab).default_values());

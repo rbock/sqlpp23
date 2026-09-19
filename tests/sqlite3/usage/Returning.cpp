@@ -34,20 +34,20 @@ int Returning(int, char*[]) {
   test::tab_foo foo = {};
 
   try {
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     std::cout << db(sqlpp::sqlite3::insert_into(foo)
                         .set(foo.text_nn_d = "dsa")
-                        .returning(foo.float_n))
+                        .returning(foo.double_n))
                      .front()
-                     .float_n
+                     .double_n
               << std::endl;
 
     std::cout << db(sqlpp::sqlite3::insert_into(foo)
                         .set(foo.text_nn_d = "asd")
-                        .returning(std::make_tuple(foo.float_n)))
+                        .returning(std::make_tuple(foo.double_n)))
                      .front()
-                     .float_n
+                     .double_n
               << std::endl;
 
     auto updated = db(sqlpp::sqlite3::update(foo)
@@ -59,7 +59,7 @@ int Returning(int, char*[]) {
 
     auto dynamic_updated =
         db(sqlpp::sqlite3::update(foo)
-               .set(foo.int_n = 0, foo.float_n = std::nullopt)
+               .set(foo.int_n = 0, foo.double_n = std::nullopt)
                .returning(foo.text_nn_d, dynamic(true, foo.int_n)));
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.text_nn_d << " Beta: " << row.int_n

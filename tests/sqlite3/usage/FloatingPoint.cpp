@@ -41,60 +41,60 @@ static auto require(int line, bool condition) -> void {
 
 int FloatingPoint(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   db("INSERT into tab_foo (id, double_n) values(NULL, 1.0)");
   db("INSERT into tab_foo (id, double_n) values(NULL, 'Inf')");
   db("INSERT into tab_foo (id, double_n) values(NULL, 'Nan')");
   db("INSERT into tab_foo (id, double_n) values(NULL, 'SomeString')");
-  db(insert_into(tab).set(tab.float_n = std::numeric_limits<double>::quiet_NaN()));
-  db(insert_into(tab).set(tab.float_n = std::numeric_limits<double>::infinity()));
-  db(insert_into(tab).set(tab.float_n = -std::numeric_limits<double>::infinity()));
+  db(insert_into(tab).set(tab.double_n = std::numeric_limits<double>::quiet_NaN()));
+  db(insert_into(tab).set(tab.double_n = std::numeric_limits<double>::infinity()));
+  db(insert_into(tab).set(tab.double_n = -std::numeric_limits<double>::infinity()));
 
   auto prepared_insert =
-      db.prepare(insert_into(tab).set(tab.float_n = parameter(tab.float_n)));
-  prepared_insert.parameters.float_n = std::numeric_limits<double>::quiet_NaN();
+      db.prepare(insert_into(tab).set(tab.double_n = parameter(tab.float_n)));
+  prepared_insert.parameters.double_n = std::numeric_limits<double>::quiet_NaN();
   db(prepared_insert);
-  prepared_insert.parameters.float_n = std::numeric_limits<double>::infinity();
+  prepared_insert.parameters.double_n = std::numeric_limits<double>::infinity();
   db(prepared_insert);
-  prepared_insert.parameters.float_n = -std::numeric_limits<double>::infinity();
+  prepared_insert.parameters.double_n = -std::numeric_limits<double>::infinity();
   db(prepared_insert);
 
-  auto q = select(tab.float_n).from(tab);
+  auto q = select(tab.double_n).from(tab);
   auto rows = db(q);
 
   // raw string inserts
-  require_equal(__LINE__, rows.front().float_n, 1.0);
+  require_equal(__LINE__, rows.front().double_n, 1.0);
   rows.pop_front();
-  require(__LINE__, std::isinf(rows.front().float_n.value()));
+  require(__LINE__, std::isinf(rows.front().double_n.value()));
   rows.pop_front();
-  require(__LINE__, std::isnan(rows.front().float_n.value()));
+  require(__LINE__, std::isnan(rows.front().double_n.value()));
   rows.pop_front();
-  require_equal(__LINE__, rows.front().float_n, 0.0);
+  require_equal(__LINE__, rows.front().double_n, 0.0);
   rows.pop_front();
 
   // dsl inserts
-  require(__LINE__, std::isnan(rows.front().float_n.value()));
+  require(__LINE__, std::isnan(rows.front().double_n.value()));
   rows.pop_front();
-  require(__LINE__, std::isinf(rows.front().float_n.value()));
+  require(__LINE__, std::isinf(rows.front().double_n.value()));
   require(__LINE__,
-          rows.front().float_n.value() > std::numeric_limits<double>::max());
+          rows.front().double_n.value() > std::numeric_limits<double>::max());
   rows.pop_front();
-  require(__LINE__, std::isinf(rows.front().float_n.value()));
+  require(__LINE__, std::isinf(rows.front().double_n.value()));
   require(__LINE__,
-          rows.front().float_n.value() < std::numeric_limits<double>::lowest());
+          rows.front().double_n.value() < std::numeric_limits<double>::lowest());
 
   // prepared dsl inserts
   rows.pop_front();
-  require(__LINE__, std::isnan(rows.front().float_n.value()));
+  require(__LINE__, std::isnan(rows.front().double_n.value()));
   rows.pop_front();
-  require(__LINE__, std::isinf(rows.front().float_n.value()));
+  require(__LINE__, std::isinf(rows.front().double_n.value()));
   require(__LINE__,
-          rows.front().float_n.value() > std::numeric_limits<double>::max());
+          rows.front().double_n.value() > std::numeric_limits<double>::max());
   rows.pop_front();
-  require(__LINE__, std::isinf(rows.front().float_n.value()));
+  require(__LINE__, std::isinf(rows.front().double_n.value()));
   require(__LINE__,
-          rows.front().float_n.value() < std::numeric_limits<double>::lowest());
+          rows.front().double_n.value() < std::numeric_limits<double>::lowest());
 
   return 0;
 }

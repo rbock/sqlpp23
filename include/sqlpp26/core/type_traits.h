@@ -180,7 +180,7 @@ struct result_data_type_of<T> {
                                        std::chrono::microseconds>;
 };
 
-// TODO: Rename to parameter_data_type?
+// TODO: Rename to parameter_data_type_of?
 template <typename T>
 struct parameter_data_type {};
 

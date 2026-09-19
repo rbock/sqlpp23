@@ -33,7 +33,7 @@ namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     const auto foo = test::tab_foo{};
 

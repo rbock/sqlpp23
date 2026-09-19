@@ -22,11 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-create_tests_assert(
-    # Connection
-    bad_execute "cannot execute statements with parameters directly"
-    bad_prepare "The select-columns-clause requires table tab_bar which is not known in"
-
-    incompatible_execute "No support for using incompatible expression"
-    incompatible_prepare "No support for using incompatible expression"
+create_tests_group(
+    unsigned
 )

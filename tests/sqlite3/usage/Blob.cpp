@@ -72,7 +72,7 @@ void verify_blob(sql::connection& db,
 
 int Blob(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
   std::cerr << "Generating blob_n " << blob_size << std::endl;
   std::vector<uint8_t> blob_n(blob_size);
   std::uniform_int_distribution<unsigned short> distribution(0, 255);

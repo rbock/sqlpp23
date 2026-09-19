@@ -34,7 +34,7 @@ int truncate(int, char*[]) {
 
   sql::connection db = sql::make_test_connection();
 
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   // insert a row
   db(sql::insert_into(foo).default_values());

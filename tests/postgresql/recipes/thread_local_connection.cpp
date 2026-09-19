@@ -97,7 +97,7 @@ int main() {
   // Initialize the global connection pool
   g_pool.initialize(sql::make_test_config(), num_threads);
 
-  test::createtab_bar(g_dbc);
+  test::create_tab_bar(g_dbc);
   test::tab_bar tb{};
   // Spawn the threads and make each thread execute multiple SQL queries
   std::vector<std::thread> threads{};

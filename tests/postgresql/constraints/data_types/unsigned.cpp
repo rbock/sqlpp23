@@ -24,37 +24,32 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp26/tests/sqlite3/all.h>
+#include <sqlpp26/tests/postgresql/all.h>
 
-namespace sql = sqlpp::sqlite3;
-int main(int, char*[]) {
-  try {
-    const auto tab = test::tab_foo{};
-    auto db = sql::make_test_connection();
+int main() {
+  auto db = sqlpp::postgresql::make_test_connection();
+  auto ctx = sqlpp::postgresql::context_t{&db};
+  using CTX = decltype(ctx);
 
-    test::create_tab_foo(db);
+  // OK
+  {
+    auto ci = cast(std::nullopt, sqlpp::as<sqlpp::boolean>());
 
-    // clear the table
-    db(truncate(tab));
-
-    // insert
-    db(insert_into(tab).set(tab.int_n = 7));
-
-    // select exists
-    for (const auto& row :
-         db(select(exists(select(tab.id).from(tab).where(tab.int_n == 7))
-                       .as<"exists_">()))) {
-      assert(row.exists_ == true);
-    }
-
-    // select exists
-    for (const auto& row : db(select(exists(
-              select(tab.id).from(tab).where(tab.int_n == 8)).as<"exists_">()))) {
-      assert(row.exists_ == false);
-    }
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
+    expect_compatibility_succeeds<CTX, decltype(ci)>();
   }
-  return 0;
+
+  // Postgresql has no support for unsigned integral
+  {
+    auto a = 7u;
+    auto b = std::optional(7u);
+    auto c = sqlpp::value(a);
+    auto d = sqlpp::value(b);
+    auto e = c + d;
+
+    expect_compatibility_fails<CTX, decltype(a), "Postgresql: No support for unsigned integral">();
+    expect_compatibility_fails<CTX, decltype(b), "Postgresql: No support for unsigned integral">();
+    expect_compatibility_fails<CTX, decltype(c), "Postgresql: No support for unsigned integral">();
+    expect_compatibility_fails<CTX, decltype(d), "Postgresql: No support for unsigned integral">();
+    expect_compatibility_fails<CTX, decltype(e), "Postgresql: No support for unsigned integral">();
+  }
 }

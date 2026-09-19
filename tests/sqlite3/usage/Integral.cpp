@@ -32,7 +32,7 @@ const auto foo = test::tab_foo{};
 
 int Integral(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   // The connector supports uint64_t values and will always retrieve the correct
   // value from the database. Sqlite3 stores the values as int64_t internally

@@ -26,8 +26,6 @@
 
 #include <cassert>
 #include <chrono>
-#include "sqlpp26/core/basic/parameter.h"
-#include "sqlpp26/core/type_traits/data_type.h"
 
 #include <sqlpp26/tests/postgresql/all.h>
 
@@ -59,11 +57,11 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
 
 void testParameter(sql::connection& db) {
   auto ps = db.prepare(select(
-        sqlpp::sqlpp::parameter<b, sqlpp::boolean>().as<"b">(),
-        sqlpp::sqlpp::parameter<i, sqlpp::integral>().as<"i">(),
-        sqlpp::sqlpp::parameter<f, sqlpp::floating_point>().as<"f">(),
-        sqlpp::sqlpp::parameter<t, sqlpp::text>().as<"t">(),
-        sqlpp::sqlpp::parameter<n, sqlpp::timestamp>().as<"n">()
+        sqlpp::parameter<"b", sqlpp::boolean>().as<"b">(),
+        sqlpp::parameter<"i", sqlpp::integral>().as<"i">(),
+        sqlpp::parameter<"f", sqlpp::floating_point>().as<"f">(),
+        sqlpp::parameter<"t", sqlpp::text>().as<"t">(),
+        sqlpp::parameter<"n", sqlpp::timestamp>().as<"n">()
         ));
   ps.parameters.b = true;
   ps.parameters.i = 17;
@@ -82,14 +80,10 @@ void testParameter(sql::connection& db) {
   }
 }
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int Select(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   testSelectAll(db, 0);
   db(insert_into(tab).default_values());
@@ -131,11 +125,11 @@ int Select(int, char*[]) {
          .from(tab)
          .where((tab.text_nn_d + tab.text_nn_d).like("%'\"%")));
   db(select(coalesce(tab.text_nn_d, "fallback").as<"something">()).from(tab));
-  db(select(cast("17", sqlpp::as<"integral">()).as<"something">()).from(tab));
-  db(select(cast(std::chrono::system_clock::now(), as<"sqlpp::date{}">()).as<"something">()).from(tab));
+  db(select(cast("17", sqlpp::as<sqlpp::integral>()).as<"something">()).from(tab));
+  db(select(cast(std::chrono::system_clock::now(), sqlpp::as<sqlpp::date>()).as<"something">()).from(tab));
   db(select(cast(std::chrono::sys_days(std::chrono::floor<std::chrono::days>(
                         std::chrono::system_clock::now())),
-                    as<"sqlpp::timestamp{}">())
+                    sqlpp::as<sqlpp::timestamp>())
                 .as<"something">())
          .from(tab));
 

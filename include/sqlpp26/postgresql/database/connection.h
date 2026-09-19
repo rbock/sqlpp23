@@ -275,8 +275,10 @@ class connection_base : public sqlpp::connection {
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
   auto operator()(const T& t) {
-    sqlpp::check_run_consistency(t).verify();
-    sqlpp::check_compatibility<context_t>(t).verify();
+    consteval {
+      check_run_consistency(type_v<T>{});
+      check_compatibility(type_v<context_t>{}, type_v<T>{});
+    }
     return sqlpp::statement_handler_t{}.run(t, *this);
   }
 
@@ -289,8 +291,10 @@ class connection_base : public sqlpp::connection {
   template <typename T>
     requires(sqlpp::is_statement_v<T>)
   auto prepare(const T& t) {
-    sqlpp::check_prepare_consistency(t).verify();
-    sqlpp::check_compatibility<context_t>(t).verify();
+    consteval {
+      check_prepare_consistency(type_v<T>{});
+      check_compatibility(type_v<context_t>{}, type_v<T>{});
+    }
     return sqlpp::statement_handler_t{}.prepare(t, *this);
   }
 
@@ -409,13 +413,13 @@ class connection_base : public sqlpp::connection {
   bool is_transaction_active() { return _transaction_active; }
 
   //! get the last inserted id for a certain table
-  uint64_t last_insert_id(const std::string& table,
+  int64_t last_insert_id(const std::string& table,
                           const std::string& fieldname) {
     auto result = _execute_impl("SELECT currval('" + table + "_" + fieldname + "_seq')");
 
     // Parse the number and return.
     std::string in{PQgetvalue(result.get(), 0, 0)};
-    return std::stoul(in);
+    return std::stol(in);
   }
 
   ::PGconn* native_handle() const { return _handle.native_handle(); }

@@ -33,40 +33,30 @@ int main() {
 
   // OK
   {
-    auto ci = cast(std::nullopt, as(sqlpp::boolean{}));
+    auto ci = cast(std::nullopt, sqlpp::as<sqlpp::boolean>());
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(ci)),
-                     sqlpp::consistent_t>::value);
+    expect_compatibility_succeeds<CTX, decltype(ci)>();
   }
 
   // Postgresql cannot cast bool to numeric
   {
-    auto ci = cast(true, as(sqlpp::integral{}));
-    auto cf = cast(true, as(sqlpp::floating_point{}));
+    auto ci = cast(true, sqlpp::as<sqlpp::integral>());
+    auto cu = cast(true, sqlpp::as<sqlpp::unsigned_integral>());
+    auto cf = cast(true, sqlpp::as<sqlpp::floating_point>());
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(ci)),
-                     sqlpp::postgresql::assert_no_cast_bool_to_numeric>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(cf)),
-                     sqlpp::postgresql::assert_no_cast_bool_to_numeric>::value);
+    expect_compatibility_fails<CTX, decltype(ci), "Postgresql: No support for casting bool to numeric">();
+    expect_compatibility_fails<CTX, decltype(cu), "Postgresql: No support for casting bool to numeric">();
+    expect_compatibility_fails<CTX, decltype(cf), "Postgresql: No support for casting bool to numeric">();
   }
 
   // Postgresql cannot cast to unsigned (generally no support for unsigned).
   {
-    auto cn = cast(std::nullopt, as(sqlpp::unsigned_integral{}));
-    auto ci = cast(7, as(sqlpp::unsigned_integral{}));
-    auto cb = cast(7.5, as(sqlpp::unsigned_integral{}));
+    auto cn = cast(std::nullopt, sqlpp::as<sqlpp::unsigned_integral>());
+    auto ci = cast(7, sqlpp::as<sqlpp::unsigned_integral>());
+    auto cb = cast(7.5, sqlpp::as<sqlpp::unsigned_integral>());
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(cn)),
-                     sqlpp::postgresql::assert_no_unsigned>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(ci)),
-                     sqlpp::postgresql::assert_no_unsigned>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(cb)),
-                     sqlpp::postgresql::assert_no_unsigned>::value);
+    expect_compatibility_fails<CTX, decltype(cn), "Postgresql: No support for unsigned integral">();
+    expect_compatibility_fails<CTX, decltype(ci), "Postgresql: No support for unsigned integral">();
+    expect_compatibility_fails<CTX, decltype(cb), "Postgresql: No support for unsigned integral">();
   }
 }

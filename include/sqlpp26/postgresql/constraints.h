@@ -31,36 +31,18 @@
 #include <sqlpp26/sqlpp26.h>
 
 namespace sqlpp {
-namespace postgresql {
-class assert_no_unsigned : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "Postgresql: No support for unsigned integral");
-  }
-};
-
-class assert_no_cast_bool_to_numeric : public wrapped_static_assert {
- public:
-  template <typename... T>
-  static void verify(T&&...) {
-    static_assert(wrong<T...>, "Postgresql: No support for casting bool to numeric");
-  }
-};
-}  // namespace postgresql
-
 template <typename Expression>
-struct compatibility_check<postgresql::context_t,
-                           cast_t<Expression, sqlpp::unsigned_integral>> {
-  using type = postgresql::assert_no_unsigned;
+  requires(is_unsigned_integral_v<data_type_of_t<Expression>>)
+constexpr void check_compatibility(type_v<postgresql::context_t>,
+                                   type_v<Expression>) {
+  throw std::domain_error("Postgresql: No support for unsigned integral");
 };
 
 template <typename Type>
-  requires(std::is_same_v<Type, integral> or
-           std::is_same_v<Type, unsigned_integral> or
-           std::is_same_v<Type, floating_point>)
-struct compatibility_check<postgresql::context_t, cast_t<bool, Type>> {
-  using type = postgresql::assert_no_cast_bool_to_numeric;
+  requires(is_numeric<Type>::value)
+constexpr void check_compatibility(type_v<postgresql::context_t>,
+                                   type_v<cast_t<bool, Type>>) {
+  throw std::domain_error("Postgresql: No support for casting bool to numeric");
 };
 
 }  // namespace sqlpp

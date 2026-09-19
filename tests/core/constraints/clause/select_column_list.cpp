@@ -48,10 +48,6 @@ concept cannot_call_select_columns_with =
         can_call_select_columns_with_in_statement<Expressions...>);
 }  // namespace
 
-namespace test {
-SQLPP_CREATE_NAME_TAG(max_id);
-}
-
 int main() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};

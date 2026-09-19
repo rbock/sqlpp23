@@ -90,7 +90,7 @@ struct result_data_type_of<PointId> {
 
 // Prepared statement parameter structs hold PointId directly.
 template <>
-struct parameter_value<PointId> {
+struct parameter_data_type<PointId> {
   using type = PointId;
 };
 

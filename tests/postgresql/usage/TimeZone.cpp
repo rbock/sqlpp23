@@ -33,7 +33,7 @@ void save_regular(sqlpp::postgresql::connection& db,
                   std::chrono::microseconds tod,
                   std::chrono::sys_days dp) {
   test::tab_date_time tab{};
-  db(update(tab).set(tab.timestamp_nTz = tp, tab.time_nTz = tod,
+  db(update(tab).set(tab.timestamp_n_tz = tp, tab.time_n_tz = tod,
                      tab.date_n = dp));
 }
 
@@ -43,11 +43,11 @@ void save_prepared(sqlpp::postgresql::connection& db,
                    std::chrono::sys_days dp) {
   test::tab_date_time tab{};
   auto prepared_update =
-      db.prepare(update(tab).set(tab.timestamp_nTz = parameter(tab.timestamp_nTz),
-                                 tab.time_nTz = parameter(tab.time_nTz),
+      db.prepare(update(tab).set(tab.timestamp_n_tz = parameter(tab.timestamp_n_tz),
+                                 tab.time_n_tz = parameter(tab.time_n_tz),
                                  tab.date_n = parameter(tab.date_n)));
-  prepared_update.parameters.timestamp_nTz = tp;
-  prepared_update.parameters.time_nTz = tod;
+  prepared_update.parameters.timestamp_n_tz = tp;
+  prepared_update.parameters.time_n_tz = tod;
   prepared_update.parameters.date_n = dp;
   db(prepared_update);
 }
@@ -60,12 +60,12 @@ void check_saved_values(sqlpp::postgresql::connection& db,
 
   const auto& rows_1 =
       db(select(
-             // timestamp_nTz as microseconds from the start of the UNIX epoch
+             // timestamp_n_tz as microseconds from the start of the UNIX epoch
              // (1970-01-01 00:00:00 UTC)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from timestamp_n_tz)*1000000)::int8")
                  .as<"a">(),
-             // time_nTz as microseconds from the start of the day (00:00:00
+             // time_n_tz as microseconds from the start of the day (00:00:00
              // UTC)
              sqlpp::verbatim<sqlpp::integral>(
                  "floor(extract(epoch from time_n_tz)*1000000)::int8")
@@ -90,8 +90,8 @@ void check_saved_values(sqlpp::postgresql::connection& db,
   // types from C++ to PostgreSQL and then back from PostgreSQL to C++.
   const auto rows_2 = db(select(all_of(tab)).from(tab));
   const auto& row_2 = rows_2.front();
-  require_equal(__LINE__, row_2.timestamp_nTz.value(), tp);
-  require_equal(__LINE__, row_2.time_nTz.value(), tod);
+  require_equal(__LINE__, row_2.timestamp_n_tz.value(), tp);
+  require_equal(__LINE__, row_2.time_n_tz.value(), tod);
   require_equal(__LINE__, row_2.date_n.value(), dp);
 }
 
@@ -117,7 +117,7 @@ int TimeZone(int, char*[]) {
   // serialization/parsing bugs
   auto db = sql::make_test_connection("+1");
 
-  test::createtab_date_time(db);
+  test::create_tab_date_time(db);
 
   test::tab_date_time tab{};
   try {

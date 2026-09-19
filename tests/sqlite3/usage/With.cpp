@@ -32,7 +32,7 @@ const auto tab = test::tab_foo{};
 int With(int, char*[]) {
 #if SQLITE_VERSION_NUMBER >= 3008003
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   auto a = sqlpp::cte<"a">()
                .as(select(all_of(tab)).from(tab).where(tab.int_n > 3));

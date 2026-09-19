@@ -31,7 +31,7 @@
 namespace sql = sqlpp::sqlite3;
 int AutoIncrement(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   const auto tab = test::tab_foo{};
   db(insert_into(tab).default_values());

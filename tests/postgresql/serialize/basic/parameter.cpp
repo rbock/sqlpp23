@@ -30,38 +30,38 @@ int main() {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
 
-  SQLPP_COMPARE(parameter(foo.float_n), "$1");
-  SQLPP_COMPARE(bar.id > parameter(foo.float_n), "tab_bar.id > $1");
+  SQLPP_COMPARE(parameter(foo.double_n), "$1");
+  SQLPP_COMPARE(bar.id > parameter(foo.double_n), "tab_bar.id > $1");
 
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>(), "$1");
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>()), "$1");
 
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() >
-                    sqlpp::parameter<other, sqlpp::integral>(),
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() >
+                    sqlpp::parameter<"other", sqlpp::integral>()),
                 "$1 > $2");
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() +
-                    sqlpp::parameter<other, sqlpp::integral>(),
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() +
+                    sqlpp::parameter<"other", sqlpp::integral>()),
                 "$1 + $2");
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() |
-                    sqlpp::parameter<other, sqlpp::integral>(),
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() |
+                    sqlpp::parameter<"other", sqlpp::integral>()),
                 "$1 | $2");
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>()
-                    .between(sqlpp::parameter<other, sqlpp::integral>(),
-                             sqlpp::parameter<a, sqlpp::integral>()),
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>()
+                    .between(sqlpp::parameter<"other", sqlpp::integral>(),
+                             sqlpp::parameter<"a", sqlpp::integral>())),
                 "$1 BETWEEN $2 AND $3");
 
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::integral>() +
-                    sqlpp::parameter<other, sqlpp::integral>() +
-                    sqlpp::parameter<a, sqlpp::integral>(),
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() +
+                    sqlpp::parameter<"other", sqlpp::integral>() +
+                    sqlpp::parameter<"a", sqlpp::integral>()),
                 "($1 + $2) + $3");
-  SQLPP_COMPARE(sqlpp::parameter<something, sqlpp::boolean>() and
-                    sqlpp::parameter<other, sqlpp::boolean>() and
-                    sqlpp::parameter<a, sqlpp::boolean>(),
+  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::boolean>() and
+                    sqlpp::parameter<"other", sqlpp::boolean>() and
+                    sqlpp::parameter<"a", sqlpp::boolean>()),
                 "$1 AND $2 AND $3");
 
   {
     auto s =
         select(parameter(foo.id).as<"something">(), parameter(bar.text_n).as<"other">(),
-               parameter(foo.float_n).as<"double_n">());
+               parameter(foo.double_n).as<"double_n">());
 
     SQLPP_COMPARE(s, "SELECT $1 AS something, $2 AS other, $3 AS double_n");
   }
@@ -71,7 +71,7 @@ int main() {
     auto right =
         select(parameter(bar.text_n).as<"something">()).as<"right">();
 
-    SQLPP_COMPARE(left.join(right).on(parameter(foo.float_n) > 7),
+    SQLPP_COMPARE(left.join(right).on(parameter(foo.double_n) > 7),
                   "(SELECT $1 AS something) AS left INNER JOIN (SELECT $2 AS "
                   "something) AS right ON $3 > 7");
     SQLPP_COMPARE(left.cross_join(right),
@@ -108,7 +108,7 @@ int main() {
   SQLPP_COMPARE(
       sqlpp::on_conflict(foo.id).do_update(
           foo.int_n = parameter(foo.int_n), foo.text_nn_d = parameter(foo.text_nn_d)),
-      " ON CONFLICT (id) DO UPDATE SET int_n = $1, text_nn_d = $2");
+      "ON CONFLICT (id) DO UPDATE SET int_n = $1, text_nn_d = $2");
 
   return 0;
 }

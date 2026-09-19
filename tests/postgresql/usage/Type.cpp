@@ -33,8 +33,8 @@ int Type(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
   try {
-    test::createtab_foo(db);
-    test::createtab_bar(db);
+    test::create_tab_foo(db);
+    test::create_tab_bar(db);
 
     const auto tab = test::tab_bar{};
     db(insert_into(tab).default_values());

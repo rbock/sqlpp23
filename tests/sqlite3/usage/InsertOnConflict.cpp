@@ -34,7 +34,7 @@ int InsertOnConflict(int, char*[]) {
 
   sql::connection db = sql::make_test_connection();
 
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   // Test on conflict
   db(sql::insert_into(foo).set(foo.int_n = 7).on_conflict().do_nothing());

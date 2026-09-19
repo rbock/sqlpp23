@@ -28,7 +28,7 @@
 
 int main() {
   // Testing data type serialization
-  SQLPP_COMPARE(cast("7", as(sqlpp::blob{})), "CAST('7' AS BYTEA)");
+  SQLPP_COMPARE(cast("7", sqlpp::as<sqlpp::blob>()), "CAST('7' AS BYTEA)");
 
   return 0;
 }

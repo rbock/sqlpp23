@@ -41,7 +41,7 @@
 namespace sql = ::sqlpp::postgresql;
 
 void test_enum_rw(sql::connection& db) {
-  auto te = test::TabEnums{};
+  auto te = test::tab_enums{};
   auto val_write = std::vector<std::pair<animal, shape>>{
       // For the write/read check below to work, these values should be ordered
       // by the first member ("animal") in ascending order and then by the
@@ -71,7 +71,7 @@ int main() {
   auto db = sql::make_test_connection();
   db("DROP TYPE IF EXISTS shape CASCADE");
   db("CREATE TYPE shape AS ENUM ('circle', 'square', 'triangle')");
-  test::createTabEnums(db);
+  test::create_tab_enums(db);
   test_enum_rw(db);
   return 0;
 }

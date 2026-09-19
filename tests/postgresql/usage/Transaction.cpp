@@ -28,8 +28,6 @@
 
 namespace sql = sqlpp::postgresql;
 
-SQLPP_CREATE_NAME_TAG(level);
-
 int Transaction(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
@@ -39,7 +37,7 @@ int Transaction(int, char*[]) {
       auto current_level = std::string(
           db(sqlpp::statement_t{}
              << sqlpp::verbatim_clause("show transaction_isolation;")
-             << with_result_type_of(select(sqlpp::value("").as(level))))
+             << with_result_type_of(select(sqlpp::value("").as<"level">())))
               .front()
               .level);
       require_equal(__LINE__, current_level, "read committed");
@@ -51,7 +49,7 @@ int Transaction(int, char*[]) {
       current_level =
           db(sqlpp::statement_t{}
              << sqlpp::verbatim_clause("show transaction_isolation;")
-             << with_result_type_of(select(sqlpp::value("").as(level))))
+             << with_result_type_of(select(sqlpp::value("").as<"level">())))
               .front()
               .level;
       require_equal(__LINE__, current_level, "serializable");

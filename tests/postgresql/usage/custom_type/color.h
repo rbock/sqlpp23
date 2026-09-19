@@ -117,7 +117,7 @@ struct result_data_type_of<Color> {
 
 // Prepared statement parameter structs hold Color directly.
 template <>
-struct parameter_value<Color> {
+struct parameter_data_type<Color> {
   using type = Color;
 };
 

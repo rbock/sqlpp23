@@ -34,7 +34,7 @@ int InsertOnConflict(int, char*[]) {
 
   sql::connection db = sql::make_test_connection();
 
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   // Test on conflict
   db(sql::insert_into(foo).default_values().on_conflict().do_nothing());
@@ -45,11 +45,11 @@ int InsertOnConflict(int, char*[]) {
   // Test on conflict (with mulitple conflict targets)
   db(sql::insert_into(foo)
          .default_values()
-         .on_conflict(foo.id, dynamic(true, foo.int_nnU))
+         .on_conflict(foo.id, dynamic(true, foo.int_nn_u))
          .do_nothing());
   db(sql::insert_into(foo)
          .default_values()
-         .on_conflict(foo.id, dynamic(false, foo.int_nnU))
+         .on_conflict(foo.id, dynamic(false, foo.int_nn_u))
          .do_nothing());
 
   // Conflict target

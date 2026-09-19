@@ -26,9 +26,6 @@
 
 #include <sqlpp26/tests/postgresql/all.h>
 
-SQLPP_CREATE_NAME_TAG(count_1);
-SQLPP_CREATE_NAME_TAG(count_star);
-
 auto require_close(int line, double l, double r) -> void
 {
   if (std::abs(l - r) > 0.001) {
@@ -47,7 +44,7 @@ int main(int, char*[]) {
     const auto tab = test::tab_foo{};
     auto db = sql::make_test_connection();
 
-    test::createtab_foo(db);
+    test::create_tab_foo(db);
 
     // clear the table
     db(truncate(tab));
@@ -60,8 +57,8 @@ int main(int, char*[]) {
     // select count
     for (const auto& row : db(select(
             count(tab.int_n).as<"count_">(),
-            sqlpp::count(1).as(count_1),
-            count(sqlpp::star).as(count_star)
+            sqlpp::count(1).as<"count_1">(),
+            count(sqlpp::star).as<"count_star">()
             ).from(tab))) {
       assert(row.count_ == 3);
       assert(row.count_1 == 3);
@@ -71,7 +68,7 @@ int main(int, char*[]) {
     // select distinct count
     for (const auto& row : db(select(
             count(sqlpp::distinct, tab.int_n).as<"distinct_count_">(),
-            count(sqlpp::distinct, 1).as(count_1)
+            count(sqlpp::distinct, 1).as<"count_1">()
             ).from(tab))) {
       assert(row.distinct_count_ == 2);
       assert(row.count_1 == 1);

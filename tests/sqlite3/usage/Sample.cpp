@@ -35,8 +35,8 @@ SQLPP_CREATE_NAME_TAG(something);
 namespace sql = sqlpp::sqlite3;
 int Sample(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
-  test::createtab_bar(db);
+  test::create_tab_foo(db);
+  test::create_tab_bar(db);
 
   const auto tab = test::tab_foo{};
 

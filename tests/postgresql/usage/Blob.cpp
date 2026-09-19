@@ -32,7 +32,7 @@
 #include <sqlpp26/tests/postgresql/all.h>
 
 namespace sql = sqlpp::postgresql;
-const auto blob = ::test::BlobSample{};
+const auto blob = ::test::blob_sample{};
 
 // This would be a great fuzzing target :-)
 constexpr size_t blob_size = 1000 * 1000ul;
@@ -40,7 +40,7 @@ constexpr size_t blob_small_size = 999;
 
 void verify_blob(sql::connection& db,
                  const std::vector<uint8_t>& expected,
-                 uint64_t id) {
+                 int64_t id) {
   auto result = db(select(blob.data).from(blob).where(blob.id == id));
   const auto& result_row = result.front();
   if (!result_row.data)
@@ -69,7 +69,7 @@ void verify_blob(sql::connection& db,
 int Blob(int, char*[]) {
   sql::connection db = sql::make_test_connection();
 
-  test::createBlobSample(db);
+  test::create_blob_sample(db);
 
   std::cerr << "Generating data " << blob_size << std::endl;
   std::vector<uint8_t> data(blob_size);

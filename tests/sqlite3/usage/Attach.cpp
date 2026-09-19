@@ -32,7 +32,7 @@ int Attach(int, char*[]) {
   // Opening a connection to an in-memory database and creating a table in it
   auto config = sql::make_test_config();
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   // Attaching another in-memory database and creating the same table in it
   auto other = db.attach(*config, "other");

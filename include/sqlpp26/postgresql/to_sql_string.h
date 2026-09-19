@@ -34,9 +34,9 @@
 
 namespace sqlpp::postgresql {
 // Serialize parameters
-template <typename DataType, typename NameType>
+template <typename DataType, fixed_string Name>
 auto to_sql_string(postgresql::context_t& context,
-                   const parameter_t<DataType, NameType>&) -> std::string {
+                   const parameter_t<DataType, Name>&) -> std::string {
   return std::string("$") + std::to_string(++context._count);
 }
 
@@ -75,8 +75,9 @@ inline auto to_sql_string(postgresql::context_t&,
   return std::format("TIME WITH TIME ZONE'{0:%H:%M:%S+00}'", t);
 }
 
-inline auto data_type_to_sql_string(postgresql::context_t&,
-                          const sqlpp::blob&) -> std::string {
+template <typename T>
+  requires(is_blob_v<T>)
+auto data_type_to_sql_string(postgresql::context_t&) -> std::string {
   return "BYTEA";
 }
 

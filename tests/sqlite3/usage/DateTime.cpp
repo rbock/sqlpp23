@@ -38,7 +38,7 @@ namespace sql = sqlpp::sqlite3;
 int DateTime(int, char*[]) {
   try {
     auto db = sql::make_test_connection();
-    test::createtab_date_time(db);
+    test::create_tab_date_time(db);
 
     const auto tab = test::tab_date_time{};
     db(insert_into(tab).default_values());

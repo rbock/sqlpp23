@@ -83,7 +83,7 @@ auto tx(F&& handler) {
 
 void tab_bar_create() {
   auto dbc = get_connection();
-  test::createtab_bar(dbc);
+  test::create_tab_bar(dbc);
   auto tb = test::tab_bar{};
   dbc(insert_into(tb).set(tb.int_n = 0));
 }

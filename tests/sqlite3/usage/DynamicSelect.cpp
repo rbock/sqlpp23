@@ -29,7 +29,7 @@
 namespace sql = sqlpp::sqlite3;
 int DynamicSelect(int, char*[]) {
   auto db = sql::make_test_connection();
-  test::createtab_foo(db);
+  test::create_tab_foo(db);
 
   const auto tab = test::tab_foo{};
 
