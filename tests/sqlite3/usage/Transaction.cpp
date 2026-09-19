@@ -28,8 +28,6 @@
 
 namespace sql = sqlpp::sqlite3;
 
-SQLPP_CREATE_NAME_TAG(pragma);
-
 int Transaction(int, char*[]) {
   auto db = sql::make_test_connection();
 
@@ -45,7 +43,7 @@ int Transaction(int, char*[]) {
   int64_t pragmaValue =
       db(sqlpp::statement_t<>{}
          << sqlpp::verbatim_clause("PRAGMA read_uncommitted")
-         << with_result_type_of(select(sqlpp::value(1).as(pragma))))
+         << with_result_type_of(select(sqlpp::value(1).as<"pragma">())))
           .front()
           .pragma;
   assert(pragmaValue == 0);
@@ -59,7 +57,7 @@ int Transaction(int, char*[]) {
 
   pragmaValue = db(sqlpp::statement_t<>{}
                    << sqlpp::verbatim_clause("PRAGMA read_uncommitted")
-                   << with_result_type_of(select(sqlpp::value(1).as(pragma))))
+                   << with_result_type_of(select(sqlpp::value(1).as<"pragma">())))
                     .front()
                     .pragma;
   std::cerr << "Now expecting read_uncommitted = 1, is: " << pragmaValue

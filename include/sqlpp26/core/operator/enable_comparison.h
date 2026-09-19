@@ -78,10 +78,11 @@ class enable_comparison {
     return ::sqlpp::not_in(std::forward<Expr>(self), std::move(args));
   }
 
+  // TODO: Need a core test
   template <typename Expr, typename Select>
     requires(has_statement_data_type_v<Select>)
   constexpr auto not_in(this Expr&& self, Select arg)
-      -> decltype(::sqlpp::in(std::forward<Expr>(self), std::move(arg))) {
+      -> decltype(::sqlpp::not_in(std::forward<Expr>(self), std::move(arg))) {
     return ::sqlpp::not_in(std::forward<Expr>(self), std::move(arg));
   }
 

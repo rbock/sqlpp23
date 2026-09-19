@@ -40,7 +40,6 @@ int main() {
   {
     auto u = using_(foo);
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(u)),
-                               sqlpp::sqlite3::assert_no_using_t>::value);
+    expect_compatibility_fails<CTX, decltype(u), "Sqlite3: No support for USING">();
   }
 }

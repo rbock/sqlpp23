@@ -27,8 +27,6 @@
 
 #include <sqlpp26/tests/sqlite3/all.h>
 
-SQLPP_CREATE_NAME_TAG(cheese);
-
 namespace sql = sqlpp::sqlite3;
 int main(int, char*[]) {
   try {
@@ -38,7 +36,7 @@ int main(int, char*[]) {
     const auto foo = test::tab_foo{};
 
     // select value
-    for (const auto& row : db(select(sqlpp::value(23).as(cheese)))) {
+    for (const auto& row : db(select(sqlpp::value(23).as<"cheese">()))) {
       std::ignore = row.cheese;
     }
 

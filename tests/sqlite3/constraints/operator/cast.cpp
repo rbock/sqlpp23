@@ -33,19 +33,13 @@ int main() {
 
   // No support for cast to date / time
   {
-    auto ca = cast("", as(sqlpp::date{}));
-    auto cb = cast("", as(sqlpp::timestamp{}));
-    auto cc = cast("", as(sqlpp::time{}));
+    auto ca = cast("", sqlpp::as<sqlpp::date>());
+    auto cb = cast("", sqlpp::as<sqlpp::timestamp>());
+    auto cc = cast("", sqlpp::as<sqlpp::time_of_day>());
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(ca)),
-                     sqlpp::sqlite3::assert_no_cast_to_date_time>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(cb)),
-                     sqlpp::sqlite3::assert_no_cast_to_date_time>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(cc)),
-                     sqlpp::sqlite3::assert_no_cast_to_date_time>::value);
+    expect_compatibility_fails<CTX, decltype(ca), "Sqlite3: No support for casting to date / time types">();
+    expect_compatibility_fails<CTX, decltype(cb), "Sqlite3: No support for casting to date / time types">();
+    expect_compatibility_fails<CTX, decltype(cc), "Sqlite3: No support for casting to date / time types">();
   }
 
 }

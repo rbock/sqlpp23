@@ -50,8 +50,6 @@ int main() {
   {
     auto c = on_conflict(foo.id).do_update(foo.int_n = 7);
 
-      static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(c)),
-                     sqlpp::sqlite3::assert_no_on_conflict_t>::value);
+    expect_compatibility_fails<CTX, decltype(c), "Sqlite3: No full support for ON CONFLICT before version 3.35.0">();
   }
 }

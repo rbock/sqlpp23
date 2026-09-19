@@ -26,13 +26,8 @@
 
 #include <sqlpp26/tests/sqlite3/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(pragma);
-SQLPP_CREATE_NAME_TAG(sub);
-SQLPP_CREATE_NAME_TAG(something);
-}  // namespace
-
 namespace sql = sqlpp::sqlite3;
+
 int Sample(int, char*[]) {
   auto db = sql::make_test_connection();
   test::create_tab_foo(db);
@@ -56,7 +51,8 @@ int Sample(int, char*[]) {
   };
   // insert
   std::cerr << "no of required columns: "
-            << sqlpp::required_insert_columns_of_t<test::tab_foo>::size()
+            << sqlpp::get_required_insert_columns_of(
+                   sqlpp::type_v<test::tab_foo>{}).size()
             << std::endl;
   db(insert_into(tab).default_values());
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
@@ -83,10 +79,10 @@ int Sample(int, char*[]) {
   auto tx = start_transaction(db);
   test::tab_bar bar;
   for (const auto& row :
-       db(select(all_of(tab), value(select(max(bar.int_n).as(something))
+       db(select(all_of(tab), value(select(max(bar.int_n).as<"something">())
                                         .from(bar)
                                         .where(bar.int_n > tab.int_n))
-                                  .as(something))
+                                  .as<"something">())
               .from(tab))) {
     std::optional<int64_t> x = row.int_n;
     std::optional<int64_t> a = row.something;
@@ -121,7 +117,7 @@ int Sample(int, char*[]) {
   std::cerr << "--------" << std::endl;
   const auto last_id =
       db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")
-                    .as(something)))
+                    .as<"something">()))
           .front()
           .something;
   ps.parameters.int_n = last_id.value();
@@ -177,7 +173,7 @@ int Sample(int, char*[]) {
     std::cerr << i << std::endl;
   }
 
-  assert(db(select(count(tab.id).as(something)).from(tab)).begin()->something);
+  assert(db(select(count(tab.id).as<"something">()).from(tab)).begin()->something);
   assert(db(select(all_of(tab))
                 .from(tab)
                 .where(tab.int_n.not_in(select(tab.int_n).from(tab))))
@@ -187,13 +183,13 @@ int Sample(int, char*[]) {
            << sqlpp::verbatim_clause("PRAGMA user_version = 1");
   db(x);
   const int64_t pragmaValue =
-      db(x << with_result_type_of(select(sqlpp::value(1).as(pragma))))
+      db(x << with_result_type_of(select(sqlpp::value(1).as<"pragma">())))
           .front()
           .pragma;
   std::cerr << pragmaValue << std::endl;
 
   // Testing sub select tables and unconditional joins
-  const auto subQuery = select(tab.int_n).from(tab).as(sub);
+  const auto subQuery = select(tab.int_n).from(tab).as<"sub">();
   for (const auto& row : db(select(subQuery.int_n).from(subQuery))) {
     std::cerr << row.int_n;
   }

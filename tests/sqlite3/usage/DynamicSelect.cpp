@@ -44,7 +44,7 @@ int DynamicSelect(int, char*[]) {
   // Just to demonstrate that you can call basically any function
   std::cerr << "last insert rowid: "
             << db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")
-                             .as(tab.int_n)))
+                             .as<"int_n">()))
                    .front()
                    .int_n
             << std::endl;
@@ -52,7 +52,7 @@ int DynamicSelect(int, char*[]) {
   std::cerr << "last insert rowid: "
             << db(select(dynamic(true, sqlpp::verbatim<sqlpp::integral>(
                                            "last_insert_rowid()")
-                                           .as(tab.int_n))))
+                                           .as<"int_n">())))
                    .front()
                    .int_n
             << std::endl;
@@ -60,7 +60,7 @@ int DynamicSelect(int, char*[]) {
   std::cerr << "last insert rowid: "
             << db(select(dynamic(false, sqlpp::verbatim<sqlpp::integral>(
                                             "last_insert_rowid()")
-                                            .as(tab.int_n))))
+                                            .as<"int_n">())))
                    .front()
                    .int_n
             << std::endl;

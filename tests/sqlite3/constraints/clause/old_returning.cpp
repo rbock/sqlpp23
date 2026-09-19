@@ -50,7 +50,6 @@ int main() {
   {
     auto r = returning(foo.id);
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(r)),
-                               sqlpp::sqlite3::assert_no_returning_t>::value);
+    expect_compatibility_fails<CTX, decltype(r), "Sqlite3: No support for RETURNING before version 3.35.0">();
   }
 }

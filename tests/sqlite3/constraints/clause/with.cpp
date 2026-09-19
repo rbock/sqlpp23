@@ -42,10 +42,6 @@
 
 #include <sqlpp26/tests/sqlite3/all.h>
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int main() {
   auto db = sqlpp::sqlite3::make_test_connection();
   auto ctx = sqlpp::sqlite3::context_t{&db};
@@ -54,12 +50,10 @@ int main() {
   const auto foo = test::tab_foo{};
 
   {
-    const auto c = sqlpp::cte(something).as(select(foo.id).from(foo));
+    const auto c = sqlpp::cte<"something">().as(select(foo.id).from(foo));
     const auto w = with(c);
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(c)),
-                               sqlpp::consistent_t>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(w)),
-                               sqlpp::sqlite3::assert_no_with_t>::value);
+    expect_compatibility_succeeds<CTX, decltype(c)>();
+    expect_compatibility_fails<CTX, decltype(w), "Sqlite3: No support for WITH before version 3.8.3">();
   }
 }

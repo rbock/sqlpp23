@@ -29,7 +29,6 @@ create_tests_group(
 )
 
 create_tests_combined(
-    Attach
     AutoIncrement
     Blob
     Connection

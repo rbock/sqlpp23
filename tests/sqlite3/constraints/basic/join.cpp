@@ -43,17 +43,14 @@ int main() {
   {
     auto j = foo.full_outer_join(bar).on(foo.id == bar.id);
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(j)),
-                     sqlpp::consistent_t>::value);
+    expect_compatibility_succeeds<CTX, decltype(j)>();
   }
 
   // sqlite3 does not support right outer join before 3.39.0
   {
     auto j = foo.right_outer_join(bar).on(foo.id == bar.id);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(j)),
-                     sqlpp::consistent_t>::value);
+
+    expect_compatibility_succeeds<CTX, decltype(j)>();
   }
 #endif
 }

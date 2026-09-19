@@ -71,10 +71,6 @@ std::string trim(std::string str, const std::string& chars = "\t\n\v\f\r ") {
 }
 }  // namespace string_util
 
-namespace {
-SQLPP_CREATE_NAME_TAG(something);
-}
-
 int Select(int, char*[]) {
   auto db = sql::make_test_connection();
   test::create_tab_foo(db);
@@ -98,15 +94,15 @@ int Select(int, char*[]) {
   db(select(all_of(tab))
          .from(tab)
          .where(tab.int_n.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.int_n).as(something)).from(tab));
-  db(select(avg(tab.int_n).as(something)).from(tab));
-  db(select(max(tab.int_n).as(something)).from(tab));
-  db(select(min(tab.int_n).as(something)).from(tab));
+  db(select(count(tab.int_n).as<"something">()).from(tab));
+  db(select(avg(tab.int_n).as<"something">()).from(tab));
+  db(select(max(tab.int_n).as<"something">()).from(tab));
+  db(select(min(tab.int_n).as<"something">()).from(tab));
   db(select(
-         exists(select(tab.int_n).from(tab).where(tab.int_n > 7)).as(something))
+         exists(select(tab.int_n).from(tab).where(tab.int_n > 7)).as<"something">())
          .from(tab));
-  db(select(trim(tab.text_nn_d).as(something)).from(tab));
-  db(select(coalesce(tab.text_nn_d, "fallback").as(something)).from(tab));
+  db(select(trim(tab.text_nn_d).as<"something">()).from(tab));
+  db(select(coalesce(tab.text_nn_d, "fallback").as<"something">()).from(tab));
 
   // db(select(not_exists(select(tab.int_n).from(tab).where(tab.int_n >
   // 7))).from(tab)); db(select(all_of(tab)).from(tab).where(tab.int_n ==
@@ -138,15 +134,15 @@ int Select(int, char*[]) {
   auto tx = start_transaction(db);
   for (const auto& row :
        db(select(all_of(tab),
-                 value(select(max(tab.int_n).as(something)).from(tab))
-                     .as(something))
+                 value(select(max(tab.int_n).as<"something">()).from(tab))
+                     .as<"something">())
               .from(tab))) {
     const auto x = row.int_n;
     const auto a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
   for (const auto& row :
-       db(select(tab.int_n, tab.text_nn_d, tab.bool_n, trim(tab.text_nn_d).as(something))
+       db(select(tab.int_n, tab.text_nn_d, tab.bool_n, trim(tab.text_nn_d).as<"something">())
               .from(tab))) {
     std::cerr << ">>> row.int_n: " << row.int_n << ", row.text_nn_d: " << row.text_nn_d
               << ", row.bool_n: " << row.bool_n << ", row.something: '"
@@ -158,8 +154,8 @@ int Select(int, char*[]) {
 
   for (const auto& row :
        db(select(all_of(tab),
-                 value(select(trim(tab.text_nn_d).as(something)).from(tab))
-                     .as(something))
+                 value(select(trim(tab.text_nn_d).as<"something">()).from(tab))
+                     .as<"something">())
               .from(tab))) {
     const std::optional<int64_t> x = row.int_n;
     const std::optional<std::string_view> a = row.something;

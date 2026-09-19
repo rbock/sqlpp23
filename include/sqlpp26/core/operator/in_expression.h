@@ -85,6 +85,12 @@ struct data_type_of<in_expression<L, Operator, std::tuple<Args...>>>
                        std::optional<bool>,
                        bool> {};
 
+// TODO: Add test
+template <typename L, typename Operator, typename... Clauses>
+struct data_type_of<in_expression<L, Operator, statement_t<Clauses...>>> {
+  using type = std::optional<bool>;
+};
+
 template <typename L, typename Operator, typename R>
 struct nodes_of<in_expression<L, Operator, std::vector<R>>> {
   using type = detail::type_vector<L, R>;
@@ -117,9 +123,6 @@ auto to_sql_string(Context& context,
   return result;
 }
 
-template <typename Container>
-struct value_list_t;
-
 template <typename Context, typename L, typename Operator, typename R>
 auto to_sql_string(Context& context,
                    const in_expression<L, Operator, std::vector<R>>& t)
@@ -140,6 +143,17 @@ auto to_sql_string(Context& context,
       result += operand_to_sql_string(context, entry);
     }
   }
+  result += ")";
+  return result;
+}
+
+// TODO Add test
+template <typename Context, typename L, typename Operator, typename... Clauses>
+auto to_sql_string(Context& context,
+                   const in_expression<L, Operator, statement_t<Clauses...>>& t)
+    -> std::string {
+  auto result = operand_to_sql_string(context, read.lhs(t)) + Operator::symbol + " (";
+  result += to_sql_string(context, read.rhs(t));
   result += ")";
   return result;
 }

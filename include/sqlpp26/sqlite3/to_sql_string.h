@@ -53,7 +53,7 @@ inline auto to_sql_string(context_t&, const union_distinct_t&) -> std::string {
 }
 
 inline auto to_sql_string(context_t&, const truncate_t&) -> std::string {
-  return "DELETE FROM ";
+  return "DELETE FROM";
 }
 
 template <typename L, typename R>
@@ -75,8 +75,8 @@ auto to_sql_string(context_t& context,
 }
 
 // Serialize parameters
-template <typename DataType, typename NameType>
-auto to_sql_string(context_t& context, const parameter_t<DataType, NameType>&)
+template <typename DataType, fixed_string Name>
+auto to_sql_string(context_t& context, const parameter_t<DataType, Name>&)
     -> std::string {
   return "?" + std::to_string(++context._count);
 }

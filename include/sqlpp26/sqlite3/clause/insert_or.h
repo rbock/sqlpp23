@@ -64,12 +64,14 @@ struct insert_or_result_methods_t {
 }  // namespace sqlite3
 
 template <typename Statement, typename InsertOrAlternative>
-struct consistency_check<Statement, sqlite3::insert_or_t<InsertOrAlternative>> {
-  using type = ::sqlpp::consistent_t;
-  constexpr auto operator()() {
-    return type{};
+struct basic_consistency_check<Statement, sqlite3::insert_or_t<InsertOrAlternative>> {
+  static constexpr void verify() {
   }
 };
+
+template <typename InsertOrAlternative>
+struct is_clause<sqlite3::insert_or_t<InsertOrAlternative>>
+    : public std::true_type {};
 
 template <typename InsertOrAlternative>
 struct is_result_clause<sqlite3::insert_or_t<InsertOrAlternative>>
@@ -86,11 +88,11 @@ using blank_insert_or_t = statement_t<insert_or_t<InsertOrAlternative>,
                                       no_into_t,
                                       no_insert_value_list_t>;
 
-inline auto insert_or_replace() -> blank_insert_or_t<insert_or_replace_t> {
+inline constexpr auto insert_or_replace() -> blank_insert_or_t<insert_or_replace_t> {
   return {};
 }
 
-inline auto insert_or_ignore() -> blank_insert_or_t<insert_or_ignore_t> {
+inline constexpr auto insert_or_ignore() -> blank_insert_or_t<insert_or_ignore_t> {
   return {};
 }
 

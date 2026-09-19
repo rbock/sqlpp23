@@ -52,7 +52,7 @@ int FloatingPoint(int, char*[]) {
   db(insert_into(tab).set(tab.double_n = -std::numeric_limits<double>::infinity()));
 
   auto prepared_insert =
-      db.prepare(insert_into(tab).set(tab.double_n = parameter(tab.float_n)));
+      db.prepare(insert_into(tab).set(tab.double_n = parameter(tab.double_n)));
   prepared_insert.parameters.double_n = std::numeric_limits<double>::quiet_NaN();
   db(prepared_insert);
   prepared_insert.parameters.double_n = std::numeric_limits<double>::infinity();

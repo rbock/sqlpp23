@@ -39,8 +39,7 @@ int main() {
   {
     auto r = returning(foo.id);
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(r)),
-                               sqlpp::consistent_t>::value);
+    expect_compatibility_succeeds<CTX, decltype(r)>();
   }
 #endif
 }

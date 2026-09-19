@@ -33,7 +33,6 @@ int main() {
   // Incompatible expression
   auto bad_statement = sqlpp::select(sqlpp::test::incompatible(7).as<"a">());
   using S = decltype(bad_statement);
-
   expect_basic_consistency_succeeds<S>();
   expect_prepare_consistency_succeeds<S>();
   expect_run_consistency_succeeds<S>();

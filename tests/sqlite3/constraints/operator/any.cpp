@@ -40,14 +40,10 @@ int main() {
     auto c = sqlpp::cte<"a">().as(s);
     auto w = with(c);
 
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(a)),
-                               sqlpp::sqlite3::assert_no_any_t>::value);
+    expect_compatibility_fails<CTX, decltype(a), "Sqlite3: No support for any()">();
     // Just checking if the constraint is passed through as it should
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(s)),
-                               sqlpp::sqlite3::assert_no_any_t>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(c)),
-                               sqlpp::sqlite3::assert_no_any_t>::value);
-    static_assert(std::is_same<decltype(check_compatibility<CTX>(w)),
-                               sqlpp::sqlite3::assert_no_any_t>::value);
+    expect_compatibility_fails<CTX, decltype(s), "Sqlite3: No support for any()">();
+    expect_compatibility_fails<CTX, decltype(c), "Sqlite3: No support for any()">();
+    expect_compatibility_fails<CTX, decltype(w), "Sqlite3: No support for any()">();
   }
 }

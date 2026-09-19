@@ -61,18 +61,10 @@ int main() {
     auto s = select(foo.id, bar.int_n) << f;
     auto w = with(sqlpp::cte<"a">().as(s));
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(j)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(f)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(s)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(w)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
+    expect_compatibility_fails<CTX, decltype(j), "Sqlite3: No support for full outer join before version 3.39.0">();
+    expect_compatibility_fails<CTX, decltype(f), "Sqlite3: No support for full outer join before version 3.39.0">();
+    expect_compatibility_fails<CTX, decltype(s), "Sqlite3: No support for full outer join before version 3.39.0">();
+    expect_compatibility_fails<CTX, decltype(w), "Sqlite3: No support for full outer join before version 3.39.0">();
   }
 
   // sqlite3 does not support right outer join before 3.39.0
@@ -82,17 +74,9 @@ int main() {
     auto s = select(foo.id, bar.int_n) << f;
     auto w = with(sqlpp::cte<"a">().as(s));
 
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(j)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(f)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(s)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
-    static_assert(
-        std::is_same<decltype(check_compatibility<CTX>(w)),
-                     sqlpp::sqlite3::assert_no_full_outer_join_t>::value);
+    expect_compatibility_fails<CTX, decltype(j), "Sqlite3: No support for right outer join before version 3.39.0">();
+    expect_compatibility_fails<CTX, decltype(f), "Sqlite3: No support for right outer join before version 3.39.0">();
+    expect_compatibility_fails<CTX, decltype(s), "Sqlite3: No support for right outer join before version 3.39.0">();
+    expect_compatibility_fails<CTX, decltype(w), "Sqlite3: No support for right outer join before version 3.39.0">();
   }
 }
