@@ -28,8 +28,6 @@
  */
 
 #include <sqlpp26/core/basic/table.h>
-#include <sqlpp26/core/basic/table_columns.h>
-#include <sqlpp26/core/name/create_name_tag.h>
 #include <sqlpp26/core/type_traits.h>
 
 namespace sample {
@@ -70,7 +68,7 @@ struct result_data_type_of<sample::uuid> {
 };
 
 template <>
-struct parameter_value<sample::uuid> {
+struct parameter_data_type<sample::uuid> {
   using type = sample::uuid;
 };
 

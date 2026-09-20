@@ -1,9 +1,9 @@
-#include <sample.h>
+#include <sample_identity_naming.h>
 
 int main() {
   test::tab_foo tab_foo;
   tab_foo.delta = "delta";
-  tab_foo.Epsilon = 42;
+  tab_foo._epsilon = 42;
   tab_foo.omega = 3.14;
 
   test::tab_bar tab_bar;

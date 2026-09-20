@@ -2,6 +2,8 @@
 
 # Differences between sqlpp11 and sqlpp23
 
+Dropped naming style option for code generator. Names are used as-is
+
 Dropped schema-qualified tables (or rather, the idea is to make the schema part of the table name)
 Reflection:
   - table definition

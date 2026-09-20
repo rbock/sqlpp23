@@ -67,29 +67,21 @@ if (${Python3_Interpreter_FOUND})
 
         include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-        foreach(sample_name sample sample_identity_naming)
-            set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}.h")
-            if(sample_name STREQUAL "sample_identity_naming")
-                set(naming_style identity)
-            else()
-                set(naming_style camel-case)
-            endif()
-            add_custom_command(
-                OUTPUT "${sqlpp.scripts.generated.sample.include}"
-                COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
-                        "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                        "--path-to-header" "${sqlpp.scripts.generated.sample.include}"
-                        "--naming-style" "${naming_style}"
-                        "--namespace" "test"
-                        "--suppress-timestamp-warning"
-                DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                        "${ddl2cpp}"
-                VERBATIM)
+        set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/sample.h")
+        add_custom_command(
+            OUTPUT "${sqlpp.scripts.generated.sample.include}"
+            COMMAND "${Python3_EXECUTABLE}" "${ddl2cpp}"
+                    "--path-to-ddl" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                    "--path-to-header" "${sqlpp.scripts.generated.sample.include}"
+                    "--namespace" "test"
+                    "--suppress-timestamp-warning"
+            DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                    "${ddl2cpp}"
+            VERBATIM)
 
-            add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp
-                "${sqlpp.scripts.generated.sample.include}")
-            target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp26::core)
-        endforeach()
+        add_executable(sqlpp.scripts.compiled.sample sample.cpp
+            "${sqlpp.scripts.generated.sample.include}")
+        target_link_libraries(sqlpp.scripts.compiled.sample PRIVATE sqlpp26_testing)
 
         # Invalid .types names
         foreach(bad_type "booltype" "invalid" "serial5" "typeint" "int_array" "int_array2" "int_array3")
@@ -130,6 +122,6 @@ if (${Python3_Interpreter_FOUND})
             VERBATIM)
         add_executable("${custom_type_exe}" "${custom_type_cpp}" ${custom_type_headers})
         target_include_directories("${custom_type_exe}" PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-        target_link_libraries("${custom_type_exe}" PRIVATE sqlpp26::core)
+        target_link_libraries("${custom_type_exe}" PRIVATE sqlpp26_testing)
     endif()
 endif()

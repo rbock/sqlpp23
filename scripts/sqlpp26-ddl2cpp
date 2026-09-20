@@ -382,7 +382,7 @@ class DdlExecutor:
             for key, value in new_annotations.items():
                 if key in annotations and annotations[key] != value:
                     logging.error(
-                        f"Mismatched {key} annotations found for {table.name}.{column.name}: "
+                        f"Mismatched {key} annotations found for {table.name}.{column.sql_name}: "
                         f"One annotation says '{annotations[key]}' but another says '{value}'."
                     )
                     cls._has_error = True
@@ -706,9 +706,6 @@ void {creation_helper_func}(Db& db) {{
 
     # Prepends optional schema with an `_`
     # Replaces each space in names with `_`
-    # Depending on naming_style
-    #    - returns name as UpperCamelCase
-    #    - returns identity
     def _to_class_name(self, name):
         name = name.replace(".", "_")
         name = name.replace(" ", "_")
@@ -716,20 +713,10 @@ void {creation_helper_func}(Db& db) {{
 
     # Prepends optional schema with an `_`
     # Replaces each space in names with `_`
-    # Depending on naming_style
-    #    - returns name as lowerCamelCase
-    #    - returns identity
     def _to_member_name(self, name):
         name = name.replace(".", "_")
         name = name.replace(" ", "_")
         return name
-
-    @staticmethod
-    def _repl_camel_case_func(m):
-        if m.group(1) in ["_", " "]:
-            return m.group(2).upper()
-        else:
-            return m.group(1) + m.group(2).upper()
 
     @staticmethod
     def _escape_if_reserved(name):

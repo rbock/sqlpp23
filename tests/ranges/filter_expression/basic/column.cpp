@@ -63,7 +63,9 @@ using tab_foo = sqlpp::table<_tab_foo>;
 
 template <typename Statement>
 constexpr void run(const Statement&) {
-  consteval { Statement::check_basic_consistency(); }
+  consteval {
+    check_basic_consistency(sqlpp::type_v<Statement>{});
+  }
 }
 
 
