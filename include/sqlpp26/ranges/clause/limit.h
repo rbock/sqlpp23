@@ -11,8 +11,8 @@
  *   list of conditions and the following disclaimer.
  *
  *   Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,23 +27,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <algorithm>
-#include <string_view>
+#include <sqlpp26/ranges/to_filter_expression.h>
+#include <sqlpp26/core/clause/limit.h>
+#include <sqlpp26/core/indices.h>
+#include <sqlpp26/ranges/type_traits.h>
 
-namespace sqlpp {
-template <size_t N>
-struct fixed_string {
-  char data[N];
+namespace sqlpp::ranges {
 
-  consteval fixed_string(char const (&s)[N]) noexcept { std::copy(s, s + N, data); }
-  // Used for ranges adaptor.
-  consteval fixed_string(std::string_view s) noexcept { std::copy(s.data(), s.data() + N, data); }
-
-  constexpr operator ::std::string_view() const {
-    return ::std::string_view(data);
-  }
-
+struct no_limit {
 };
 
-}  // namespace sqlpp
+// TODO: Need real implementation
+template <typename Filter>
+struct limit {
+  constexpr auto operator()(const auto& row) const -> int64_t {
+      return _filter(row);
+  }
 
+  Filter _filter;
+};
+
+}  // namespace sqlpp::ranges
+
+namespace sqlpp {
+constexpr auto to_filter_expression(const no_limit_t&) {
+  return ranges::no_limit{};
+}
+template <typename Filter>
+constexpr auto to_filter_expression(const limit_t<Filter>& t) {
+  return ranges::limit{to_filter_expression(read.expression(t))};
+}
+}  // namespace sqlpp

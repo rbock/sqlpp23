@@ -32,7 +32,7 @@
 
 #include <sqlpp26/core/basic/table.h>
 #include <sqlpp26/core/field_spec.h>
-//#include <sqlpp26/core/clause/select_as.h>
+#include <sqlpp26/core/clause/select_as.h>
 #include <sqlpp26/core/clause/select_column_traits.h>
 //#include <sqlpp26/core/clause/select_columns_aggregate_check.h>
 #include <sqlpp26/core/clause/select_flags.h>
@@ -43,7 +43,7 @@
 #include <sqlpp26/core/basic/column_spec.h>
 #include <sqlpp26/core/operator/as_expression.h>
 #include <sqlpp26/core/query/dynamic.h>
-//#include <sqlpp26/core/query/result_row.h>
+#include <sqlpp26/core/query/result_row.h>
 #include <sqlpp26/core/query/statement.h>
 #include <sqlpp26/core/query/statement_handler.h>
 #include <sqlpp26/core/reader.h>

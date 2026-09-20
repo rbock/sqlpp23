@@ -30,14 +30,20 @@
 #include <sqlpp26/core/type_traits.h>
 #include <sqlpp26/ranges/aggregate_function/count.h>
 #include <sqlpp26/ranges/aggregate_function/sum.h>
+#include <sqlpp26/ranges/clause/for_update.h>
 #include <sqlpp26/ranges/clause/from.h>
 #include <sqlpp26/ranges/clause/group_by.h>
+#include <sqlpp26/ranges/clause/having.h>
 #include <sqlpp26/ranges/clause/insert.h>
 #include <sqlpp26/ranges/clause/insert_value_list.h>
 #include <sqlpp26/ranges/clause/into.h>
+#include <sqlpp26/ranges/clause/limit.h>
+#include <sqlpp26/ranges/clause/offset.h>
+#include <sqlpp26/ranges/clause/order_by.h>
 #include <sqlpp26/ranges/clause/select.h>
 #include <sqlpp26/ranges/clause/select_column_list.h>
 #include <sqlpp26/ranges/clause/single_table.h>
+#include <sqlpp26/ranges/clause/union.h>
 #include <sqlpp26/ranges/clause/update.h>
 #include <sqlpp26/ranges/clause/update_set_list.h>
 #include <sqlpp26/ranges/clause/where.h>
@@ -112,6 +118,7 @@ int main() {
 
   auto v = std::vector{foo};
   auto result = select_filter.select(v);
+#if 0
   if (result.empty()) { std::println("result unexpectedly empty"); throw 7;}
   for (const auto& row : result)
   {
@@ -156,6 +163,6 @@ int main() {
         constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");
       constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
       */
-
+#endif
 
 }

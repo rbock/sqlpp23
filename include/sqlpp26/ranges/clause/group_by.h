@@ -53,7 +53,7 @@ namespace sqlpp {
 constexpr auto to_filter_expression(const no_group_by_t&) {
   return ranges::no_group_by{};
 }
-template <typename... Flags, typename... Expressions>
+template <typename... Expressions>
 constexpr auto to_filter_expression(
     const group_by_t<Expressions...>& t) {
   static constexpr auto [...Idx] = indices<sizeof...(Expressions)>;

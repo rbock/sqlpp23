@@ -11,8 +11,8 @@
  *   list of conditions and the following disclaimer.
  *
  *   Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,23 +27,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <algorithm>
-#include <string_view>
+#include <sqlpp26/ranges/to_filter_expression.h>
+#include <sqlpp26/core/clause/order_by.h>
+#include <sqlpp26/core/indices.h>
 
-namespace sqlpp {
-template <size_t N>
-struct fixed_string {
-  char data[N];
+namespace sqlpp::ranges {
 
-  consteval fixed_string(char const (&s)[N]) noexcept { std::copy(s, s + N, data); }
-  // Used for ranges adaptor.
-  consteval fixed_string(std::string_view s) noexcept { std::copy(s.data(), s.data() + N, data); }
-
-  constexpr operator ::std::string_view() const {
-    return ::std::string_view(data);
-  }
-
+struct no_order_by {
 };
 
-}  // namespace sqlpp
+template <typename... Accessors>
+struct order_by {
+  template <typename Struct>
+  constexpr auto operator()(const Struct& s) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    return std::tie(std::get<Idx>(_accessors)(s)...);
+  }
 
+  std::tuple<Accessors...> _accessors;
+};
+
+}  // namespace sqlpp::ranges
+
+namespace sqlpp {
+constexpr auto to_filter_expression(const no_order_by_t&) {
+  return ranges::no_order_by{};
+}
+template <typename... Expressions>
+constexpr auto to_filter_expression(
+    const order_by_t<Expressions...>& t) {
+  static constexpr auto [...Idx] = indices<sizeof...(Expressions)>;
+  return ranges::order_by{std::make_tuple(to_filter_expression(std::get<Idx>(read.expressions(t)))...)};
+}
+}  // namespace sqlpp::ranges

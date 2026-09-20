@@ -70,9 +70,11 @@ struct make_stl_table {
   static constexpr bool has_default = not (std::is_integral_v<column_type<Idx>> or std::is_floating_point_v<column_type<Idx>>);
 
   template<size_t Idx>
-  using column_spec = column_spec<fixed_string<std::meta::identifier_of(data_members[Idx]).size()>(std::meta::identifier_of(data_members[Idx])), column_type<Idx>, has_default<Idx>>;
+  using column_spec = column_spec<fixed_string<std::meta::identifier_of(data_members[Idx]).size()>(std::meta::identifier_of(data_members[Idx]).data()), column_type<Idx>, has_default<Idx>>;
 
   using data_struct = DataStruct;
+
+  static constexpr fixed_string name = "undefined";
 };
 
 }  // namespace sqlpp

@@ -177,14 +177,14 @@ template <typename... Clauses>
 consteval void check_basic_consistency(type_v<statement_t<Clauses...>>) {
   using Statement = statement_t<Clauses...>;
   (basic_consistency_check<Statement, Clauses>::verify(), ...);
-  std::flat_set<std::string_view> all;
+  std::flat_set<std::string_view> all_provided_tables;
   template for (constexpr auto index :
                 std::views::iota(size_t{}, sizeof...(Clauses))) {
     static constexpr auto provided_tables = std::define_static_array(
         get_provided_tables_of(type_v<Clauses... [index]> {}));
     template for (constexpr auto& info : provided_tables) {
       using Table = typename[:info:];
-      const auto [_, unique] = all.insert(std::string_view{name_of_v<Table>});
+      const auto [_, unique] = all_provided_tables.insert(std::string_view{name_of_v<Table>});
       if (not unique) {
         throw std::domain_error(
             std::format("Table(s) of name {} provided twice in the statement",
