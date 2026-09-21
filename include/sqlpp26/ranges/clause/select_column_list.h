@@ -57,7 +57,7 @@ struct result_row {
       using T = typename result_member_type<Struct, Accessors...[index]>::type;
       row_data_members.push_back(std::meta::data_member_spec(
           ^^T,
-          {.name = ::sqlpp::name_of_v<Accessors...[index]>}));
+          {.name = std::string_view{::sqlpp::name_of_v<Accessors...[index]>}}));
     }
     define_aggregate(^^type, row_data_members);
   }

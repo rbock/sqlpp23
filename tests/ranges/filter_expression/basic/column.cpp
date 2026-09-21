@@ -118,7 +118,6 @@ int main() {
 
   auto v = std::vector{foo};
   auto result = select_filter.select(v);
-#if 0
   if (result.empty()) { std::println("result unexpectedly empty"); throw 7;}
   for (const auto& row : result)
   {
@@ -158,11 +157,5 @@ int main() {
   {
     std::println("id: {}, row_count: {}, sum: {}", row.id, row.row_count, row.total);
   }
-  /*
-  std::vector<test::Foo> v; // This is a table object
-        constexpr auto insert_set_expression = insert_into(tab_foo).set(tab_foo.id = 123, tab_foo.something = "cheese");
-      constexpr auto insert_set_filter = to_filter_expression(insert_set_expression);
-      */
-#endif
 
 }
