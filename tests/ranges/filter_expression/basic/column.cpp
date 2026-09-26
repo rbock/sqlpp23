@@ -37,6 +37,7 @@
 #include <sqlpp26/ranges/clause/insert.h>
 #include <sqlpp26/ranges/clause/insert_value_list.h>
 #include <sqlpp26/ranges/clause/into.h>
+// TODO limit and offset should be disabled
 #include <sqlpp26/ranges/clause/limit.h>
 #include <sqlpp26/ranges/clause/offset.h>
 #include <sqlpp26/ranges/clause/order_by.h>
@@ -51,6 +52,7 @@
 #include <sqlpp26/ranges/operator/assign_expression.h>
 #include <sqlpp26/ranges/operator/comparison_expression.h>
 #include <sqlpp26/ranges/operator/logical_expression.h>
+#include <sqlpp26/ranges/operator/sort_order_expression.h>
 #include <sqlpp26/ranges/query/statement.h>
 #include <sqlpp26/ranges/ranges.h>
 #include <sqlpp26/ranges/to_filter_expression.h>
@@ -156,6 +158,28 @@ int main() {
   for (const auto& row : group_by_result)
   {
     std::println("id: {}, row_count: {}, sum: {}", row.id, row.row_count, row.total);
+  }
+
+  constexpr auto ascending = tab_foo.id.asc();
+  constexpr auto descending = tab_foo.id.desc();
+
+  constexpr auto asc_filter = to_filter_expression(ascending);
+  constexpr auto desc_filter = to_filter_expression(descending);
+  constexpr test::Foo a{1, ""};
+  constexpr test::Foo b{2, ""};
+
+  static_assert(asc_filter.left(a, b) == 1);
+  static_assert(asc_filter.right(a, b) == 2);
+  static_assert(desc_filter.left(a, b) == 2);
+  static_assert(desc_filter.right(a, b) == 1);
+
+  constexpr auto sort_order_expression = select(tab_foo.id, tab_foo.something).from(tab_foo).order_by(tab_foo.id.asc(), tab_foo.something.desc());
+
+  constexpr auto order_by_filter = to_filter_expression(sort_order_expression);
+  auto order_by_result = order_by_filter.select(v);
+  for (const auto& row : order_by_result)
+  {
+    std::println("id: {}, something: {}", row.id, row.something);
   }
 
 }

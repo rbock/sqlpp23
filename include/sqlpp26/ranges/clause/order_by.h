@@ -39,9 +39,15 @@ struct no_order_by {
 template <typename... Accessors>
 struct order_by {
   template <typename Struct>
-  constexpr auto operator()(const Struct& s) const {
+  constexpr auto left(const Struct& l, const Struct& r) const {
     static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
-    return std::tie(std::get<Idx>(_accessors)(s)...);
+    return std::tie(std::get<Idx>(_accessors).left(l, r)...);
+  }
+
+  template <typename Struct>
+  constexpr auto right(const Struct& l, const Struct& r) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    return std::tie(std::get<Idx>(_accessors).right(l, r)...);
   }
 
   std::tuple<Accessors...> _accessors;

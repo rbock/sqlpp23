@@ -37,6 +37,9 @@
 
 namespace sqlpp::ranges {
 template <typename...>
+struct order_by;
+
+template <typename...>
 struct group_by;
 
 template <typename...>
@@ -50,6 +53,9 @@ struct update_assignments;
 
 template <typename>
 struct where;
+
+template <typename>
+struct having;
 
 template<std::meta::info Template, typename... Clauses>
 consteval auto clause_index_of() -> std::optional<std::size_t> {
@@ -92,7 +98,7 @@ struct statement {
 
   template <typename Struct>
   constexpr auto update(std::vector<Struct>& t) const {
-    auto filter = std::views::filter([this](const auto& row) {
+    auto where_filter = std::views::filter([this](const auto& row) {
       if constexpr (get_clause_index<^^where>()) {
         return get_clause<^^where>()(row);
       }
@@ -102,14 +108,14 @@ struct statement {
       get_clause<^^update_assignments>()(row);
       return row;
     });
-    for (auto&& _ : t | filter | update) {
+    for (auto&& _ : t | where_filter | update) {
     }
   }
 
   template <typename Struct>
     requires(not get_clause_index<^^group_by>().has_value())
   constexpr auto select(const std::vector<Struct>& t) const {
-    const auto filter = std::views::filter([this](const auto& row) {
+    const auto where_filter = std::views::filter([this](const auto& row) {
       if constexpr (get_clause_index<^^where>()) {
         return get_clause<^^where>()(row);
       }
@@ -120,20 +126,33 @@ struct statement {
       return get_clause<^^select_column_list>().select_from_row(row);
     });
 
-    return t | filter | select;
+    if constexpr (not get_clause_index<^^order_by>().has_value()) {
+      return t | where_filter | select;
+    } else {
+      std::vector sorted = t | where_filter | std::ranges::to<std::vector>();
+
+      std::ranges::sort(sorted, [this](const auto& a, const auto& b) {
+        const auto clause = get_clause<^^order_by>();
+        return clause.left(a, b) < clause.right(a, b);
+      });
+
+#warning: need to elegantly prevent the use of offset and limit. It is much more efficient to use drop and take  views /after/ returning the sorted vector.
+
+      return sorted;
+    }
   }
 
   template <typename Struct>
     requires(get_clause_index<^^group_by>().has_value())
   constexpr auto select(const std::vector<Struct>& t) const {
     // Apply WHERE
-    const auto filter = std::views::filter([this](const auto& row) {
+    const auto where_filter = std::views::filter([this](const auto& row) {
       if constexpr (get_clause_index<^^where>()) {
         return get_clause<^^where>()(row);
       }
       return true;
     });
-    std::vector filtered = t | filter | std::ranges::to<std::vector>();
+    std::vector filtered = t | where_filter | std::ranges::to<std::vector>();
 
     // Apply GROUP BY
     // This requires sorting, which requires taking a copy since we don't want
@@ -150,6 +169,10 @@ struct statement {
           const auto clause = get_clause<^^group_by>();
           return clause(a) == clause(b);
         });
+
+#warning: add having for the chunks
+#warning: if constexpr (get_clause_index<^^order_by>().has_value()) { return sort, offset, limit} }
+#warning Different from non-group_by scenario which does not operate on chunks?
 
     // Transform each chunk
     const auto selector = [this](const auto& chunk) {
