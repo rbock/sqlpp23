@@ -182,4 +182,35 @@ int main() {
     std::println("id: {}, something: {}", row.id, row.something);
   }
 
+  constexpr auto having_expression =
+      select(tab_foo.id, count(tab_foo.id).as<"row_count">(),
+             sum(tab_foo.id).as<"total">())
+          .from(tab_foo)
+          .where(tab_foo.id != 17)
+          .group_by(tab_foo.id).having(count(tab_foo.id) < 4);
+  constexpr auto having_filter = to_filter_expression(having_expression);
+  auto having_result = having_filter.select(v);
+  std::println("-----------------------------------------");
+  std::println("------- HAVING                -----------");
+  std::println("-----------------------------------------");
+  for (const auto& row : having_result)
+  {
+    std::println("id: {}, row_count: {}, sum: {}", row.id, row.row_count, row.total);
+  }
+ constexpr auto grop_order_expression =
+      select(tab_foo.id, count(tab_foo.id).as<"row_count">(),
+             sum(tab_foo.id).as<"total">())
+          .from(tab_foo)
+          .where(tab_foo.id != 17)
+          .group_by(tab_foo.id).order_by(count(tab_foo.id).asc());
+  constexpr auto grop_order_filter = to_filter_expression(grop_order_expression);
+  auto grop_order_result = grop_order_filter.select(v);
+  std::println("-----------------------------------------");
+  std::println("------- GROUP BY plus ORDER BY   --------");
+  std::println("-----------------------------------------");
+  for (const auto& row : grop_order_result)
+  {
+    std::println("id: {}, row_count: {}, sum: {}", row.id, row.row_count, row.total);
+  }
+
 }

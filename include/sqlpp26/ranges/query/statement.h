@@ -136,9 +136,7 @@ struct statement {
         return clause.left(a, b) < clause.right(a, b);
       });
 
-#warning: need to elegantly prevent the use of offset and limit. It is much more efficient to use drop and take  views /after/ returning the sorted vector.
-
-      return sorted;
+      return sorted | select | std::ranges::to<std::vector>();
     }
   }
 
@@ -170,18 +168,38 @@ struct statement {
           return clause(a) == clause(b);
         });
 
-#warning: add having for the chunks
-#warning: if constexpr (get_clause_index<^^order_by>().has_value()) { return sort, offset, limit} }
-#warning Different from non-group_by scenario which does not operate on chunks?
+    const auto having_filter = std::views::filter([this](const auto& chunk) {
+      if constexpr (get_clause_index<^^having>()) {
+        return get_clause<^^having>().filter_chunk(chunk);
+      }
+      return true;
+    });
 
-    // Transform each chunk
+    auto filtered_chunks = chunks | having_filter;
+
+    // SELECT for chunks
     const auto selector = [this](const auto& chunk) {
       return get_clause<^^select_column_list>().select_from_chunk(chunk);
     };
-    auto result = chunks | std::views::transform(selector) |
-                  std::ranges::to<std::vector>();
 
-    return result;
+    if constexpr (not get_clause_index<^^order_by>().has_value()) {
+      auto result = filtered_chunks | std::views::transform(selector) |
+                    std::ranges::to<std::vector>();
+
+      return result;
+    } else {
+      std::vector sorted_chunks = filtered_chunks | std::ranges::to<std::vector>();
+
+      std::ranges::sort(sorted_chunks, [this](const auto& a, const auto& b) {
+        const auto clause = get_clause<^^order_by>();
+        return clause.left_chunk(a, b) < clause.right_chunk(a, b);
+      });
+
+      auto result = sorted_chunks | std::views::transform(selector) |
+                    std::ranges::to<std::vector>();
+
+      return result;
+    }
   }
 
   std::tuple<Clauses...> _filter_clauses;

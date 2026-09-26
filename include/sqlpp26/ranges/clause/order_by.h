@@ -50,6 +50,18 @@ struct order_by {
     return std::tie(std::get<Idx>(_accessors).right(l, r)...);
   }
 
+  template <typename Range>
+  constexpr auto left_chunk(const Range& l, const Range& r) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    return std::make_tuple(std::get<Idx>(_accessors).left_chunk(l, r)...);
+  }
+
+  template <typename Range>
+  constexpr auto right_chunk(const Range& l, const Range& r) const {
+    static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
+    return std::make_tuple(std::get<Idx>(_accessors).right_chunk(l, r)...);
+  }
+
   std::tuple<Accessors...> _accessors;
 };
 

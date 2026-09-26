@@ -31,7 +31,7 @@ namespace sqlpp::filter {
 
 template <typename Accessor>
 struct sort_order_expression{
-template <typename Struct>
+  template <typename Struct>
   constexpr auto& left(const Struct& l, const Struct& r) const {
     if (_sort_type == sort_type::asc) {
       return _accessor(l);
@@ -39,12 +39,28 @@ template <typename Struct>
     return _accessor(r);
   }
 
-template <typename Struct>
+  template <typename Struct>
   constexpr auto& right(const Struct& l, const Struct& r) const {
     if (_sort_type == sort_type::asc) {
       return _accessor(r);
     }
     return _accessor(l);
+  }
+
+  template <typename Range>
+  constexpr auto left_chunk(const Range& l, const Range& r) const {
+    if (_sort_type == sort_type::asc) {
+      return _accessor.aggregate(l);
+    }
+    return _accessor.aggregate(r);
+  }
+
+  template <typename Range>
+  constexpr auto right_chunk(const Range& l, const Range& r) const {
+    if (_sort_type == sort_type::asc) {
+      return _accessor.aggregate(r);
+    }
+    return _accessor.aggregate(l);
   }
 
   Accessor _accessor;

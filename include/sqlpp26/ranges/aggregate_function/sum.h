@@ -37,7 +37,11 @@ namespace sqlpp::ranges {
 template <typename Expression>
 struct sum {
   constexpr auto aggregate(const auto& range) const {
-      return std::ranges::fold_left(range, int64_t{}, [this](const auto& result, const auto& row) { return result + _expression(row);});
+    // TODO: Fix base value.
+    return std::ranges::fold_left(range, int64_t{},
+                                  [this](const auto& result, const auto& row) {
+                                    return result + _expression(row);
+                                  });
   }
 
   Expression _expression;

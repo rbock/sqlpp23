@@ -73,21 +73,12 @@ struct select_column_list {
     return result_row_t<Struct, Accessors...>{std::get<Idx>(_accessors)(s)...};
   }
 
-  template <std::size_t Idx, typename Range>
-  constexpr auto fold(const Range& r) const {
-    if constexpr (is_aggregate_function_v<Accessors...[Idx]>) {
-      return std::get<Idx>(_accessors).aggregate(r);
-    }
-    else {
-      return std::get<Idx>(_accessors)(r.front());
-    }
-  }
-
   template <typename Range>
   constexpr auto select_from_chunk(const Range& r) const {
     static constexpr auto [... Idx] = indices<sizeof...(Accessors)>;
     using Struct = std::decay_t<decltype(r.front())>;
-    return result_row_t<Struct, Accessors...>{fold<Idx>(r)...};
+    return result_row_t<Struct, Accessors...>{
+        std::get<Idx>(_accessors).aggregate(r)...};
   }
 
   std::tuple<Accessors...> _accessors;

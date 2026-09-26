@@ -36,6 +36,11 @@ template <typename Struct>
     return _operator(_lhs(t), _rhs(t));
   }
 
+template <typename Range>
+  constexpr auto aggregate(const Range& t) const {
+    return _operator(_lhs.aggregate(t), _rhs.aggregate(t));
+  }
+
   Lhs _lhs;
   Operator _operator;
   Rhs _rhs;

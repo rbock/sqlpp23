@@ -39,8 +39,8 @@ struct no_having {
 
 template <typename Filter>
 struct having {
-  constexpr auto operator()(const auto& row) const -> bool {
-      return _filter(row);
+  constexpr auto filter_chunk(const auto& chunk) const -> bool {
+      return _filter.aggregate(chunk);
   }
 
   Filter _filter;

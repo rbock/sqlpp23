@@ -50,6 +50,10 @@ struct filter_value {
   constexpr const auto& operator()(const Struct&) const {
     return value;
   }
+  template <typename Range>
+  constexpr const auto& aggregate(const Range&) const {
+    return value;
+  }
   T value;
 };
 

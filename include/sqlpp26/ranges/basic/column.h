@@ -42,6 +42,11 @@ struct accessor {
   constexpr auto& operator()(data_struct& t) const {
     return t.[:data_members[Idx]:];
   }
+
+  template <typename Range>
+  constexpr auto& aggregate(const Range& r) const {
+    return r.front().[:data_members[Idx]:];
+  }
 };
 
 } // namespace sqlpp::ranges
