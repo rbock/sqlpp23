@@ -31,11 +31,11 @@
 #include <sqlpp26/core/basic/table.h>
 
 
-namespace sqlpp {
+namespace sqlpp::ranges {
 
 // Table generator
 template <typename TableSpec, typename DataStruct>
-struct make_stl_table {
+struct table_generator {
   struct columns;
   static constexpr auto data_members = std::define_static_array(std::meta::nonstatic_data_members_of(^^DataStruct, std::meta::access_context::current()));
   consteval {
@@ -81,6 +81,15 @@ struct make_stl_table {
   static constexpr fixed_string name = "undefined";
 };
 
-}  // namespace sqlpp
+template<typename Struct>
+struct table {
+  using generator = sqlpp::ranges::table_generator<table, Struct>;
+};
 
+template<typename Struct>
+constexpr auto make_table() {
+  return ::sqlpp::table<table<Struct>>{};
+}
+
+}  // namespace sqlpp::ranges
 
