@@ -33,29 +33,29 @@ int main() {
   SQLPP_COMPARE(parameter(foo.double_n), "$1");
   SQLPP_COMPARE(bar.id > parameter(foo.double_n), "tab_bar.id > $1");
 
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>()), "$1");
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::integral, "something">()), "$1");
 
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() >
-                    sqlpp::parameter<"other", sqlpp::integral>()),
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::integral, "something">() >
+                    sqlpp::parameter<sqlpp::integral, "other">()),
                 "$1 > $2");
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() +
-                    sqlpp::parameter<"other", sqlpp::integral>()),
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::integral, "something">() +
+                    sqlpp::parameter<sqlpp::integral, "other">()),
                 "$1 + $2");
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() |
-                    sqlpp::parameter<"other", sqlpp::integral>()),
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::integral, "something">() |
+                    sqlpp::parameter<sqlpp::integral, "other">()),
                 "$1 | $2");
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>()
-                    .between(sqlpp::parameter<"other", sqlpp::integral>(),
-                             sqlpp::parameter<"a", sqlpp::integral>())),
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::integral, "something">()
+                    .between(sqlpp::parameter<sqlpp::integral, "other">(),
+                             sqlpp::parameter<sqlpp::integral, "a">())),
                 "$1 BETWEEN $2 AND $3");
 
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::integral>() +
-                    sqlpp::parameter<"other", sqlpp::integral>() +
-                    sqlpp::parameter<"a", sqlpp::integral>()),
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::integral, "something">() +
+                    sqlpp::parameter<sqlpp::integral, "other">() +
+                    sqlpp::parameter<sqlpp::integral, "a">()),
                 "($1 + $2) + $3");
-  SQLPP_COMPARE((sqlpp::parameter<"something", sqlpp::boolean>() and
-                    sqlpp::parameter<"other", sqlpp::boolean>() and
-                    sqlpp::parameter<"a", sqlpp::boolean>()),
+  SQLPP_COMPARE((sqlpp::parameter<sqlpp::boolean, "something">() and
+                    sqlpp::parameter<sqlpp::boolean, "other">() and
+                    sqlpp::parameter<sqlpp::boolean, "a">()),
                 "$1 AND $2 AND $3");
 
   {

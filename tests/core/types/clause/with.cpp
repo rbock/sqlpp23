@@ -213,9 +213,9 @@ void test_with() {
 
   // `with` exposes parameters from it's CTEs
   {
-    auto a = sqlpp::parameter<"a", bool>();
+    auto a = sqlpp::parameter<bool, "a">();
     using A = decltype(a);
-    auto b = sqlpp::parameter<"b", bool>();
+    auto b = sqlpp::parameter<bool, "b">();
     using B = decltype(b);
 
     auto basic_wp = sqlpp::cte<"basic">().as(select(foo.id).from(foo).where(a));

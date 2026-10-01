@@ -55,7 +55,7 @@ auto to_sql_string(Context&, const parameter_t<DataType, Name>&)
   return "?";
 }
 
-template <fixed_string Name, typename DataType>
+template <typename DataType, fixed_string Name>
   requires(is_data_type_v<DataType>)
 auto parameter()
     -> parameter_t<parameter_data_type_t<DataType>, Name> {

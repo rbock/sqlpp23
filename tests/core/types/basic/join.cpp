@@ -180,7 +180,7 @@ void test_join() {
   // Join with select as and parameters
   {
     using J = decltype(sel_as.join(foo).on(
-        sel_as.id == foo.id + sqlpp::parameter<"a", int64_t>()));
+        sel_as.id == foo.id + sqlpp::parameter<int64_t, "a">()));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(sqlpp::get_provided_tables_of(sqlpp::type_v<J>{}) ==
                   sqlpp::detail::make_type_info_set<SelAsRef, Foo>());

@@ -57,7 +57,7 @@ void test_parameter() {
   }
 
   {
-    auto p = sqlpp::parameter<"something", int64_t>();
+    auto p = sqlpp::parameter<int64_t, "something">();
     using P = decltype(p);
     static_assert(std::is_same_v<sqlpp::data_type_of_t<P>, int64_t>);
     static_assert(std::is_same_v<sqlpp::parameters_of_t<P>,
@@ -68,7 +68,7 @@ void test_parameter() {
     static_assert(sqlpp::has_enabled_comparison<P>::value);
   }
   {
-    auto p = sqlpp::parameter<"something", std::vector<uint8_t>>();
+    auto p = sqlpp::parameter<std::vector<uint8_t>, "something">();
     using P = decltype(p);
     static_assert(
         std::is_same_v<sqlpp::data_type_of_t<P>, std::vector<uint8_t>>);

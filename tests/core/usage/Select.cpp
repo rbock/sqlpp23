@@ -199,7 +199,7 @@ int Select(int, char*[]) {
   auto abs = db.prepare(select(t.id).from(t).where(
       sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
           "ABS(field1 -", sqlpp::parameter(t.id), ")") <=
-      sqlpp::parameter<"param2", unsigned>()));
+      sqlpp::parameter<unsigned, "param2">()));
   abs.parameters.id = 7;
   abs.parameters.param2 = 7;
   std::ignore = abs;

@@ -123,7 +123,7 @@ void test_select_as() {
 
   // SINGLE PARAMETER, NOT NULL
   {
-    auto p = sqlpp::parameter<"always", int>();
+    auto p = sqlpp::parameter<int, "always">();
     auto s = select(p.as<"always">());
     auto vs = value(s);
 

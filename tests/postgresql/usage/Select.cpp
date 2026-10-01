@@ -57,11 +57,11 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
 
 void testParameter(sql::connection& db) {
   auto ps = db.prepare(select(
-        sqlpp::parameter<"b", sqlpp::boolean>().as<"b">(),
-        sqlpp::parameter<"i", sqlpp::integral>().as<"i">(),
-        sqlpp::parameter<"f", sqlpp::floating_point>().as<"f">(),
-        sqlpp::parameter<"t", sqlpp::text>().as<"t">(),
-        sqlpp::parameter<"n", sqlpp::timestamp>().as<"n">()
+        sqlpp::parameter<sqlpp::boolean, "b">().as<"b">(),
+        sqlpp::parameter<sqlpp::integral, "i">().as<"i">(),
+        sqlpp::parameter<sqlpp::floating_point, "f">().as<"f">(),
+        sqlpp::parameter<sqlpp::text, "t">().as<"t">(),
+        sqlpp::parameter<sqlpp::timestamp, "n">().as<"n">()
         ));
   ps.parameters.b = true;
   ps.parameters.i = 17;

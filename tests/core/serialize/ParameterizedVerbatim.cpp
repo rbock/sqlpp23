@@ -32,7 +32,7 @@ int ParameterizedVerbatim(int, char*[]) {
   // specific)
   auto checking_value_in_range = sqlpp::parameterized_verbatim<sqlpp::boolean>(
       "(quests.spawn_level_range @> CAST(",
-      sqlpp::parameter<"quester_player_level", int64_t>(), " AS integer))");
+      sqlpp::parameter<int64_t, "quester_player_level">(), " AS integer))");
 
   SQLPP_COMPARE(checking_value_in_range,
                 "(quests.spawn_level_range @> CAST(? AS integer))");

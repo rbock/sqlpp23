@@ -30,15 +30,15 @@ int main(int, char*[]) {
   const auto foo = test::tab_foo{};
   const auto bar = test::tab_bar{};
 
-  SQLPP_COMPARE((sqlpp::parameter<"float_n", double>()), "?");
-  SQLPP_COMPARE((bar.id > sqlpp::parameter<"float_n", double>()),
+  SQLPP_COMPARE((sqlpp::parameter<double, "float_n">()), "?");
+  SQLPP_COMPARE((bar.id > sqlpp::parameter<double, "float_n">()),
                 "tab_bar.id > ?");
 
-  SQLPP_COMPARE((sqlpp::parameter<"something", int64_t>()), "?");
+  SQLPP_COMPARE((sqlpp::parameter<int64_t, "something">()), "?");
 
   SQLPP_COMPARE(sqlpp::on_conflict(foo.id).do_update(
-                    foo.int_n = sqlpp::parameter<"int_n", int>(),
-                    foo.text_nn_d = sqlpp::parameter<"text_nn_d", std::string>()),
+                    foo.int_n = sqlpp::parameter<int, "int_n">(),
+                    foo.text_nn_d = sqlpp::parameter<std::string, "text_nn_d">()),
                 "ON CONFLICT (id) DO UPDATE SET int_n = ?, text_nn_d = ?");
 
   return 0;

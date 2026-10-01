@@ -32,11 +32,11 @@ int main() {
   // Multiple clauses with parameters
   SQLPP_COMPARE(
       (sqlpp::select(
-           sqlpp::parameter<"a", sqlpp::integral>().as<"a">())
+           sqlpp::parameter<sqlpp::integral, "a">().as<"a">())
            .from(foo)
-           .where(sqlpp::parameter<"b", sqlpp::boolean>())
-           .offset(sqlpp::parameter<"c", sqlpp::integral>())
-           .limit(sqlpp::parameter<"d", sqlpp::integral>())),
+           .where(sqlpp::parameter<sqlpp::boolean, "b">())
+           .offset(sqlpp::parameter<sqlpp::integral, "c">())
+           .limit(sqlpp::parameter<sqlpp::integral, "d">())),
       "SELECT $1 AS a FROM tab_foo WHERE $2 LIMIT $3 OFFSET $4");
 
   return 0;
