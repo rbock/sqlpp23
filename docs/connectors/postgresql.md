@@ -61,7 +61,7 @@ db(sql::insert_into(foo)
 ```
 
 > [!NOTE]
-> sqlpp23 does not understand SQL constraints. It has no way of verifying whether the conflict targets are valid.
+> sqlpp26 does not understand SQL constraints. It has no way of verifying whether the conflict targets are valid.
 
 ## `on_conflict` ... `do_update` ... [`where` ...]
 
@@ -88,7 +88,7 @@ PostgreSQL does not support
 
 ## Exceptions
 
-There are two types of exceptions specific to PostgreSQL in sqlpp23:
+There are two types of exceptions specific to PostgreSQL in sqlpp26:
 
 `sqlpp::postgresql::connection_exception` will be thrown in case of connection failures.
 

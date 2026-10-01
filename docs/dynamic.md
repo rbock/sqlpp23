@@ -6,7 +6,7 @@ See also [custom statements](/docs/custom_statements.md)
 
 ## Fully static
 
-The most straight forward use of sqlpp23 is by constructing and running static
+The most straight forward use of sqlpp26 is by constructing and running static
 statements, e.g.
 
 ```C++
@@ -95,7 +95,7 @@ runtime:
   version above. The only difference is that the result rows will contain a
   column called `blobX` of type `blob` which will contain `nullopt`.
 
-> \[!IMPORTANT\] sqlpp23's ability to validate statements is reduced if
+> \[!IMPORTANT\] sqlpp26's ability to validate statements is reduced if
 > `dynamic` is used.
 
 - It can check that static components do not depend on dynamic components. In

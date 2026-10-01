@@ -2,9 +2,9 @@
 
 # Working with enums
 
-## What support does sqlpp23 provide for enums?
+## What support does sqlpp26 provide for enums?
 
-sqlpp23 does not have built-in support for handling enum data types, so your options for using enums can divides into two broad categories:
+sqlpp26 does not have built-in support for handling enum data types, so your options for using enums can divides into two broad categories:
 
   - Explicitly convert your enum to/from a standard type known by the library, each time when you perform a database write or read. In most cases it means that you:
     - Use an integer database column to store your enum values.
@@ -52,7 +52,7 @@ If any of the above conditions are not met, then you are _probably_ better off j
 
 ## What is the actual boilerplate code required to enable serialization/deserialization of an enum type?
 
-Since enum serialization/deserialization relies on sqlpp23's support for [custom types](/docs/recipes/custom_types.md) to perform the actual work, this means that you basically have to add the same template specializations and functions that you add a C++ custom type to sqlpp23. Let's say that we have an enum with the following definition:
+Since enum serialization/deserialization relies on sqlpp26's support for [custom types](/docs/recipes/custom_types.md) to perform the actual work, this means that you basically have to add the same template specializations and functions that you add a C++ custom type to sqlpp26. Let's say that we have an enum with the following definition:
 ```
 enum class animal { bird, cat, dog, fish };
 ```

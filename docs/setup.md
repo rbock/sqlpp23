@@ -25,19 +25,19 @@ Both methods will provide the following CMake targets
 
 | Target | How to include | Description |
 | ------ | -------------- | ----------- |
-| sqlpp23::core | #include <sqlpp23/sqlpp23.h> | The core functionality, which is not connector-specific, as headers |
-| sqlpp23::core_module | import sqlpp23::core; | The core functionality, which is not connector-specific, as a module |
-| sqlpp23::sqlpp23 | #include <sqlpp23/sqlpp23.h> | A backwards-compatible alias of sqlpp23::core |
-| sqlpp23::mariadb | #include <sqlpp23/mysql/mysql.h>[^1] | The MariaDB connector as headers |
-| sqlpp23::mariadb_module | import sqlpp23::mariadb; | The MariaDB connector as a module |
-| sqlpp23::mysql | #include <sqlpp23/mysql/mysql.h> | The MySQL connector as headers |
-| sqlpp23::mysql_module | import sqlpp23::mysql; | The MySQL connector as a module |
-| sqlpp23::postgresql | #include <sqlpp23/postgresql/postgresql.h> | The PostgreSQL connector as headers |
-| sqlpp23::postgresql_module | import sqlpp23::postgresql; | The PostgreSQL connector as a module |
-| sqlpp23::sqlcipher | #include <sqlpp23/sqlite3/sqlite3.h>[^2] | The SQLCipher connector as headers |
-| sqlpp23::sqlcipher_module | import sqlpp23::sqlcipher; | The SQLCipher connector as a module |
-| sqlpp23::sqlite3 | #include <sqlpp23/sqlite3/sqlite3.h> | The SQLite3 connector as headers |
-| sqlpp23::sqlite3_module | import sqlpp23::sqlite3; | The SQLite3 connector as a module |
+| sqlpp26::core | #include <sqlpp26/sqlpp26.h> | The core functionality, which is not connector-specific, as headers |
+| sqlpp26::core_module | import sqlpp26::core; | The core functionality, which is not connector-specific, as a module |
+| sqlpp26::sqlpp26 | #include <sqlpp26/sqlpp26.h> | A backwards-compatible alias of sqlpp26::core |
+| sqlpp26::mariadb | #include <sqlpp26/mysql/mysql.h>[^1] | The MariaDB connector as headers |
+| sqlpp26::mariadb_module | import sqlpp26::mariadb; | The MariaDB connector as a module |
+| sqlpp26::mysql | #include <sqlpp26/mysql/mysql.h> | The MySQL connector as headers |
+| sqlpp26::mysql_module | import sqlpp26::mysql; | The MySQL connector as a module |
+| sqlpp26::postgresql | #include <sqlpp26/postgresql/postgresql.h> | The PostgreSQL connector as headers |
+| sqlpp26::postgresql_module | import sqlpp26::postgresql; | The PostgreSQL connector as a module |
+| sqlpp26::sqlcipher | #include <sqlpp26/sqlite3/sqlite3.h>[^2] | The SQLCipher connector as headers |
+| sqlpp26::sqlcipher_module | import sqlpp26::sqlcipher; | The SQLCipher connector as a module |
+| sqlpp26::sqlite3 | #include <sqlpp26/sqlite3/sqlite3.h> | The SQLite3 connector as headers |
+| sqlpp26::sqlite3_module | import sqlpp26::sqlite3; | The SQLite3 connector as a module |
 
 [^1]: The MariaDB connector re-uses the codebase of the MySQL connector. That's
 why you use the MariaDB connector by including the MySQL headers.
@@ -59,7 +59,7 @@ using the module targets) are added to your project sources.
 (see Basic Usage).
 
 Download and unpack the latest release from
-https://github.com/rbock/sqlpp23/releases or clone the repository. Inside the
+https://github.com/rbock/sqlpp26/releases or clone the repository. Inside the
 directory run the following commands:
 
 ```bash

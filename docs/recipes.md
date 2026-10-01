@@ -2,7 +2,7 @@
 
 # Recipes
 
-sqlpp23 can be extended to make it more powerful or easy to use in a given context.
+sqlpp26 can be extended to make it more powerful or easy to use in a given context.
 
 This section contains some recipes for doing so.
 

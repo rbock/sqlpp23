@@ -2,13 +2,13 @@
 
 # Add a custom SQL function
 
-sqlpp23 source code can be daunting due to the intense use of templates.
+sqlpp26 source code can be daunting due to the intense use of templates.
 
 However, adding an unsupported SQL function to your project is pretty straight forward.
 
 The example below show-cases a non-trivial example of a function with multiple parameters,
 including a custom enum. Single argument functions like
-[`TRIM()`](/include/sqlpp23/core/function/trim.h) are considerably simpler.
+[`TRIM()`](/include/sqlpp26/core/function/trim.h) are considerably simpler.
 
 ## Step 1: Define the API
 

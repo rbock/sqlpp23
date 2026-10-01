@@ -72,9 +72,9 @@ for (const auto& row :
 
 ## `parameterized_verbatim`
 
-The super power of sqlpp23 is that it can detect incorrect statements at compile time.
+The super power of sqlpp26 is that it can detect incorrect statements at compile time.
 `verbatim` can potentially hide mistakes. `parameterized_verbatim` combines the flexibility of
-`verbatim` with the type system of sqlpp23. It takes three arguments: a string, an expression, and another string.
+`verbatim` with the type system of sqlpp26. It takes three arguments: a string, an expression, and another string.
 
 ```c++
 // quickly simulate an unknown function

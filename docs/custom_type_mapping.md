@@ -2,10 +2,10 @@
 
 # Custom type mapping
 
-[`sqlpp23-ddl2cpp`](/docs/ddl2cpp.md) natively knows how to map many SQL types to C++ types. However, if you want, you can specify
+[`sqlpp26-ddl2cpp`](/docs/ddl2cpp.md) natively knows how to map many SQL types to C++ types. However, if you want, you can specify
 custom mappings using several mechanisms as documented below.
 
-Custom mappings can use the types provided by sqlpp23:
+Custom mappings can use the types provided by sqlpp26:
 
 - `::sqlpp::blob`: Blob (binary large object).
 - `::sqlpp::boolean`: Boolean.
@@ -17,13 +17,13 @@ Custom mappings can use the types provided by sqlpp23:
 - `::sqlpp::time`: Time of day.
 - `::sqlpp::timestamp`: Tmestamp (date + time).
 
-In addition, sqlpp23 supports user-defined C++ types as column data types (see [Custom types](/docs/recipes/custom_types.md)).
+In addition, sqlpp26 supports user-defined C++ types as column data types (see [Custom types](/docs/recipes/custom_types.md)).
 
 ## Mapping priorities
 
 All mechanisms can be used in parallel. They are applied in the following order:
 
-* sqlpp23 default mapping (lowest priority)
+* sqlpp26 default mapping (lowest priority)
 * CSV: SQL type -> C++ type
 * CSV: column name -> C++ type
 * CSV: table.column name -> C++ type
@@ -93,7 +93,7 @@ COMMENT ON COLUMN public.tab_point.y IS 'cpp_type:YCoord';
 
 Use `--strip-sql-schema` together with this option so that schema-qualified table names
 (e.g. `public.tab_point`) are resolved correctly against the generated table definitions
-(see [sqlpp23-ddl2cpp](/docs/ddl2cpp.md)).
+(see [sqlpp26-ddl2cpp](/docs/ddl2cpp.md)).
 
 ## Include headers for custom C++ types
 

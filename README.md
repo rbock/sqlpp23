@@ -1,6 +1,6 @@
-# sqlpp23
+# sqlpp26
 
-sqlpp23 is a type-safe embedded domain specific language for SQL queries and results in C++.
+sqlpp26 is a type-safe embedded domain specific language for SQL queries and results in C++.
 It allows you to write SQL in the form of C++ expressions:
 
   * Tables, columns, result fields are represented as structs or data members
@@ -14,7 +14,7 @@ It allows you to write SQL in the form of C++ expressions:
     * selecting a mix of aggregates and non-aggregates
     * differences in SQL dialects from one database backend to the next, see below
 
-sqlpp23’s core is vendor-neutral.
+sqlpp26’s core is vendor-neutral.
 
 Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries.
 Connector libraries can inform you and your IDE of missing features at compile time.
@@ -82,27 +82,22 @@ for (const auto& row : db(select(foo.id, foo.name, foo.hasFun)
 ## Requirements:
 
 __Compiler:__
-sqlpp23 makes use of C++23 and requires a recent compiler and standard library.
+sqlpp26 makes use of C++26 including reflection and requires a recent compiler and standard library.
 
 If you use the library without modules, the following compiler versions are known to be sufficient:
 
-* clang: 20.1 (both libstdc++ and libc++ work)
-* gcc: 14.2
-* MSVC: 19.44.35219
+* gcc: 17 (trunk)
 
 For modules, please check out [/docs/modules.md](/docs/modules.md).
 
 ## License:
 
-sqlpp23 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp23/blob/main/LICENSE).
-
-## Status:
-[![Build status](https://ci.appveyor.com/api/projects/status/9kyafm5p1xq5j0ax/branch/main?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp23/branch/main)
+sqlpp26 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp26/blob/main/LICENSE).
 
 ## Getting involved:
 
 Feature requests, bug reports, contributions to code or documentation are most welcome.
 
-  * Issues at https://github.com/rbock/sqlpp23/issues
+  * Issues at https://github.com/rbock/sqlpp26/issues
   * email at rbock at eudoxos dot de
 

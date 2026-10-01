@@ -6,13 +6,13 @@ In this document we describe a simple pattern that allows us to make thread-safe
 
 ## Thread safety in the database connectors
 
-At the time of this writing, database connections created by the three main databases supported by sqlpp23 (MySQL, PostgreSQL, and SQLite3) are not thread-safe. The sqlpp23 library is thread-agnostic, which means that it does not add any requirements or guarantees to the thread safety of the underlying database objects and operations. So it is up to the library user to ensure the thread safety of the database operations performed through these database connections.
+At the time of this writing, database connections created by the three main databases supported by sqlpp26 (MySQL, PostgreSQL, and SQLite3) are not thread-safe. The sqlpp26 library is thread-agnostic, which means that it does not add any requirements or guarantees to the thread safety of the underlying database objects and operations. So it is up to the library user to ensure the thread safety of the database operations performed through these database connections.
 
 ## Making thread-safe queries using thread-unsafe connectors
 
 The pattern is based on the idea that each user thread is given its own database connection. When a thread wants to execute a database query, it uses its own database connection to execute the query, thus avoiding the need to implement complex and potentially expensive thread synchronization.
 
-We define a database connection class called `lazy_connection`, which mimics the regular database connections provided by sqlpp23 and lets the user execute database queries, pretty much like a regular sqlpp connection does. In fact, our lazy connection creates an underlying sqlpp database connection and forwards all database queries to the sqlpp connection, but that sqlpp connection is not
+We define a database connection class called `lazy_connection`, which mimics the regular database connections provided by sqlpp26 and lets the user execute database queries, pretty much like a regular sqlpp connection does. In fact, our lazy connection creates an underlying sqlpp database connection and forwards all database queries to the sqlpp connection, but that sqlpp connection is not
 created immediately in the constructor of the lazy connection. Instead, its creation is postponed until the moment when the user tries to execute their first query through our lazy connection object, which is why our connection class is called "lazy".
 
 Then we create a thread-local variable of type `lazy_connection` called g_dbc at global scope:

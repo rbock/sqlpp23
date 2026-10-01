@@ -2,7 +2,7 @@
 
 # Custom types
 
-sqlpp23 can be extended with user-defined C++ types that the library treats as
+sqlpp26 can be extended with user-defined C++ types that the library treats as
 first-class column types: they appear in result rows, in `WHERE` and `SET`
 expressions, and in prepared statement parameter structs — all with full
 compile-time type checking.
@@ -22,7 +22,7 @@ struct XCoord { int64_t value; };
 struct YCoord { int64_t value; };
 ```
 
-The rest of the recipe shows what is needed to make sqlpp23 understand these
+The rest of the recipe shows what is needed to make sqlpp26 understand these
 types.
 
 ---
@@ -37,7 +37,7 @@ found by ADL; the specializations go in `namespace sqlpp`.
 
 Before writing any of the specializations, define a predicate that recognizes
 all expressions whose data type is `XCoord` — both a bare `XCoord` value and a
-column whose `data_type` is `XCoord`. It mirrors sqlpp23's own `is_integral`,
+column whose `data_type` is `XCoord`. It mirrors sqlpp26's own `is_integral`,
 `is_text`, etc., and is used in the `requires` clauses that follow:
 
 ```cpp
@@ -144,7 +144,7 @@ void bind_parameter(Statement& stmt, size_t index, const XCoord& v) {
 
 ## 2. Table definition
 
-`ddl2cpp` maps SQL type names to built-in sqlpp23 tags (`integral`, `text`,
+`ddl2cpp` maps SQL type names to built-in sqlpp26 tags (`integral`, `text`,
 etc.) and cannot emit a user-defined C++ type as a column's `data_type`.
 Columns that carry a custom type must therefore be specified manually in the
 column spec. Only the `data_type` line differs from what `ddl2cpp` would
@@ -153,7 +153,7 @@ generate for that column:
 ```cpp
 // tables/tab_point.h
 #pragma once
-#include "coord_types.h"   // XCoord, YCoord and their sqlpp23 traits
+#include "coord_types.h"   // XCoord, YCoord and their sqlpp26 traits
 
 namespace myapp {
 

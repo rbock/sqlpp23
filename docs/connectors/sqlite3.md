@@ -61,7 +61,7 @@ db(sql::insert_into(foo)
 ```
 
 > [!NOTE]
-> sqlpp23 does not understand constraints. It has no way of verifying whether the conflict targets are valid.
+> sqlpp26 does not understand constraints. It has no way of verifying whether the conflict targets are valid.
 
 > [!NOTE]
 > I have not figured out a valid scenario with more than one conflict target for sqlite3.

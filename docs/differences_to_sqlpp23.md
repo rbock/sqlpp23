@@ -3,6 +3,10 @@
 # Differences between sqlpp11 and sqlpp23
 
 Dropped naming style option for code generator. Names are used as-is
+SQLPP_CREATE_NAME_TAG
+.as
+
+`_alias` literal
 
 Dropped schema-qualified tables (or rather, the idea is to make the schema part of the table name)
 Reflection:
