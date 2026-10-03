@@ -2,15 +2,15 @@
 
 # Tables
 
-In order to build meaningful SQL statements with sqlpp23, you need to represent
+In order to build meaningful SQL statements with sqlpp26, you need to represent
 tables and their columns as structs that can be understood by the library.
 
 The default way to do so is by using a code generator to translate DDL to C++. A
 code generator covering a lot of use cases can be found
-[here](https://github.com/rbock/sqlpp23/blob/main/scripts/sqlpp23-ddl2cpp).
+[here](https://github.com/rbock/sqlpp26/blob/main/scripts/sqlpp26-ddl2cpp).
 
 If you look at the output, you will see why a generator is helpful. Here is a
-[sample](https://github.com/rbock/sqlpp23/blob/main/tests/include/sqlpp23/tests/core/tables.h).
+[sample](https://github.com/rbock/sqlpp26/blob/main/tests/include/sqlpp26/tests/core/tables.h).
 
 ## Raw tables
 
@@ -23,7 +23,7 @@ constexpr auto foo = test::TabFoo{};
 
 Columns of the table are represented as data members of the table objects.
 
-Tables and columns can be used in sqlpp23 statements very similar to SQL tables
+Tables and columns can be used in sqlpp26 statements very similar to SQL tables
 and columns can be used in SQL statements, e.g.
 
 ```C++

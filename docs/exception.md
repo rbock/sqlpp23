@@ -2,7 +2,7 @@
 
 ## When to expect an exception
 
-sqlpp23 connectors throw the majority of `sqlpp::exception`s so check your connector's [documentation](/docs/connectors.md).
+sqlpp26 connectors throw the majority of `sqlpp::exception`s so check your connector's [documentation](/docs/connectors.md).
 Generally, you should expect an exception when:
 
 -  Connecting to a database

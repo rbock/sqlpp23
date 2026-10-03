@@ -27,10 +27,10 @@
 
 module;
 
-#include <sqlpp23/sqlpp23.h>
-#include <sqlpp23/core/database/connection_pool.h>
-#include <sqlpp23/core/detail/parse_date_time.h>
-export module sqlpp23.core;
+#include <sqlpp26/sqlpp26.h>
+#include <sqlpp26/core/database/connection_pool.h>
+#include <sqlpp26/core/detail/parse_date_time.h>
+export module sqlpp26.core;
 
 export namespace sqlpp {
 // basics:

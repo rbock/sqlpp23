@@ -27,9 +27,9 @@
 
 module;
 
-#include <sqlpp23/mysql/mysql.h>
+#include <sqlpp26/mysql/mysql.h>
 
-export module sqlpp23.mysql;
+export module sqlpp26.mysql;
 
 export namespace sqlpp::mysql {
 using ::sqlpp::mysql::bind_parameter;

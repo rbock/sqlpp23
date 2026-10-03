@@ -27,9 +27,9 @@
 
 module;
 
-#include <sqlpp23/postgresql/postgresql.h>
+#include <sqlpp26/postgresql/postgresql.h>
 
-export module sqlpp23.postgresql;
+export module sqlpp26.postgresql;
 
 export namespace sqlpp::postgresql {
 using ::sqlpp::postgresql::bind_parameter;

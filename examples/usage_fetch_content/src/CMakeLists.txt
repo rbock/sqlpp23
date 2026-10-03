@@ -25,13 +25,13 @@
 add_executable(Test)
 target_link_libraries(Test 
     PRIVATE 
-    sqlpp23::sqlpp23
-    # Corresponding targets for the connectors. These connectors need to be enabled in the the dependencies/sqlpp23 folder. These targets automatically link against sqlpp23::sqlpp23 and therefore sqlpp23::sqlpp23 doesn't need to be linked manually again
-    # sqlpp23::sqlite3
-    # sqlpp23::sqlcipher
-    # sqlpp23::mysql
-    # sqlpp23::mariadb
-    # sqlpp23::postgresql
+    sqlpp26::sqlpp26
+    # Corresponding targets for the connectors. These connectors need to be enabled in the the dependencies/sqlpp26 folder. These targets automatically link against sqlpp26::sqlpp26 and therefore sqlpp26::sqlpp26 doesn't need to be linked manually again
+    # sqlpp26::sqlite3
+    # sqlpp26::sqlcipher
+    # sqlpp26::mysql
+    # sqlpp26::mariadb
+    # sqlpp26::postgresql
 )
 
 target_sources(Test 

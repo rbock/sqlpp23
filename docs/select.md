@@ -133,7 +133,7 @@ select(foo.id, bar.id.as(barId));
 
 ### Select all columns
 
-Statements like `SELECT * from foo` is used pretty often in SQL. sqlpp23 offers
+Statements like `SELECT * from foo` is used pretty often in SQL. sqlpp26 offers
 something similar:
 
 ```C++

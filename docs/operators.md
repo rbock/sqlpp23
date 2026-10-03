@@ -2,11 +2,11 @@
 
 # Operators
 
-This page describes various SQL operators and expressions available in sqlpp23.
+This page describes various SQL operators and expressions available in sqlpp26.
 
 ## CASE operator
 
-The CASE operator allows for conditional expression evaluation, similar to an if/then/else structure in programming languages. sqlpp23 provides a fluent interface to construct CASE expressions.
+The CASE operator allows for conditional expression evaluation, similar to an if/then/else structure in programming languages. sqlpp26 provides a fluent interface to construct CASE expressions.
 
 **Syntax:**
 

@@ -2,7 +2,7 @@
 
 # `NULL`
 
-Columns and values in SQL can be `NULL`. sqlpp23 represents them as
+Columns and values in SQL can be `NULL`. sqlpp26 represents them as
 `std::optional`. In particular, `NULL` is represented as `std::nullopt`.
 
 Reading fields form a result row of a `select` or assigning values in an
@@ -19,7 +19,7 @@ NULL != NULL    -> NULL
 NULL = NULL     -> NULL
 ```
 
-sqlpp23 does not change that behavior as it is totally valid SQL. The library
+sqlpp26 does not change that behavior as it is totally valid SQL. The library
 therefore also mimics a few more operators that help dealing with `NULL`:
 
 ## `IS NULL` and `IS NOT NULL`

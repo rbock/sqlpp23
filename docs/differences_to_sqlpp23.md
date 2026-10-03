@@ -1,6 +1,6 @@
 [**\< Index**](/docs/README.md)
 
-# Differences between sqlpp11 and sqlpp23
+# Differences between sqlpp23 and sqlpp26
 
 Dropped naming style option for code generator. Names are used as-is
 SQLPP_CREATE_NAME_TAG

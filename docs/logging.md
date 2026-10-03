@@ -41,7 +41,7 @@ config->debug = sqlpp::debug_logger{
 
 ## Turning off debug logging at compile time
 
-If the macro `SQLPP23_DISABLE_DEBUG` is defined before `sqlpp23/core/debug_logger.h` gets included, then
+If the macro `SQLPP23_DISABLE_DEBUG` is defined before `sqlpp26/core/debug_logger.h` gets included, then
 all debug logging of the library is turned off at compile time, which leads to smaller binaries and slightly
 faster execution.
 

@@ -27,9 +27,9 @@
 
 module;
 
-#include <sqlpp23/sqlite3/sqlite3.h>
+#include <sqlpp26/sqlite3/sqlite3.h>
 
-export module sqlpp23.sqlite3;
+export module sqlpp26.sqlite3;
 
 export namespace sqlpp::sqlite3 {
 using ::sqlpp::sqlite3::bind_parameter;

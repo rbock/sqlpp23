@@ -1,7 +1,13 @@
 # Credits
 
 This library evolved through several stages and would probably not exist without
-input from other people:
+input from other people and agents:
+
+## sqlpp26
+
+Main contributors:
+
+- gemini.google.com and claude.ai: Helped getting started with reflection
 
 ## sqlpp23
 

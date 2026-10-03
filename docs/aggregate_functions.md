@@ -5,7 +5,7 @@
 Aggregate functions perform calculations across a range of rows, often
 controlled by [`group_by`](/docs/select.md).
 
-As they are often used as select columns, sqlpp23 provides respective names for
+As they are often used as select columns, sqlpp26 provides respective names for
 ease of use.
 
 ## `avg`

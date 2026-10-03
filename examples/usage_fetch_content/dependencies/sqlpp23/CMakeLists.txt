@@ -29,4 +29,4 @@
 # set(BUILD_SQLITE3_CONNECTOR ON)
 # set(BUILD_SQLCIPHER_CONNECTOR ON)
 
-FetchContent_MakeAvailable(sqlpp23)
+FetchContent_MakeAvailable(sqlpp26)

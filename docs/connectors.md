@@ -25,7 +25,7 @@ will be serialized in different fashions depending on the connector you are usin
 
 See the links below for details:
 
-## Connectors provided by sqlpp23
+## Connectors provided by sqlpp26
 
 [MySQL & MariaDB](/docs/connectors/mysql.md)
 

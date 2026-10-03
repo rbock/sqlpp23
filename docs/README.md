@@ -13,7 +13,7 @@ Let's see:
 
 You have come to the right place!
 
-sqlpp23 offers you to code SQL in C++ almost naturally. You can use tables,
+sqlpp26 offers you to code SQL in C++ almost naturally. You can use tables,
 columns and functions. Everything has strong types which allow the compiler to
 help you a lot. At compile time, it will tell about most of those pesky
 oversight errors you can might make (typos, comparing apples with oranges,

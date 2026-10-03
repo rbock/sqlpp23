@@ -34,7 +34,7 @@
 #include <sqlpp26/core/log_category.h>
 
 namespace sqlpp {
-#ifdef SQLPP23_DISABLE_DEBUG
+#ifdef SQLPP26_DISABLE_DEBUG
 static constexpr inline bool debug_enabled = false;
 #else
 static constexpr inline bool debug_enabled = true;

@@ -6,7 +6,7 @@
 ### And/or: Suppress export of symbols
 
 Some compilers tend to export all the generated symbols, which is a bit annoying
-in case of template-heavy libraries like sqlpp23 (leads to larger files and
+in case of template-heavy libraries like sqlpp26 (leads to larger files and
 longer compile/link/startup times, I believe). There are ways to suppress this
 in most compilers, afaik.
 

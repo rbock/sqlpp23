@@ -2,7 +2,7 @@
 
 # Functions
 
-This page documents the various non-aggregate functions available in sqlpp23, see also [aggregate functions](/docs/aggregate_functions.md).
+This page documents the various non-aggregate functions available in sqlpp26, see also [aggregate functions](/docs/aggregate_functions.md).
 
 When selected, functions need to be assigned an alias, i.e.
 
@@ -28,10 +28,10 @@ Arguments can be [`dynamic`](/docs/dynamic.md). Dynamic arguments with no `false
 
 ```cpp
 // SQL: CONCAT(users.first_name, ' ', users.last_name)
-sqlpp23::concat(users.first_name, " ", users.last_name);
+sqlpp26::concat(users.first_name, " ", users.last_name);
 
 // SQL: CONCAT('Username: ', users.first_name)
-sqlpp23::concat("Username: ", users.first_name);
+sqlpp26::concat("Username: ", users.first_name);
 ```
 
 Note that this is serialized differently for postgresql, using the `||` operator.
@@ -44,10 +44,10 @@ The `lower` function converts a string expression to lowercase.
 
 ```cpp
 // SQL: LOWER(products.name)
-sqlpp23::lower(products.name);
+sqlpp26::lower(products.name);
 
 // SQL: SELECT LOWER('THIS IS AN UPPERCASE STRING')
-sqlpp23::lower("THIS IS AN UPPERCASE STRING");
+sqlpp26::lower("THIS IS AN UPPERCASE STRING");
 ```
 
 ### `trim`
@@ -58,10 +58,10 @@ The `trim` function removes leading and trailing whitespace characters from a st
 
 ```cpp
 // SQL: TRIM(docs.title)
-sqlpp23::trim(docs.title);
+sqlpp26::trim(docs.title);
 
 // SQL: TRIM('  extra spaces  ')
-sqlpp23::trim("  extra spaces  ");
+sqlpp26::trim("  extra spaces  ");
 ```
 
 ## `upper`
@@ -72,10 +72,10 @@ The `upper` function converts a string expression to uppercase.
 
 ```cpp
 // SQL: UPPER(articles.title)
-sqlpp23::upper(articles.title);
+sqlpp26::upper(articles.title);
 
 // SQL: SELECT UPPER('all lower string')
-sqlpp23::upper("all lower string");
+sqlpp26::upper("all lower string");
 ```
 
 ## Date / time functions
@@ -88,7 +88,7 @@ The `current_date` function returns the current date as determined by the SQL da
 
 ```cpp
 // SQL: CURRENT_DATE
-sqlpp23::current_date();
+sqlpp26::current_date();
 ```
 
 ### `current_time`
@@ -99,7 +99,7 @@ The `current_time` function returns the current time of day as determined by the
 
 ```cpp
 // SQL: CURRENT_TIME
-sqlpp23::current_time();
+sqlpp26::current_time();
 ```
 
 ### `current_timestamp`
@@ -112,7 +112,7 @@ The `current_timestamp` function returns the current timestamp (date and time) a
 SQLPP_CREATE_NAME_TAG(current_timestamp_alias);
 
 // SQL: SELECT CURRENT_TIMESTAMP
-sqlpp23::current_timestamp();
+sqlpp26::current_timestamp();
 ```
 
 ## Miscellaneous
@@ -135,13 +135,13 @@ Arguments can be [`dynamic`](/docs/dynamic.md). Dynamic arguments with no `false
 // * my_table.another_column (text)
 
 // SQL: COALESCE(my_table.int_column, 42)
-sqlpp23::coalesce(my_table.int_column, 42);
+sqlpp26::coalesce(my_table.int_column, 42);
 
 // SQL: COALESCE(my_table.text_column, my_table.another_column, 'default_value')
-sqlpp23::coalesce(my_table.text_column, my_table.another_column, "default_value");
+sqlpp26::coalesce(my_table.text_column, my_table.another_column, "default_value");
 
 // Compile error (must not mix different data types)
-sqlpp23::coalesce(my_table.int_column, "default_value");
+sqlpp26::coalesce(my_table.int_column, "default_value");
 ```
 
 ### `value`

@@ -27,9 +27,9 @@
 
 module;
 
-#include <sqlpp23/ranges/ranges.h>
+#include <sqlpp26/ranges/ranges.h>
 
-export module sqlpp23.ranges;
+export module sqlpp26.ranges;
 
 export namespace sqlpp::ranges {
 }

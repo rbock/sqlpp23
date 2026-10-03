@@ -27,9 +27,9 @@
 
 module;
 
-#include <sqlpp23/mock_db/mock_db.h>
+#include <sqlpp26/mock_db/mock_db.h>
 
-export module sqlpp23.mock_db;
+export module sqlpp26.mock_db;
 
 export namespace sqlpp::mock_db {
 using ::sqlpp::mock_db::bind_parameter;
