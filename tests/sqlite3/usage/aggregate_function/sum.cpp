@@ -47,8 +47,8 @@ int main(int, char*[]) {
             sum(tab.intN).as(sqlpp::alias::sum_),
             sum(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_sum_)
             ).from(tab))) {
-      assert(row.sum_ == 23);
-      assert(row.distinct_sum_ == 16);
+      require_equal(row.sum_, 23);
+      require_equal(row.distinct_sum_, 16);
     }
 
   } catch (const std::exception& e) {

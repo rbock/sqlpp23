@@ -177,11 +177,11 @@ int Sample(int, char*[]) {
     std::cerr << i << std::endl;
   }
 
-  assert(db(select(count(tab.id).as(something)).from(tab)).begin()->something);
-  assert(db(select(all_of(tab))
-                .from(tab)
-                .where(tab.intN.not_in(select(tab.intN).from(tab))))
-             .empty());
+  require_equal(db(select(all_of(tab))
+                       .from(tab)
+                       .where(tab.intN.not_in(select(tab.intN).from(tab))))
+                    .empty(),
+                true);
 
   auto x = sqlpp::statement_t<>{}
            << sqlpp::verbatim_clause("PRAGMA user_version = 1");

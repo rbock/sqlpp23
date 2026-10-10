@@ -42,6 +42,15 @@
 
 enum class Color { red, green, blue };
 
+std::ostream& operator<<(std::ostream& os, const Color& c) {
+  switch(c) {
+    case Color::red: os << "red"; break;
+    case Color::green: os << "green"; break;
+    case Color::blue: os << "blue"; break;
+  }
+  return os;
+}
+
 // Predicate: matches any expression whose data type is Color (bare Color
 // values, columns with data_type = Color, etc.).
 template <typename T>

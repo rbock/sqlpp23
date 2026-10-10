@@ -57,9 +57,9 @@ int main(int, char*[]) {
         static_assert(std::is_same_v<decltype(row.id), PointId>);
         static_assert(std::is_same_v<decltype(row.color), Color>);
         ++count;
-        assert(row.id == PointId{count});
+        require_equal(row.id.value, count);
       }
-      assert(count == 3);
+      require_equal(count, 3);
     }
 
     // --- UPDATE
@@ -70,7 +70,7 @@ int main(int, char*[]) {
     {
       for (const auto& row :
            db(select(t.color).from(t).where(t.id == PointId{1}))) {
-        assert(row.color == Color::blue);
+        require_equal(row.color, Color::blue);
       }
     }
 
@@ -82,10 +82,10 @@ int main(int, char*[]) {
     {
       int count = 0;
       for (const auto& row : db(select(all_of(t)).from(t))) {
-        assert(row.color == Color::green);
+        require_equal(row.color, Color::green);
         ++count;
       }
-      assert(count == 1);
+      require_equal(count, 1);
     }
 
     // --- PREPARED INSERT
@@ -109,7 +109,7 @@ int main(int, char*[]) {
       for (const auto& row : db(stmt)) {
         static_assert(std::is_same_v<decltype(row.id), PointId>);
         static_assert(std::is_same_v<decltype(row.color), Color>);
-        assert(row.color == Color::green);
+        require_equal(row.color, Color::green);
       }
     }
 

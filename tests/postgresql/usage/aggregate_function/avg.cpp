@@ -59,8 +59,8 @@ int main(int, char*[]) {
             avg(tab.intN).as(sqlpp::alias::avg_),
             avg(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_avg_)
             ).from(tab))) {
-      assert(row.avg_.has_value());
-      assert(row.distinct_avg_.has_value());
+      require_equal(row.avg_.has_value(), true);
+      require_equal(row.distinct_avg_.has_value(), true);
       require_close(__LINE__, row.avg_.value(), 7.666666);
       require_close(__LINE__, row.distinct_avg_.value(), 8);
     }

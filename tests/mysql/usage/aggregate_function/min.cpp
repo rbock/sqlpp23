@@ -48,8 +48,8 @@ int main(int, char*[]) {
             min(tab.intN).as(sqlpp::alias::min_),
             min(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_min_)
             ).from(tab))) {
-      assert(row.min_ == 7);
-      assert(row.distinct_min_ == 7);
+      require_equal(row.min_, 7);
+      require_equal(row.distinct_min_, 7);
     }
 
   } catch (const std::exception& e) {

@@ -41,9 +41,9 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << std::endl;
-    assert(i == row.id);
+    require_equal(i, row.id);
   };
-  assert(i == expectedRowCount);
+  require_equal(i, expectedRowCount);
 
   auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab));
   i = 0;
@@ -51,9 +51,9 @@ void testSelectAll(sql::connection& db, int expectedRowCount) {
     ++i;
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << std::endl;
-    assert(i == row.id);
+    require_equal(i, row.id);
   };
-  assert(i == expectedRowCount);
+  require_equal(i, expectedRowCount);
   std::cerr << "--------------------------------------" << std::endl;
 }
 
@@ -74,11 +74,11 @@ void testParameter(sql::connection& db) {
   ps.parameters.n = n;
 
   for (const auto& row : db(ps)) {
-    assert(row.b == true);
-    assert(row.i == 17);
-    assert(row.f == 0.1);
-    assert(row.t == "cheesecake");
-    assert(row.n == n);
+    require_equal(row.b, true);
+    require_equal(row.i, 17);
+    require_equal(row.f, 0.1);
+    require_equal(row.t, "cheesecake");
+    require_equal(row.n, n);
   }
 }
 
@@ -103,7 +103,7 @@ int Select(int, char*[]) {
 
   // Test size functionality
   const auto test_size = db(select(all_of(tab)).from(tab));
-  assert(test_size.size() == 3);
+  require_equal(test_size.size(), 3);
 
   // test functions and operators
   db(select(all_of(tab)).from(tab).where(tab.id.is_null()));
@@ -143,15 +143,9 @@ int Select(int, char*[]) {
   db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "asdf"));
   db(insert_into(tab).set(tab.boolN = false, tab.textNnD = "asdfg"));
 
-  assert(db(select(tab.boolN).from(tab).where(tab.textNnD == "asdf"))
-             .front()
-             .boolN);
-  assert(not db(select(tab.boolN).from(tab).where(tab.textNnD == "asdfg"))
-                 .front()
-                 .boolN.value());
-  assert(not db(select(tab.boolN).from(tab).where(tab.id == 1))
-                 .front()
-                 .boolN.has_value());
+  require_equal(db(select(tab.boolN).from(tab).where(tab.textNnD == "asdf")).front().boolN, true);
+  require_equal(db(select(tab.boolN).from(tab).where(tab.textNnD == "asdfg")).front().boolN.value(), false);
+  require_equal(db(select(tab.boolN).from(tab).where(tab.id == 1)).front().boolN.has_value(), false);
 
   // test
 

@@ -55,7 +55,7 @@ int Attach(int, char*[]) {
   db(insert_into(left).default_values());
 
   // selecting from the other tab_sample
-  assert(db(select(all_of(right)).from(right)).empty());
+  require_equal(db(select(all_of(right)).from(right)).empty(), true);
 
   return 0;
 }

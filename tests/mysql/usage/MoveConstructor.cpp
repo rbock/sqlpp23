@@ -36,10 +36,10 @@ int MoveConstructor(int, char*[]) {
 
     test::createTabFoo(connections.at(0));
 
-    assert(connections.at(0).is_transaction_active() == false);
+    require_equal(connections.at(0).is_transaction_active(), false);
     connections.at(0).start_transaction();
     auto db = std::move(connections.at(0));
-    assert(db.is_transaction_active());
+    require_equal(db.is_transaction_active(), true);
     const auto tab = test::TabFoo{};
     db(insert_into(tab).set(tab.boolN = true));
     auto i = insert_into(tab).columns(tab.textNnD, tab.boolN);
@@ -49,7 +49,7 @@ int MoveConstructor(int, char*[]) {
     db(i);
 
     db.commit_transaction();
-    assert(db.is_transaction_active() == false);
+    require_equal(db.is_transaction_active(), false);
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;

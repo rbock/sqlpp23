@@ -35,21 +35,16 @@ int Sample(int, char*[]) {
     test::createTabBar(db);
     test::createTabFoo(db);
 
-    assert(not db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a);
+    require_equal(db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a, false);
 
     const auto tab = test::TabBar{};
     // clear the table
     db(delete_from(tab));
 
     // Several ways of ensuring that tab is empty
-    assert(
-        not db(select(exists(select(tab.intN).from(tab)).as(::sqlpp::alias::a)))
-                .front()
-                .a);  // this is probably the fastest
-    assert(not db(select(count(tab.intN).as(sqlpp::alias::a)).from(tab))
-                   .front()
-                   .a);
-    assert(db(select(tab.intN).from(tab)).empty());
+    require_equal(db(select(exists(select(tab.intN).from(tab)).as(::sqlpp::alias::a))).front().a, false);  // this is probably the fastest
+    require_equal(db(select(count(tab.intN).as(sqlpp::alias::a)).from(tab)).front().a, 0);
+    require_equal(db(select(tab.intN).from(tab)).empty(), true);
 
     // explicit all_of(tab)
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;

@@ -57,7 +57,7 @@ int Truncated(int, char*[]) {
 
       std::cerr << ">>> row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
                 << ", row.boolN: " << row.boolN << std::endl;
-      assert(row.textNnD == "cheese");
+      require_equal(row.textNnD, "cheese");
     }
 
     {
@@ -67,7 +67,7 @@ int Truncated(int, char*[]) {
 
       std::cerr << ">>> row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
                 << ", row.boolN: " << row.boolN << std::endl;
-      assert(row.textNnD == "cheesecake");
+      require_equal(row.textNnD, "cheesecake");
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

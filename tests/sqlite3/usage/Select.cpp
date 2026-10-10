@@ -38,9 +38,9 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount) {
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
-    assert(row.id == static_cast<int64_t>(i));
+    require_equal(row.id, static_cast<int64_t>(i));
   };
-  assert(i == expectedRowCount);
+  require_equal(i, expectedRowCount);
 
   auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab));
   i = 0;
@@ -49,9 +49,9 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount) {
     std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN
               << ", row.textNnD: " << row.textNnD << ", row.boolN: " << row.boolN
               << std::endl;
-    assert(row.id == static_cast<int64_t>(i));
+    require_equal(row.id, static_cast<int64_t>(i));
   };
-  assert(i == expectedRowCount);
+  require_equal(i, expectedRowCount);
   std::cerr << "--------------------------------------" << std::endl;
 }
 
@@ -152,7 +152,7 @@ int Select(int, char*[]) {
               << ", row.boolN: " << row.boolN << ", row.something: '"
               << row.something << "'" << std::endl;
     // check something
-    assert(string_util::trim(std::string(row.textNnD)) == row.something);
+    require_equal(string_util::trim(std::string(row.textNnD)), row.something);
     // end
   };
 

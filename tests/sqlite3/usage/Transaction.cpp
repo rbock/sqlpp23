@@ -35,12 +35,12 @@ int Transaction(int, char*[]) {
 
   std::cerr << "--------------------------------------" << std::endl;
 
-  assert(db.is_transaction_active() == false);
+  require_equal(db.is_transaction_active(), false);
 
   auto current_level = db.get_default_isolation_level();
   std::cout << "Expecting default isolation level = 1, is "
             << static_cast<int>(current_level) << std::endl;
-  assert(current_level == sqlpp::isolation_level::serializable);
+  require_equal(current_level, sqlpp::isolation_level::serializable);
 
   int64_t pragmaValue =
       db(sqlpp::statement_t<>{}
@@ -48,14 +48,14 @@ int Transaction(int, char*[]) {
          << with_result_type_of(select(sqlpp::value(1).as(pragma))))
           .front()
           .pragma;
-  assert(pragmaValue == 0);
+  require_equal(pragmaValue, 0);
 
   std::cerr << "Expecting read_uncommitted = 0, is: " << pragmaValue
             << std::endl;
   db.set_default_isolation_level(sqlpp::isolation_level::read_uncommitted);
 
   auto tx = start_transaction(db);
-  assert(db.is_transaction_active());
+  require_equal(db.is_transaction_active(), true);
 
   pragmaValue = db(sqlpp::statement_t<>{}
                    << sqlpp::verbatim_clause("PRAGMA read_uncommitted")
@@ -64,15 +64,15 @@ int Transaction(int, char*[]) {
                     .pragma;
   std::cerr << "Now expecting read_uncommitted = 1, is: " << pragmaValue
             << std::endl;
-  assert(pragmaValue == 1);
+  require_equal(pragmaValue, 1);
 
   current_level = db.get_default_isolation_level();
   std::cout << "Now expecting default isolation level = 4, is "
             << static_cast<int>(current_level) << std::endl;
-  assert(current_level == sqlpp::isolation_level::read_uncommitted);
+  require_equal(current_level, sqlpp::isolation_level::read_uncommitted);
 
   tx.commit();
-  assert(db.is_transaction_active() == false);
+  require_equal(db.is_transaction_active(), false);
   std::cerr << "--------------------------------------" << std::endl;
 
   return 0;

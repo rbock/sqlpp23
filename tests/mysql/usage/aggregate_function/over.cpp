@@ -64,10 +64,10 @@ int main(int, char*[]) {
             sum(tab.intN).over().as(sqlpp::alias::sum_)
             ).from(tab))) {
       require_close(__LINE__, row.avg_.value(), 7.666);
-      assert(row.count_ == 3);
-      assert(row.max_.value() == 9);
-      assert(row.min_.value() == 7);
-      assert(row.sum_.value() == 23);
+      require_equal(row.count_, 3);
+      require_equal(row.max_.value(), 9);
+      require_equal(row.min_.value(), 7);
+      require_equal(row.sum_.value(), 23);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;

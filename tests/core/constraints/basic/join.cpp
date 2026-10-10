@@ -180,7 +180,7 @@ int main() {
   CANNOT_CALL_ANY_JOIN_WITH(foo, weird_table{});
 
   // JOIN ... ON can be called with any boolean expression, but will fail with
-  // static assert if it uses the wrong tables. Here, bFoo is not provided by
+  // static_assert if it uses the wrong tables. Here, bFoo is not provided by
   // the join.
   CANNOT_CALL_ALL_JOINS_ON_WITH(foo, bar, bFoo.id == bar.id);
   CANNOT_CALL_ALL_JOINS_ON_WITH(foo, bar, bFoo.id == aFoo.id);

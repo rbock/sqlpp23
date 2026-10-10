@@ -63,9 +63,9 @@ int main(int, char*[]) {
             sqlpp::count(1).as(count_1),
             count(sqlpp::star).as(count_star)
             ).from(tab))) {
-      assert(row.count_ == 3);
-      assert(row.count_1 == 3);
-      assert(row.count_star == 3);
+      require_equal(row.count_, 3);
+      require_equal(row.count_1, 3);
+      require_equal(row.count_star, 3);
     }
 
     // select distinct count
@@ -73,8 +73,8 @@ int main(int, char*[]) {
             count(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_count_),
             count(sqlpp::distinct, 1).as(count_1)
             ).from(tab))) {
-      assert(row.distinct_count_ == 2);
-      assert(row.count_1 == 1);
+      require_equal(row.distinct_count_, 2);
+      require_equal(row.count_1, 1);
     }
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
