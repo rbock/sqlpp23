@@ -29,7 +29,6 @@
 // before the import declaration. For details see
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114795#c3
 
-#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <memory>

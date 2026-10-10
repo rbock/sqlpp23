@@ -24,7 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
 #include <iostream>
 
 #include "tab_point.h"
