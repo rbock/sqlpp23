@@ -68,9 +68,9 @@ struct connection_handle {
 
 #ifdef SQLITE_HAS_CODEC
     if (conf->password.size() > 0) {
-      int ret = sqlite3_key(native_handle(), conf->password.data(),
-                            conf->password.size());
-      if (ret != SQLITE_OK) {
+      const auto rc = sqlite3_key(native_handle(), conf->password.data(),
+                                  static_cast<int>(conf->password.size()));
+      if (rc != SQLITE_OK) {
         throw exception{sqlite3_errmsg(native_handle()), rc};
       }
     }

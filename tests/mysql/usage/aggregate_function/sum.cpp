@@ -44,7 +44,7 @@ int main(int, char*[]) {
     db(insert_into(tab).set(tab.intN = 9));
 
     // select sum
-    for (const auto& row : db(select(
+    for ([[maybe_unused]] const auto& row : db(select(
             sum(tab.intN).as(sqlpp::alias::sum_),
             sum(sqlpp::distinct, tab.intN).as(sqlpp::alias::distinct_sum_)
             ).from(tab))) {
