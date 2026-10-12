@@ -32,6 +32,10 @@ if(BUILD_MYSQL_CONNECTOR OR BUILD_MARIADB_CONNECTOR)
     add_subdirectory(mysql)
 endif()
 
+if(BUILD_ODBC_CONNECTOR)
+    add_subdirectory(odbc)
+endif()
+
 if(BUILD_POSTGRESQL_CONNECTOR)
     add_subdirectory(postgresql)
 endif()

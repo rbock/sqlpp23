@@ -21,7 +21,7 @@ Connector libraries can inform you and your IDE of missing features at compile t
 They also interpret expressions specifically where needed.
 For example, the connector could use the `operator||` or the `concat` method for string concatenation without your being required to change the statement.
 
-Connectors for MariaDB, MySQL, PostgreSQL, sqlite3, sqlcipher are included in this repository.
+Connectors for MariaDB, MySQL, ODBC, PostgreSQL, sqlite3, sqlcipher are included in this repository.
 
 Documentation is found in [docs](/docs/README.md).
 
