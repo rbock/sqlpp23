@@ -40,4 +40,8 @@ if(BUILD_SQLITE3_CONNECTOR OR BUILD_SQLCIPHER_CONNECTOR)
     add_subdirectory(sqlite3)
 endif()
 
+if(BUILD_DUCK_DB_CONNECTOR)
+    add_subdirectory(duck_db)
+endif()
+
 add_subdirectory(scripts)
