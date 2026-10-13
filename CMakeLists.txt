@@ -95,11 +95,6 @@ write_basic_package_version_file(Sqlpp23ConfigVersion.cmake
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp23ConfigVersion.cmake
     DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
 )
-install(EXPORT Sqlpp23Targets
-    DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-    NAMESPACE   sqlpp23::
-    CXX_MODULES_DIRECTORY .
-)
 
 ### Tests
 if(PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)

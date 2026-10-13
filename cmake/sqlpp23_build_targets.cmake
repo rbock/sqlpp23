@@ -37,6 +37,7 @@ function(add_build_core)
         TARGET_NAME sqlpp23
         TARGET_ALIAS sqlpp23::core
         TARGET_EXPORTED core
+        TARGET_FILE Sqlpp23CoreTargets
     )
 endfunction()
 
@@ -59,13 +60,14 @@ function(add_build_component)
         TARGET_NAME sqlpp23_${lc_name}
         TARGET_ALIAS sqlpp23::${lc_name}
         TARGET_EXPORTED ${lc_name}
+        TARGET_FILE Sqlpp23${ARG_NAME}Targets
         ${NO_INSTALL}
     )
 endfunction()
 
 function(_add_build_regular_and_module)
     set(options NO_INSTALL)
-    set(oneValueArgs CONFIG_SCRIPT MODULE_INTERFACE PACKAGE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED)
+    set(oneValueArgs CONFIG_SCRIPT MODULE_INTERFACE PACKAGE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED TARGET_FILE)
     set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -95,6 +97,7 @@ function(_add_build_regular_and_module)
         TARGET_NAME ${ARG_TARGET_NAME}
         TARGET_ALIAS ${ARG_TARGET_ALIAS}
         TARGET_EXPORTED ${ARG_TARGET_EXPORTED}
+        TARGET_FILE ${ARG_TARGET_FILE}
         ${NO_INSTALL}
     )
     if(BUILD_WITH_MODULES AND ARG_MODULE_INTERFACE)
@@ -106,6 +109,7 @@ function(_add_build_regular_and_module)
             TARGET_NAME ${ARG_TARGET_NAME}
             TARGET_ALIAS ${ARG_TARGET_ALIAS}
             TARGET_EXPORTED ${ARG_TARGET_EXPORTED}
+            TARGET_FILE ${ARG_TARGET_FILE}
             ${NO_INSTALL}
         )
     endif()
@@ -113,7 +117,7 @@ endfunction()
 
 function(_add_build_common)
     set(options NO_INSTALL)
-    set(oneValueArgs MODULE_INTERFACE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED)
+    set(oneValueArgs MODULE_INTERFACE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED TARGET_FILE)
     set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -178,11 +182,19 @@ function(_add_build_common)
         # Install the component output artifacts
         install(
             TARGETS ${target_name}
-            EXPORT Sqlpp23Targets
+            EXPORT ${ARG_TARGET_FILE}
             FILE_SET HEADERS
             FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_PREFIX}/modules/sqlpp23
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         )
+	# Install the config targets file
+        install(
+            EXPORT ${ARG_TARGET_FILE}
+            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+            NAMESPACE sqlpp23::
+            CXX_MODULES_DIRECTORY .
+        )
+
     endif()
 endfunction()
 
