@@ -188,13 +188,17 @@ function(_add_build_common)
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         )
 	# Install the config targets file
+        if(ARG_MODULE_INTERFACE)
+            set(MOD_DIR_ARGS CXX_MODULES_DIRECTORY .)
+        else()
+            set(MOD_DIR_ARGS)
+        endif()
         install(
             EXPORT ${ARG_TARGET_FILE}
             DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
             NAMESPACE sqlpp23::
-            CXX_MODULES_DIRECTORY .
+            ${MOD_DIR_ARGS}
         )
-
     endif()
 endfunction()
 
