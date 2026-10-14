@@ -38,7 +38,7 @@
 namespace sqlpp::postgresql::detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<PGconn, void (*)(PGconn*)> postgres;
+  std::unique_ptr<PGconn, decltype(&PQfinish)> postgres;
   size_t _prepared_statement_count = 0;
 
   connection_handle() : config{}, postgres{nullptr, PQfinish} {}

@@ -154,7 +154,7 @@ class connection_base : public sqlpp::connection {
 
   text_result_t select_impl(const std::string& statement) {
     execute_statement(_handle, statement);
-    std::unique_ptr<MYSQL_RES, void (*)(MYSQL_RES*)> result = {
+    std::unique_ptr<MYSQL_RES, decltype(&mysql_free_result)> result = {
         mysql_store_result(_handle.native_handle()), mysql_free_result};
 
     if (!result) {

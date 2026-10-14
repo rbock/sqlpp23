@@ -42,7 +42,7 @@
 namespace sqlpp::sqlite3::detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<::sqlite3, int (*)(::sqlite3*)> sqlite;
+  std::unique_ptr<::sqlite3, decltype(&sqlite3_close)> sqlite;
 
   connection_handle()
       : config{}, sqlite{nullptr, sqlite3_close} {}

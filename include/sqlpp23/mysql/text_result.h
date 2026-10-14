@@ -42,13 +42,13 @@
 
 namespace sqlpp::mysql {
 class text_result_t {
-  std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)> _mysql_res = {nullptr, mysql_free_result};
+  std::unique_ptr<MYSQL_RES, decltype(&mysql_free_result)> _mysql_res = {nullptr, mysql_free_result};
   const connection_config* _config;
   text_result_row_t _text_result_row;
 
  public:
   text_result_t() = default;
-  text_result_t(std::unique_ptr<MYSQL_RES, void(*)(MYSQL_RES*)>  mysql_res, const connection_config* config)
+  text_result_t(std::unique_ptr<MYSQL_RES, decltype(&mysql_free_result)>  mysql_res, const connection_config* config)
       : _mysql_res{std::move(mysql_res)}, _config{config} {
     if (_invalid())
       throw sqlpp::exception{
