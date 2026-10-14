@@ -39,7 +39,7 @@ inline void mockdb_close(MockDb*) {}
 namespace sqlpp::mock_db::detail {
 struct connection_handle {
   std::shared_ptr<const connection_config> config;
-  std::unique_ptr<MockDb, void (*)(MockDb*)> _mockdb;
+  std::unique_ptr<MockDb, decltype(&mockdb_close)> _mockdb;
 
   connection_handle() : config{}, _mockdb{nullptr, mockdb_close} {}
 

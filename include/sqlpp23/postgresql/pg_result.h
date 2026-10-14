@@ -38,7 +38,7 @@
 namespace sqlpp::postgresql {
 
 class pg_result_t {
-  std::unique_ptr<PGresult, void (*)(PGresult*)> _pg_result{nullptr, PQclear};
+  std::unique_ptr<PGresult, decltype(&PQclear)> _pg_result{nullptr, PQclear};
   public:
   pg_result_t() = default;
 
