@@ -4,6 +4,23 @@
 
 ## next
 
+- add a DuckDB connector (`include/sqlpp23/duck_db`, namespace `sqlpp::duck_db`, CMake component
+  `DuckDB`), see [DuckDB connector](/docs/connectors/duck_db.md)
+  - header-only, built on DuckDB's C API
+  - supports `select`, `insert_into`, `update`, `delete_from`, `execute`, prepared statements,
+    transactions, connection pools, `returning`, `on_conflict`, `insert_or_replace`,
+    `insert_or_ignore`, `attach` and `interrupt`
+  - plain `?` parameter placeholders bound by position
+  - blobs serialize as `'\xNN'::BLOB` (DuckDB has no `x'...'` literal)
+  - `unsigned_integral` maps to the native `UBIGINT` type
+  - `last_insert_id()` is 0 unless `RETURNING` is used, because DuckDB has no
+    `last_insert_rowid()`
+  - database files are opened once per process and reference counted, so connection pools can share
+    one database
+  - the `using` clause of `delete_from` is supported, the SELECT locking clause is rejected at
+    compile time (DuckDB parses `FOR UPDATE`/`FOR SHARE` but refuses to execute it)
+  - DuckDB uses snapshot isolation and has no configurable per-connection isolation level
+
 ## 0.70
 
 Breaking changes:

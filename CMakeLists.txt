@@ -40,6 +40,7 @@ option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
 option(BUILD_POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
 option(BUILD_SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
 option(BUILD_SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
+option(BUILD_DUCK_DB_CONNECTOR "Build DuckDB Connector" OFF)
 option(BUILD_WITH_MODULES "Build tests with sqlpp23 modules" OFF)
 
 option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON)
@@ -80,6 +81,13 @@ if(BUILD_MARIADB_CONNECTOR)
 endif()
 if(BUILD_POSTGRESQL_CONNECTOR)
     add_build_component(NAME PostgreSQL PACKAGE PostgreSQL DEPENDENCIES PostgreSQL::PostgreSQL HEADER_DIR postgresql MODULE_INTERFACE sqlpp23.postgresql.cppm)
+endif()
+if(BUILD_DUCK_DB_CONNECTOR)
+    # The connector lives in include/sqlpp23/duck_db, the CMake component is
+    # called DuckDB (matching the package and the Sqlpp23DuckDBConfig.cmake
+    # script). The unqualified connector names are looked up as
+    # sqlpp::duck_db::* by users.
+    add_build_component(NAME DuckDB PACKAGE DuckDB DEPENDENCIES duckdb::duckdb HEADER_DIR duck_db MODULE_INTERFACE sqlpp23.duck_db.cppm)
 endif()
 
 # Utility programs

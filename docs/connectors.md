@@ -27,6 +27,8 @@ See the links below for details:
 
 ## Connectors provided by sqlpp23
 
+[DuckDB](/docs/connectors/duck_db.md)
+
 [MySQL & MariaDB](/docs/connectors/mysql.md)
 
 [PostgreSQL](/docs/connectors/postgresql.md)
