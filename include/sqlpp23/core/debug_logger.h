@@ -35,9 +35,9 @@
 
 namespace sqlpp {
 #ifdef SQLPP23_DISABLE_DEBUG
-static constexpr inline bool debug_enabled = false;
+inline constexpr bool debug_enabled = false;
 #else
-static constexpr inline bool debug_enabled = true;
+inline constexpr bool debug_enabled = true;
 #endif
 
 using log_function_t = std::function<void(log_category, const std::string&)>;

@@ -30,8 +30,8 @@
 #include <string>
 
 namespace sqlpp {
-static constexpr bool quiet_auto_rollback = false;
-static constexpr bool report_auto_rollback = true;
+inline constexpr bool quiet_auto_rollback = false;
+inline constexpr bool report_auto_rollback = true;
 
 enum class isolation_level {
   undefined,        // use the current database default
