@@ -24,15 +24,6 @@
 
 add_testing_target(NAME sqlite3 MOD_DEPS sqlpp23::sqlite3_module)
 
-function(sqlpp_slite3_test_add_target_link_libraries name)
-    target_link_libraries(${name} PRIVATE sqlpp23_testing sqlpp23_sqlite3_testing)
-    if (BUILD_SQLCIPHER_CONNECTOR)
-        target_link_libraries(${name} PRIVATE sqlpp23::sqlcipher)
-    else()
-        target_link_libraries(${name} PRIVATE sqlpp23::sqlite3)
-    endif()
-endfunction()
-
 add_subdirectory(asserts)
 add_subdirectory(constraints)
 add_subdirectory(serialize)
