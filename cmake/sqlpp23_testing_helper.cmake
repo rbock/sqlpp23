@@ -44,13 +44,9 @@ function(add_testing_target)
 
     if(BUILD_WITH_MODULES)
         # We are building with modules, so the _testing target created by this function MUST be a regular
-        # (non-INTERFACE) library. Otherwise, the object files owned by the OBJECT library dependencies
-        # in MOD_DEPS won't be linked, and we are going to get missing symbols during the linking (namely
-        # the static module initializer function won't be found).
-        #
-        # For details on how OBJECT libraries are linked see
-        # https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#object-libraries
-        # https://cmake.org/cmake/help/latest/command/target_link_libraries.html#linking-object-libraries
+        # (non-INTERFACE) library. Otherwise, the object files dependent on MOD_DEPS won't be linked, and
+        # we are going to get missing symbols during the linking (namely the static module initializer
+        # function of MOD_DEPS won't be found).
         set(lib_type)
         set(lib_prop_scope PUBLIC)
     else()
