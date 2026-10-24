@@ -30,7 +30,7 @@ function(add_build_core)
     file(GLOB_RECURSE hdr_component LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/core/*.h)
     file(GLOB hdr_common LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/*.h)
     set(headers ${hdr_component} ${hdr_common})
-    _add_build_regular_and_module(
+    _add_build_common(
         CONFIG_SCRIPT Sqlpp23Config.cmake
         HEADERS ${headers}
         MODULE_INTERFACE sqlpp23.core.cppm
@@ -50,7 +50,7 @@ function(add_build_component)
     file(GLOB_RECURSE headers LIST_DIRECTORIES false ${PROJECT_SOURCE_DIR}/include/sqlpp23/${ARG_HEADER_DIR}/*.h)
     string(TOLOWER ${ARG_NAME} lc_name)
     _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
-    _add_build_regular_and_module(
+    _add_build_common(
         CONFIG_SCRIPT Sqlpp23${ARG_NAME}Config.cmake
         DEFINES ${ARG_DEFINES}
         DEPENDENCIES sqlpp23::core ${ARG_DEPENDENCIES}
@@ -65,140 +65,68 @@ function(add_build_component)
     )
 endfunction()
 
-function(_add_build_regular_and_module)
+function(_add_build_common)
     set(options NO_INSTALL)
     set(oneValueArgs CONFIG_SCRIPT MODULE_INTERFACE PACKAGE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED TARGET_FILE)
     set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(ARG_PACKAGE)
-        if(DEPENDENCY_CHECK)
-            find_package(${ARG_PACKAGE} REQUIRED)
+    if(ARG_PACKAGE AND DEPENDENCY_CHECK)
+        find_package(${ARG_PACKAGE} REQUIRED)
+    endif()
+
+    # Create the component targets
+    add_library(${ARG_TARGET_NAME} INTERFACE)
+    add_library(${ARG_TARGET_ALIAS} ALIAS ${ARG_TARGET_NAME})
+    set_target_properties(${ARG_TARGET_NAME} PROPERTIES EXPORT_NAME ${ARG_TARGET_EXPORTED})
+    target_compile_features(${ARG_TARGET_NAME} INTERFACE cxx_std_23)
+    if(ARG_DEFINES)
+        target_compile_definitions(${ARG_TARGET_NAME} INTERFACE ${ARG_DEFINES})
+    endif()
+    target_link_libraries(${ARG_TARGET_NAME} INTERFACE ${ARG_DEPENDENCIES})
+
+    # Add the component headers to the HEADERS file set. This also adds the base directory to the
+    # target's build interface include directories.
+    target_sources(
+        ${ARG_TARGET_NAME}
+        INTERFACE
+        FILE_SET HEADERS
+            BASE_DIRS ${PROJECT_SOURCE_DIR}/include
+            FILES ${ARG_HEADERS}
+    )
+    if(NOT ARG_NO_INSTALL)
+        # Install the config script
+        install(
+            FILES ${PROJECT_SOURCE_DIR}/cmake/configs/${ARG_CONFIG_SCRIPT}
+            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+        )
+        # Install the component output artifacts
+        install(
+            TARGETS ${ARG_TARGET_NAME}
+            EXPORT ${ARG_TARGET_FILE}
+            FILE_SET HEADERS
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        )
+	# Install the config targets file
+        install(
+            EXPORT ${ARG_TARGET_FILE}
+            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
+            NAMESPACE sqlpp23::
+        )
+        if(BUILD_WITH_MODULES AND ARG_MODULE_INTERFACE)
+            # Install the component's module interface file
+            install(
+                FILES ${PROJECT_SOURCE_DIR}/modules/${ARG_MODULE_INTERFACE}
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/modules/sqlpp23
+            )
         endif()
-        if(NOT ARG_NO_INSTALL)
+        if(ARG_PACKAGE)
             # If the package needs a special find script, copy it to the destination scripts directory
             set(find_script ${PROJECT_SOURCE_DIR}/cmake/modules/Find${ARG_PACKAGE}.cmake)
             if(EXISTS ${find_script})
                 install(FILES ${find_script} DESTINATION ${SQLPP23_INSTALL_CMAKEDIR})
             endif()
         endif()
-    endif()
-    if(NOT ARG_NO_INSTALL)
-        install(
-            FILES ${PROJECT_SOURCE_DIR}/cmake/configs/${ARG_CONFIG_SCRIPT}
-            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-        )
-    endif()
-    _add_build_set_if(NO_INSTALL ARG_NO_INSTALL)
-    _add_build_common(
-        DEFINES ${ARG_DEFINES}
-        DEPENDENCIES ${ARG_DEPENDENCIES}
-        HEADERS ${ARG_HEADERS}
-        TARGET_NAME ${ARG_TARGET_NAME}
-        TARGET_ALIAS ${ARG_TARGET_ALIAS}
-        TARGET_EXPORTED ${ARG_TARGET_EXPORTED}
-        TARGET_FILE ${ARG_TARGET_FILE}
-        ${NO_INSTALL}
-    )
-    if(BUILD_WITH_MODULES AND ARG_MODULE_INTERFACE)
-        _add_build_common(
-            DEFINES ${ARG_DEFINES}
-            DEPENDENCIES ${ARG_DEPENDENCIES}
-            HEADERS ${ARG_HEADERS}
-            MODULE_INTERFACE ${ARG_MODULE_INTERFACE}
-            TARGET_NAME ${ARG_TARGET_NAME}
-            TARGET_ALIAS ${ARG_TARGET_ALIAS}
-            TARGET_EXPORTED ${ARG_TARGET_EXPORTED}
-            TARGET_FILE ${ARG_TARGET_FILE}
-            ${NO_INSTALL}
-        )
-    endif()
-endfunction()
-
-function(_add_build_common)
-    set(options NO_INSTALL)
-    set(oneValueArgs MODULE_INTERFACE TARGET_NAME TARGET_ALIAS TARGET_EXPORTED TARGET_FILE)
-    set(multiValueArgs DEFINES DEPENDENCIES HEADERS)
-    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-    # Initialize helper variables based on target type (regular or module)
-    if(ARG_MODULE_INTERFACE)
-        set(target_suffix "_module")
-        # CMake has the following two limitations:
-        # - FILE_SETs of type CXX_MODULES cannot have the INTERFACE scope (except on IMPORTED targets).
-        # - INTERFACE libraries only allow INTERFACE scope on their properties.
-        # From these two limitations it follows that INTERFACE libraries cannot have FILE_SETs of type
-        # CXX_MODULES. That's why, as a workaround, we use an OBJECT library.
-        #
-        # For details see the discussion at
-        # https://discourse.cmake.org/t/header-only-libraries-and-c-20-modules/10680
-        # where the CMake devs explain that this limitation exists to prevent possible ODR violations.
-        set(lib_type OBJECT)
-        set(lib_prop_scope PUBLIC)
-    else()
-        set(target_suffix "")
-        set(lib_type INTERFACE)
-        set(lib_prop_scope INTERFACE)
-    endif()
-    set(target_name ${ARG_TARGET_NAME}${target_suffix})
-    set(target_alias ${ARG_TARGET_ALIAS}${target_suffix})
-    set(target_exported ${ARG_TARGET_EXPORTED}${target_suffix})
-
-    # Create the component targets
-    add_library(${target_name} ${lib_type})
-    add_library(${target_alias} ALIAS ${target_name})
-    set_target_properties(${target_name} PROPERTIES EXPORT_NAME ${target_exported})
-    target_compile_features(${target_name} ${lib_prop_scope} cxx_std_23)
-    if(ARG_DEFINES)
-        target_compile_definitions(${target_name} ${lib_prop_scope} ${ARG_DEFINES})
-    endif()
-    foreach(dep ${ARG_DEPENDENCIES})
-        if(dep MATCHES "^sqlpp23::")
-            set(dep ${dep}${target_suffix})
-        endif()
-        target_link_libraries(${target_name} ${lib_prop_scope} ${dep})
-    endforeach()
-
-    # Add the component headers to the HEADERS file set. This also adds the base directory to the
-    # target's build interface include directories.
-    target_sources(
-        ${target_name}
-        ${lib_prop_scope}
-        FILE_SET HEADERS
-            BASE_DIRS ${PROJECT_SOURCE_DIR}/include
-            FILES ${ARG_HEADERS}
-    )
-    if(ARG_MODULE_INTERFACE)
-        # Add the component module interface file to the CXX_MODULES file set
-        target_sources(
-            ${target_name}
-            PUBLIC
-            FILE_SET CXX_MODULES
-                BASE_DIRS ${PROJECT_SOURCE_DIR}/modules
-                FILES ${PROJECT_SOURCE_DIR}/modules/${ARG_MODULE_INTERFACE}
-        )
-    endif()
-    if(NOT ARG_NO_INSTALL)
-        # Install the component output artifacts
-        install(
-            TARGETS ${target_name}
-            EXPORT ${ARG_TARGET_FILE}
-            FILE_SET HEADERS
-            FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_PREFIX}/modules/sqlpp23
-            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        )
-	# Install the config targets file
-        if(ARG_MODULE_INTERFACE)
-            set(MOD_DIR_ARGS CXX_MODULES_DIRECTORY .)
-        else()
-            set(MOD_DIR_ARGS)
-        endif()
-        install(
-            EXPORT ${ARG_TARGET_FILE}
-            DESTINATION ${SQLPP23_INSTALL_CMAKEDIR}
-            NAMESPACE sqlpp23::
-            ${MOD_DIR_ARGS}
-        )
     endif()
 endfunction()
 
