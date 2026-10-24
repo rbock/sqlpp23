@@ -22,7 +22,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_testing_target(NAME sqlite3 MOD_DEPS sqlpp23::sqlite3_module)
+add_testing_target(NAME sqlite3 MOD_DEPS core sqlite3)
 
 add_subdirectory(asserts)
 add_subdirectory(constraints)
