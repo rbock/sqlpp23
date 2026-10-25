@@ -68,6 +68,14 @@ if(NOT TARGET sqlpp23::ddl2cpp)
     unset(sqlpp23_ddl2cpp_location)
 endif()
 
+# The directory that holds the sqlpp23 module interface files. Note that this variable will
+# be set regardless of whether the module interface files have actually been installed.
+file(
+    REAL_PATH
+    "${CMAKE_CURRENT_LIST_DIR}/../../../modules/sqlpp23"
+    SQLPP23_MODULE_INTERFACE_DIR
+)
+
 # Restore module path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH_save})
 unset(CMAKE_MODULE_PATH_save)
