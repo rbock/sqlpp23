@@ -4,6 +4,8 @@
 
 ## next
 
+- Removed the CMake module targets (sqlpp23::*_module) because they did not work reliably with recent compilers. Instead you can manually add the sqlpp23 module interface files to your projects. For details see the [modules documentation](/docs/modules.md).
+
 ## 0.70
 
 Breaking changes:
